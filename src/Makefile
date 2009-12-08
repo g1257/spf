@@ -7,8 +7,8 @@
 # Model: MODEL_KONDO_INF_TWOBANDS
 # GSL: no
 LDFLAGS = -L.   -llapack -lblas -lm  -L../lib 
-EXENAME = spf2b_v64
-CPPFLAGS = -I../psimag/include    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -O2
+EXENAME = spf2b
+CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -O2
 CXX = g++ 
 include filelist.make
 
