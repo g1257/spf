@@ -1,0 +1,7 @@
+
+cd src/
+perl configure.pl
+
+For more see:
+http://mri-fre.ornl.gov/spf/
+

@@ -1,0 +1,82 @@
+<html>
+ <head>
+ <title>Documentation</title>
+
+ <meta name="Subject" content="" />
+ <meta name="Publisher" content="" />
+ <meta name="Description" content="SPF Program Documentation" />
+ <meta name="Contributors" content="" />
+ <meta name="Effective_date" content="None" />
+ <meta name="Expiration_date" content="None" />
+ <meta name="Type" content="Document" />
+ <meta name="Format" content="text/html" />
+ <meta name="Language" content="" />
+ <meta name="Rights" content="" />
+ <meta name="SafetyBelt" content="1106600952.58" />
+ </head>
+ <body>
+<center>
+<h2> SPF PROGRAM: DOCUMENTATION (As of 09/23/04)</h2>
+</center>
+CONTENTS:<br>
+<br>
+(Also:  <a href="/spf/devel/">Developer's documentation</a>)<br>
+<ol>
+<li> LIST OF FILES AND DESCRIPTION</li>
+
+<li> <a href="start.html">QUICK START</a> 
+	<ol>	
+	<li> What you need to do to run the program.</li>
+	</ol></li>
+	
+<li> <a href="build.html">COMPILATION INSTRUCTIONS</a>
+	<ol>
+	<li> Requirements</li>
+	<li> Supported Platforms and compilers</li>
+	</ol></li>
+<li> <a href="runtime.html">RUN-TIME ISSUES</a>
+	<ol>
+	<li> Requirements</li>
+	<li> Interactive Runs</li>
+	<li> PBS Runs</li>
+	<li> Loadleveler Runs</li>
+	</ol></li>
+		
+<li> CAPABILITIES (for Hamiltonians see next section)
+	<ol>	
+	<li> Serial Diagonalization</li>
+	<li> SMP Diagonalization</li>
+	<li>Serial TPEM</li>
+	<li> Parallel TPEM</li>
+	<li> Lattices and boundary conditions</li>
+	<li> Performance and Optimizations</li>
+	</ol>
+</li>
+
+<li> MODEL HAMILTONIANS
+	<ol>
+	<li> KONDO-FINITE</li>
+	<li> KONDO-INF-ONEBAND</li>
+	<li> KONDO-INF-TWOBAND</li>
+	<li> KONDO-INF-ONEBAND-PHONONS/_EX</li>
+	<li> How to implement a new model</li>
+	</ol>
+</li>
+<li> <a href="io.html">FILES</a>
+	<ol>
+	<li> INPUT FILE FORMAT</li>
+	<li> OUTPUT FILE FORMAT</li>
+	</ol>
+</li>
+
+<li> <a href="postproc.html">POST PROCESSING</a>
+	<ol>
+	<li> Statistics (averages, etc)</li>
+	<li> Fourier Transforms (structure factor, A(k,omega))</li>
+	<li> Visualization Tools (spins, local charge, etc).<br>
+</li>
+	</ol></li>
+			
+</ol>
+ </body>
+</html>

@@ -1,0 +1,91 @@
+<html>
+ <head>
+ <title>Post-Processing</title>
+
+ <meta name="Subject" content="" />
+ <meta name="Publisher" content="" />
+ <meta name="Description" content="Post-Processing" />
+ <meta name="Contributors" content="" />
+ <meta name="Effective_date" content="None" />
+ <meta name="Expiration_date" content="None" />
+ <meta name="Type" content="Document" />
+ <meta name="Format" content="text/html" />
+ <meta name="Language" content="" />
+ <meta name="Rights" content="" />
+ <meta name="SafetyBelt" content="1106331232.92" />
+ </head>
+ <body>
+<br>
+<h3>8. POST PROCESSING</h3>
+<h4>8.1 STATISTICS</h4>
+To obtain averages from a certain observable that is logged in the Monte Carlo history file 
+(.dat file, see documentation on OUTPUT FILES)
+first look at the name of the observable in the .dat file, e.g.
+<tt>Mag2=</tt>
+and then use the <tt>average.pl</tt> script to obtain the average:
+<tt><pre>
+perl average.pl file.dat "Mag2=" | grep "##"
+</pre></tt>
+By redirecting the output a Monte Carlo history of the observable is obtained:
+<pre><tt>
+perl average.pl file.dat "Mag2=" > file.m2
+</pre></tt>
+that can be plotted with xmgrace.<br>
+Notes:
+<ul>
+<li> For observables that have special characters, they have to be escaped, e.g., to obtain the number of
+accepted spin changes(or phonon changes) in the Monte Carlo evolution the observable is named "Accepted[0]"
+ (or "Accepted[1]" for phonons).
+The characters "[" and "]" are special, so to get the history or average:
+<tt><pre>
+perl average.pl file.dat "Accepted\[0\]="
+</pre></tt>
+instead of simply "Accepted[0]".
+</li>
+<li> Only global observables are logged in the history file (.dat file). Local observables would consume too much
+disk space and so only their averages are written at the end of the calculation to separate files. 
+E.g. the "electronic energy" is
+global (a single number) and so it is logged whereas the local charge density is local ( a vector) and so it is
+not logged, but its average can be found in the .lcd file.</li>
+<li> In the source code there aren't any variables to store averages of global observables since those averages are not
+done inside the program but post-processing. On the other hand, local averages are done by the program and are
+stored in the public structure <tt>aux</tt>. 
+</ul>
+
+<h4>8.2 FOURIER TRANSFORMS </h4>
+<h5> Of Static Observables </h5>
+Local static observables are written to specific files in a "linear order" format. The linear order is simply given by
+<tt><pre>
+i = x +y*L + z*L*L 
+</pre></tt>
+in 3D and similarly in less dimensions.
+The script <tt>sq.pl</tt> performs a Fourier transform of a local observable store in "linear order". For example
+the "classical spin correlation lattice" defined by
+<tt><pre>
+S_i = \sum_j S_j S_{j+i}
+</pre></tt>
+where "i" and "j" are site indices and "j+i" is the vectorial/lattice sum. The correlation lattice average is
+stored in the classical spin correlation file (.cor file). Its fourier transform gives the classical spin
+structure factor and can be calculated from the information in the .cor file using:
+<pre><tt>
+perl sq.pl file.cor D L 
+</tt></pre>
+where D and L are the dimension and length of the lattice respectively. This will produce two columns of numbers:
+<tt><pre>
+i S_i
+</pre></tt>
+where i is the momentum in "linear order", i.e. (in 3D):
+<pre><tt>
+i = mx + my *L + mz *L *L
+</tt></pre> 
+and similarly in less dimensions. Now kx, ky and kz corresponding to that index i are given by
+kx=2pi mx/L, and similarly for the other components (if any). S_i is the structure factor corresponding to that
+moment. There will be obviously L to the power of D indices i.
+<h5> Of Dynamic Observables </h5>
+Explain how to get A(k,omega) from A(r,omega).
+
+<h4>8.3  VISUALIZATION TOOLS</h4>
+TBW
+<hr><hr>
+ </body>
+</html>

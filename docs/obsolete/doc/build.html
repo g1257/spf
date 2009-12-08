@@ -1,0 +1,108 @@
+<html>
+ <head>
+ <title>Compile And Link</title>
+
+ <meta name="Subject" content="" />
+ <meta name="Publisher" content="" />
+ <meta name="Description" content="Compilation and Linkage instructions" />
+ <meta name="Contributors" content="" />
+ <meta name="Effective_date" content="None" />
+ <meta name="Expiration_date" content="None" />
+ <meta name="Type" content="Document" />
+ <meta name="Format" content="text/html" />
+ <meta name="Language" content="" />
+ <meta name="Rights" content="" />
+ <meta name="SafetyBelt" content="1107973355.33" />
+ </head>
+ <body>
+<br/>
+<h3>3. COMPILATION INSTRUCTIONS</h3>
+<h4>3.1 REQUIREMENTS</h4>
+<ul>
+<li> <b>A C++ compiler</b> </li>
+<li> <b>GNU make</b> </li>
+<li> <b>The GSL Library</b>. It can be downloaded from 
+<a href="http://www.gnu.org/software/gsl/" target="_NEW">here (new window opens)</a>. Version 1.4 is the preferred one. 
+After downloading, to compile as non-shared use:
+<tt>
+<pre>./configure --disable-shared<br/>make<br/></pre>
+</tt>
+Add -I/directory_where_gsl_is to the C preprocessor FLAG in your Makefile. I recommend using a subset of the GSL for linking. To do that issue 
+from the GSL directory <b>either</b>
+<tt>
+<pre>libtool --mode=link g++ -o libgsl_partial.a integration/*.o err/*.o<br/></pre>
+</tt>
+(and substitute g++ for whatever C++ compiler you use) <b>or</b>
+<tt>
+<pre>ar rv libgsl_partial.a integration/*.o err/*.o<br/>ranlib libgsl_partial.a<br/></pre>
+</tt>
+In this way you will need only to link with -lgsl_partial instead of the whole GSL (i.e. instead of -lgsl)
+</li>
+  <li><b>LAPACK and BLAS libraries</b>. These are standard linear algebra libraries that should be
+installed in your system. The function used from them is zheev (zhpev on AIX) for
+matrix diagonalization. For all supported systems the required declarations have been
+specified in mymatrix.h and mymatrix.cpp with the corresponding diag_platform.h files.
+Installing them is not recommended for performance issues but if it is needed the
+libraries can be found <a href="http://www.netlib.org/lapack/" target="_new">here</a>.</li>
+
+<li><b>MPI Library</b> if compiling the parallel version (e.g., by using a Makefile_mpi.platform
+Makefile)</li>
+</ul>
+
+<h4>3.2 SUPPORTED PLATFORMS AND COMPILERS</h4>
+Select a Makefile that best adapts to your system, see 
+<a href="#tablemakefiles">this Table</a>. Edit the Makefile to
+specify the location of the GSL library if necessary.
+Specify in the Makefile the model Hamiltonian you want to use via a define, e.g.
+-DMODEL_KONDO_FINITE (for other options see 
+<a href="#tablemodels">this Table</a>, one and only one option must be
+specified). Specify also in the Makefile the name of the executable via EXENAME. After
+all this preparation, to compile type:
+<tt>
+<pre>gmake -f Makefile.platform<br/></pre>
+</tt>
+For supported systems see <a href="#tablemakefiles">this Table</a>.
+<hr/><hr/>
+<a name="tablemakefiles"><h3>TABLE: SUPPORTED PLATFORMS AND COMPILERS</h3></a><br/>
+<table border="1">
+<tbody><tr><th>PLATFORM</th><th>MAKEFILE(*)</th>
+</tr>
+<tr>
+<td>Linux</td><td>Makefile.linux, Makefile.cmt</td>
+</tr>
+<tr>
+<td>AIX</td><td>Makefile.aix</td>
+</tr>
+<tr>
+<td>SGI</td><td>Makefile.ram</td>
+</tr>
+<tr>
+<td>Mac OS X</td><td>Makefile.osx</td>
+</tr>
+<tr>
+<td>Cray</td><td>Makefile.cray</td>
+</tr>
+</tbody></table>
+
+<a name="tablemodels"><h3>TABLE: MODEL HAMILTONIANS</h3></a><br/>
+<table border="1">
+<tbody><tr>
+<th>COMPILATION FLAG</th><th>DESCRIPTION</th>
+</tr><tr>
+<td>MODEL_KONDO_INF_ONEBAND</td><td>One (dependent) band, J=infinity</td>
+</tr><tr>
+<td>MODEL_KONDO_INF_TWOBANDS</td><td> Two (dependent) band, J=infinity</td>
+</tr><tr>
+<td>MODEL_KONDO_FINITE</td><td> One (dependent) band, Many independent bands,
+J=finite, concentrated or diluted</td>
+</tr><tr>
+<td>MODEL_KONDO_INF_ONEBAND_PHONONS</td><td>  One (dependent) band, J=infinity with phonons</td>
+</tr><tr>
+<td>MODEL_KONDO_INF_ONEBAND_PHONONS_EX</td><td>  One (dependent) band, J=infinity with phonons,
+extended as in cond-mat/0311200</td>
+</tr>
+</tbody></table>
+(*) Use Makefile_mpi.platform if you want to run the parallel/MPI version, e.g. Makefile_mpi.cmt for linux or
+Makefile_mpi.aix on IBMs.
+ </body>
+</html>

@@ -1,0 +1,265 @@
+<html>
+ <head>
+ <title>IO</title>
+
+ <meta name="Subject" content="" />
+ <meta name="Publisher" content="" />
+ <meta name="Description" content="SPF Documentation: Files" />
+ <meta name="Contributors" content="" />
+ <meta name="Effective_date" content="None" />
+ <meta name="Expiration_date" content="None" />
+ <meta name="Type" content="Document" />
+ <meta name="Format" content="text/html" />
+ <meta name="Language" content="" />
+ <meta name="Rights" content="" />
+ <meta name="SafetyBelt" content="1106330326.03" />
+ </head>
+ <body>
+<center>
+<h2> 7. DOCUMENTATION: FILES (As of 10/21/04)</h2>
+</center>   
+<h3><a name="#input">7.1 INPUT FILE FORMAT</a></h3>
+              Every line has a descriptor (string) followed by one or more
+ spaces    and   the value associated to that descriptor.<br/>
+              Example:<br/>
+              HAMILTONIAN_J  8<br/>
+              Note: <u><b>Order is important here</b></u><br/>
+             <br/>
+             <u><b>Brief Description of all parameters follows.</b></u><br/>
+               <br/>
+	       <i><b>OPTIONS</b></i><br/>
+	       String. A comma-separated list of options that can be one or more of the following
+	       (spaces are not allowed, options are case-sensitive):
+<ul>
+<li><font class="options">none</font> 
+If no options are required. Note: This will <b><i>not</i></b> disable other options.</li>
+<li><font class="options">jafvector</font>  Specify JAF as a vector of N doubles instead of a single
+number. Allows for a spatially dependent (but still isotropic) JAF.</li>
+<li><font class="options">isingspins</font> Use ising spins instead of O(3) (heisenberg) spins.</li>
+<li><font class="options">akw</font> Calculate A(r,omega).</li>
+<li><font class="options">saveall</font> Save the configuration of classical fields to the .sav file
+at every measurement (if not set only the last configuration is saved)</li>
+<li><font class="options">havepotential</font> Read (and use) a potential as a vector of N doubles
+Currently this is only used for MODEL_KONDO_FINITE [10/21/04].</li>
+<li><font class="options">freezecarriers</font> Work as if the carriers where at T=0, i.e., fill the
+Number_of_carriers lowest levels without any Fermi factor (NOT IMPLEMENTED YET)</li>
+	       </ul><br/>
+	       
+              <i><b>LATTICE_D </b></i><br/>
+              Integer. Dimension of Lattice<br/>
+              <br/>
+              <i><b>LATTICE_L </b></i><br/>
+              Integer. Side of lattice. Only lattices with all sites equal
+ are   supported     at this moment.<br/>
+              <font color="#ff0000">FIXME</font>: Support lattices with different 
+    sides.<br/>
+              <i><b>       <br/>
+       </b><b>HAMILTONIAN_NUMBER_OF_ELECTRONS</b></i><br/>
+       Integer. If positive, an algorithm to adjust the chemical potential
+ will   be called to produce the given number of electrons. If negative it
+ is ignored.   Note: (i) Even though carriers are holes the number of electrons
+ must be  provided. (ii) In this model, N_e + N_h = Spin_Degree_Of_Freedom*Number_Of_Bands * N.
+ (iii) If  this option is positive then the next parameter (HAMILTONIAN_CHEMICALPOTENTIAL)
+  is used as the starting point to adjust the chemical potential.
+  <font color="#00ee00">Ignored if TPEM is used.</font><br/>
+       <br/>
+       <i><b>       HAMILTONIAN_CHEMICALPOTENTIAL</b></i> <br/>
+              Double. Value of Chemical potential. Note: If previous parameter
+   (HAMILTONIAN_NUMBER_OF_ELECTRONS &gt; 0) then this only serves as the
+initial    guess for the adjustment of the chemical potential.<br/>
+              <br/>
+              <i><b>MONTECARLO_BETA</b></i> <br/>
+              Double. Inverse of Temperature<br/>
+              <i><b><br/>
+              OUTPUT_ROOTNAME </b></i><br/>
+              String. Rootname for output files 
+	      (See <a href="output.html">Ouput Files</a>)<br/>
+              <i><b><br/>
+              MONTECARLO_THERMALIZATION</b></i> <br/>
+              Integer. Number of Thermalizations<br/>
+              <br/>
+              <i><b>MONTECARLO_EFFECTIVE</b></i><br/>
+              Integer. Number of Measurements<br/>
+              <i><b><br/>
+              MONTECARLO_UNMEASURED</b></i><br/>
+              Integer. One plus the number of Steps left unmeasured during the measurement 
+  phase.<br/>
+              <br/>
+              <i><b>MONTECARLO_WINDOW </b></i><br/>
+              Double. <font class="new">If positive or zero, this parameter 
+ determines the  window used in changing the spin dynamical variables (12/19/03).</font> 
+  If negative, the value itself is ignored, and the spins are randomly changed
+  without regard to the previous configuration.<br/>
+             <br/>
+              <b><i>MONTECARLO_FLAG</i></b><br/>
+              Integer. If 0 all Monte Carlo propositions are rejected. (Useful
+   for   debugging)<br/>
+              <i><b><br/>
+              MONTECARLO_STARTTYPE</b></i><br/>
+              Integer. Starting configuration. If 0 theta=phi=0 for all sites.
+   If  1  theta  and phi are chosen randomly.<br/>
+              If 2 AF configuration. If 3 theta=phi=pi/2 for all sites.<br/>
+              If 4 the program will read the DYNVARSFILENAME input parameter for the file that contains
+	      the initial values of the classical fields.
+              <i><b><br/><br/>
+       HISTOGRAM_STEPS</b></i><br/>
+       Integer. Number of steps for the histograms.<br/>
+       <br/>
+              <i><b>HAMILTONIAN_CONCENTRATION</b></i><br/>
+              Integer. Number of Classical Spins.<br/><br/>
+	      
+	           <i><b>DYNVARS_INPUT_FILE</b></i><br/>
+              String. The name of the input file for initial values of classical fields. This file must be in the SAV format 
+	      (see <a href="output.html">OUTPUT FILES</a>).
+	     Ignored unless STARTYPE is 4<br/>
+	      
+              <i><b><br/>
+              HAMILTONIAN_BC</b></i><br/>
+              LATTICE_D Integers separated by spaces. Boundary Conditions 
+implemented       as the values by which hoppings are multiplied when crossing 
+borders along      the x, y, etc directions respectively. If input is a1 a2 and a3 then the corresponding
+hoppings will be exp(i*a1*pi), etc, unless the number provided is 3 or more in which case the phase wil
+be zero (open BC). E.g. 1 1 1 is all periodic, 0 1 3 is aperiodic, periodic and open in x, y and z
+respectively. <br/><br/>
+              
+	      
+	      <b><i>BAND SHIFT</i></b>
+       Double. Separation between two <b>independent</b> bands.
+       <font color="green"><i>Provide only for MODEL_KONDO_FINITE</i></font><br/>
+       <br/>
+	      
+	      
+       <b><i>HAMILTONIAN_NUMBER_OF_BANDS</i></b><br/>
+       Integer. Number of <b>independent</b> bands (either 1, 2 or 3)
+       <font color="green"><i>If model is different from MODEL_KONDO_FINITE set to 1</i></font><br/>
+       <br/>
+       
+    
+       <i><b>       HAMILTONIAN_MASSES</b></i><br/>
+              NUMBER_OF_BANDS doubles. The hoppings for each band.
+	      <font color="green"><i>If model is different from MODEL_KONDO_FINITE set to 1</i></font><br/>
+              <br/>
+       <i><b>       HAMILTONIAN_J</b></i><br/>
+
+              NUMBER_OF_BANDS doubles. The Kondo couplings for each <b>independent</b> band.
+	      <font color="green"><i>Provide only for MODEL_KONDO_FINITE</i></font><br/>
+<br/>
+
+       <i><b>HAMILTONIAN_JAF </b></i><br/>
+
+              double or N doubles. The value of the direct exchange coupling between classical spins.
+	      If option <font class="options">jafvector</font> is set (see OPTIONS above) then it is a vector of N doubles specifying Jaf[i]
+	       (the x,y,etc directions are assumed to have the same value, anisotropy is not supported). If option <font class="options">jafvector</font>
+	       is not set it is 
+	      a single double specifying a spatially constant value for the direct exchange coupling.<br/><br/>
+	      
+	      <i><b>HAMILTONIAN_POTENTIAL </b></i><br/>
+	      N doubles. A local potential but provide only if the <font class="options">havepotential</font> is set (see OPTIONS above).
+	      <br/><br/>
+
+<i><b>TPEM_FLAG<br/>
+</b></i>Integer. Either 0 (diagonalization is used), 1 TPEM algorithm is
+used, 2 PEM algorithm is used or 3 TPEM without trace truncation is used.<br/>
+<br/>
+<i><b>TPEM_CUTOFF<br/>
+</b></i>Integer. The cutoff for the [T]PEM algorithm. Must be greater than 4. <i><b>Note: You must
+comment out this line if TPEM_FLAG is set to 0.</b></i><br/>
+<br/>
+<i><b>TPEM_EPS_PRODUCT<br/>
+</b></i>Double. Must be zero or positive. The precision in the product truncation. <i><b>Note: You
+must comment out this line if TPEM_FLAG is set to 0.</b></i><br/>
+<br/>
+<i><b>TPEM_EPS_TRACE<br/>
+</b></i>Double. Must be zero or positive. The precision in the trace truncation. <i><b>Note: You must
+comment out this line if TPEM_FLAG is set to 0.</b></i><br/>
+<br/>
+
+<i><b>BAND HOPPINGS</b></i><br/>
+2x2xDIMENSION doubles.  <font color="green"><i>Provide only for MODEL_KONDO_INF_TWOBANDS</i></font>
+The band hoppings in gamma, gamma', alpha, where gamma and gamma' are band indices and alpha is x,y, etc depending on
+dimension.
+<br/><br/>
+
+<i><b>PHONON COUPLINGS</b></i><br/>
+six doubles. <font color="green"><i>Provide only for MODEL_KONDO_INF_TWOBANDS</i></font>
+The first three are the couplings for n_i, taux_i and tauz_i and the last ones for q1_i^2, q2_i^2 and q3_i^2 
+as in physics reporsts 344,1.
+<br/><br/>
+
+<i><b>              HAMILTONIAN_MODULUS</b></i><br/>
+              LATTICE_L to the power of LATTICE_D numbers from the set {0,1}. 
+ <font color="green"><i>Provide only if the two following conditions apply at the same time:
+  concentration &lt; number of sites and model is MODEL_KONDO_FINITE</i></font>
+  The   modulus   of the spin at each site.<br/>
+ <hr/>
+<br/>
+
+<h3>7.2 OUTPUT FILES</h3>
+                           
+<div align="justify">STDOUT, STDERR and 6 files whose names start with the
+  value of      the parameter<i><b> OUTPUT_ROOTNAME </b></i>are written.
+<br/>
+              To each file a signature, data and footer is written in that
+ order.    <br/>
+     <br/>
+     <b><u> Description of the Output Files</u></b><br/>
+     <br/>
+       <u><i>  STDOUT</i></u><br/>
+              What is written: Progress<br/>
+    <br/>
+     <u><i> STDERR</i></u><br/>
+     What is written: Warnings, errors and debugging information<br/>
+               <u><i><br/>
+              .dat</i></u><br/>
+              What is written: History. <br/>
+              Use average.pl to get the Averages. For example:<br/>
+              perl average.pl <i><b>\$OUTPUT_ROOTNAME</b></i>.dat "Mag="<br/>
+              Note that if the observable name has parenthesis, brackets
+or  any   special    characters it must be protected. For example to get
+the structure   factor   at q=0, do:<br/>
+              perl average.pl <i><b>\$OUTPUT_ROOTNAME</b></i>.dat "S\(0\)="<br/>
+              <br/>
+              <u><i>.sav</i></u><br/>
+              What is written: The First and Last configuration (dynamical
+ variables)<br/>
+              <br/>
+              <i><u>.cor</u></i><br/>
+              What is written:   The correlation lattice for classical 
+ spins.    Check  source code for normalization. Remember that not all sites 
+ need have   spins.<font color="#ff0000"> <br/>
+       </font><br/>
+             <u><i> .now<br/>
+             </i></u> What is written:   N(w) for every <b> independent</b> band if DIAG method was used <br/>
+             <br/>
+             <u><i>.lcd</i></u><br/>
+              What is written: Local Charge Density. <font color="#ff0000">FIXME</font>:       Not Implemented.<br/>
+              <br/>
+              <u><i>.eig</i></u><br/>
+              What is written: Mean value of the eigenvalues.<br/>
+	     <br/>
+              <u><i>.mom</i></u><br/>
+              What is written: The average moments of the TPEM expansion if TPEM was used. Helpful to calculate the DOS using the
+	      script mom2nw.pl<br/>
+             <br/>
+             <br/>
+             <u><b>Signature.</b></u><br/>
+             The input parameters followed by:<br/>
+             #InitialTime<br/>
+             The Time/Date the program started.<br/>
+             <br/>
+             <i>#PID</i><br/>
+             PID for the program.<br/>
+             <br/>
+             <i>#HOSTNAME</i><br/>
+             Hostname the program runs on. (output of uname -a)<br/>
+             <br/>
+             <i>#COMPILED</i><br/>
+             Time/Date the program was compiled.<br/>
+             <br/>
+             <b><u>Footer:</u></b><br/>
+             User, System and Real times for the program execution in seconds.<br/>
+              <br/>
+	      
+              </div>
+ </body>
+</html>

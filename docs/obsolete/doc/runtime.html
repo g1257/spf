@@ -1,0 +1,79 @@
+<html>
+ <head>
+ <title>Runtime issues</title>
+
+ <meta name="Subject" content="" />
+ <meta name="Publisher" content="" />
+ <meta name="Description" content="Runtime" />
+ <meta name="Contributors" content="" />
+ <meta name="Effective_date" content="None" />
+ <meta name="Expiration_date" content="None" />
+ <meta name="Type" content="Document" />
+ <meta name="Format" content="text/html" />
+ <meta name="Language" content="" />
+ <meta name="Rights" content="" />
+ <meta name="SafetyBelt" content="1106331067.23" />
+ </head>
+ <body>
+<br>
+<h3>4. RUN-TIME ISSUES</h3>
+<h4>4.1 REQUIREMENTS</h4>
+<ul>
+<li><b>GSL, LAPACK and BLAS</b> libraries. </li>
+<li> <b>PERL</b> and the  <b>argument.pl</b> file</li>
+<li><b>MPI Library</b> if running the parallel version</b></li>
+<li> Some additional files maybe required depending on the type of the run</li>
+</ul>
+
+<h4>4.2 RUN-TIME INSTRUCTIONS</h4>
+The program takes only one argument: the name of the input file. This is a unix-style
+configuration file where the format is:
+<tt>
+<pre>
+LABEL VALUE
+</pre>
+</tt>
+Comments are specified by using the # sign at the beginning of the line. Inline
+comments are not allowed. Sample configuration files are provided within the KONDO
+package. One of these can be used and edited. Also see Section FIXME.<br>
+
+<h4>4.3 INTERACTIVE RUN</h4>
+Use:
+<tt>
+<pre>
+./name_of_the_executable name_of_the_input_file
+</pre>
+</tt>
+
+<h4>4.4 PBS RUN</h4>
+
+Serial run script:
+<tt>
+<pre>
+#!/bin/ksh 
+#PBS -N test
+#PBS -q batch
+#PBS -l walltime=12:00:00,ncpus=1
+cd your_directory/
+./name_of_the_executable name_of_the_input_file
+</pre>
+</tt>
+
+Parallel run script with 8 processors:
+<tt>
+<pre>
+#!/bin/ksh 
+#PBS -N test
+#PBS -q batch
+#PBS -l walltime=12:00:00,ncpus=8
+cd your_directory/
+mpirun -np 8 ./name_of_the_executable name_of_the_input_file
+</pre>
+</tt>
+
+<h4>4.5 LOADLEVELER RUN</h4>
+To be written.
+<hr><hr>
+
+ </body>
+</html>
