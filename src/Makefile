@@ -8,8 +8,8 @@
 # GSL: no
 LDFLAGS = -L.   -llapack -lblas -lm  -L../lib 
 EXENAME = spf2b
-CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -O2
-CXX = g++ 
+CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -DNDEBUG 
+CXX = g++ -O2 
 include filelist.make
 
 OBJECTS += kondo_inf_twobands.o
