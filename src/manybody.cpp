@@ -736,6 +736,7 @@ MatType greenFunction(int index1,int index2, Parameters const &ether,Aux &aux)
 
 
 // New charge correlation function. Nov. 2005, verif. May 2006
+// fix orbitals
 void accChargeCorrelation(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
         int x,w,v,gamma,gamma2; //gamma is the orbital index
