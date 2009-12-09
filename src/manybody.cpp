@@ -736,21 +736,21 @@ MatType greenFunction(int index1,int index2, Parameters const &ether,Aux &aux)
 
 
 // New charge correlation function. Nov. 2005, verif. May 2006
-// fix orbitals
-void accChargeCorrelation(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
+void accChargeCorrelation(size_t gamma, size_t gamma2, 
+                                Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
-        int x,w,v,gamma,gamma2; //gamma is the orbital index
+        size_t x,w,v; //gamma is the orbital index
         int n = geometry.volume();
         MatType tmp;
         int int_dof =  int(ether.hilbertSize/n);
-	double density = 0.75;
+	double density = 0.5*0.75; //density per orbital per site, hence the 0.5 factor
 		
         // Do for all x's
         for (x=0;x<n;x++) {     // Sum over all i's (or w's)
                 tmp=0;
                 for (w=0;w<n;w++) {
-                        for (gamma=0;gamma<int_dof;gamma++) {
-                                for (gamma2=0;gamma2<int_dof;gamma2++) {
+                        //for (gamma=0;gamma<int_dof;gamma++) {
+                             //   for (gamma2=0;gamma2<int_dof;gamma2++) {
                                         v=geometry.add(x,w);
                                         if (x==0 && gamma==gamma2) {
                                                 tmp += (1.0-greenFunction(w+gamma*n,w+gamma*n,ether,aux));
@@ -759,12 +759,12 @@ void accChargeCorrelation(Geometry const &geometry,DynVars const &dynVars, Param
 						(1.0-greenFunction(v+gamma2*n,v+gamma2*n,ether,aux));
                                                 tmp -= greenFunction(v+gamma2*n,w+gamma*n,ether,aux)*
 						greenFunction(w+gamma*n,v+gamma2*n,ether,aux);
-                                        }
-                                }
+                                      //  }
+                               // }
                         }
                 }
-                aux.cco[x] += real(tmp)/n;
-		aux.cco[x] -= density*density;
+                aux.cco[x+gamma*n+gamma2*n*int_dof] += real(tmp)/n;
+		aux.cco[x+gamma*n+gamma2*n*int_dof] -= density*density;
         }
 }
 

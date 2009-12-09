@@ -100,7 +100,7 @@ void accOptical(Geometry const &geometry,DynVars const &dynVars,Parameters const
 &ether,Aux &aux);
 void kTpemMomentsCl(Geometry const &geometry, Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions);
 double calcNumber(DynVars const &dynVars,Geometry const &geometry,Parameters const &ether,Aux &aux,int band);
-void accChargeCorrelation(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux);
+void accChargeCorrelation(size_t g1,size_t g2,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux);
 void accOrbitalAngles(Geometry const &geometry,Parameters const &ether,Aux &aux);
 void accOrbitalCorrelation(size_t g1,size_t g2,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux);
 

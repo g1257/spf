@@ -821,7 +821,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	aux.eigM.insert(aux.eigM.begin(),ether.hilbertSize,0.0);
 	aux.lcd.insert(aux.lcd.begin(),n,0.0);
 	aux.clasCor.insert(aux.clasCor.begin(),n,0.0);
-	aux.cco.insert(aux.cco.begin(),n,0.0);
+	aux.cco.insert(aux.cco.begin(),n*4,0.0);
 	aux.oco.insert(aux.oco.begin(),n*4,0.0);
 	aux.bcsCorxx.insert(aux.bcsCorxx.begin(),n,0.0);
 	aux.bcsCorxy.insert(aux.bcsCorxy.begin(),n,0.0);
@@ -1703,7 +1703,10 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io 
 		if (ether.isSet("akw")) accAkw(geometry,dynVars,ether,aux);
 		if (ether.isSet("optical")) accOptical(geometry,dynVars,ether,aux);
 		if (ether.isSet("ldos")) accLdos(geometry,dynVars,ether,aux);	
-		if (ether.isSet("chargecorrelation")) accChargeCorrelation(geometry,dynVars,ether,aux);
+		if (ether.isSet("chargecorrelation")) accChargeCorrelation(0,0,geometry,dynVars,ether,aux);
+		if (ether.isSet("chargecorrelation")) accChargeCorrelation(0,1,geometry,dynVars,ether,aux);
+		if (ether.isSet("chargecorrelation")) accChargeCorrelation(1,0,geometry,dynVars,ether,aux);
+		if (ether.isSet("chargecorrelation")) accChargeCorrelation(1,1,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalangles")) accOrbitalAngles(geometry,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(0,0,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(0,1,geometry,dynVars,ether,aux);
