@@ -821,7 +821,15 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	aux.eigM.insert(aux.eigM.begin(),ether.hilbertSize,0.0);
 	aux.lcd.insert(aux.lcd.begin(),n,0.0);
 	aux.clasCor.insert(aux.clasCor.begin(),n,0.0);
+	aux.cco_aa.insert(aux.cco_aa.begin(),n,0.0);
+	aux.cco_ab.insert(aux.cco_ab.begin(),n,0.0);
+	aux.cco_ba.insert(aux.cco_ba.begin(),n,0.0);
+	aux.cco_bb.insert(aux.cco_bb.begin(),n,0.0);
 	aux.cco.insert(aux.cco.begin(),n*4,0.0);
+	aux.oco_aa.insert(aux.oco_aa.begin(),n,0.0);
+	aux.oco_ab.insert(aux.oco_ab.begin(),n,0.0);
+	aux.oco_ba.insert(aux.oco_ba.begin(),n,0.0);
+	aux.oco_bb.insert(aux.oco_bb.begin(),n,0.0);
 	aux.oco.insert(aux.oco.begin(),n*4,0.0);
 	aux.bcsCorxx.insert(aux.bcsCorxx.begin(),n,0.0);
 	aux.bcsCorxy.insert(aux.bcsCorxy.begin(),n,0.0);

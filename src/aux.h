@@ -53,7 +53,9 @@ struct Aux {
 	Histogram Nw[6];
 	Histogram *Arw, *ArwC,*Ldos;
 	Histogram Sigma;
-	std::vector<double> eigM,lcd,clasCor,cco,oco;
+	std::vector<double> eigM,lcd,clasCor;
+	std::vector<double> cco,cco_aa,cco_ab,cco_ba,cco_bb;
+	std::vector<double> oco,oco_aa,oco_ab,oco_ba,oco_bb;
 	MyMatrix<MatType> matrix;
 	std::vector<double> eigOneBand,eigAllBands;
 	tpem_sparse **sparseMatrix;

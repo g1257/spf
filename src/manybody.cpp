@@ -909,8 +909,8 @@ void accOrbitalCorrelation(size_t gamma,size_t gamma2,
 	 for (size_t x=0;x<n;x++) {     // Sum over all i's (or w's)
                 MatType tmp=0;
                 for (size_t w=0;w<n;w++) {
-                        for (size_t gamma=0;gamma<int_dof;gamma++) {
-                                for (size_t gamma2=0;gamma2<int_dof;gamma2++) {
+                        //for (size_t gamma=0;gamma<int_dof;gamma++) {
+                                //for (size_t gamma2=0;gamma2<int_dof;gamma2++) {
                                         size_t v=geometry.add(x,w);
                                         if (x==0 && gamma==gamma2) {
                                                 tmp += (1.0-Gtilde(w+gamma*n,w+gamma*n));
@@ -920,8 +920,8 @@ void accOrbitalCorrelation(size_t gamma,size_t gamma2,
                                                 tmp -= Gtilde(v+gamma2*n,w+gamma*n)*
 						Gtilde(w+gamma*n,v+gamma2*n);
                                         }
-                                }
-                        }
+                                //}
+                        //}
                 }
                 aux.oco[x+gamma*n+gamma2*n*int_dof] += real(tmp)/n;
 		// aux.cco[x] -= density*density; <-- ???

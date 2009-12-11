@@ -321,12 +321,30 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 	}
 	if (ether.isSet("chargecorrelation")) {
 		vectorDivide(aux.cco,ether.iterEffective);
-		vectorPrint(aux.cco,"ChargeCorrelation",file[9]);
+		for (i=0;i<4*ether.linSize;i++) {
+			if (i<ether.linSize) aux.cco_aa[i%ether.linSize]=aux.cco[i];
+			else if (i>=ether.linSize && i<2*ether.linSize) aux.cco_ab[i%ether.linSize]=aux.cco[i];
+			else if (i>=2*ether.linSize && i<3*ether.linSize) aux.cco_ba[i%ether.linSize]=aux.cco[i];
+			else aux.cco_bb[i%ether.linSize]=aux.cco[i];
+		}
+		vectorPrint(aux.cco_aa,"ChargeCorrelation",file[9]);
+		vectorPrint(aux.cco_ab,"ChargeCorrelation",file[9]);
+		vectorPrint(aux.cco_ba,"ChargeCorrelation",file[9]);
+		vectorPrint(aux.cco_bb,"ChargeCorrelation",file[9]);
 	}
 	
 	if (ether.isSet("orbitalcorrelation")) {
 		vectorDivide(aux.oco,ether.iterEffective);
-		vectorPrint(aux.oco,"OrbitalCorrelation",file[6]);
+		for (i=0;i<4*ether.linSize;i++) {
+			if (i<ether.linSize) aux.oco_aa[i%ether.linSize]=aux.oco[i];
+			else if (i>=ether.linSize && i<2*ether.linSize) aux.oco_ab[i%ether.linSize]=aux.oco[i];
+			else if (i>=2*ether.linSize && i<3*ether.linSize) aux.oco_ba[i%ether.linSize]=aux.oco[i];
+			else aux.oco_bb[i%ether.linSize]=aux.oco[i];
+		}
+		vectorPrint(aux.cco_aa,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.cco_ab,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.cco_ba,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.cco_bb,"OrbitalCorrelation",file[6]);
 	}
 
 }
