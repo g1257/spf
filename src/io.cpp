@@ -341,10 +341,10 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 			else if (i>=2*ether.linSize && i<3*ether.linSize) aux.oco_ba[i%ether.linSize]=aux.oco[i];
 			else aux.oco_bb[i%ether.linSize]=aux.oco[i];
 		}
-		vectorPrint(aux.cco_aa,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.cco_ab,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.cco_ba,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.cco_bb,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.oco_aa,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.oco_ab,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.oco_ba,"OrbitalCorrelation",file[6]);
+		vectorPrint(aux.oco_bb,"OrbitalCorrelation",file[6]);
 	}
 
 }
