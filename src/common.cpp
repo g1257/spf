@@ -40,6 +40,9 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "argument.h"
 #include "conductance.h"
+#include "VectorGenerator.h"
+#include "RandomGenerator.h"
+#include "MpiParameter.h"
 
 bool Io::isInstatiated=false;
 bool Io::isInit=false;
@@ -53,7 +56,37 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
-int spf_entry(int argc,char *argv[])
+
+void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w)
+{
+	
+	size_t size0 = ether.numberOfBetas;
+	v.resize(2);
+	w.resize(2);
+	v[0] = ether.mpiRank % size0;
+	v[1] = size_t(ether.mpiRank/size0);
+	w[0] = size0;
+	w[1] = ether.mpiSize / size0;
+	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
+}
+
+void registerHook(Parameters& ether)
+{
+
+	setTheRankVector(ether,ether.localRank,ether.localSize);
+	//example of non-random
+	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
+	typedef MpiParameter<double,VectorGenerator<double>,Parameters > MpiParameterBeta;
+	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0]); // beta 4 10 20 30 40
+	
+	// example of random
+	typedef MpiParameter<std::vector<double>,RandomGenerator,Parameters> MpiParameterJaf;
+	RandomGenerator jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
+	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::TOGETHER,ether.localRank[1]);
+
+}
+
+int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 {
 	Parameters ether;
 	char sfile[256];
@@ -66,11 +99,11 @@ int spf_entry(int argc,char *argv[])
         setrlimit(RLIMIT_CORE, &myrlim);
 
         tpem_init(argc,argv,tpemOptions,sfile);
-	ether.mpiRank = tpemOptions.rank;
+	ether.mpiRank =mpiRank;
 	ether.mpiNop1 = tpemOptions.mpi_nop1;
 	ether.mpiNop2 = tpemOptions.mpi_nop2;
 	ether.mpiTpemRank = tpemOptions.tpem_rank;
-
+	ether.mpiSize = mpiSize;
 	
 	//cerr<<"main: global rank="<<tpemOptions.rank<<" local rank="<<tpemOptions.tpem_rank;
 	//cerr<<" nop1="<<ether.mpiNop1<<" "<<ether.mpiNop2<<endl;
@@ -95,7 +128,8 @@ int spf_entry(int argc,char *argv[])
 		if (ether.mpiRank==0) cerr<<"A problem ocurred while trying to load file "<<sfile<<endl;
 		return 1;
 	}
-	
+
+	registerHook(ether);	
 	
 	// enable custom config
 	if (ether.mpiNop2>1 && (ether.isSet("optical") || ether.isSet("akw"))) {

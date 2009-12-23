@@ -47,7 +47,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <unistd.h>
 #include <cstdlib>
 
-extern int spf_entry(int argc,char *argv[]);
+extern int spf_entry(int argc,char *argv[],int ,int);
 
 #define MAX_WORD 256
 using namespace std;
@@ -68,44 +68,16 @@ int main(int argc,char **argv)
 	MPI_Comm_size(MPI_COMM_WORLD,&GONZA_MPISize);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	
-	cout<<"Here  "<<rank<<endl;	
-	// MPI is so stupid that does not do some trivial things
-	// like passing to each spawn process the command line arguments
-	// or the current working directory. Those things must be done
-	// by hand. Broadcast is used as the communication function.
-	// Rank 0 process should get everything correct and is themaster here.
-	// First, let's deal with the current working dir
-	getcwd(tempc,MAX_WORD);
-	MPI_Bcast(tempc,strlen(tempc)+1,MPI_CHAR,0,MPI_COMM_WORLD);
-	if (rank!=0) chdir(tempc);
-	
-	// Ok, now to the command line arguments
-	for (i=0;i<argc;i++) {
-		MPI_Bcast(argv[i],strlen(argv[i])+1,MPI_CHAR,0,MPI_COMM_WORLD);
-	}
-	
-	if (argc==1) myOffset=0;
-	else myOffset=atoi(argv[1]);
-        if (argc==3) strcpy(exename,argv[2]);
-	else strcpy(exename,"orb1new");
- 
-	number=rank+myOffset;	
-	int nn;
-	num2digits(let,nn,number);
-	
-	strcpy(comm1,"test");
-	strcat(comm1,let);
-	strcat(comm1,".inp");
 	myargv = new char*[2];
 	myargv[0] = new char[strlen(exename)+1];
-	strcpy(myargv[0],exename);
+	strcpy(myargv[0],argv[0]);
 	myargv[1] = new char[strlen(comm1)+1];
-	strcpy(myargv[1],comm1);
+	strcpy(myargv[1],argv[1]);
 	if (rank==0) {
 		cout<<"myargv= "<<myargv[0]<<" "<<myargv[1]<<endl;
 	}
 	
-	spf_entry(2,myargv);
+	spf_entry(2,myargv,rank,GONZA_MPISize);
 	
 	cout<<"PROCESS "<<rank<<" HAS ENDED\n";
 	// All MPI Threads must wait before calling Finalize

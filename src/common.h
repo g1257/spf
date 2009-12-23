@@ -63,7 +63,7 @@ void calcMoments(DynVars const &dynVars,Geometry const &geometry,Parameters cons
 void tpemOptionsFill(TpemOptions &tpemOptions,Parameters const &ether);
 void customConfig(Parameters &ether,Aux &aux,TpemOptions const &tpemOptions,int nop3,double shift=0);
 void tpemOptionsFill(TpemOptions &tpemOptions,Parameters const &ether);
-int spf_entry(int argc,char *argv[]);
+int spf_entry(int argc,char *argv[],int mpiRank, int mpiSize);
 
 #ifdef MODEL_KONDO_INF_ONEBAND_PHONONS
 double electronPhononTerm(int p,Geometry const &geometry, DynVars const
