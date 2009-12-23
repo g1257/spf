@@ -66,6 +66,8 @@ const std::string ansiReset="\033[0m";
 struct Parameters {
 	int iterTherm,iterEffective,iterUnmeasured;
 	double window,beta;
+	size_t numberOfBetas;
+	std::vector<double> betaVector;
 	int D,linSize,mcflag,startType,startLevel,conc;
 	vector<double> JafVector;
 	vector<double> potential;
@@ -96,8 +98,9 @@ struct Parameters {
 	
 	double tpem_epsProd,tpem_epsTrace;
 	int tpem_cutoff,tpem;
-	int mpiRank,mpiTpemRank,mpiNop1,mpiNop2;
-
+	int mpiRank,mpiTpemRank,mpiNop1,mpiNop2,mpiSize;
+	std::vector<size_t> localRank,localSize;
+	
 	void print(ostream &s,char prefix='#');
 	bool isSet(char const *what) const;
 	void setOption(char const *what);
@@ -107,8 +110,9 @@ struct Parameters {
 	Parameters();
 #ifdef MODEL_KONDO_PHONONS
 	double phononLambda;
-#endif					
-
+#endif				
+		
+	
 };
 
 #endif

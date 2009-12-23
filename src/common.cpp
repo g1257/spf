@@ -40,6 +40,9 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "argument.h"
 #include "conductance.h"
+#include "VectorGenerator.h"
+#include "RandomGenerator.h"
+#include "MpiParameter.h"
 
 bool Io::isInstatiated=false;
 bool Io::isInit=false;
@@ -56,9 +59,10 @@ extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry con
 
 void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w)
 {
-	size_t size0 = ether.numberOfTemperatures;
-	v[0] = ether.rank % size0;
-	v[1] = size_t(ether.rank/size0);
+	
+	size_t size0 = ether.numberOfBetas;
+	v[0] = ether.mpiRank % size0;
+	v[1] = size_t(ether.mpiRank/size0);
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
 }
@@ -69,10 +73,13 @@ void registerHook(Parameters& ether)
 	setTheRankVector(ether,ether.localRank,ether.localSize);
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
-	MpiParameter<double,VectorGenerator> beta(ether.beta,betaGenerator); // beta 4 10 20 30 40
+	typedef MpiParameter<double,VectorGenerator<double>,Parameters > MpiParameterBeta;
+	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0]); // beta 4 10 20 30 40
+	
 	// example of random
-	RandomGenerator jafGenerator("bimodal",2,3,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	MpiParameter<std::vector<double>,RandomGenerator> jafvector(ether.jafVector,jafGenerator);
+	//typedef MpiParameter<std::vector<double>,RandomGenerator,Parameters> MpiParameterJaf;
+	//RandomGenerator jafGenerator("bimodal",2,3,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
+	//MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::TOGETHER,ether.localRank[1]);
 
 }
 
@@ -93,7 +100,7 @@ int spf_entry(int argc,char *argv[])
 	ether.mpiNop1 = tpemOptions.mpi_nop1;
 	ether.mpiNop2 = tpemOptions.mpi_nop2;
 	ether.mpiTpemRank = tpemOptions.tpem_rank;
-
+	ether.mpiSize = ether.mpiNop1  * ether.mpiNop2;
 	
 	//cerr<<"main: global rank="<<tpemOptions.rank<<" local rank="<<tpemOptions.tpem_rank;
 	//cerr<<" nop1="<<ether.mpiNop1<<" "<<ether.mpiNop2<<endl;

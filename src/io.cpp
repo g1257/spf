@@ -130,7 +130,7 @@ void Io::initOutput(Parameters &ether)
 		excludedfiles.push_back(7);
 	}
 	
-	rank = ether.mpiRank; 
+	rank = ether.mpiRank;
 	rankTpem=ether.mpiTpemRank;
 	if (ether.mpiNop2==1 && rank>0) doesPrintHistory=false;
 	if (ether.mpiNop2>1 && ether.mpiTpemRank>0)  doesPrintHistory=false;
@@ -536,12 +536,20 @@ int Io::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameter
 	*/
 	fin>>aux.varMu; //%%INTERFACE HAMILTONIAN_CHEMICALPOTENTIAL
 	
-	/*! \b Beta: Double. Inverse of Temperature unless "temperature" option is set in 
+	/*! \b Beta: A number that indicates the numbers to follow, followed by 
+		a series of space-separated numbers, one beta per configuration
+		Each is a Double. Each is the inverse of Temperature unless "temperature" option is set in 
 	                 which case this must be the Temperature not its inverse.*/
-	fin>>ether.beta; //%%INTERFACE MONTECARLO_BETA
-	if (ether.isSet("temperature")) {
-		ether.beta = 1.0/ether.beta;
+	fin>>ether.numberOfBetas;
+	ether.betaVector.resize(ether.numberOfBetas);
+	for (size_t i = 0;i<ether.numberOfBetas;i++) {
+		fin>>ether.betaVector[i]; //%%INTERFACE MONTECARLO_BETA
+	
+		if (ether.isSet("temperature")) {
+			ether.betaVector[i] = 1.0/ether.betaVector[i];
+		}
 	}
+	ether.beta = ether.betaVector[0];
 	
 	/*!  \b OutputRootname: String. Rootname for output files (See Io) */
 

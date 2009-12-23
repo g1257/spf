@@ -67,7 +67,6 @@ int main(int argc,char **argv)
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&GONZA_MPISize);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	ether.mpiSize = GONZA_MPISize;
 	
 	cout<<"Here  "<<rank<<endl;	
 	// MPI is so stupid that does not do some trivial things

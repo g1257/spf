@@ -18,7 +18,7 @@ public:
 	}
 
 private:
-	T data_;
+	const std::vector<T>& data_;
 	size_t localRank_;
 
 }; // VectorGenerator
