@@ -7,9 +7,10 @@ template<typename T>
 class VectorGenerator {
 
 public:	
-	VectorGenerator(std::vector<T>& data,int localRank) 
-		: data_(data), localRank_(localRank_)
+	VectorGenerator(std::vector<T>& data,size_t localRank) 
+		: data_(data), localRank_(localRank)
 	{
+		//std::cerr<<"localRank="<<localRank_<<"\n";
 	}
 	
 	void operator()(T& v)

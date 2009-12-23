@@ -61,6 +61,8 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 {
 	
 	size_t size0 = ether.numberOfBetas;
+	v.resize(2);
+	w.resize(2);
 	v[0] = ether.mpiRank % size0;
 	v[1] = size_t(ether.mpiRank/size0);
 	w[0] = size0;
