@@ -9,11 +9,11 @@
 LDFLAGS = -L.   -llapack -lblas -lm  -L../lib 
 EXENAME = spf2b
 CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -DNDEBUG 
-CXX = g++ -g3 
+CXX = mpicxx -O2 
 include filelist.make
 
 OBJECTS += kondo_inf_twobands.o
-OBJECTS += serial_launcher.o
+OBJECTS += unified_launcher.o
 all: $(EXENAME)
 
 tpemSample: tpemSample.o tpemplus.o tpemplusSparse.o tpemplusSubspace.o tpemplus.h tpemplusTypes.h

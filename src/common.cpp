@@ -67,6 +67,7 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	v[1] = size_t(ether.mpiRank/size0);
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
+	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 
 void registerHook(Parameters& ether)
@@ -85,7 +86,7 @@ void registerHook(Parameters& ether)
 
 }
 
-int spf_entry(int argc,char *argv[])
+int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 {
 	Parameters ether;
 	char sfile[256];
@@ -98,11 +99,11 @@ int spf_entry(int argc,char *argv[])
         setrlimit(RLIMIT_CORE, &myrlim);
 
         tpem_init(argc,argv,tpemOptions,sfile);
-	ether.mpiRank = tpemOptions.rank;
+	ether.mpiRank =mpiRank;
 	ether.mpiNop1 = tpemOptions.mpi_nop1;
 	ether.mpiNop2 = tpemOptions.mpi_nop2;
 	ether.mpiTpemRank = tpemOptions.tpem_rank;
-	ether.mpiSize = ether.mpiNop1  * ether.mpiNop2;
+	ether.mpiSize = mpiSize;
 	
 	//cerr<<"main: global rank="<<tpemOptions.rank<<" local rank="<<tpemOptions.tpem_rank;
 	//cerr<<" nop1="<<ether.mpiNop1<<" "<<ether.mpiNop2<<endl;
