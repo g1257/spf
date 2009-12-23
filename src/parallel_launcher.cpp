@@ -67,6 +67,7 @@ int main(int argc,char **argv)
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&GONZA_MPISize);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	ether.mpiSize = GONZA_MPISize;
 	
 	cout<<"Here  "<<rank<<endl;	
 	// MPI is so stupid that does not do some trivial things
@@ -104,6 +105,7 @@ int main(int argc,char **argv)
 	if (rank==0) {
 		cout<<"myargv= "<<myargv[0]<<" "<<myargv[1]<<endl;
 	}
+	
 	spf_entry(2,myargv);
 	
 	cout<<"PROCESS "<<rank<<" HAS ENDED\n";

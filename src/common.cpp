@@ -53,6 +53,29 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
+
+void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w)
+{
+	size_t size0 = ether.numberOfTemperatures;
+	v[0] = ether.rank % size0;
+	v[1] = size_t(ether.rank/size0);
+	w[0] = size0;
+	w[1] = ether.mpiSize / size0;
+}
+
+void registerHook(Parameters& ether)
+{
+
+	setTheRankVector(ether,ether.localRank,ether.localSize);
+	//example of non-random
+	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
+	MpiParameter<double,VectorGenerator> beta(ether.beta,betaGenerator); // beta 4 10 20 30 40
+	// example of random
+	RandomGenerator jafGenerator("bimodal",2,3,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
+	MpiParameter<std::vector<double>,RandomGenerator> jafvector(ether.jafVector,jafGenerator);
+
+}
+
 int spf_entry(int argc,char *argv[])
 {
 	Parameters ether;
@@ -95,7 +118,8 @@ int spf_entry(int argc,char *argv[])
 		if (ether.mpiRank==0) cerr<<"A problem ocurred while trying to load file "<<sfile<<endl;
 		return 1;
 	}
-	
+
+	registerHook(ether);	
 	
 	// enable custom config
 	if (ether.mpiNop2>1 && (ether.isSet("optical") || ether.isSet("akw"))) {
