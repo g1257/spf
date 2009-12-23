@@ -821,6 +821,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	aux.eigM.insert(aux.eigM.begin(),ether.hilbertSize,0.0);
 	aux.lcd.insert(aux.lcd.begin(),n,0.0);
 	aux.clasCor.insert(aux.clasCor.begin(),n,0.0);
+
 	aux.cco_aa.insert(aux.cco_aa.begin(),n,0.0);
 	aux.cco_ab.insert(aux.cco_ab.begin(),n,0.0);
 	aux.cco_ba.insert(aux.cco_ba.begin(),n,0.0);
