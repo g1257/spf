@@ -80,9 +80,9 @@ void registerHook(Parameters& ether)
 	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0]); // beta 4 10 20 30 40
 	
 	// example of random
-	//typedef MpiParameter<std::vector<double>,RandomGenerator,Parameters> MpiParameterJaf;
-	//RandomGenerator jafGenerator("bimodal",2,3,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	//MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::TOGETHER,ether.localRank[1]);
+	typedef MpiParameter<std::vector<double>,RandomGenerator,Parameters> MpiParameterJaf;
+	RandomGenerator jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
+	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::TOGETHER,ether.localRank[1]);
 
 }
 

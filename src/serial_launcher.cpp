@@ -40,8 +40,9 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "model.h"
 
+
 int main(int argc,char *argv[])
 {
-	return spf_entry(argc,argv);
+	return spf_entry(argc,argv,0,1);
 }
 

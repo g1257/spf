@@ -70,6 +70,8 @@ struct Parameters {
 	std::vector<double> betaVector;
 	int D,linSize,mcflag,startType,startLevel,conc;
 	vector<double> JafVector;
+	double jafCenter,jafDelta;
+	size_t numberOfJafConfigs;
 	vector<double> potential;
 	std::string potentialFile; //< the filename from where to load the potential
 	std::string jafFile; //< the filename from where to load the jaf vector
