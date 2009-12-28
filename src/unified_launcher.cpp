@@ -46,6 +46,8 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 extern int spf_entry(int argc,char *argv[],int ,int);
 
+#define MPISYSTEMTYPE MpiSystemMpi
+
 // MAIN PROGRAM BEGINS HERE
 int main(int argc,char **argv) 
 {

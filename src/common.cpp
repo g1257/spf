@@ -44,7 +44,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "RandomGenerator.h"
 #include "MpiParameter.h"
 #include "MpiIo.h"
-#include "MpiSystemSerial.h"
+#include "MpiSystemMpi.h"
 
 template<typename MpiIoType>
 bool Io<MpiIoType>::isInstatiated=false;
@@ -61,7 +61,7 @@ extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geomet
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
 template<typename MpiSystemType>
-void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename MpiSystemType::MPI_Comm>& mpiCommVector)
+void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename MpiSystemType::MPIComm>& mpiCommVector)
 {
 	
 	size_t size0 = ether.numberOfBetas;
@@ -72,15 +72,17 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
 	mpiCommVector.resize(2);
-	MpiSystemType::MPI_Comm_Split(MpiSystemType::MPI_COMM_WORLD,v[0],ether.mpiRank,&mpiCommVector[0]);
-	MpiSystemType::MPI_Comm_Split(MpiSystemType::MPI_COMM_WORLD,v[1],ether.mpiRank,&mpiCommVector[1]);
+	MpiSystemType::MPI_Comm_split(3,//MpiSystemType::MPI_COMM_WORLD,v[0],
+			ether.mpiRank,&mpiCommVector[0]);
+	MpiSystemType::MPI_Comm_split(17,//MpiSystemType::MPI_COMM_WORLD,v[1],
+			ether.mpiRank,&mpiCommVector[1]);
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 
 template<typename MpiSystemType>
 void registerHook(Parameters& ether,MpiIo<MpiSystemType>** mpiIo)
 {
-	std::vector<typename MpiSystemType::MPI_Comm> mpiCommVector;
+	std::vector<typename MpiSystemType::MPIComm> mpiCommVector;
 	setTheRankVector<MpiSystemType>(ether,ether.localRank,ether.localSize,mpiCommVector);
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
@@ -128,7 +130,7 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	Geometry geometry;
 	DynVars dynVars;
 	Aux aux;
-	typedef MpiIo<MpiSystemSerial> MpiIoType;
+	typedef MpiIo<MpiSystemMpi> MpiIoType;
 	Io<MpiIoType> io;
 	
 	srand(time(0));

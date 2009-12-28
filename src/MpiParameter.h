@@ -9,7 +9,7 @@ public:
 	enum {SEPARATE,TOGETHER};
 	
 	MpiParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
-		     typename MpiSystemType::MPI_Comm& mpiComm,size_t size) 
+		     typename MpiSystemType::MPIComm& mpiComm,size_t size) 
 	: separateOrTogether_(separateOrTogether), localRank_(localRank),mpiCommSize_(size),mpiComm_(mpiComm)
 	{
 		generator(param);
@@ -22,7 +22,7 @@ public:
 	
 	bool separate() const { return (separateOrTogether_==SEPARATE); }
 	
-	typename MpiSystemType::MPI_Comm mpiComm() const { return mpiComm_; }
+	typename MpiSystemType::MPIComm mpiComm() const { return mpiComm_; }
 	
 	size_t mpiCommSize() const { return mpiCommSize_; }
 	
@@ -31,7 +31,7 @@ public:
 private:
 	size_t 	separateOrTogether_,localRank_;
 	size_t mpiCommSize_;
-	typename MpiSystemType::MPI_Comm mpiComm_;
+	typename MpiSystemType::MPIComm mpiComm_;
 }; // MpiParameter
 
 #endif

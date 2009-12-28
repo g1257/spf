@@ -19,7 +19,7 @@ class MpiIo {
 			
 			std::vector<T> prevResult=v;
 			for (size_t i=0;i<partialComm_.size();i++) {
-				MpiSystemType::MPI_Reduce(&(prevResult[0]),&(result[0]),v.size(),MpiSystemType::MPI_SUM,0,partialComm_[i]);
+				MpiSystemType::MPI_Reduce(&(prevResult[0]),&(result[0]),v.size(),MpiSystemType::MPISUM,0,partialComm_[i]);
 				for (size_t j=0;j<result.size();j++) result[j] /= commSize_[i];
 				prevResult = result;
 			}
@@ -36,7 +36,7 @@ class MpiIo {
 			T result;
 			T prevResult = v;
 			for (size_t i=0;i<partialComm_.size();i++) {
-				MpiSystemType::MPI_Reduce(&prevResult,&result,1,MpiSystemType::MPI_SUM,0,partialComm_[i]);
+				MpiSystemType::MPI_Reduce(&prevResult,&result,1,MpiSystemType::MPISUM,0,partialComm_[i]);
 				result /= commSize_[i];
 				prevResult = result;
 			}
@@ -47,7 +47,7 @@ class MpiIo {
 		}
 
 	private:
-		std::vector<typename MpiSystemType::MPI_Comm> partialComm_;
+		std::vector<typename MpiSystemType::MPIComm> partialComm_;
 		std::vector<size_t> commSize_;
 		std::vector<size_t> rankInComm_;
 		
