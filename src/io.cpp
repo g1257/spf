@@ -662,6 +662,7 @@ int Io::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameter
 		fin>>ether.numberOfJafConfigs;
 		fin>>ether.jafCenter;
 		fin>>ether.jafDelta;
+		ether.JafVector.resize(ether.D*ether.linSize);
 		//for (i=0;i<ether.D*ether.linSize;i++) ether.JafVector.push_back(temp);
 	}
 	/*! \b HAMILTONIAN_POTENTIAL: The name of the file containing a local potential
