@@ -255,17 +255,17 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 	vectorPrint(aux.clasCor,"clasCor",file[10]);
 	if (aux.orbitalAngles.size()>0) {
 		vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
-		vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
+		mpiIo.vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
 	}
 	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
-	vectorPrint(aux.avMoments,"moments",file[0]);
+	mpiIo.vectorPrint(aux.avMoments,"moments",file[0]);
 	
 	if (ether.bcsDelta0>0) 	{	
 		vectorDivide(aux.bcsCorxx,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
+		mpiIo.vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
 		
 		vectorDivide(aux.bcsCorxy,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
+		mpiIo.vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
 	}
 	
 	for (bandIndex=0;bandIndex<ether.numberOfOrbitals;bandIndex++) {
@@ -277,7 +277,7 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 	if (ether.isSet("optical")) {
 		if (ether.tpem) {
 			vectorDivide(aux.opticalMoments,ether.iterEffective);
-			vectorPrint(aux.opticalMoments,"optMoments",file[5]);
+			mpiIo.vectorPrint(aux.opticalMoments,"optMoments",file[5]);
 		} else {
 			aux.Sigma.divide(ether.iterEffective,1);
 			aux.Sigma.print(file[5]);

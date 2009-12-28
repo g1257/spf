@@ -25,7 +25,7 @@ public:
 	{
 		for (size_t i=0;i<v.size();i++) {
 			FieldType x = random()/static_cast<FieldType>(RAND_MAX);
-			std::cerr<<"x="<<x<<" "<<l0_<<" "<<l1_<<"\n";
+			//std::cerr<<"x="<<x<<" "<<l0_<<" "<<l1_<<"\n";
 			if (x<0.5) v[i] = l0_ + l1_;
 			else v[i] = l0_ - l1_;
 		}
