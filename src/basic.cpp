@@ -278,7 +278,7 @@ void randomizeBox(vector<double> &v,double v0, double dv)
 }
 
 
-void vectorPrint(vector<int> const &v,char *name,ostream &s)
+void vectorPrint(vector<int> const &v,const std::string& name,ostream &s)
 {
 	int i,n=v.size();
 	//for (i=0;i<n;i++) s<<name<<"["<<i<<"]="<<v[i]<<endl;
@@ -286,7 +286,7 @@ void vectorPrint(vector<int> const &v,char *name,ostream &s)
 	for (i=0;i<n;i++) s<<i<<" "<<v[i]<<endl;
 }
 
-void vectorPrint(vector<double> const  &v,char *name,ostream &s)
+void vectorPrint(vector<double> const  &v,const std::string& name,ostream &s)
 {
 	int i,n=v.size();
 	//for (i=0;i<n;i++) s<<name<<"["<<i<<"]="<<v[i]<<endl;
@@ -294,7 +294,7 @@ void vectorPrint(vector<double> const  &v,char *name,ostream &s)
 	for (i=0;i<n;i++) s<<i<<" "<<v[i]<<endl;
 }
 
-void vectorPrint(vector<tpem_t> const &v,char *name,ostream &s)
+void vectorPrint(vector<tpem_t> const &v,const std::string& name,ostream &s)
 {
 	int i,n=v.size();
 	//for (i=0;i<n;i++) s<<name<<"["<<i<<"]="<<v[i]<<endl;

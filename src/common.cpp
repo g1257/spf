@@ -78,7 +78,7 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 }
 
 template<typename MpiSystemType>
-void registerHook(Parameters& ether,MpiIo<MpiSystemType>* mpiIo)
+void registerHook(Parameters& ether,MpiIo<MpiSystemType>** mpiIo)
 {
 	std::vector<typename MpiSystemType::MPI_Comm> mpiCommVector;
 	setTheRankVector<MpiSystemType>(ether,ether.localRank,ether.localSize,mpiCommVector);
@@ -92,7 +92,7 @@ void registerHook(Parameters& ether,MpiIo<MpiSystemType>* mpiIo)
 	typedef MpiParameter<std::vector<double>,RandomGeneratorType,Parameters,MpiSystemType> MpiParameterJaf;
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
 	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::SEPARATE,ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
-	mpiIo = new MpiIo<MpiSystemType>(beta,jafvector);
+	mpiIo[0] = new MpiIo<MpiSystemType>(beta,jafvector);
 }
 
 int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
@@ -129,8 +129,7 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	DynVars dynVars;
 	Aux aux;
 	typedef MpiIo<MpiSystemSerial> MpiIoType;
- 	MpiIoType* mpiIo;
-	Io<MpiIoType> io(mpiIo);
+	Io<MpiIoType> io;
 	
 	srand(time(0));
 
@@ -139,8 +138,10 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 		if (ether.mpiRank==0) cerr<<"A problem ocurred while trying to load file "<<sfile<<endl;
 		return 1;
 	}
-
+	
+	MpiIoType** mpiIo = new MpiIoType*[1];
 	registerHook(ether,mpiIo);
+	io.setMpiIo(mpiIo[0]);
 	
 	// enable custom config
 	if (ether.mpiNop2>1 && (ether.isSet("optical") || ether.isSet("akw"))) {

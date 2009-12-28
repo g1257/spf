@@ -9,14 +9,15 @@ class MpiIo {
 		{
 			setPartialCommunicator(p1);
 			setPartialCommunicator(p2);
+			std::cerr<<"partialComm_.size="<<partialComm_.size()<<"\n";
 		}
 		
 		template<typename T>
-		void vectorPrint(const std::vector<T>& v,const std::string& label,std::ofstream& of)
+		void vectorPrint(const std::vector<T>& v,const std::string& label,std::ofstream& of) 
 		{
-			std::vector<T> result(v.size());
+			std::vector<T> result=v;
+			
 			std::vector<T> prevResult=v;
-					
 			for (size_t i=0;i<partialComm_.size();i++) {
 				MpiSystemType::MPI_Reduce(&(prevResult[0]),&(result[0]),v.size(),MpiSystemType::MPI_SUM,0,partialComm_[i]);
 				for (size_t j=0;j<result.size();j++) result[j] /= commSize_[i];
@@ -26,11 +27,11 @@ class MpiIo {
 			for (size_t i=0;i<partialComm_.size();i++) 
 				if (rankInComm_[i]!=0) return;
 			
-			vectorPrint(result,label,of);
+			::vectorPrint(result,label,of);
 		}
 		
 		template<typename T>
-		void vectorPrint(const T& v,const std::string& label,std::ofstream& of)
+		void vectorPrint(const T& v,const std::string& label,std::ofstream& of) const
 		{
 			T result;
 			T prevResult = v;
@@ -50,10 +51,12 @@ class MpiIo {
 		std::vector<size_t> commSize_;
 		std::vector<size_t> rankInComm_;
 		
+		
 		template<typename MpiParameterType>
 		void setPartialCommunicator(const MpiParameterType& p)
 		{
 			if (p.separate()) return;
+			std::cerr<<"doing somthhing\n";
 			partialComm_.push_back(p.mpiComm());
 			commSize_.push_back(p.mpiCommSize());
 			rankInComm_.push_back(p.mpiRank());

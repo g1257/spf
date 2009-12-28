@@ -66,7 +66,7 @@ template<typename MpiIoType>
 class Io {
 	public:
 			
-			Io(MpiIoType* mpiIo);
+			Io();
 			
 			~Io();
 	
@@ -139,6 +139,8 @@ class Io {
 			void getHostInfo();
 			int input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux);
 			
+			void setMpiIo(MpiIoType* mpiIo);
+					
 	private:
 			MpiIoType* mpiIo_;
 			int setBoundaryConditions(std::string const &s,Parameters &ether);
@@ -155,7 +157,7 @@ class Io {
 
 
 template<typename MpiIoType>
-Io<MpiIoType>::Io(MpiIoType* mpiIo) : mpiIo_(mpiIo)
+Io<MpiIoType>::Io() 
 {
 	
 	if (isInstatiated) {
@@ -205,6 +207,12 @@ Io<MpiIoType>::Io(MpiIoType* mpiIo) : mpiIo_(mpiIo)
 	currentTime();
 }
 
+template<typename MpiIoType>
+void Io<MpiIoType>::setMpiIo(MpiIoType* mpiIo)
+{
+	mpiIo_ =  mpiIo;
+}
+		
 template<typename MpiIoType>
 Io<MpiIoType>::~Io()
 {
