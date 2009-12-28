@@ -44,7 +44,9 @@ extern void MPI_VecReduce(vector<double> &v1);
 
 #endif
 
-Io::Io()
+
+template<typename MpiIoType>
+Io<MpiIoType>::Io(MpiIoType* mpiIo) : mpiIo_(mpiIo)
 {
 	
 	if (isInstatiated) {
@@ -94,7 +96,8 @@ Io::Io()
 	currentTime();
 }
 
-Io::~Io()
+template<typename MpiIoType>
+Io<MpiIoType>::~Io()
 {
 	
 	if (isInit) {
@@ -113,7 +116,8 @@ Io::~Io()
 				
 }
 
-void Io::initOutput(Parameters &ether)
+template<typename MpiIoType>
+void Io<MpiIoType>::initOutput(Parameters &ether)
 {
 	// Prepare files
 	int i;
@@ -154,7 +158,8 @@ void Io::initOutput(Parameters &ether)
 			
 }
 
-void Io::printMiscInfo(ostream &s)
+template<typename MpiIoType>
+void Io<MpiIoType>::printMiscInfo(ostream &s)
 {
 	int pid=getpid();
 	/*! <b>Signature of the output files</b><br>
@@ -171,7 +176,8 @@ void Io::printMiscInfo(ostream &s)
 	s<<"#COMPILED="<<compInfo<<endl;		
 }
 			
-void Io::writeFinalStuff()
+template<typename MpiIoType>
+void Io<MpiIoType>::writeFinalStuff()
 {
 	
         if (rankTpem!=0) return;
@@ -213,8 +219,8 @@ file[i]<<"# Read the real timer instead.\n";
 }
 
 
-
-void Io::currentTime()
+template<typename MpiIoType>
+void Io<MpiIoType>::currentTime()
 {
 	time_t *tp = new time_t;
 	time(tp);
@@ -225,12 +231,14 @@ void Io::currentTime()
 	delete tp;
 }
 
-void Io::printLcd(Parameters const &ether,Aux &aux)
+template<typename MpiIoType>
+void Io<MpiIoType>::printLcd(Parameters const &ether,Aux &aux)
 {
 	vectorPrint(aux.lcd,"lcd",file[7]);
 }
 
-void Io::printAverages(Parameters &ether,Aux &aux)
+template<typename MpiIoType>
+void Io<MpiIoType>::printAverages(Parameters &ether,Aux &aux)
 {
 	int i,j,bandIndex=0,temp;
 	
@@ -255,17 +263,17 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 	vectorPrint(aux.clasCor,"clasCor",file[10]);
 	if (aux.orbitalAngles.size()>0) {
 		vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
-		mpiIo.vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
+		mpiIo_.vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
 	}
 	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
-	mpiIo.vectorPrint(aux.avMoments,"moments",file[0]);
+	mpiIo_.vectorPrint(aux.avMoments,"moments",file[0]);
 	
 	if (ether.bcsDelta0>0) 	{	
 		vectorDivide(aux.bcsCorxx,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		mpiIo.vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
+		mpiIo_.vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
 		
 		vectorDivide(aux.bcsCorxy,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		mpiIo.vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
+		mpiIo_.vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
 	}
 	
 	for (bandIndex=0;bandIndex<ether.numberOfOrbitals;bandIndex++) {
@@ -277,7 +285,7 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 	if (ether.isSet("optical")) {
 		if (ether.tpem) {
 			vectorDivide(aux.opticalMoments,ether.iterEffective);
-			mpiIo.vectorPrint(aux.opticalMoments,"optMoments",file[5]);
+			mpiIo_.vectorPrint(aux.opticalMoments,"optMoments",file[5]);
 		} else {
 			aux.Sigma.divide(ether.iterEffective,1);
 			aux.Sigma.print(file[5]);
@@ -349,13 +357,15 @@ void Io::printAverages(Parameters &ether,Aux &aux)
 
 }
 
-void Io::printSnapshot(DynVars const &dynVars,Parameters const &ether)
+template<typename MpiIoType>
+void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether)
 {
 
 	printSnapshot(dynVars,ether,file[2]);
 }
 
-void Io::printSnapshot(DynVars const &dynVars,Parameters const &ether,int option)
+template<typename MpiIoType>
+void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,int option)
 {
 	string name = ether.rootname + ".last";
 	std::ofstream f(name.c_str());
@@ -363,7 +373,8 @@ void Io::printSnapshot(DynVars const &dynVars,Parameters const &ether,int option
 	f.close();
 }
 
-void Io::printSnapshot(DynVars const &dynVars,Parameters const &ether,std::ofstream &f)
+template<typename MpiIoType>
+void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,std::ofstream &f)
 {
 	int i,n;
 	n=ether.linSize;
@@ -414,7 +425,8 @@ void Io::printSnapshot(DynVars const &dynVars,Parameters const &ether,std::ofstr
 				
 }
 
-void Io::getHostInfo()
+template<typename MpiIoType>
+void Io<MpiIoType>::getHostInfo()
 {
 				
 	// Get uname info
@@ -435,7 +447,8 @@ void Io::getHostInfo()
 
 /*! \brief Reads the configuration file.
 */
-int Io::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux)
+template<typename MpiIoType>
+int Io<MpiIoType>::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux)
 {
 
 	int i;
@@ -874,7 +887,8 @@ int Io::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameter
 		parts of the border hoppings.
 	* \param ether : the Parameters structure passed as reference. 
 	*/
-int Io::setBoundaryConditions(std::string const &s,Parameters &ether)
+template<typename MpiIoType>
+int Io<MpiIoType>::setBoundaryConditions(std::string const &s,Parameters &ether)
 {
 	int i;
 	vector<double> temp;
@@ -895,3 +909,4 @@ int Io::setBoundaryConditions(std::string const &s,Parameters &ether)
 	} 
 	return 0;
 }
+

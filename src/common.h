@@ -50,7 +50,8 @@ computer code (http://mri-fre.ornl.gov/spf)."
 &ether,Aux &aux);
  void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions);
- void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io &io,
+template<typename MpiIoType>
+ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<MpiIoType> &io,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions);
  void diag(vector<double> &eigOneBand,Geometry const &geometry,
         DynVars const &dynVars,Parameters const &ether, Aux &aux,char jobz='N');

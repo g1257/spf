@@ -43,9 +43,13 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "VectorGenerator.h"
 #include "RandomGenerator.h"
 #include "MpiParameter.h"
+#include "MpiIo.h"
+#include "MpiSystemSerial.h"
 
-bool Io::isInstatiated=false;
-bool Io::isInit=false;
+template<typename MpiIoType>
+bool Io<MpiIoType>::isInstatiated=false;
+template<typename MpiIoType>
+bool Io<MpiIoType>::isInit=false;
 
 using namespace std;
 
@@ -56,8 +60,8 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
-
-void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w)
+template<typename MpiSystemType>
+void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename MpiSystemType::MPI_Comm>& mpiCommVector)
 {
 	
 	size_t size0 = ether.numberOfBetas;
@@ -67,24 +71,28 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	v[1] = size_t(ether.mpiRank/size0);
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
+	mpiCommVector.resize(2);
+	MpiSystemType::MPI_Comm_Split(MpiSystemType::MPI_COMM_WORLD,v[0],ether.mpiRank,&mpiCommVector[0]);
+	MpiSystemType::MPI_Comm_Split(MpiSystemType::MPI_COMM_WORLD,v[1],ether.mpiRank,&mpiCommVector[1]);
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 
-void registerHook(Parameters& ether)
+template<typename MpiSystemType>
+void registerHook(Parameters& ether,MpiIo<MpiSystemType>* mpiIo)
 {
-
-	setTheRankVector(ether,ether.localRank,ether.localSize);
+	std::vector<typename MpiSystemType::MPI_Comm> mpiCommVector;
+	setTheRankVector<MpiSystemType>(ether,ether.localRank,ether.localSize,mpiCommVector);
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
-	typedef MpiParameter<double,VectorGenerator<double>,Parameters > MpiParameterBeta;
-	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0]); // beta 4 10 20 30 40
+	typedef MpiParameter<double,VectorGenerator<double>,Parameters,MpiSystemType> MpiParameterBeta;
+	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0],mpiCommVector[0],ether.localSize[0]); // beta 4 10 20 30 40
 	
 	// example of random
 	typedef RandomGenerator<double> RandomGeneratorType;
-	typedef MpiParameter<std::vector<double>,RandomGeneratorType,Parameters> MpiParameterJaf;
+	typedef MpiParameter<std::vector<double>,RandomGeneratorType,Parameters,MpiSystemType> MpiParameterJaf;
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::SEPARATE,ether.localRank[1]);
-
+	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::SEPARATE,ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
+	mpiIo = new MpiIo<MpiSystemType>(beta,jafvector);
 }
 
 int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
@@ -120,7 +128,9 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	Geometry geometry;
 	DynVars dynVars;
 	Aux aux;
-	Io io;
+	typedef MpiIo<MpiSystemSerial> MpiIoType;
+ 	MpiIoType* mpiIo;
+	Io<MpiIoType> io(mpiIo);
 	
 	srand(time(0));
 
@@ -130,7 +140,7 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 		return 1;
 	}
 
-	registerHook(ether);	
+	registerHook(ether,mpiIo);
 	
 	// enable custom config
 	if (ether.mpiNop2>1 && (ether.isSet("optical") || ether.isSet("akw"))) {
@@ -1576,7 +1586,8 @@ void calcMoments(DynVars const &dynVars,Geometry const &geometry,Parameters cons
 
 			
 // TPEM_FIXME: Electronic observables must be modified
-void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io &io,
+template<typename MpiIoType>
+void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<MpiIoType> &io,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
 {
 	double n_electrons;
