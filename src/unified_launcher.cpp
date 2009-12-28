@@ -43,43 +43,23 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #include <mpi.h>
 #include <iostream>
-#include <fstream>
-#include <unistd.h>
-#include <cstdlib>
 
 extern int spf_entry(int argc,char *argv[],int ,int);
-
-#define MAX_WORD 256
-using namespace std;
-
-extern void num2digits(char *temp,int &n,int x);
 
 // MAIN PROGRAM BEGINS HERE
 int main(int argc,char **argv) 
 {
-	register int i;
-	int myOffset,number;
-	int rank,GONZA_MPISize,serial_tasks;
-	char exename[MAX_WORD], tempc[MAX_WORD],let[3],comm1[MAX_WORD];
-	char **myargv;
+	int rank,GONZA_MPISize;
 	// Since the slave processes get wild from the beginning it
 	// doesnt matter where you call Init(...)
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&GONZA_MPISize);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	
-	myargv = new char*[2];
-	myargv[0] = new char[strlen(exename)+1];
-	strcpy(myargv[0],argv[0]);
-	myargv[1] = new char[strlen(comm1)+1];
-	strcpy(myargv[1],argv[1]);
-	if (rank==0) {
-		cout<<"myargv= "<<myargv[0]<<" "<<myargv[1]<<endl;
-	}
 	
-	spf_entry(2,myargv,rank,GONZA_MPISize);
+	spf_entry(argc,argv,rank,GONZA_MPISize);
 	
-	cout<<"PROCESS "<<rank<<" HAS ENDED\n";
+	std::cout<<"PROCESS "<<rank<<" HAS ENDED\n";
 	// All MPI Threads must wait before calling Finalize
 	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
