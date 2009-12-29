@@ -72,9 +72,9 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
 	mpiCommVector.resize(2);
-	MpiSystemType::MPI_Comm_split(3,//MpiSystemType::MPI_COMM_WORLD,v[0],
+	MpiSystemType::MPI_Comm_split(MpiSystemType::MPICOMMWORLD,v[0],
 			ether.mpiRank,&mpiCommVector[0]);
-	MpiSystemType::MPI_Comm_split(17,//MpiSystemType::MPI_COMM_WORLD,v[1],
+	MpiSystemType::MPI_Comm_split(MpiSystemType::MPICOMMWORLD,v[1],
 			ether.mpiRank,&mpiCommVector[1]);
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
@@ -93,7 +93,7 @@ void registerHook(Parameters& ether,MpiIo<MpiSystemType>** mpiIo)
 	typedef RandomGenerator<double> RandomGeneratorType;
 	typedef MpiParameter<std::vector<double>,RandomGeneratorType,Parameters,MpiSystemType> MpiParameterJaf;
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::SEPARATE,ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
+	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::GATHER,ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
 	mpiIo[0] = new MpiIo<MpiSystemType>(beta,jafvector);
 }
 

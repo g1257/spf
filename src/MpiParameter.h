@@ -6,7 +6,7 @@ template<typename T,typename GeneratorType,typename ParametersType,typename MpiS
 class MpiParameter {
 
 public:
-	enum {SEPARATE,TOGETHER};
+	enum {SEPARATE,GATHER};
 	
 	MpiParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
 		     typename MpiSystemType::MPIComm& mpiComm,size_t size) 

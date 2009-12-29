@@ -19,7 +19,7 @@ class MpiIo {
 			
 			std::vector<T> prevResult=v;
 			for (size_t i=0;i<partialComm_.size();i++) {
-				MpiSystemType::MPI_Reduce(&(prevResult[0]),&(result[0]),v.size(),MpiSystemType::MPISUM,0,partialComm_[i]);
+				MpiSystemType::MPI_Reduce(prevResult,result,MpiSystemType::MPISUM,0,partialComm_[i]);
 				for (size_t j=0;j<result.size();j++) result[j] /= commSize_[i];
 				prevResult = result;
 			}
