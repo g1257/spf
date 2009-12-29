@@ -46,6 +46,10 @@ public:
 	{
 		::MPI_Barrier(MPICOMMWORLD);
 	}
+	static int MPI_Comm_rank(MPIComm comm,int& r)
+	{
+		::MPI_Comm_rank(comm,&r);
+	}
 }; // ConcurrencyMpi
 
 const ConcurrencyMpi::MPIOp ConcurrencyMpi::MPISUM = MPI_SUM;

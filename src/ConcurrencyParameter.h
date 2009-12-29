@@ -6,7 +6,7 @@ template<typename T,typename GeneratorType,typename ParametersType,typename Conc
 class ConcurrencyParameter {
 
 public:
-	enum {SEPARATE,GATHER};
+	enum {SEPARATE=0,GATHER=1};
 	
 	ConcurrencyParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
 		     typename ConcurrencyType::MPIComm& mpiComm,size_t size) 

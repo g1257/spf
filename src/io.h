@@ -127,7 +127,6 @@ class Io {
 			void historyPrint(string const &s,const SomeType& value,int option=0)
 			{
 				
-				if (s != "KineticEnergy=") return; 
 				SomeType result = value;
 				bool printHistory = concurrencyIo_->average(result);
 				if (!printHistory) return;

@@ -65,19 +65,22 @@ extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geomet
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
 template<typename ConcurrencyType>
-void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
+void setTheRankVector(Parameters& ether,std::vector<int>& v,std::vector<size_t>& w,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
 {
 	
 	size_t size0 = ether.numberOfBetas;
 	v.resize(2);
 	w.resize(2);
-	v[0] = ether.mpiRank % size0;
-	v[1] = size_t(ether.mpiRank/size0);
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
+	std::vector<size_t> y(2);
+	y[0] = ether.mpiRank / w[0];
+	y[1] = ether.mpiRank / w[1];
 	mpiCommVector.resize(2);
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[0],ether.mpiRank,&(mpiCommVector[0]));
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[1],ether.mpiRank,&(mpiCommVector[1]));
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[0],ether.mpiRank,&(mpiCommVector[0]));
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[1],ether.mpiRank,&(mpiCommVector[1]));
+	ConcurrencyType::MPI_Comm_rank(mpiCommVector[0],v[0]);
+	ConcurrencyType::MPI_Comm_rank(mpiCommVector[1],v[1]);
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 

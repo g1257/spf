@@ -101,7 +101,8 @@ struct Parameters {
 	double tpem_epsProd,tpem_epsTrace;
 	int tpem_cutoff,tpem;
 	int mpiRank,mpiTpemRank,mpiNop1,mpiNop2,mpiSize;
-	std::vector<size_t> localRank,localSize;
+	std::vector<int> localRank;
+	std::vector<size_t> localSize;
 	
 	void print(ostream &s,char prefix='#');
 	bool isSet(char const *what) const;

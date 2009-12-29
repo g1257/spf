@@ -12,10 +12,10 @@ class ConcurrencyIo {
 		{
 			setPartialCommunicator(p1);
 			setPartialCommunicator(p2);
-			int rank = 0;
+			/*int rank = 0;
 			MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 			int color = int(rank / 3);
-			MPI_Comm_split(MPI_COMM_WORLD,color,rank,&testComm_);
+			MPI_Comm_split(MPI_COMM_WORLD,color,rank,&testComm_);*/
 			std::cerr<<"partialComm_.size="<<partialComm_.size()<<"\n";
 		}
 		
@@ -65,13 +65,13 @@ class ConcurrencyIo {
 		bool average(SomeType& value)
 		{
 			SomeType result = value;
-                        //SomeType prevResult = value;
+                        SomeType prevResult = value;
 			size_t i = 0;
-                        //for (size_t i=0;i<partialComm_.size();i++) {
-				ConcurrencyType::MPI_Reduce(value,result,ConcurrencyType::MPISUM,0,testComm_);
-				//result /= commSize_[i];
-				//prevResult = result;
-			//}
+                        for (size_t i=0;i<partialComm_.size();i++) {
+				ConcurrencyType::MPI_Reduce(value,result,ConcurrencyType::MPISUM,0,partialComm_[i]);
+				result /= commSize_[i];
+				prevResult = result;
+			}
 			value = result;
 			
 			for (size_t i=0;i<partialComm_.size();i++)
@@ -81,7 +81,7 @@ class ConcurrencyIo {
 
 		}
 
-		bool average(double& value)
+		/*bool average(double& value)
 		{
 			int rank = 0;
 			MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -90,13 +90,13 @@ class ConcurrencyIo {
 			MPI_Reduce(&value,&result,1,MPI_DOUBLE,MPI_SUM,0,testComm_);
 			std::cerr<<"Average "<<rank<<" "<<result<<"\n";
 			value = result;
-		}
+		}*/
 
 	private:
 		std::vector<typename ConcurrencyType::MPIComm> partialComm_;
 		std::vector<size_t> commSize_;
 		std::vector<size_t> rankInComm_;
-		MPI_Comm testComm_;
+		//MPI_Comm testComm_;
 		
 		template<typename ConcurrencyParamType>
 		void setPartialCommunicator(const ConcurrencyParamType& p)
