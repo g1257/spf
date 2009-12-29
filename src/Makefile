@@ -8,7 +8,7 @@
 # GSL: no
 LDFLAGS = -L.   -llapack -lblas -lm  -L../lib 
 EXENAME = spf2b
-CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -DNDEBUG 
+CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -DNDEBUG  -DCONCURRENCYMPI
 CXX = mpicxx -O2 
 include filelist.make
 

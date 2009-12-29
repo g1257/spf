@@ -76,8 +76,8 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
 	mpiCommVector.resize(2);
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[0],ether.mpiRank,&mpiCommVector[0]);
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[1],ether.mpiRank,&mpiCommVector[1]);
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[0],ether.mpiRank,&(mpiCommVector[0]));
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[1],ether.mpiRank,&(mpiCommVector[1]));
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 
@@ -98,6 +98,9 @@ void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
 	ConcurrencyParameterJaf jafvector(ether.JafVector,ether,jafGenerator,ConcurrencyParameterJaf::GATHER,
 					  ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
+
+	
+	// allocate
 	ciovar[0] = new ConcurrencyIo<ConcurrencyType>(beta,jafvector);
 }
 
@@ -1615,8 +1618,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	
 	vector<double> tmp(n,0),tmpweight(n,0);
 	
-	s = "iter="+ttos(iter);
-	io.historyPrint(s);
+	s = "iter=";
+	io.historyPrint(s,iter);
 	
 	n_electrons=0;
 		
@@ -1633,8 +1636,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 #ifdef MODEL_KONDO_DMS_MANYBANDS
 		for (i=0;i<ether.numberOfOrbitals;i++) {
 			temp = calcNumber(dynVars,geometry,ether,aux,i); // number of electrons for band i  
-			s ="Number_Of_Band"+ttos(i)+"="+ttos(temp);
-			io.historyPrint(s);
+			s ="Number_Of_Band"+ttos(i)+"=";
+			io.historyPrint(s,temp);
 		}
 #endif
 		n_electrons=calcNumber (aux.eigOneBand,ether,aux);
@@ -1642,50 +1645,50 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	}
 		
 		
-	s ="Number_Of_Electrons="+ttos(n_electrons);
-	io.historyPrint(s);
+	s ="Number_Of_Electrons=";
+	io.historyPrint(s,n_electrons);
 		
 	if (ether.tpem) temp=measure_energy (moment, ether,aux,tpemOptions);
 	else temp=calcElectronicEnergy(aux.eigOneBand,ether,aux);
 	
-	s="Electronic Energy="+ttos(temp);
-	io.historyPrint(s);
+	s="Electronic Energy=";
+	io.historyPrint(s,temp);
 	temp2=calcSuperExchange(dynVars,geometry,ether);
-	s="Superexchange="+ttos(temp2);
-	io.historyPrint(s);
+	s="Superexchange=";
+	io.historyPrint(s,temp2);
 	temp += temp2;
 	if (ether.isSet("tprime")) {
 		temp2=directExchange2(dynVars,geometry,ether);
-		s="Superexchange2="+ttos(temp2);
-		io.historyPrint(s);
+		s="Superexchange2=";
+		io.historyPrint(s,temp2);
 		temp += temp2;
 	}
 #ifdef MODEL_KONDO_INF_TWOBANDS		
 	temp2 = calcPhononEnergy(dynVars,geometry,ether);
-	s="PhononEnergy="+ttos(temp2);
-	io.historyPrint(s);
+	s="PhononEnergy=";
+	io.historyPrint(s,temp2);
 	temp += temp2;
 #endif		
 	// total energy = electronic energy + superexchange + phonon energy
-	s="TotalEnergy="+ttos(temp);
-	io.historyPrint(s);
+	s="TotalEnergy=";
+	io.historyPrint(s,temp);
 		
 	if (ether.tpem) temp=measure_action (moment, ether,aux,tpemOptions);
 	else temp=calcAction(aux.eigOneBand,ether,aux);
-	s="Action="+ttos(temp);
-	io.historyPrint(s);
+	s="Action=";
+	io.historyPrint(s,temp);
 	
-	s="Number_Of_Holes="+ttos(ether.hilbertSize-n_electrons);
-	io.historyPrint(s);
+	s="Number_Of_Holes=";
+	io.historyPrint(s,ether.hilbertSize-n_electrons);
 
-	s="ChemPot="+ttos(aux.varMu);
-	io.historyPrint(s);
+	s="ChemPot=";
+	io.historyPrint(s,aux.varMu);
 	
 	if (ether.isSet("adjusttpembounds") || iter==0) {
-		s="tpem_a="+ttos(aux.varTpem_a);
-		io.historyPrint(s);
-		s="tpem_b="+ttos(aux.varTpem_b);
-		io.historyPrint(s);
+		s="tpem_a=";
+		io.historyPrint(s,aux.varTpem_a);
+		s="tpem_b=";
+		io.historyPrint(s,aux.varTpem_b);
 	}
 	
 	for (i=0;i<n;i++) {
@@ -1701,8 +1704,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		cout<<endl;
 	}
 	
-	s="Cor[1]="+ttos(tmp[1]);
-	io.historyPrint(s);
+	s="Cor[1]=";
+	io.historyPrint(s,tmp[1]);
 
 	if (geometry.isCubicType()) {
 		int l = geometry.length();
@@ -1716,47 +1719,47 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		}
 		temp=calcSq(tmp,geometry,i);
        
-		s="Sq[pi]="+ttos(temp);
-		io.historyPrint(s);
+		s="Sq[pi]=";
+		io.historyPrint(s,temp);
 	
 		if (d==2) {
 			i=l*0.5;
 			temp=calcSq(tmp,geometry,i);
-			s="Sq[(pi,0)]="+ttos(temp);
-			io.historyPrint(s);
+			s="Sq[(pi,0)]=";
+			io.historyPrint(s,temp);
         	}
 	}
 	for (i=0;i<n;i++) aux.clasCor[i] += tmp[i];
 	
 	if (iter==0) {
-		s="Weight[0]="+ttos(tmpweight[0]);
-		io.historyPrint(s);
+		s="Weight[0]=";
+		io.historyPrint(s,tmpweight[0]);
 	}
 	temp= calcClasCor(dynVars,ether,0,4);
-	s="CustomCorrelation="+ttos(temp);
-        io.historyPrint(s);
+	s="CustomCorrelation=";
+        io.historyPrint(s,temp);
 	
 	temp = calcMag(dynVars,ether);
-	s="Mag2="+ttos(temp);
-	io.historyPrint(s);
+	s="Mag2=";
+	io.historyPrint(s,temp);
 	
 	kTpemMoments(moment,aux,ether);
 	
 #ifdef MODEL_KONDO_INF_ONEBAND_PHONONS
 	temp=calcPhononV(geometry,dynVars,ether);
 	temp2=calcPhononV2(geometry,dynVars,ether);
-	s="calcPhononV="+ttos(temp);
-	io.historyPrint(s);
-	s="calcPhononV2="+ttos(temp2);
-	io.historyPrint(s);
+	s="calcPhononV=";
+	io.historyPrint(s,temp);
+	s="calcPhononV2=";
+	io.historyPrint(s,temp2);
 	temp=temp2/ether.linSize - square(temp/ether.linSize);
-	s="phononDeltaV="+ttos(temp);
-	io.historyPrint(s);	
+	s="phononDeltaV=";
+	io.historyPrint(s,temp);	
 #endif		
 	for (dof=0;dof<ether.classFieldList.size();dof++) {
 		aux.nac[dof] = (double)aux.nac[dof]/ether.iterUnmeasured;
-		s ="Accepted["+ttos(dof)+"]="+ttos(aux.nac[dof]);
-		io.historyPrint(s);
+		s ="Accepted["+ttos(dof)+"]=";
+		io.historyPrint(s,aux.nac[dof]);
 		aux.nac[dof]=0;
 	}
 	
@@ -1788,8 +1791,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	}
 
 
-	s ="KineticEnergy="+ttos(temp);
-	io.historyPrint(s);
+	s ="KineticEnergy=";
+	io.historyPrint(s,temp);
 
 	if (ether.isSet("conductance") &&   ether.mpiTpemRank==0  ) {
 		int maxiter = 1000;
@@ -1814,14 +1817,14 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 			temp += temp2;
 		}
 		temp /= geometry.dim();
-		s="Conductance="+ttos(temp);
-		io.historyPrint(s);
+		s="Conductance=";
+		io.historyPrint(s,temp);
 	}
 	
 	if (ether.bcsDelta0>0) {
 		temp = calcBcsDelta2(dynVars,ether);
-		s ="Delta2="+ttos(temp);
-		io.historyPrint(s);
+		s ="Delta2=";
+		io.historyPrint(s,temp);
 		calcBcsPhiCor(geometry,dynVars,ether,aux.bcsCorxx,0,0);
 		calcBcsPhiCor(geometry,dynVars,ether,aux.bcsCorxy,0,1);
 	}

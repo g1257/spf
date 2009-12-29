@@ -18,6 +18,11 @@ public:
 	{
 		//MPI_Reduce(operand,result,x,MPI_DOUBLE,x,root,comm);
 	}
+
+	static int MPI_Reduce(int operand,int& result,int op,size_t root ,MPIComm comm)
+        {
+                //::MPI_Reduce(&operand,&result,1,MPI_INT,op,root,comm);
+        }
 	
 	static int MPI_Reduce(std::vector<double>& operand,std::vector<double>& result,int op,size_t root ,MPIComm comm) 
 	{

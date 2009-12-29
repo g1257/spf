@@ -40,7 +40,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "model.h"
 
-#define CONCURRENCYMPI
 
 int main(int argc,char *argv[])
 {

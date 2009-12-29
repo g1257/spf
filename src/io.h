@@ -47,6 +47,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #include <functional>
 #include <cstring>
+#include <stdexcept>
 #include "basic.h"
 #include "parameters.h"
 #include "dynvars.h"
@@ -121,12 +122,18 @@ class Io {
 #endif
 				return std::cout;
 			}
-			
-			void historyPrint(string const &s,int option=0)
+		
+			template<typename SomeType>	
+			void historyPrint(string const &s,const SomeType& value,int option=0)
 			{
-				if (!doesPrintHistory) return;
-				file[0]<<s;
-				if (option==0) file[0]<<endl;
+				
+				if (s != "KineticEnergy=") return; 
+				SomeType result = value;
+				bool printHistory = concurrencyIo_->average(result);
+				if (!printHistory) return;
+			
+				file[0]<<s<<" "<<result;
+				if (option==0) file[0]<<"\n";
 			}
 			
 			
@@ -139,10 +146,10 @@ class Io {
 			void getHostInfo();
 			int input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux);
 			
-			void setConcurrencyIo(ConcurrencyIoType* ConcurrencyIo);
+			void setConcurrencyIo(ConcurrencyIoType*);
 					
 	private:
-			ConcurrencyIoType* ConcurrencyIo_;
+			ConcurrencyIoType* concurrencyIo_;
 			int setBoundaryConditions(std::string const &s,Parameters &ether);
 			std::ofstream *file;
 			int nFiles;
@@ -208,9 +215,9 @@ Io<ConcurrencyIoType>::Io()
 }
 
 template<typename ConcurrencyIoType>
-void Io<ConcurrencyIoType>::setConcurrencyIo(ConcurrencyIoType* ConcurrencyIo)
+void Io<ConcurrencyIoType>::setConcurrencyIo(ConcurrencyIoType* ciovar)
 {
-	ConcurrencyIo_ =  ConcurrencyIo;
+	concurrencyIo_ =  ciovar;
 }
 		
 template<typename ConcurrencyIoType>
@@ -255,22 +262,21 @@ void Io<ConcurrencyIoType>::initOutput(Parameters &ether)
 	rankTpem=ether.mpiTpemRank;
 	if (ether.mpiNop2==1 && rank>0) doesPrintHistory=false;
 	if (ether.mpiNop2>1 && ether.mpiTpemRank>0)  doesPrintHistory=false;
-	
-	if (ether.mpiTpemRank==0) {			
-	getHostInfo();
-	getCompilerInfo();
+	if (ether.mpiTpemRank==0 && concurrencyIo_->canWrite()) {			
+		getHostInfo();
+		getCompilerInfo();
 				
-	std::string filename;
-	for (i=0;i<nFiles;i++) {
-		//if (i>0 && rank>0) break;
-		if (isInVector(i,excludedfiles)) continue;
-		filename = std::string(ether.rootname) + extensions[i];
-		file[i].open(filename.c_str());
-		ether.print(file[i]);
-		printMiscInfo(file[i]);
-	}
-	if (ether.isSet("verbose")) std::cerr<<"Io::init: success, rank="<<rank<<"\n";
-	isInit=true;
+		std::string filename;
+		for (i=0;i<nFiles;i++) {
+			//if (i>0 && rank>0) break;
+			if (isInVector(i,excludedfiles)) continue;
+			filename = std::string(ether.rootname) + extensions[i];
+			file[i].open(filename.c_str());
+			ether.print(file[i]);
+			printMiscInfo(file[i]);
+		}
+		if (ether.isSet("verbose")) std::cerr<<"Io::init: success, rank="<<rank<<"\n";
+		isInit=true;
 	}
 			
 }
@@ -380,17 +386,17 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	vectorPrint(aux.clasCor,"clasCor",file[10]);
 	if (aux.orbitalAngles.size()>0) {
 		vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
-		ConcurrencyIo_->vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
+		concurrencyIo_->vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
 	}
 	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
-	ConcurrencyIo_->vectorPrint(aux.avMoments,"moments",file[0]);
+	concurrencyIo_->vectorPrint(aux.avMoments,"moments",file[0]);
 	
 	if (ether.bcsDelta0>0) 	{	
 		vectorDivide(aux.bcsCorxx,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		ConcurrencyIo_->vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
+		concurrencyIo_->vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
 		
 		vectorDivide(aux.bcsCorxy,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		ConcurrencyIo_->vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
+		concurrencyIo_->vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
 	}
 	
 	for (bandIndex=0;bandIndex<ether.numberOfOrbitals;bandIndex++) {
@@ -402,7 +408,7 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	if (ether.isSet("optical")) {
 		if (ether.tpem) {
 			vectorDivide(aux.opticalMoments,ether.iterEffective);
-			ConcurrencyIo_->vectorPrint(aux.opticalMoments,"optMoments",file[5]);
+			concurrencyIo_->vectorPrint(aux.opticalMoments,"optMoments",file[5]);
 		} else {
 			aux.Sigma.divide(ether.iterEffective,1);
 			aux.Sigma.print(file[5]);
@@ -584,16 +590,14 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 			return 1;
 		}
 	}
-#ifdef USE_MPI
-	MPI_Barrier(MPI_COMM_WORLD);
-#endif	
-	
+
+	ConcurrencyIoType::ConcurrencyType::barrier();
 	
 	std::ifstream fin(s.c_str());
 	if (!fin || fin.bad()) {
-		cerr<<"FATAL: Cannot open file: "<<filename<<endl;
+		cerr<<"FATAL: Cannot open file: "<<s.c_str()<<endl;
 		cerr<<"AT: "<<__FILE__<<" : "<<__LINE__<<endl;
-		return 1;
+		throw std::runtime_error("Cannot read input file\n");
 	}
 	/*! <H2>STRUCTURE OF THE INPUT FILE</H2>
 	 * The configuration file is a Unix style file. 
