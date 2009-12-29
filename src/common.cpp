@@ -42,14 +42,18 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "conductance.h"
 #include "VectorGenerator.h"
 #include "RandomGenerator.h"
-#include "MpiParameter.h"
-#include "MpiIo.h"
-#include "MpiSystemMpi.h"
+#include "ConcurrencyParameter.h"
+#include "ConcurrencyIo.h"
+#if defined(CONCURRENCYMPI)
+#include "ConcurrencyMpi.h"
+#else
+#include "ConcurrencySerial.h"
+#endif
 
-template<typename MpiIoType>
-bool Io<MpiIoType>::isInstatiated=false;
-template<typename MpiIoType>
-bool Io<MpiIoType>::isInit=false;
+template<typename ConcurrencyIoType>
+bool Io<ConcurrencyIoType>::isInstatiated=false;
+template<typename ConcurrencyIoType>
+bool Io<ConcurrencyIoType>::isInit=false;
 
 using namespace std;
 
@@ -60,8 +64,8 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
-template<typename MpiSystemType>
-void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename MpiSystemType::MPIComm>& mpiCommVector)
+template<typename ConcurrencyType>
+void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_t>& w,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
 {
 	
 	size_t size0 = ether.numberOfBetas;
@@ -72,29 +76,29 @@ void setTheRankVector(Parameters& ether,std::vector<size_t>& v,std::vector<size_
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
 	mpiCommVector.resize(2);
-	MpiSystemType::MPI_Comm_split(MpiSystemType::MPICOMMWORLD,v[0],
-			ether.mpiRank,&mpiCommVector[0]);
-	MpiSystemType::MPI_Comm_split(MpiSystemType::MPICOMMWORLD,v[1],
-			ether.mpiRank,&mpiCommVector[1]);
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[0],ether.mpiRank,&mpiCommVector[0]);
+	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,v[1],ether.mpiRank,&mpiCommVector[1]);
 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 }
 
-template<typename MpiSystemType>
-void registerHook(Parameters& ether,MpiIo<MpiSystemType>** mpiIo)
+template<typename ConcurrencyType>
+void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 {
-	std::vector<typename MpiSystemType::MPIComm> mpiCommVector;
-	setTheRankVector<MpiSystemType>(ether,ether.localRank,ether.localSize,mpiCommVector);
+	std::vector<typename ConcurrencyType::MPIComm> mpiCommVector;
+	setTheRankVector<ConcurrencyType>(ether,ether.localRank,ether.localSize,mpiCommVector);
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
-	typedef MpiParameter<double,VectorGenerator<double>,Parameters,MpiSystemType> MpiParameterBeta;
-	MpiParameterBeta beta(ether.beta,ether,betaGenerator,MpiParameterBeta::SEPARATE,ether.localRank[0],mpiCommVector[0],ether.localSize[0]); // beta 4 10 20 30 40
+	typedef ConcurrencyParameter<double,VectorGenerator<double>,Parameters,ConcurrencyType> ConcurrencyParameterBeta;
+	ConcurrencyParameterBeta beta(ether.beta,ether,betaGenerator,ConcurrencyParameterBeta::SEPARATE,
+				      ether.localRank[0],mpiCommVector[0],ether.localSize[0]); // beta 4 10 20 30 40
 	
 	// example of random
 	typedef RandomGenerator<double> RandomGeneratorType;
-	typedef MpiParameter<std::vector<double>,RandomGeneratorType,Parameters,MpiSystemType> MpiParameterJaf;
+	typedef ConcurrencyParameter<std::vector<double>,RandomGeneratorType,Parameters,ConcurrencyType> ConcurrencyParameterJaf;
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	MpiParameterJaf jafvector(ether.JafVector,ether,jafGenerator,MpiParameterJaf::GATHER,ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
-	mpiIo[0] = new MpiIo<MpiSystemType>(beta,jafvector);
+	ConcurrencyParameterJaf jafvector(ether.JafVector,ether,jafGenerator,ConcurrencyParameterJaf::GATHER,
+					  ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
+	ciovar[0] = new ConcurrencyIo<ConcurrencyType>(beta,jafvector);
 }
 
 int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
@@ -130,8 +134,13 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	Geometry geometry;
 	DynVars dynVars;
 	Aux aux;
-	typedef MpiIo<MpiSystemMpi> MpiIoType;
-	Io<MpiIoType> io;
+#if defined(CONCURRENCYMPI)
+	typedef ConcurrencyIo<ConcurrencyMpi> ConcurrencyIoType;
+#else
+	typedef ConcurrencyIo<ConcurrencySerial> ConcurrencyIoType;
+#endif
+	
+	Io<ConcurrencyIoType> io;
 	
 	srand(time(0));
 
@@ -141,9 +150,9 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 		return 1;
 	}
 	
-	MpiIoType** mpiIo = new MpiIoType*[1];
-	registerHook(ether,mpiIo);
-	io.setMpiIo(mpiIo[0]);
+	ConcurrencyIoType** ConcurrencyIo = new ConcurrencyIoType*[1];
+	registerHook(ether,ConcurrencyIo);
+	io.setConcurrencyIo(ConcurrencyIo[0]);
 	
 	// enable custom config
 	if (ether.mpiNop2>1 && (ether.isSet("optical") || ether.isSet("akw"))) {
@@ -1589,8 +1598,8 @@ void calcMoments(DynVars const &dynVars,Geometry const &geometry,Parameters cons
 
 			
 // TPEM_FIXME: Electronic observables must be modified
-template<typename MpiIoType>
-void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<MpiIoType> &io,
+template<typename ConcurrencyIoType>
+void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<ConcurrencyIoType> &io,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
 {
 	double n_electrons;

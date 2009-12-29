@@ -40,7 +40,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "model.h"
 
-#define MPISYSTEMTYPE MpiSystemSerial
+#define CONCURRENCYMPI
 
 int main(int argc,char *argv[])
 {

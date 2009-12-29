@@ -1,11 +1,11 @@
-#ifndef MPI_IO_H
-#define MPI_IO_H
+#ifndef CONCURRENCY_IO_H
+#define CONCURRENCY_IO_H
 
-template <typename MpiSystemType>
-class MpiIo {
+template <typename ConcurrencyType>
+class ConcurrencyIo {
 	public:
-		template<typename MpiParam1Type,typename MpiParam2Type>
-		MpiIo(const MpiParam1Type& p1,const MpiParam2Type& p2) 
+		template<typename ConcurrencyParam1Type,typename ConcurrencyParam2Type>
+		ConcurrencyIo(const ConcurrencyParam1Type& p1,const ConcurrencyParam2Type& p2)
 		{
 			setPartialCommunicator(p1);
 			setPartialCommunicator(p2);
@@ -19,7 +19,7 @@ class MpiIo {
 			
 			std::vector<T> prevResult=v;
 			for (size_t i=0;i<partialComm_.size();i++) {
-				MpiSystemType::MPI_Reduce(prevResult,result,MpiSystemType::MPISUM,0,partialComm_[i]);
+				ConcurrencyType::MPI_Reduce(prevResult,result,ConcurrencyType::MPISUM,0,partialComm_[i]);
 				for (size_t j=0;j<result.size();j++) result[j] /= commSize_[i];
 				prevResult = result;
 			}
@@ -36,7 +36,7 @@ class MpiIo {
 			T result;
 			T prevResult = v;
 			for (size_t i=0;i<partialComm_.size();i++) {
-				MpiSystemType::MPI_Reduce(&prevResult,&result,1,MpiSystemType::MPISUM,0,partialComm_[i]);
+				ConcurrencyType::MPI_Reduce(&prevResult,&result,1,ConcurrencyType::MPISUM,0,partialComm_[i]);
 				result /= commSize_[i];
 				prevResult = result;
 			}
@@ -47,13 +47,13 @@ class MpiIo {
 		}
 
 	private:
-		std::vector<typename MpiSystemType::MPIComm> partialComm_;
+		std::vector<typename ConcurrencyType::MPIComm> partialComm_;
 		std::vector<size_t> commSize_;
 		std::vector<size_t> rankInComm_;
 		
 		
-		template<typename MpiParameterType>
-		void setPartialCommunicator(const MpiParameterType& p)
+		template<typename ConcurrencyParamType>
+		void setPartialCommunicator(const ConcurrencyParamType& p)
 		{
 			if (p.separate()) return;
 			std::cerr<<"doing somthhing\n";

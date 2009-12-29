@@ -1,9 +1,9 @@
-#ifndef MPI_SYSTEM_MPI_H
-#define MPI_SYSTEM_MPI_H
+#ifndef CONCURRENCY_MPI_H
+#define CONCURRENCY_MPI_H
 
 #include <mpi.h>
 
-class MpiSystemMpi {
+class ConcurrencyMpi {
 public:
 	typedef MPI_Comm MPIComm;
 	typedef MPI_Op MPIOp;
@@ -35,10 +35,10 @@ public:
 	{
 		::MPI_Comm_split(comm1,x,y,comm2);
 	}
-}; // MpiSystemMpi
+}; // ConcurrencyMpi
 
-const MpiSystemMpi::MPIOp MpiSystemMpi::MPISUM = MPI_SUM;
-const MpiSystemMpi::MPIComm MpiSystemMpi::MPICOMMWORLD = MPI_COMM_WORLD;
+const ConcurrencyMpi::MPIOp ConcurrencyMpi::MPISUM = MPI_SUM;
+const ConcurrencyMpi::MPIComm ConcurrencyMpi::MPICOMMWORLD = MPI_COMM_WORLD;
 
 #endif
 

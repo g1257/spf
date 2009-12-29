@@ -62,7 +62,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
  * This is a singleton, that is a class that can
  * be instantiated only once. Always pass it as a reference. */
-template<typename MpiIoType>
+template<typename ConcurrencyIoType>
 class Io {
 	public:
 			
@@ -139,10 +139,10 @@ class Io {
 			void getHostInfo();
 			int input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux);
 			
-			void setMpiIo(MpiIoType* mpiIo);
+			void setConcurrencyIo(ConcurrencyIoType* ConcurrencyIo);
 					
 	private:
-			MpiIoType* mpiIo_;
+			ConcurrencyIoType* ConcurrencyIo_;
 			int setBoundaryConditions(std::string const &s,Parameters &ether);
 			std::ofstream *file;
 			int nFiles;
@@ -156,8 +156,8 @@ class Io {
 };
 
 
-template<typename MpiIoType>
-Io<MpiIoType>::Io() 
+template<typename ConcurrencyIoType>
+Io<ConcurrencyIoType>::Io() 
 {
 	
 	if (isInstatiated) {
@@ -207,14 +207,14 @@ Io<MpiIoType>::Io()
 	currentTime();
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::setMpiIo(MpiIoType* mpiIo)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::setConcurrencyIo(ConcurrencyIoType* ConcurrencyIo)
 {
-	mpiIo_ =  mpiIo;
+	ConcurrencyIo_ =  ConcurrencyIo;
 }
 		
-template<typename MpiIoType>
-Io<MpiIoType>::~Io()
+template<typename ConcurrencyIoType>
+Io<ConcurrencyIoType>::~Io()
 {
 	
 	if (isInit) {
@@ -233,8 +233,8 @@ Io<MpiIoType>::~Io()
 				
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::initOutput(Parameters &ether)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::initOutput(Parameters &ether)
 {
 	// Prepare files
 	int i;
@@ -275,8 +275,8 @@ void Io<MpiIoType>::initOutput(Parameters &ether)
 			
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printMiscInfo(ostream &s)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printMiscInfo(ostream &s)
 {
 	int pid=getpid();
 	/*! <b>Signature of the output files</b><br>
@@ -293,8 +293,8 @@ void Io<MpiIoType>::printMiscInfo(ostream &s)
 	s<<"#COMPILED="<<compInfo<<endl;		
 }
 			
-template<typename MpiIoType>
-void Io<MpiIoType>::writeFinalStuff()
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::writeFinalStuff()
 {
 	
         if (rankTpem!=0) return;
@@ -336,8 +336,8 @@ file[i]<<"# Read the real timer instead.\n";
 }
 
 
-template<typename MpiIoType>
-void Io<MpiIoType>::currentTime()
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::currentTime()
 {
 	time_t *tp = new time_t;
 	time(tp);
@@ -348,14 +348,14 @@ void Io<MpiIoType>::currentTime()
 	delete tp;
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printLcd(Parameters const &ether,Aux &aux)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printLcd(Parameters const &ether,Aux &aux)
 {
 	vectorPrint(aux.lcd,"lcd",file[7]);
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printAverages(Parameters &ether,Aux &aux)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 {
 	int i,j,bandIndex=0,temp;
 	
@@ -380,17 +380,17 @@ void Io<MpiIoType>::printAverages(Parameters &ether,Aux &aux)
 	vectorPrint(aux.clasCor,"clasCor",file[10]);
 	if (aux.orbitalAngles.size()>0) {
 		vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
-		mpiIo_->vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
+		ConcurrencyIo_->vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
 	}
 	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
-	mpiIo_->vectorPrint(aux.avMoments,"moments",file[0]);
+	ConcurrencyIo_->vectorPrint(aux.avMoments,"moments",file[0]);
 	
 	if (ether.bcsDelta0>0) 	{	
 		vectorDivide(aux.bcsCorxx,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		mpiIo_->vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
+		ConcurrencyIo_->vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
 		
 		vectorDivide(aux.bcsCorxy,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		mpiIo_->vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
+		ConcurrencyIo_->vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
 	}
 	
 	for (bandIndex=0;bandIndex<ether.numberOfOrbitals;bandIndex++) {
@@ -402,7 +402,7 @@ void Io<MpiIoType>::printAverages(Parameters &ether,Aux &aux)
 	if (ether.isSet("optical")) {
 		if (ether.tpem) {
 			vectorDivide(aux.opticalMoments,ether.iterEffective);
-			mpiIo_->vectorPrint(aux.opticalMoments,"optMoments",file[5]);
+			ConcurrencyIo_->vectorPrint(aux.opticalMoments,"optMoments",file[5]);
 		} else {
 			aux.Sigma.divide(ether.iterEffective,1);
 			aux.Sigma.print(file[5]);
@@ -474,15 +474,15 @@ void Io<MpiIoType>::printAverages(Parameters &ether,Aux &aux)
 
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether)
 {
 
 	printSnapshot(dynVars,ether,file[2]);
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,int option)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,int option)
 {
 	string name = ether.rootname + ".last";
 	std::ofstream f(name.c_str());
@@ -490,8 +490,8 @@ void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether
 	f.close();
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,std::ofstream &f)
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether,std::ofstream &f)
 {
 	int i,n;
 	n=ether.linSize;
@@ -542,8 +542,8 @@ void Io<MpiIoType>::printSnapshot(DynVars const &dynVars,Parameters const &ether
 				
 }
 
-template<typename MpiIoType>
-void Io<MpiIoType>::getHostInfo()
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::getHostInfo()
 {
 				
 	// Get uname info
@@ -564,8 +564,8 @@ void Io<MpiIoType>::getHostInfo()
 
 /*! \brief Reads the configuration file.
 */
-template<typename MpiIoType>
-int Io<MpiIoType>::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux)
+template<typename ConcurrencyIoType>
+int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux)
 {
 
 	int i;
@@ -1004,8 +1004,8 @@ int Io<MpiIoType>::input(char const *filename,Geometry &geometry,DynVars &dynVar
 		parts of the border hoppings.
 	* \param ether : the Parameters structure passed as reference. 
 	*/
-template<typename MpiIoType>
-int Io<MpiIoType>::setBoundaryConditions(std::string const &s,Parameters &ether)
+template<typename ConcurrencyIoType>
+int Io<ConcurrencyIoType>::setBoundaryConditions(std::string const &s,Parameters &ether)
 {
 	int i;
 	vector<double> temp;

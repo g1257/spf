@@ -1,15 +1,15 @@
 
-#ifndef MPI_PARAMETER_H
-#define MPI_PARAMETER_H
+#ifndef CONCURRENCY_PARAM_H
+#define CONCURRENCY_PARAM_H
 
-template<typename T,typename GeneratorType,typename ParametersType,typename MpiSystemType>
-class MpiParameter {
+template<typename T,typename GeneratorType,typename ParametersType,typename ConcurrencyType>
+class ConcurrencyParameter {
 
 public:
 	enum {SEPARATE,GATHER};
 	
-	MpiParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
-		     typename MpiSystemType::MPIComm& mpiComm,size_t size) 
+	ConcurrencyParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
+		     typename ConcurrencyType::MPIComm& mpiComm,size_t size) 
 	: separateOrTogether_(separateOrTogether), localRank_(localRank),mpiCommSize_(size),mpiComm_(mpiComm)
 	{
 		generator(param);
@@ -22,7 +22,7 @@ public:
 	
 	bool separate() const { return (separateOrTogether_==SEPARATE); }
 	
-	typename MpiSystemType::MPIComm mpiComm() const { return mpiComm_; }
+	typename ConcurrencyType::MPIComm mpiComm() const { return mpiComm_; }
 	
 	size_t mpiCommSize() const { return mpiCommSize_; }
 	
@@ -31,8 +31,8 @@ public:
 private:
 	size_t 	separateOrTogether_,localRank_;
 	size_t mpiCommSize_;
-	typename MpiSystemType::MPIComm mpiComm_;
-}; // MpiParameter
+	typename ConcurrencyType::MPIComm mpiComm_;
+}; // ConcurrencyParameter
 
 #endif
 
