@@ -110,25 +110,29 @@ void Parameters::print(ostream &s,char prefix)
 	s<<prefix<<"Couplings=infinity"<<endl;	
 #endif	
 	s<<prefix<<"JAF coupling(s)=";
+	j=JafVector.size();
+	if (j>8 && !isSet("verbose")) j=8;
 	if (isSet("jafvector")) {
 		s<<jafFile;
-		j=JafVector.size();
-		if (j>10 && !isSet("verbose")) j=10;
 		for (i=0;i<j;i++) s<<JafVector[i]<<" ";
 	} else {
-		for (i=0;i<JafVector.size();i++) s<<JafVector[i]<<" "; 
+		for (i=0;i<j;i++) s<<JafVector[i]<<" "; 
 	}
 	
 	s<<endl;
 	if (isSet("havepotential")) {
 		
-		s<<prefix<<"PotentialFile="<<potentialFile;
-		j=potential.size();
-		if (j>50 && !isSet("verbose")) j=50;
-		for (i=0;i<j;i++) s<<potential[i]<<" ";
-		s<<endl;
-		
+		s<<prefix<<"PotentialFile="<<potentialFile<<" ";
+	} else {
+		s<<prefix<<"Potential ";
 	}
+	
+	j=potential.size();
+	if (j>8 && !isSet("verbose")) j=8;
+	for (i=0;i<j;i++) s<<potential[i]<<" ";
+	s<<endl;
+		
+	
 	
 	if (isSet("magneticfield")) {
 		s<<prefix<<"Magnetic Field=";

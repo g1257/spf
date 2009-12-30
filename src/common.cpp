@@ -84,12 +84,26 @@ extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry con
 // 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 // }
 
+
+// should go elsewhere:
+template<typename T>
+T volumeOf(std::vector<T>& v)
+{
+	if (v.size()==0) return 0;
+	T tmp = v[0];
+	for (size_t i=1;i<v.size();i++) tmp *= v[i];
+	return tmp;
+}
+
 void setTheSizeVector(Parameters& ether,std::vector<size_t>& w)
 {
-	size_t size0 = ether.numberOfBetas;
-	w.resize(2);
-	w[0] = size0;
-	w[1] = ether.mpiSize / size0;
+	
+	w.resize(3);
+	w[0] = ether.numberOfBetas;
+	w[1] = ether.numberOfJafConfigs;
+	w[2] = ether.numberOfMuConfigs;
+	
+	if (ether.mpiSize!=volumeOf(w)) throw std::runtime_error("Number of processors mismatch\n");
 }
 
 template<typename ConcurrencyType>
@@ -99,12 +113,19 @@ void setTheRankVector(Parameters& ether,std::vector<int>& ranks,const std::vecto
 	ranks.resize(n);
 	std::vector<size_t> keysForSplit(n);
 	mpiCommVector.resize(n);
-	std::cout<<"Rank = "<<ether.mpiRank<<" mpiSize="<<ether.mpiSize<<"\n";
+	keysForSplit[0] = ether.mpiSize;
+	
+	std::vector<size_t> volume(n+1);
+	volume[n] = 1;
+	for (int i=n - 1;i>=0;i--) 
+		volume[i] = volume[i+1]*sizes[i];
+		 
 	for (size_t i=0;i<n;i++) { 
-		keysForSplit[i] = ether.mpiRank / sizes[i];
+		if (i<n-1) keysForSplit[i] = ether.mpiRank % volume[i+1] + size_t(ether.mpiRank/volume[i])*sizes[i+1];
+		else keysForSplit[i] =  ether.mpiRank % volume[i+1] + size_t(ether.mpiRank / volume[i]);
 		ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,keysForSplit[i],ether.mpiRank,&(mpiCommVector[i]));
 		ConcurrencyType::MPI_Comm_rank(mpiCommVector[i],ranks[i]);
-		std::cout<<" v[0]="<<ranks[i]<<" size["<<i<<"]="<<sizes[i]<<"\n";
+		std::cout<<"\t ranks["<<i<<"]="<<ranks[i]<<" size["<<i<<"]="<<sizes[i]<<"Rank = "<<ether.mpiRank<<" mpiSize="<<ether.mpiSize<<"\n";;
 	}
 	
 }
@@ -115,23 +136,35 @@ void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 	std::vector<typename ConcurrencyType::MPIComm> mpiCommVector;
 	setTheSizeVector(ether,ether.localSize);
 	setTheRankVector<ConcurrencyType>(ether,ether.localRank,ether.localSize,mpiCommVector);
+	size_t counter = 0;
 	
 	//example of non-random
-	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
+	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[counter]);
 	typedef ConcurrencyParameter<double,VectorGenerator<double>,Parameters,ConcurrencyType> ConcurrencyParameterBeta;
 	ConcurrencyParameterBeta beta(ether.beta,ether,betaGenerator,ConcurrencyParameterBeta::SEPARATE,
-				      ether.localRank[0],mpiCommVector[0],ether.localSize[0]); // beta 4 10 20 30 40
+				      ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]); // beta 4 10 20 30 40
+	counter++;
 	
 	// example of random
 	typedef RandomGenerator<double> RandomGeneratorType;
-	typedef ConcurrencyParameter<std::vector<double>,RandomGeneratorType,Parameters,ConcurrencyType> ConcurrencyParameterJaf;
-	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	ConcurrencyParameterJaf jafvector(ether.JafVector,ether,jafGenerator,ether.jafSeparate,
-					  ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
+	RandomGeneratorType rng("bimodal");
+	
+	typedef ConcurrencyParameter<std::vector<double>,RandomGeneratorType,Parameters,ConcurrencyType> ConcurrencyParameterRandType;
+	rng.setBimodal(ether.jafCenter,ether.jafDelta); 
+	rng.seed(ether.localRank[counter]);
+	ConcurrencyParameterRandType jafvector(ether.JafVector,ether,rng,ether.jafSeparate,
+					  ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]); // uses the sequence
+	counter++;
+	
+	// example of random
+	rng.setBimodal(ether.muCenter,ether.muDelta); 
+	rng.seed(ether.localRank[counter]);
+	ConcurrencyParameterRandType muvector(ether.potential,ether,rng,ether.muSeparate,
+					  ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]); //uses the sequence
 
 	
 	// allocate
-	ciovar[0] = new ConcurrencyIo<ConcurrencyType>(beta,jafvector);
+	ciovar[0] = new ConcurrencyIo<ConcurrencyType>(beta,jafvector,muvector);
 }
 
 int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)

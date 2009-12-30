@@ -76,6 +76,9 @@ struct Parameters {
 	vector<double> potential;
 	std::string potentialFile; //< the filename from where to load the potential
 	std::string jafFile; //< the filename from where to load the jaf vector
+	size_t numberOfMuConfigs;
+	double muCenter,muDelta;
+	size_t muSeparate;
 	std::string rootname;
 	std::string version,typeofmodel;
 	int histSteps,carriers,hilbertSize,nonzero;

@@ -18,6 +18,19 @@ class ConcurrencyIo {
 			std::cerr<<"partialComm_.size="<<partialComm_.size()<<"\n";
 		}
 		
+		template<typename ConcurrencyParam1Type,typename ConcurrencyParam2Type,typename ConcurrencyParam3Type>
+		ConcurrencyIo(const ConcurrencyParam1Type& p1,const ConcurrencyParam2Type& p2,const ConcurrencyParam3Type& p3)
+		{
+			setPartialCommunicator(p1);
+			setPartialCommunicator(p2);
+			setPartialCommunicator(p3);
+			/*int rank = 0;
+			MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+			int color = int(rank / 3);
+			MPI_Comm_split(MPI_COMM_WORLD,color,rank,&testComm_);*/
+			std::cerr<<"partialComm_.size="<<partialComm_.size()<<"\n";
+		}
+		
 		template<typename T>
 		void vectorPrint(const std::vector<T>& v,const std::string& label,std::ofstream& of) 
 		{

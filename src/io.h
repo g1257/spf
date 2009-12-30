@@ -799,6 +799,9 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		ether.JafVector.resize(ether.D*ether.linSize);
 		//for (i=0;i<ether.D*ether.linSize;i++) ether.JafVector.push_back(temp);
 	}
+	
+	
+	
 	/*! \b HAMILTONIAN_POTENTIAL: The name of the file containing a local potential
 	 <i>but provide only if the havepotential is set (see OPTIONS above).</i>
 	 */
@@ -811,6 +814,12 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		fin>>ether.potentialFile;
 		s2="#Potential";
 		loadVector(ether.potential,ether.potentialFile,s2,1);
+	} else {
+		fin>>ether.numberOfMuConfigs;
+		fin>>ether.muCenter;
+		fin>>ether.muDelta;
+		fin>>ether.muSeparate;
+		ether.potential.resize(ether.linSize);
 	}
 	
 	/*! \b MAGNETIC_FIELD: 3 Doubles. A Zeeman field in Bx, By and Bz 
