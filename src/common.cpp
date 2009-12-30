@@ -1710,6 +1710,10 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		
 	s ="Number_Of_Electrons=";
 	io.historyPrint(s,n_electrons);
+	
+	s = "rankGlobal=";
+	double varRank = ether.mpiRank;
+	io.historyPrint(s,varRank);
 		
 	if (ether.tpem) temp=measure_energy (moment, ether,aux,tpemOptions);
 	else temp=calcElectronicEnergy(aux.eigOneBand,ether,aux);
