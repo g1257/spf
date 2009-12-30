@@ -1,6 +1,5 @@
 #ifndef CONCURRENCY_IO_H
 #define CONCURRENCY_IO_H
-#include <mpi.h>
 
 template <typename ConcurrencyType_>
 class ConcurrencyIo {

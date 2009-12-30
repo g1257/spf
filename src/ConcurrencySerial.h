@@ -39,6 +39,16 @@ public:
 		//MPI_Comm_Split(comm1,x,y,comm2);
 	}
 	
+	static int barrier()
+	{
+		//::MPI_Barrier(MPICOMMWORLD);
+	}
+	
+	static int MPI_Comm_rank(MPIComm comm,int& r)
+	{
+		//::MPI_Comm_rank(comm,&r);
+	}
+	
 };
 
 #endif

@@ -64,31 +64,58 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
 extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 
-template<typename ConcurrencyType>
-void setTheRankVector(Parameters& ether,std::vector<int>& v,std::vector<size_t>& w,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
+// template<typename ConcurrencyType>
+// void setTheRankVector(Parameters& ether,std::vector<int>& v,std::vector<size_t>& w,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
+// {
+// 	
+// 	size_t size0 = ether.numberOfBetas;
+// 	v.resize(2);
+// 	w.resize(2);
+// 	w[0] = size0;
+// 	w[1] = ether.mpiSize / size0;
+// 	std::vector<size_t> y(2);
+// 	y[0] = ether.mpiRank / w[0];
+// 	y[1] = ether.mpiRank / w[1];
+// 	mpiCommVector.resize(2);
+// 	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[0],ether.mpiRank,&(mpiCommVector[0]));
+// 	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[1],ether.mpiRank,&(mpiCommVector[1]));
+// 	ConcurrencyType::MPI_Comm_rank(mpiCommVector[0],v[0]);
+// 	ConcurrencyType::MPI_Comm_rank(mpiCommVector[1],v[1]);
+// 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
+// }
+
+void setTheSizeVector(Parameters& ether,std::vector<size_t>& w)
 {
-	
 	size_t size0 = ether.numberOfBetas;
-	v.resize(2);
 	w.resize(2);
 	w[0] = size0;
 	w[1] = ether.mpiSize / size0;
-	std::vector<size_t> y(2);
-	y[0] = ether.mpiRank / w[0];
-	y[1] = ether.mpiRank / w[1];
-	mpiCommVector.resize(2);
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[0],ether.mpiRank,&(mpiCommVector[0]));
-	ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,y[1],ether.mpiRank,&(mpiCommVector[1]));
-	ConcurrencyType::MPI_Comm_rank(mpiCommVector[0],v[0]);
-	ConcurrencyType::MPI_Comm_rank(mpiCommVector[1],v[1]);
-	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
+}
+
+template<typename ConcurrencyType>
+void setTheRankVector(Parameters& ether,std::vector<int>& ranks,const std::vector<size_t>& sizes,std::vector<typename ConcurrencyType::MPIComm>& mpiCommVector)
+{
+	size_t n = sizes.size();
+	ranks.resize(n);
+	std::vector<size_t> keysForSplit(n);
+	mpiCommVector.resize(n);
+	std::cout<<"Rank = "<<ether.mpiRank<<" mpiSize="<<ether.mpiSize<<"\n";
+	for (size_t i=0;i<n;i++) { 
+		keysForSplit[i] = ether.mpiRank / sizes[i];
+		ConcurrencyType::MPI_Comm_split(ConcurrencyType::MPICOMMWORLD,keysForSplit[i],ether.mpiRank,&(mpiCommVector[i]));
+		ConcurrencyType::MPI_Comm_rank(mpiCommVector[i],ranks[i]);
+		std::cout<<" v[0]="<<ranks[i]<<" size["<<i<<"]="<<sizes[i]<<"\n";
+	}
+	
 }
 
 template<typename ConcurrencyType>
 void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 {
 	std::vector<typename ConcurrencyType::MPIComm> mpiCommVector;
+	setTheSizeVector(ether,ether.localSize);
 	setTheRankVector<ConcurrencyType>(ether,ether.localRank,ether.localSize,mpiCommVector);
+	
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[0]);
 	typedef ConcurrencyParameter<double,VectorGenerator<double>,Parameters,ConcurrencyType> ConcurrencyParameterBeta;
@@ -99,7 +126,7 @@ void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 	typedef RandomGenerator<double> RandomGeneratorType;
 	typedef ConcurrencyParameter<std::vector<double>,RandomGeneratorType,Parameters,ConcurrencyType> ConcurrencyParameterJaf;
 	RandomGeneratorType jafGenerator("bimodal",ether.jafCenter,ether.jafDelta,ether.localSize[1],ether.localRank[1]); // jaf first, deltaJAf second
-	ConcurrencyParameterJaf jafvector(ether.JafVector,ether,jafGenerator,ConcurrencyParameterJaf::GATHER,
+	ConcurrencyParameterJaf jafvector(ether.JafVector,ether,jafGenerator,ether.jafSeparate,
 					  ether.localRank[1],mpiCommVector[1],ether.localSize[1]);
 
 	

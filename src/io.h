@@ -795,6 +795,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		fin>>ether.numberOfJafConfigs;
 		fin>>ether.jafCenter;
 		fin>>ether.jafDelta;
+		fin>>ether.jafSeparate;
 		ether.JafVector.resize(ether.D*ether.linSize);
 		//for (i=0;i<ether.D*ether.linSize;i++) ether.JafVector.push_back(temp);
 	}
