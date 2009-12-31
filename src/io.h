@@ -138,6 +138,17 @@ class Io {
 				if (option==0) file[0]<<"\n";
 			}
 			
+			template<typename FieldType>
+			void historyPrint(string const &s,const psimag::Matrix<std::complex<FieldType> >& value,int option=0)
+			{
+				for (size_t p=0;p<value.n_col();p++) { // loop over pl
+					file[FIXME]<<p<<" ";
+					for (size_t i=0;i<value.n_row();i++)  // loop over ks
+						file[FIXME]<<value(i,p)<<" ";
+					file[FIXME]<<"\n";
+				}
+			}
+			
 			
 			void printAverages(Parameters &ether,Aux &aux);
 			

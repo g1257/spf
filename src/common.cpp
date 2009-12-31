@@ -1850,6 +1850,15 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(0,1,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(1,0,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(1,1,geometry,dynVars,ether,aux);
+		std::vector<size_t> q(3);
+		q[0]=0;
+		q[1]=128;
+		q[2]=129;
+		if (ether.isSet("pickyourstring")) {
+			std::psimag<FieldType> sq(q.size(),ether.linSize);
+			calcLocalk(sq,q,geometry,dynVars,ether);
+			io.historyPrint("pickyourstring",sq);
+		}
 	
 	} else {
 		temp=measure_kinetic(geometry,ether,aux,tpemOptions);

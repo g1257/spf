@@ -947,4 +947,151 @@ void accOrbitalCorrelation2(Geometry const &geometry,DynVars const &dynVars, Par
 	}
 }
 
+template<typename FieldType>
+void calcLocalk(psimag::Matrix<std::complex<FieldType> >& sq,const std::vector<size_t>& q,
+		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
+{
+	std::vector<FieldType> cd;
+	std::vector<std::vector<size_t> > d;
+	
+	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
+		calcCdAndD(plaquetteIndex,cd,d);
+		calcSq(sq,q,cd,d,ether.kmesh,plaquetteIndex);
+	}
+}
 
+// void calcCdAndD()
+// {
+// 	my ($x,$cd,$d)=@_;
+// 	my $counter=0;
+// 	for (size_t i=0;i<n;i++) {
+// 		for (size_t j=0;j<N;j++) {
+// 			if (!isInCluster(x,i)) continue;
+// 			if (!isInCluster(x,j)) continue;
+// 			
+// 			size_t thisD = calcDistance(i,j);
+// 			if (isInVector(d,thisD)<0) d.push_back(thisD);
+// 			cd[thisD] += calcCorrelation(i,j);
+// 		}
+// 	}
+// 	return $counter;
+// }
+// 
+// sub isInCluster
+// {
+// 	my ($x,$i)=@_;
+// 	my @rx = index2Site($x);
+// 	my @ri = index2Site($i);
+// 	return isInCluster2(\@rx,\@ri);
+// }
+// 
+// sub isInCluster2
+// {
+// 	my ($rx,$ri)=@_;
+// 	return 0 if (!isInCluster3($rx,$ri,0));
+// 	return 0 if (!isInCluster3($rx,$ri,1));
+// 	return 1;
+// }
+// 	
+// sub isInCluster3
+// {
+// 	my ($rx,$ri,$xory)=@_;
+// 	my $tmp = vecDistOneDim($ri,$rx,$xory); # wraps around
+// 	return 0 if ($tmp>=$GlobalLc[$xory]);
+// 	return 1;
+// }
+// 
+// sub index2Site
+// {
+// 	my ($ind)=@_;
+// 	my @r;
+// 	$r[0]=$ind % $GlobalL[0];
+// 	$r[1]=int($ind/$GlobalL[1]);
+// 	return @r;
+// }
+// 
+// sub calcDistance
+// {
+// 	my ($i,$j)=@_;
+// 	my @ri = index2Site($i);
+// 	my @rj = index2Site($j);
+// 	my @dist;
+// 	#print STDERR "i=$i j=$j distance=";
+// 	# this is the vectorial distance in the x direction
+// 	$dist[0] = vecDistOneDimB(\@ri,\@rj,0);
+// 	# correct for boundary condition;
+// 	#print STDERR " ($dist[0]) ";
+// 	$dist[0] = $GlobalL[0] - $dist[0] if ($dist[0]>=$GlobalLc[0]);
+// 	$dist[0] = -$GlobalL[0] -$dist[0] if ($dist[0]<= -$GlobalLc[0]);
+// 	#print STDERR "$dist[0] ";
+// 	
+// 	# we add this number so that it is non-negative 
+// 	$dist[0] += $GlobalLc[0] - 1;
+// 	
+// 	$dist[1] = vecDistOneDimB(\@ri,\@rj,1);
+// 	#print STDERR " ($dist[1]) ";
+// 	$dist[1] = $GlobalL[1] - $dist[1] if ($dist[1]>=$GlobalLc[1]);
+// 	$dist[1] = -$GlobalL[1] -$dist[1] if ($dist[1]<= -$GlobalLc[1]);
+// 	#print STDERR "$dist[1] ";
+// 	
+// 	# we add this number so that it is non-negative
+// 	$dist[1] += $GlobalLc[1] - 1;
+// 	# The max for $dist[0] is (2*$GlobalLc[0] - 2)
+// 	# and so there are (2*$GlobalLc[0] - 1) of $dist[0]
+// 	my $idx =  $dist[0] + $dist[1]*(2*$GlobalLc[0] - 1);
+// 	#print STDERR " index=$idx\n";
+// 	return $idx;
+// 	
+// }
+// 
+// sub calcD
+// {
+// 	my ($indexOfD)=@_;
+// 	my $something = (2*$GlobalLc[0] - 1);
+// 	my @d;
+// 	$d[0] = $indexOfD % $something;
+// 	$d[1] = int($indexOfD / $something);
+// 	$d[0] -= $GlobalLc[0] - 1;
+// 	$d[1] -= $GlobalLc[1] - 1;
+// 	return @d;
+// }	
+// 
+// sub vecDistOneDim
+// {
+// 	my ($ri,$rj,$whatDimension)=@_;
+// 	my $tmp = $ri->[$whatDimension]-$rj->[$whatDimension];
+// 	$tmp += $GlobalL[$whatDimension] if ($tmp<0);
+// 	return $tmp;
+// }
+// 
+// sub vecDistOneDimB
+// {
+// 	my ($ri,$rj,$whatDimension)=@_;
+// 	my $tmp = $ri->[$whatDimension]-$rj->[$whatDimension];
+// 	#$tmp += $GlobalL[$whatDimension] if ($tmp<0);
+// 	return $tmp;
+// }
+
+
+// q contains the indices for the k values we want to compute
+template<typename FieldType>
+void calcSq(psimag::Matrix<std::complex<FieldType> >& sq,,const std::vector<size_t>& q,const std::vector<FieldType>& cds,
+	    	const std::vector<std::vector<size_t> >& d,Kmesh& kmesh,size_t plaquetteIndex)
+{
+	size_t nOfKs = q.size();
+	for (size_t i=0;i<nOfKs;i++) { // loop over ks
+		sq(i,plaquetteIndex) = std::complex<FieldType>(0,0);
+		kmesh.calcKVector(tmp,i); // put the i-th k-vector into tmp
+		for (size_t j=0;j<d.size();j++) { // loop over distances
+			for (size_t k=0;k<d[j].size();k++) // loop over the dimension
+				dvector[k] = d[j][k];
+			
+			FieldType factor = 2. * M_PI * scalarProduct(tmp,dvector)/kmesh.length();
+			std::complex<FieldType> incr = std::complex<FieldType>(cos(factor),sin(factor)); // = exp(ik)
+			sq(i,plaquetteIndex) += cds[j]*incr;
+		}
+		// FIXME: Is this normalization needed?
+		//sqReal[i] /= $GlobalLc[0]*$GlobalLc[1];
+		//$sqImag[$i] /= $GlobalLc[0]*$GlobalLc[1];
+	}
+}
