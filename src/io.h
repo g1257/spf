@@ -128,7 +128,10 @@ class Io {
 			{
 				
 				SomeType result = value;
-				bool printHistory = concurrencyIo_->average(result);
+				bool debugOption = false;
+				if (s=="rankGlobal=") debugOption = true;
+				bool printHistory = concurrencyIo_->average(result,debugOption);
+				
 				if (!printHistory) return;
 			
 				file[0]<<s<<" "<<result;

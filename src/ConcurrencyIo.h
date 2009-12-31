@@ -74,14 +74,16 @@ class ConcurrencyIo {
 		}
 
 		template<typename SomeType>
-		bool average(SomeType& value)
+		bool average(SomeType& value,bool debugOption = false)
 		{
 			SomeType result = value;
                         SomeType prevResult = value;
 			size_t i = 0;
                         for (size_t i=0;i<partialComm_.size();i++) {
-				ConcurrencyType::MPI_Reduce(value,result,ConcurrencyType::MPISUM,0,partialComm_[i]);
+				ConcurrencyType::MPI_Reduce(prevResult,result,ConcurrencyType::MPISUM,0,partialComm_[i]);
+				//std::cerr<<"rank="<<rank<<"i="<<i<<" avNN="<<result<<"\n";
 				result /= commSize_[i];
+				//std::cerr<<"rank="<<rank<<"i="<<i<<" avNorm="<<result<<"\n";
 				prevResult = result;
 			}
 			value = result;
