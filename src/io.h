@@ -54,6 +54,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "aux.h"
 #include "geometry.h"
 #include "argument.h"
+#include "Matrix.h"
 
 #ifdef __LIBCATAMOUNT__ 
 #include <catamount/dclock.h>

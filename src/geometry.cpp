@@ -1160,7 +1160,7 @@ void Geometry::init(string const &type,int l)
 	* \param s2 can be L for "1d", L,L for "square" or "triangular", L,L,L for "cubic",
 	*        L1xL2 for "rectangular" or "honeycomb" or L1xL2xL3 for "prism"
 	*/
-void Geometry::init(string const &s1,string const &s2,int verbose)
+void Geometry::init(string const &s1,string const &s2,const std::vector<size_t>& sides,int verbose)
 {
 	vector<siteIndex> lvector;
 	mysplit(s2,lvector,',');
@@ -1168,6 +1168,7 @@ void Geometry::init(string const &s1,string const &s2,int verbose)
 	if (allSidesEqual()) init(s1,lvector[0]);
 	else init(s1,lvector);
 	if (verbose) nicePrint(cerr);
+	plaquette.init(latticeType,dim(),Length,sides);
 }
 		
 int Geometry::z(int index,int distance) const

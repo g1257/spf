@@ -72,6 +72,7 @@ struct Parameters {
 	vector<double> JafVector;
 	double jafCenter,jafDelta;
 	size_t jafSeparate;
+	std::vector<size_t> kmesh;
 	size_t numberOfJafConfigs;
 	vector<double> potential;
 	std::string potentialFile; //< the filename from where to load the potential

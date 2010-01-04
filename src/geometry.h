@@ -44,6 +44,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <string>
 #include <cmath>
 #include "basic.h"
+#include "Plaquette.h"
 
 using std::vector;
 using std::string;
@@ -93,10 +94,14 @@ typedef  int siteIndex;
  * Replaces old Lattice class
  */
 class Geometry {
-
+	
+	typedef std::vector<size_t> DistanceType;
+	typedef Geometry ThisType;
 public:
 	/** Default constructor so it can be called early  */
-	Geometry() { isInit=false; errorPrinted=0; isWarned=false; } 
+	Geometry()  : plaquette_(*this,true)
+	{ isInit=false; errorPrinted=0; isWarned=false; }
+	
 	~Geometry() { isInit=false; } 
 	void init(string const &s1,string const &s2,int verbose=0);
 	/** \brief Returns the number of neighbors of site index at distance */
@@ -139,7 +144,27 @@ public:
 	void direction(vector<double> &r,siteIndex site1,siteIndex site2) const;
 	int scalarDirection(siteIndex site1,siteIndex site2,int number= -1) const;
 	
+	//! Is i in the plaquette given by plaquetteIndex?
+	bool isInPlaquette(size_t plaquetteIndex,size_t i) const
+	{
+		return plaquette_.isInPlaquette(plaquetteIndex,i);
+	}
+	
+	 
+	size_t plaquetteDistance(size_t i,size_t j) const
+	{
+		return plaquette_.distance(i,j);
+	}
+	
+	void plaquetteCalcD(size_t j,DistanceType& d) const
+	{
+		return plaquette_.calcD(j,d);	
+	}
+	
 private:
+	
+	Plaquette<DistanceType,ThisType> plaquette_;
+	
 	struct g_aux_Zb_data
 	{
 		double minDistance;
