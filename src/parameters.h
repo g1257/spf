@@ -79,6 +79,8 @@ struct Parameters {
 	size_t numberOfMuConfigs;
 	double muCenter,muDelta;
 	size_t muSeparate;
+	size_t numberOfQs;
+	std::vector<size_t> q;
 	std::string rootname;
 	std::string version,typeofmodel;
 	int histSteps,carriers,hilbertSize,nonzero;

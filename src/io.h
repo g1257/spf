@@ -142,10 +142,10 @@ class Io {
 			void historyPrint(string const &s,const psimag::Matrix<std::complex<FieldType> >& value,int option=0)
 			{
 				for (size_t p=0;p<value.n_col();p++) { // loop over pl
-					file[FIXME]<<p<<" ";
+					file[11]<<p<<" ";
 					for (size_t i=0;i<value.n_row();i++)  // loop over ks
-						file[FIXME]<<value(i,p)<<" ";
-					file[FIXME]<<"\n";
+						file[11]<<value(i,p)<<" ";
+					file[11]<<"\n";
 				}
 			}
 			
@@ -185,7 +185,7 @@ Io<ConcurrencyIoType>::Io()
 		cerr<<"AT: "<<__FILE__<<" : "<<__LINE__<<endl;
 		exit(1);
 	}
-	nFiles = 11;
+	nFiles = 12;
 	/*! <h2> OUTPUT FILES </h2><br>
 	 * STDOUT, STDERR and other files whose names start with the value of the parameter 
 	 * OUTPUT_ROOTNAME are written.
@@ -217,9 +217,9 @@ Io<ConcurrencyIoType>::Io()
 	 */
 	extensions = new std::string[nFiles];
 	extensions[0]=".dat"; extensions[1]=".now",extensions[2]=".sav";
-	extensions[3]=".arw_";extensions[4]=".ldos"; extensions[5]=".opt";
+	extensions[3]=".arw_"; extensions[4]=".ldos"; extensions[5]=".opt";
 	extensions[6]=".oco"; extensions[7]=".lcd"; extensions[8]=".eig";
-	extensions[9]=".cco"; extensions[10]=".cor";
+	extensions[9]=".cco"; extensions[10]=".cor"; extensions[11]=".ncl";
 			
 	isInstatiated=true;
 	file = new std::ofstream[nFiles];
@@ -635,6 +635,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	* - \b shiftmu Shifts mu in the DOS and LDOS measurements so that the zero energy is the Fermi energy.
 	* - \b cooldown Starts from a high temperature first and cools down to the value in the config. file.
 	* - \b adjusttpembounds Use Lanczos to adjust TPEM bounds. (EXPERIMENTAL/UNDOCUMENTED)
+	* - \b nanocluster Calculates the "local structure factor" at the pre-specified momenta
 	* - \b customconfig Allows for the simulation of two parallelization levels. (EXPERIMENTAL/UNDOCUMENTED)
 	* - \b chargecorrelation Enables the calculation of the Quantum Charge Correlation Lattice (goes to .cco file)
 	* - \b fileminimize Minimizes the number of files that are printed (caution: some information may be lost)
@@ -834,6 +835,17 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		fin>>ether.muDelta;
 		fin>>ether.muSeparate;
 		ether.potential.resize(ether.linSize);
+	}
+	
+	/*! \b NANOCLUSTER_PARAMETERS: All integers.
+	 <i>First one is the number of q's to monitor, the rest are their indices, provide only if option nanocluster option is set.</i>
+	 */
+	
+	if (ether.isSet("nanocluster")) {
+	        fin>>ether.numberOfQs; //read the number of q's to monitor
+		for (i=0;i<ether.numberOfQs;i++) {
+			fin>>ether.q[i]; //read the q indices to be monitored
+		}
 	}
 	
 	/*! \b MAGNETIC_FIELD: 3 Doubles. A Zeeman field in Bx, By and Bz 

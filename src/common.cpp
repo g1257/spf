@@ -955,6 +955,9 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	aux.oco_ba.insert(aux.oco_ba.begin(),n,0.0);
 	aux.oco_bb.insert(aux.oco_bb.begin(),n,0.0);
 	aux.oco.insert(aux.oco.begin(),n*4,0.0);
+	
+	aux.ncl.insert(aux.nlc.begin(),ether.numberOfQs,0,0);
+	
 	aux.bcsCorxx.insert(aux.bcsCorxx.begin(),n,0.0);
 	aux.bcsCorxy.insert(aux.bcsCorxy.begin(),n,0.0);
 	if (ether.isSet("orbitalangles")) aux.orbitalAngles.insert(aux.orbitalAngles.begin(),n,0.0);
@@ -1850,14 +1853,14 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(0,1,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(1,0,geometry,dynVars,ether,aux);
 		if (ether.isSet("orbitalcorrelation")) accOrbitalCorrelation(1,1,geometry,dynVars,ether,aux);
-		std::vector<size_t> q(3);
-		q[0]=0;
-		q[1]=128;
-		q[2]=129;
-		if (ether.isSet("pickyourstring")) {
+		//std::vector<size_t> q(3);
+		//q[0]=0;
+		//q[1]=128;
+		//q[2]=129;
+		if (ether.isSet("nanocluster")) {
 			std::psimag<FieldType> sq(q.size(),ether.linSize);
 			calcLocalk(sq,q,geometry,dynVars,ether);
-			io.historyPrint("pickyourstring",sq);
+			io.historyPrint("nanocluster",sq);
 		}
 	
 	} else {
