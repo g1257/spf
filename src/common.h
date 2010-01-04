@@ -104,7 +104,8 @@ double calcNumber(DynVars const &dynVars,Geometry const &geometry,Parameters con
 void accChargeCorrelation(size_t g1,size_t g2,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux);
 void accOrbitalAngles(Geometry const &geometry,Parameters const &ether,Aux &aux);
 void accOrbitalCorrelation(size_t g1,size_t g2,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux);
-
+void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,
+		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether);
 
 #endif
 

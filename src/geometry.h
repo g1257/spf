@@ -95,15 +95,15 @@ typedef  int siteIndex;
  */
 class Geometry {
 	
-	typedef std::vector<size_t> DistanceType;
+	typedef std::vector<double> DistanceType;
 	typedef Geometry ThisType;
 public:
 	/** Default constructor so it can be called early  */
-	Geometry()  : plaquette_(*this,true)
+	Geometry()  : plaquette_(true)
 	{ isInit=false; errorPrinted=0; isWarned=false; }
 	
 	~Geometry() { isInit=false; } 
-	void init(string const &s1,string const &s2,int verbose=0);
+	void init(string const &s1,string const &s2,size_t plaqueteSide,int verbose=0);
 	/** \brief Returns the number of neighbors of site index at distance */
 	int z(int index=0,int distance=1) const;
 	/** Returns the n-th neighbor of site index at distance */
@@ -156,10 +156,12 @@ public:
 		return plaquette_.distance(i,j);
 	}
 	
-	void plaquetteCalcD(size_t j,DistanceType& d) const
+	void plaquetteCalcD(size_t j,std::vector<size_t>& d) const
 	{
 		return plaquette_.calcD(j,d);	
 	}
+	
+	friend class Plaquette<DistanceType,ThisType>;
 	
 private:
 	

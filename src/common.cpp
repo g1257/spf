@@ -49,6 +49,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #else
 #include "ConcurrencySerial.h"
 #endif
+#include "Matrix.h"
 
 template<typename ConcurrencyIoType>
 bool Io<ConcurrencyIoType>::isInstatiated=false;
@@ -956,8 +957,6 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	aux.oco_bb.insert(aux.oco_bb.begin(),n,0.0);
 	aux.oco.insert(aux.oco.begin(),n*4,0.0);
 	
-	aux.ncl.insert(aux.nlc.begin(),ether.numberOfQs,0,0);
-	
 	aux.bcsCorxx.insert(aux.bcsCorxx.begin(),n,0.0);
 	aux.bcsCorxy.insert(aux.bcsCorxy.begin(),n,0.0);
 	if (ether.isSet("orbitalangles")) aux.orbitalAngles.insert(aux.orbitalAngles.begin(),n,0.0);
@@ -1858,8 +1857,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		//q[1]=128;
 		//q[2]=129;
 		if (ether.isSet("nanocluster")) {
-			std::psimag<FieldType> sq(q.size(),ether.linSize);
-			calcLocalk(sq,q,geometry,dynVars,ether);
+			psimag::Matrix<std::complex<double> > sq(ether.q.size(),ether.linSize);
+			calcLocalk(sq,ether.q,geometry,dynVars,ether);
 			io.historyPrint("nanocluster",sq);
 		}
 	

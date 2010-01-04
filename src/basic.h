@@ -110,7 +110,8 @@ void vectorPrint(vector<double> const  &v,const std::string &name,std::ostream &
 void vectorPrint(vector<int> const &v,const std::string& name,std::ostream &s);
 double vectorSum(vector<double> &v);
 void randomModulus(vector<int> &v,int conc,int n);
-bool isInVector(int i,vector<int> const &v);
+int isInVector(int i,vector<int> const &v);
+int isInVector(size_t i,vector<size_t> const &v);
 int mySign(double);
 template<class T>
  void mysplit(std::string const &s,vector<T> &v,char schar);

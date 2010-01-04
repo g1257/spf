@@ -40,6 +40,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "common.h"
 #include "io.h"
 #include "Matrix.h"
+#include "Kmesh.h"
 
 #ifdef USE_MPI
 extern
@@ -947,20 +948,6 @@ void accOrbitalCorrelation2(Geometry const &geometry,DynVars const &dynVars, Par
 	}
 }
 
-//! entry point for nanocluster (correlations)
-template<typename FieldType>
-void calcLocalk(psimag::Matrix<std::complex<FieldType> >& sq,const std::vector<size_t>& q,
-		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
-{
-	std::vector<FieldType> cd;
-	std::vector<std::vector<size_t> > d;
-	
-	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
-		calcCdAndD(plaquetteIndex,cd,d);
-		calcSq(sq,q,cd,d,ether.kmesh,plaquetteIndex);
-	}
-}
-
 template<typename FieldType>
 FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars)
 {
@@ -974,10 +961,9 @@ FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars)
 	
 }
 
-
-template<typename DistanceType,typename FieldType>
+template<typename FieldType>
 void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
-		std::vector<DistanceType>& d,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
+		std::vector<size_t>& d,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
 {
 	size_t n = ether.linSize;
 	
@@ -985,9 +971,8 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 		for (size_t j=0;j<n;j++) {
 			if (!geometry.isInPlaquette(plaquetteIndex,i)) continue;
 			if (!geometry.isInPlaquette(plaquetteIndex,j)) continue;
- 			DistanceType thisD;
-			geometry.plaquetteDistance(thisD,i,j); // thisD = calcDistance(i,j);
-			int x = isInVector(d,thisD);
+ 			size_t thisD = geometry.plaquetteDistance(i,j); // thisD = calcDistance(i,j);
+			int x = isInVector(thisD,d);
 			if (x<0) {
 				d.push_back(thisD); // d[x] = thisD , 
 				x = d.size()-1;	    // C(thisD) =  
@@ -999,23 +984,30 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 	}
 }
 
+//! Move elsewhere
+template<typename T>
+T scalarProduct(const std::vector<T>& v1,const std::vector<T>& v2)
+{
+	T tmp = 0;
+	for (size_t i=0;i<v1.size();i++) tmp += v1[i]*v2[i];
+	return tmp;
+}
 
 // q contains the indices for the k values we want to compute
-template<typename FieldType,typename GeometryType>
-void calcSq(psimag::Matrix<std::complex<FieldType> >& sq,,const std::vector<size_t>& q,const std::vector<FieldType>& cds,
-	    	Kmesh& kmesh,size_t plaquetteIndex,const GeometryType& geometry)
+void calcSq(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,const std::vector<double>& cds,
+	    	const Kmesh& kmesh,size_t plaquetteIndex,const Geometry& geometry)
 {
 	size_t nOfKs = q.size();
 	for (size_t i=0;i<nOfKs;i++) { // loop over ks
-		sq(i,plaquetteIndex) = std::complex<FieldType>(0,0);
+		sq(i,plaquetteIndex) = std::complex<double>(0,0);
 		std::vector<size_t> tmp;
 		kmesh.calcKVector(tmp,i); // put the i-th k-vector into tmp
 		for (size_t j=0;j<cds.size();j++) { // loop over distances
 			std::vector<size_t> dvector;
 			geometry.plaquetteCalcD(j,dvector);
 			
-			FieldType factor = 2. * M_PI * scalarProduct(tmp,dvector)/kmesh.length();
-			std::complex<FieldType> incr = std::complex<FieldType>(cos(factor),sin(factor)); // = exp(ik)
+			double factor = 2. * M_PI * scalarProduct(tmp,dvector)/kmesh.length();
+			std::complex<double> incr = std::complex<double>(cos(factor),sin(factor)); // = exp(ik)
 			sq(i,plaquetteIndex) += cds[j]*incr;
 		}
 		// FIXME: Is this normalization needed?
@@ -1023,4 +1015,20 @@ void calcSq(psimag::Matrix<std::complex<FieldType> >& sq,,const std::vector<size
 		//$sqImag[$i] /= $GlobalLc[0]*$GlobalLc[1];
 	}
 }
+
+
+//! entry point for nanocluster (correlations)
+void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,
+		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
+{
+	std::vector<double> cd;
+	std::vector<size_t> d;
+	
+	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
+		calcCdAndD(plaquetteIndex,cd,d,geometry,dynVars,ether);
+		const Kmesh& kmesh = ether.kmesh;
+		calcSq(sq,q,cd,kmesh,plaquetteIndex,geometry);
+	}
+}
+
 

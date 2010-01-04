@@ -42,6 +42,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <iostream>
 #include <vector>
 #include "basic_types.h"
+#include "Kmesh.h"
 
 using std::vector;
 using std::string;
@@ -72,7 +73,6 @@ struct Parameters {
 	vector<double> JafVector;
 	double jafCenter,jafDelta;
 	size_t jafSeparate;
-	std::vector<size_t> kmesh;
 	size_t numberOfJafConfigs;
 	vector<double> potential;
 	std::string potentialFile; //< the filename from where to load the potential
@@ -80,7 +80,8 @@ struct Parameters {
 	size_t numberOfMuConfigs;
 	double muCenter,muDelta;
 	size_t muSeparate;
-	size_t numberOfQs;
+	size_t plaquetteSide,plaquetteMeshFactor;
+	Kmesh kmesh;
 	std::vector<size_t> q;
 	std::string rootname;
 	std::string version,typeofmodel;

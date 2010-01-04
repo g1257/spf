@@ -171,13 +171,21 @@ double minElement(vector<double> const &v)
         return *it;
 }
 
-bool isInVector(int i,vector<int> const &v)
+int isInVector(int i,vector<int> const &v)
 {
         unsigned int j;
         for (j=0;j<v.size();j++) {
-                if (v[j]==i) return true;
+                if (v[j]==i) return j;
         }
-        return false;
+        return -1;
+}
+
+int isInVector(size_t i,vector<size_t> const &v)
+{
+        for (size_t j=0;j<v.size();j++) {
+                if (v[j]==i) return j;
+        }
+        return -1;
 }
 
 void printProgress(int i,int total,int nMarks,char mark,int option)

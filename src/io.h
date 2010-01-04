@@ -79,7 +79,7 @@ class Io {
 				getHostInfo();
 				getCompilerInfo();
 				for (int i=0;i<nFiles;i++) {
-					if (isInVector(i,excludedfiles)) continue;
+					if (isInVector(i,excludedfiles)>=0) continue;
 					printMiscInfo(file[i]);
 				}
 			}
@@ -241,7 +241,7 @@ Io<ConcurrencyIoType>::~Io()
 	if (isInit) {
 		writeFinalStuff();
 		for (int i=0;i<nFiles;i++) {
-			if (isInVector(i,excludedfiles)) continue;
+			if (isInVector(i,excludedfiles)>=0) continue;
 			if (i>0 && rank>0) break;
 			file[i].close();
 		}
@@ -283,7 +283,7 @@ void Io<ConcurrencyIoType>::initOutput(Parameters &ether)
 		std::string filename;
 		for (i=0;i<nFiles;i++) {
 			//if (i>0 && rank>0) break;
-			if (isInVector(i,excludedfiles)) continue;
+			if (isInVector(i,excludedfiles)>=0) continue;
 			filename = std::string(ether.rootname) + extensions[i];
 			file[i].open(filename.c_str());
 			ether.print(file[i]);
@@ -339,7 +339,7 @@ void Io<ConcurrencyIoType>::writeFinalStuff()
         /*! <b> Footer printed to all output files</b>:
          * User, System and Real times for the program execution in seconds. */
         for (int i=0;i<nFiles;i++) {
-		if (isInVector(i,excludedfiles)) continue;
+		if (isInVector(i,excludedfiles)>=0) continue;
                 file[i]<<"# FinalTime "<<cTime<<endl;
                 if (tuser<0 || tsystem<0) {
 file[i]<<"# This platform does not support user/system time\n";
@@ -662,7 +662,12 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	
 	if (ether.isSet("verbose")) i=1;
 	else i=0;
-	geometry.init(s,s2,i);
+	if (ether.isSet("nanocluster")) {
+		fin>>ether.plaquetteSide;
+	} else {
+		ether.plaquetteSide = 0;
+	}
+	geometry.init(s,s2,ether.plaquetteSide,i);
 	ether.linSize=geometry.volume();
 	ether.D = geometry.dim();
 	ether.typeoflattice = geometry.latticeName();
@@ -843,10 +848,14 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	 */
 	
 	if (ether.isSet("nanocluster")) {
-	        fin>>ether.numberOfQs; //read the number of q's to monitor
-		for (i=0;i<ether.numberOfQs;i++) {
+		fin>>ether.plaquetteMeshFactor;
+	        size_t tmp;
+		fin>>tmp; //read the number of q's to monitor
+		ether.q.resize(tmp);
+		for (i=0;i<ether.q.size();i++) {
 			fin>>ether.q[i]; //read the q indices to be monitored
 		}
+		ether.kmesh.init(ether.D,ether.plaquetteMeshFactor*ether.plaquetteSide);
 	}
 	
 	/*! \b MAGNETIC_FIELD: 3 Doubles. A Zeeman field in Bx, By and Bz 
