@@ -12,6 +12,7 @@ public:
 	
 	void calcKVector(std::vector<size_t>& v,size_t kindex) const 
 	{
+		v.resize(2);
         	v[0] = kindex % length_;
         	v[1] = int(kindex / length_);
 	}

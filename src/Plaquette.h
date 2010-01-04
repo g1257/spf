@@ -40,7 +40,7 @@ public:
 		DistanceType ri,rj;
 		geometry_->index2Coor(ri,i,lt_);
 		geometry_->index2Coor(rj,j,lt_);
-		DistanceType dist;
+		DistanceType dist(dim_);
 		for (size_t di = 0; di<dim_;di++) {
 			int tmp = ri[di]-rj[di];
 			//correct for boundary condition;
@@ -59,6 +59,7 @@ public:
 	void calcD(size_t j,std::vector<size_t>& d) const
 	{
 		size_t something  = 2*sides_[0] - 1;
+		d.resize(2);
 		d[0] = j % something;
 		d[1] = size_t(j/something);
 		d[0] -= sides_[0] - 1;

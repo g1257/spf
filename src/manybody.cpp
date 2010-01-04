@@ -975,8 +975,7 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 			int x = isInVector(thisD,d);
 			if (x<0) {
 				d.push_back(thisD); // d[x] = thisD , 
-				x = d.size()-1;	    // C(thisD) =  
-				cd[x] = calcCorrelation<FieldType>(i,j,false,dynVars);
+				cd.push_back(calcCorrelation<FieldType>(i,j,false,dynVars));
 			} else  {
 				cd[x] += calcCorrelation<FieldType>(i,j,false,dynVars);
 			}
