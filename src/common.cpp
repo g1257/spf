@@ -479,38 +479,8 @@ double dSDirect(DynVars const &dynVars, DynVars const &dynVars2, int i, Geometry
 
 
 
-double calcPhononDiff(int direction,int ind,DynVars const &dynVars,Geometry const &geometry)
-{
-	if (direction >= geometry.dim()) return 0; 
-	int j = geometry.neighbor(ind,2*direction+1);
-	return  (dynVars.phonons[ind][direction]-dynVars.phonons[j][direction]);
-}
-		
-double calcPhonon(int ind,DynVars const &dynVars,Geometry const &g,Parameters const &ether,int what)
-{
-	double ret=0;
-	double sqrt3=1.732050807569;
-	double sqrt2=1.414213562373;
-	double sqrt6=2.449489742783;
-	
-	if (what==0)  { /* calc q1 */
-		ret = (calcPhononDiff(0,ind,dynVars,g) + calcPhononDiff(1,ind,dynVars,g) +
-		 calcPhononDiff(2,ind,dynVars,g));
-		ret /= sqrt3;
-	} else if (what==1) { /* calc q2 */
-		ret = (calcPhononDiff(0,ind,dynVars,g)-calcPhononDiff(1,ind,dynVars,g));
-		ret /= sqrt2;
-	} else if (what==2) { /* calc q3 */
-		ret = (2*calcPhononDiff(2,ind,dynVars,g)-calcPhononDiff(0,ind,dynVars,g)-calcPhononDiff(1,ind,dynVars,g));
-		ret /= sqrt6;
-	} else {
-		cerr<<"I don't know what to calculate at "<<__FILE__<<" "<<__LINE__<<" with what="<<what<<endl;
-		exit(1);
-	}
-	return ret;
-}
 
-double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry const &geometry, Parameters const &ether)
+double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry const &geometry, Parameters const &ether,const Phonons<Parameters,Geometry>& phonons)
 {
 	double tmp;
 	int alpha,k,j;
@@ -519,12 +489,12 @@ double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry co
 #ifdef MODEL_KONDO_INF_TWOBANDS
 	for (alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
 		tmp=0;
-		tmp += square(calcPhonon(i,dynVars2,geometry,ether,alpha));
-		tmp -= square(calcPhonon(i,dynVars,geometry,ether,alpha));
+		tmp += square(phonons.calcPhonon(i,dynVars2,alpha));
+		tmp -= square(phonons.calcPhonon(i,dynVars,alpha));
 		for (k=0;k<geometry.z(i);k++) {
 			j = geometry.neighbor(i,k);
-			tmp += square(calcPhonon(j,dynVars2,geometry,ether,alpha));
-			tmp -= square(calcPhonon(j,dynVars,geometry,ether,alpha));
+			tmp += square(phonons.calcPhonon(j,dynVars2,alpha));
+			tmp -= square(phonons.calcPhonon(j,dynVars,alpha));
 		}
 		dE += ether.phononEd[alpha]*tmp;
 	}
@@ -583,7 +553,7 @@ double calcSuperExchange(DynVars const &dynVars,Geometry const &geometry, Parame
 	return dS*0.5;
 }
 
-double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, Parameters const &ether)
+double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, const Parameters& ether,Phonons<Parameters,Geometry> const &phonons)
   // Written by IS Oct-19-04.
   // Calculates pure phononic energy of the system (last term in the Hamiltonian).
 {
@@ -599,7 +569,7 @@ double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, Parame
 #ifdef MODEL_KONDO_INF_TWOBANDS
       for (alpha=0;alpha<dynVars.phonons[i].size();alpha++) 
 	{
-	  tmp = calcPhonon(i,dynVars,geometry,ether,alpha);
+	  tmp = phonons.calcPhonon(i,dynVars,alpha);
 	  // cerr << "site "<< i << "phonon "<< alpha << ": " <<tmp << endl;
 	  dE += ether.phononEd[alpha]*square(tmp);
 	}
@@ -1300,7 +1270,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 	}
 	
 	vector<double> phononsNew(ether.D,0.0);
-	
+	Phonons<Parameters,Geometry> phonons(ether,geometry);
 	
 	if (!ether.tpem) diag(aux.eigAllBands,geometry,dynVars2,ether,aux);
 		
@@ -1339,7 +1309,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 			case 1:  // phonons
 				r_newPhonons(dynVars.phonons[i],phononsNew,ether);
 				dynVars2.phonons[i]=phononsNew;
-				dsDirect= dPhonons(dynVars,dynVars2,i,geometry,ether);
+				dsDirect= dPhonons(dynVars,dynVars2,i,geometry,ether,phonons);
 				break;
 			case 2: // bcs delta/phi
 				r_newBcsFields(dynVars.bcsDelta[i],dynVars.bcsPhi[i],bcsDeltaNew,bcsPhiNew,ether);
@@ -1733,8 +1703,9 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		io.historyPrint(s,temp2);
 		temp += temp2;
 	}
-#ifdef MODEL_KONDO_INF_TWOBANDS		
-	temp2 = calcPhononEnergy(dynVars,geometry,ether);
+#ifdef MODEL_KONDO_INF_TWOBANDS	
+	Phonons<Parameters,Geometry> phonons(ether,geometry);	
+	temp2 = calcPhononEnergy(dynVars,geometry,ether,phonons);
 	s="PhononEnergy=";
 	io.historyPrint(s,temp2);
 	temp += temp2;

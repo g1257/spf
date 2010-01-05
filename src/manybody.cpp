@@ -41,6 +41,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "io.h"
 #include "Matrix.h"
 #include "Kmesh.h"
+#include "Phonons.h"
 
 #ifdef USE_MPI
 extern
@@ -836,8 +837,9 @@ MatType calcF(int i, int g1, int g2, DynVars const &dynVars, Geometry const &g,P
 {
 	//tz = real(calcOrbitalT(i,0,ether,aux));
 	//tx = real(calcOrbitalT(i,2,ether,aux));
-	double q2 = calcPhonon(i,dynVars,g,ether,1);
-	double q3 = calcPhonon(i,dynVars,g,ether,2);	
+	Phonons<Parameters,Geometry> phonons(ether,g);
+	double q2 = phonons.calcPhonon(i,dynVars,1);
+	double q3 = phonons.calcPhonon(i,dynVars,2);	
 	double ksi = atan(q2/q3);
 	
 	if (g1 == 0  && g2 == 0) {
@@ -948,24 +950,31 @@ void accOrbitalCorrelation2(Geometry const &geometry,DynVars const &dynVars, Par
 	}
 }
 
-template<typename FieldType>
-FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars)
+
+
+
+template<typename FieldType,typename PhononsType>
+FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars,const PhononsType& phonons)
 {
-	if (!doSpins) 
-		return dynVars.phonons[i][0]*dynVars.phonons[j][0]+
-				dynVars.phonons[i][1]*dynVars.phonons[j][1]-
-			(square(dynVars.phonons[i][0])+square(dynVars.phonons[i][1]));
+	if (!doSpins) {
+		// construct a vector of qs
+		std::vector<FieldType> vi,vj;
+		phonons.calcQvector(vi,i,dynVars);
+		phonons.calcQvector(vj,j,dynVars);
+		return scalarProduct(vi,vj);
+	}
+	
 	return cos(dynVars.theta[i])*cos(dynVars.theta[j])+
 				sin(dynVars.theta[i])*sin(dynVars.theta[j])*
 			cos(dynVars.phi[i]-dynVars.phi[j]);
 	
 }
 
-template<typename FieldType>
+template<typename FieldType,typename PhononsType>
 void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
-		std::vector<size_t>& d,Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
+		std::vector<size_t>& d,Geometry const &geometry,DynVars const &dynVars, PhononsType const &phonons)
 {
-	size_t n = ether.linSize;
+	size_t n = geometry.volume();
 	
 	for (size_t i=0;i<n;i++) {
 		for (size_t j=0;j<n;j++) {
@@ -975,9 +984,9 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 			int x = isInVector(thisD,d);
 			if (x<0) {
 				d.push_back(thisD); // d[x] = thisD , 
-				cd.push_back(calcCorrelation<FieldType>(i,j,false,dynVars));
+				cd.push_back(calcCorrelation<FieldType>(i,j,false,dynVars,phonons));
 			} else  {
-				cd[x] += calcCorrelation<FieldType>(i,j,false,dynVars);
+				cd[x] += calcCorrelation<FieldType>(i,j,false,dynVars,phonons);
 			}
 		}
 	}
@@ -1022,9 +1031,10 @@ void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size
 {
 	std::vector<double> cd;
 	std::vector<size_t> d;
+	Phonons<Parameters,Geometry> phonons(ether,geometry);
 	
 	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
-		calcCdAndD(plaquetteIndex,cd,d,geometry,dynVars,ether);
+		calcCdAndD(plaquetteIndex,cd,d,geometry,dynVars,phonons);
 		const Kmesh& kmesh = ether.kmesh;
 		calcSq(sq,q,cd,kmesh,plaquetteIndex,geometry);
 	}

@@ -1042,7 +1042,6 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	}
 	
 	fin.close();
-
 	
 	return 0;
 }

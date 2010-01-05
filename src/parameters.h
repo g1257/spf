@@ -43,6 +43,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <vector>
 #include "basic_types.h"
 #include "Kmesh.h"
+#include "Phonons.h"
 
 using std::vector;
 using std::string;
@@ -119,6 +120,7 @@ struct Parameters {
 	
 	void welcome();
 	Parameters();
+	
 #ifdef MODEL_KONDO_PHONONS
 	double phononLambda;
 #endif				

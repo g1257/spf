@@ -60,12 +60,14 @@ void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		a=1.0; b=0.0;
 	}
 	
+	Phonons<Parameters,Geometry> phonons(ether,geometry);
+	
 	for (p = 0, row = 0; p < volume; p++, row++) {
 		
 		
-		phonon_q1[p]=calcPhonon(p,dynVars,geometry,ether,0);
-		phonon_q2[p]=calcPhonon(p,dynVars,geometry,ether,1);
-		phonon_q3[p]=calcPhonon(p,dynVars,geometry,ether,2);	
+		phonon_q1[p]=phonons.calcPhonon(p,dynVars,0);
+		phonon_q2[p]=phonons.calcPhonon(p,dynVars,1);
+		phonon_q3[p]=phonons.calcPhonon(p,dynVars,2);	
 		
 		matrix->rowptr[row] = i;
 		matrix->colind[i] = row;		/* element aa */ 
