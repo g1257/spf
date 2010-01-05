@@ -997,6 +997,7 @@ template<typename T>
 T scalarProduct(const std::vector<T>& v1,const std::vector<T>& v2)
 {
 	T tmp = 0;
+	if (v1.size()!=v2.size()) throw std::runtime_error("scalarProduct\n");
 	for (size_t i=0;i<v1.size();i++) tmp += v1[i]*v2[i];
 	return tmp;
 }
@@ -1016,17 +1017,18 @@ void calcSq(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>&
 {
 	size_t nOfKs = q.size();
 	for (size_t i=0;i<nOfKs;i++) { // loop over ks
-		sq(i,plaquetteIndex) = std::complex<double>(0,0);
-		std::vector<size_t> tmp;
+		sq(i,plaquetteIndex) = 0;
+		std::vector<int> tmp;
 		kmesh.calcKVector(tmp,q[i]); // put the i-th k-vector into tmp
 		for (size_t j=0;j<cds.size();j++) { // loop over distances
-			std::vector<size_t> dvector;
+			std::vector<int> dvector;
 			geometry.plaquetteCalcD(d[j],dvector);
 			
 			double factor = 2. * M_PI * scalarProduct(tmp,dvector)/kmesh.length();
 			std::complex<double> incr = std::complex<double>(cos(factor),sin(factor)); // = exp(ik)
 			sq(i,plaquetteIndex) += cds[j]*incr;
 		}
+		// throw std::runtime_error("testing\n");
 		// FIXME: Is this normalization needed?
 		//sqReal[i] /= $GlobalLc[0]*$GlobalLc[1];
 		//$sqImag[$i] /= $GlobalLc[0]*$GlobalLc[1];

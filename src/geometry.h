@@ -156,7 +156,7 @@ public:
 		return plaquette_.distance(i,j);
 	}
 	
-	void plaquetteCalcD(size_t j,std::vector<size_t>& d) const
+	void plaquetteCalcD(size_t j,std::vector<int>& d) const
 	{
 		return plaquette_.unpackDistance(d,j);	
 	}

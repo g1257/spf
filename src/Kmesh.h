@@ -10,7 +10,7 @@ public:
 		 length_ = length;
 	}
 	
-	void calcKVector(std::vector<size_t>& v,size_t kindex) const 
+	void calcKVector(std::vector<int>& v,size_t kindex) const 
 	{
 		v.resize(2);
         	v[0] = kindex % length_;

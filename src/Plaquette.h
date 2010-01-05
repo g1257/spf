@@ -55,7 +55,7 @@ public:
 		return packDistance(dist); 
 	}
 	
-	void unpackDistance(std::vector<size_t>& d,size_t distanceIndex) const
+	void unpackDistance(std::vector<int>& d,size_t distanceIndex) const
 	{
 		size_t something  = 2*sides_[0] - 1;
 		d.resize(2);
@@ -72,10 +72,12 @@ public:
 		// we add this number so that it is non-negative 
 		d[0] += sides_[0] - 1;
 		d[1] += sides_[1] - 1;
-		// hopefully now d[*] is greater than 0
+		
 		size_t something  = 2*sides_[0] - 1;
 		
-		return d[0] + d[1]*something;
+		int x =  d[0] + d[1]*something;
+		if (x<0) throw std::runtime_error("packDistance\n");
+		return x;
 	}
 	
 private:
