@@ -956,6 +956,7 @@ void accOrbitalCorrelation2(Geometry const &geometry,DynVars const &dynVars, Par
 template<typename FieldType,typename PhononsType>
 FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars,const PhononsType& phonons)
 {
+#if 0
 	if (!doSpins) {
 		// construct a vector of qs
 		std::vector<FieldType> vi,vj;
@@ -963,7 +964,12 @@ FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars,
 		phonons.calcQvector(vj,j,dynVars);
 		return scalarProduct(vi,vj);
 	}
-	
+#else
+	if (!doSpins) 
+		return dynVars.phonons[i][0]*dynVars.phonons[j][0]+
+				dynVars.phonons[i][1]*dynVars.phonons[j][1]-
+			(square(dynVars.phonons[i][0])+square(dynVars.phonons[i][1]));
+#endif
 	return cos(dynVars.theta[i])*cos(dynVars.theta[j])+
 				sin(dynVars.theta[i])*sin(dynVars.theta[j])*
 			cos(dynVars.phi[i]-dynVars.phi[j]);
