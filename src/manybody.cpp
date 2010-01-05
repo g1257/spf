@@ -1002,17 +1002,26 @@ T scalarProduct(const std::vector<T>& v1,const std::vector<T>& v2)
 }
 
 // q contains the indices for the k values we want to compute
+void calcSqFake(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,const std::vector<double>& cds,
+	    	const Kmesh& kmesh,size_t plaquetteIndex,const Geometry& geometry)
+{
+	for (size_t i=0;i<cds.size();i++) 
+		sq(i,plaquetteIndex) = std::complex<double>(cds[i],0);
+	
+}
+// q contains the indices for the k values we want to compute
 void calcSq(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,const std::vector<double>& cds,
+	    const std::vector<size_t>& d,
 	    	const Kmesh& kmesh,size_t plaquetteIndex,const Geometry& geometry)
 {
 	size_t nOfKs = q.size();
 	for (size_t i=0;i<nOfKs;i++) { // loop over ks
 		sq(i,plaquetteIndex) = std::complex<double>(0,0);
 		std::vector<size_t> tmp;
-		kmesh.calcKVector(tmp,i); // put the i-th k-vector into tmp
+		kmesh.calcKVector(tmp,q[i]); // put the i-th k-vector into tmp
 		for (size_t j=0;j<cds.size();j++) { // loop over distances
 			std::vector<size_t> dvector;
-			geometry.plaquetteCalcD(j,dvector);
+			geometry.plaquetteCalcD(d[j],dvector);
 			
 			double factor = 2. * M_PI * scalarProduct(tmp,dvector)/kmesh.length();
 			std::complex<double> incr = std::complex<double>(cos(factor),sin(factor)); // = exp(ik)
@@ -1029,14 +1038,15 @@ void calcSq(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>&
 void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,
 		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
 {
-	std::vector<double> cd;
-	std::vector<size_t> d;
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
 	
 	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
+		std::vector<double> cd;
+		std::vector<size_t> d;
 		calcCdAndD(plaquetteIndex,cd,d,geometry,dynVars,phonons);
 		const Kmesh& kmesh = ether.kmesh;
-		calcSq(sq,q,cd,kmesh,plaquetteIndex,geometry);
+		//calcSqFake(sq,q,cd,kmesh,plaquetteIndex,geometry);
+		calcSq(sq,q,cd,d,kmesh,plaquetteIndex,geometry);
 	}
 }
 

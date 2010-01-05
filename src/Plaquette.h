@@ -40,32 +40,42 @@ public:
 		DistanceType ri,rj;
 		geometry_->index2Coor(ri,i,lt_);
 		geometry_->index2Coor(rj,j,lt_);
-		DistanceType dist(dim_);
+		std::vector<int> dist(dim_);
 		for (size_t di = 0; di<dim_;di++) {
 			int tmp = ri[di]-rj[di];
 			//correct for boundary condition;
 			if (tmp>=sides_[di]) tmp = latticeLength_[di] - tmp;
-			if (tmp<= -sides_[di]) tmp = -latticeLength_[di] - tmp;
-			// we add this number so that it is non-negative 
-			tmp += sides_[di] - 1;
-			// hopefully now tmp is greater than 0
+			int minusSide = sides_[di];
+			minusSide *= (-1);
+			if (tmp<= minusSide) tmp = -latticeLength_[di] - tmp;
 			dist[di] = tmp;
 		}
 		// The max for $dist[0] is (2*$GlobalLc[0] - 2)
 		// and so there are (2*$GlobalLc[0] - 1) of $dist[0]
-		return  dist[0] + dist[1]*(2*sides_[0] - 1);
+		return packDistance(dist); 
 	}
 	
-	void calcD(size_t j,std::vector<size_t>& d) const
+	void unpackDistance(std::vector<size_t>& d,size_t distanceIndex) const
 	{
 		size_t something  = 2*sides_[0] - 1;
 		d.resize(2);
-		d[0] = j % something;
-		d[1] = size_t(j/something);
+		d[0] = distanceIndex % something;
+		d[1] = size_t(distanceIndex/something);
 		d[0] -= sides_[0] - 1;
 		d[1] -= sides_[1] - 1;
 		
 		
+	}
+	
+	size_t packDistance(std::vector<int>& d) const
+	{
+		// we add this number so that it is non-negative 
+		d[0] += sides_[0] - 1;
+		d[1] += sides_[1] - 1;
+		// hopefully now d[*] is greater than 0
+		size_t something  = 2*sides_[0] - 1;
+		
+		return d[0] + d[1]*something;
 	}
 	
 private:
@@ -75,6 +85,7 @@ private:
 	size_t dim_;
 	std::vector<int> latticeLength_;
 	std::vector<size_t> sides_;
+	
 	
 	
 	bool isInPlaquette2(const DistanceType& rp,const DistanceType& ri) const

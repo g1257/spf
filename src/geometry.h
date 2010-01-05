@@ -158,7 +158,7 @@ public:
 	
 	void plaquetteCalcD(size_t j,std::vector<size_t>& d) const
 	{
-		return plaquette_.calcD(j,d);	
+		return plaquette_.unpackDistance(d,j);	
 	}
 	
 	friend class Plaquette<DistanceType,ThisType>;

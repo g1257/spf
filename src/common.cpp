@@ -1829,6 +1829,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		//q[2]=129;
 		if (ether.isSet("nanocluster")) {
 			psimag::Matrix<std::complex<double> > sq(ether.q.size(),ether.linSize);
+	//				ether.linSize);
 			calcLocalk(sq,ether.q,geometry,dynVars,ether);
 			io.historyPrint("nanocluster",sq);
 		}
