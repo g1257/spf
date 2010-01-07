@@ -1051,7 +1051,11 @@ void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size
 	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
 		std::vector<double> cd;
 		std::vector<size_t> d;
+		
 		calcCdAndD(plaquetteIndex,cd,d,geometry,dynVars,phonons);
+		/* for (size_t i=0;i<d.size();i++) 
+			std::cerr<<"dddddddddsssssss["<<i<<"]="<<d[i]<<"\n";
+		throw std::runtime_error("testing\n");*/
 		const Kmesh& kmesh = ether.kmesh;
 		//calcSqFake(sq,q,cd,kmesh,plaquetteIndex,geometry);
 		calcSq(sq,q,cd,d,kmesh,plaquetteIndex,geometry);
