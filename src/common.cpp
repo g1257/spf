@@ -578,7 +578,7 @@ double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, const 
 	dE += square(dynVars.phonons[i][j]);
 #endif
     }
-  return dE*0.5;
+  return dE; //no 0.5 factor here!
 }
 
 #ifdef MODEL_KONDO_PHONONS
