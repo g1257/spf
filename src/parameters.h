@@ -68,6 +68,7 @@ const std::string ansiReset="\033[0m";
 struct Parameters {
 	int iterTherm,iterEffective,iterUnmeasured;
 	double window,beta;
+	std::vector<double> windowVector;
 	size_t numberOfBetas;
 	std::vector<double> betaVector;
 	int D,linSize,mcflag,startType,startLevel,conc;
