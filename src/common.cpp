@@ -141,9 +141,13 @@ void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 	
 	//example of non-random
 	VectorGenerator<double> betaGenerator(ether.betaVector,ether.localRank[counter]);
+	VectorGenerator<string> dynVarsFileGenerator(ether.dynVarsInputFileVector,ether.localRank[counter]);
 	typedef ConcurrencyParameter<double,VectorGenerator<double>,Parameters,ConcurrencyType> ConcurrencyParameterBeta;
+	typedef ConcurrencyParameter<string,VectorGenerator<string>,Parameters,ConcurrencyType> ConcurrencyParameterDynvarsFile;
 	ConcurrencyParameterBeta beta(ether.beta,ether,betaGenerator,ConcurrencyParameterBeta::SEPARATE,
 				      ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]); // beta 4 10 20 30 40
+	ConcurrencyParameterDynvarsFile dynVarsInputFile(ether.dynVarsInputFile,ether,dynVarsFileGenerator,ConcurrencyParameterDynvarsFile::GATHER,
+							 ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]);
 	counter++;
 	
 	// example of random
