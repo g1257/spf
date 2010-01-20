@@ -161,6 +161,7 @@ class Io {
 			int input(char const *filename,Geometry &geometry,DynVars &dynVars,Parameters &ether,Aux &aux);
 			
 			void setConcurrencyIo(ConcurrencyIoType*);
+			void correctDynVarsFileName(Parameters &ether);
 					
 	private:
 			ConcurrencyIoType* concurrencyIo_;
@@ -745,16 +746,8 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	
 	/*! \b DYNVARS_INPUT_FILE: String. The name of the input file for initial values of classical fields. 
 	 * This file must be in the SAV format (see OUTPUT FILES). Provide only if STARTYPE is 4 or 6. */
-//	if (ether.startType==4 || ether.startType==6) fin>>ether.dynVarsInputFile;
-	ether.dynVarsInputFileVector.resize(ether.numberOfBetas);
 	if (ether.startType==4 || ether.startType==6) fin>>ether.dynVarsInputFile;
-	ether.dynVarsInputFile = string(ether.dynVarsInputFile);
 
-	for (size_t i = 0;i<ether.numberOfBetas;i++) {
-		ether.dynVarsInputFileVector[i] = ether.dynVarsInputFile+ttos(ether.betaVector[i])+"_2orb0.sav"; //%%INTERFACE DYNVARSINPUTROOTNAME
-	}
-	
-	ether.dynVarsInputFile = ether.dynVarsInputFileVector[0];
 	
 	/*! \b DYNVARS_INPUT_STARTLEVEL: Integer. The number of the set from which to read
 	 * the dynvars from  DYNVARS_INPUT_FILE. Provide only if STARTYPE is 6. */
@@ -1084,5 +1077,11 @@ int Io<ConcurrencyIoType>::setBoundaryConditions(std::string const &s,Parameters
 	return 0;
 }
 
+template<typename ConcurrencyIoType>
+void Io<ConcurrencyIoType>::correctDynVarsFileName(Parameters &ether)
+{
+	size_t i = ether.localRank[0];
+	ether.dynVarsInputFile = ether.dynVarsInputFile+ttos(i)+".sav"; //%%INTERFACE DYNVARSINPUTROOTNAME
+}
 
 #endif

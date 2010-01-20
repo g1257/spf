@@ -98,7 +98,6 @@ struct Parameters {
 	vector<int> modulus;
 	std::string options;
 	std::string dynVarsInputFile;
-	std::vector<string> dynVarsInputFileVector;
 	vector<double> J,phononEjt,phononEd;
 	double tprime; //next nearest neighbour hopping
 	double jafprime; // next nearest neighbor direct exchange coupling
