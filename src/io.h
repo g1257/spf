@@ -724,7 +724,12 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	 * Double. If positive or zero, this parameter determines the window used in changing the spin
 	  dynamical variables (12/19/03). If negative, the value itself is ignored, and the spins are 
 	  randomly changed without regard to the previous configuration. */
-	fin>>ether.window; //%%INTERFACE MONTECARLO_WINDOW
+	size_t tmpNumber = 0;
+	fin>>tmpNumber; // tmpNumber = numberOfBetas
+	ether.windowVector.resize(tmpNumber);
+	for (size_t i=0;i<tmpNumber;i++)
+		fin>>ether.windowVector[i]; //%%INTERFACE MONTECARLO_WINDOW
+		// ether.windowVector[i] = function(betaVector[i];	
 	
 	/*! \b MONTECARLO_FLAG: Integer. Possible values are:
 	 * - \b 1 Normal Monte Carlo.
@@ -1082,6 +1087,7 @@ void Io<ConcurrencyIoType>::correctDynVarsFileName(Parameters &ether)
 {
 	size_t i = ether.localRank[0];
 	ether.dynVarsInputFile = ether.dynVarsInputFile+ttos(i)+".sav"; //%%INTERFACE DYNVARSINPUTROOTNAME
+	ether.window = ether.windowVector[i];
 }
 
 #endif
