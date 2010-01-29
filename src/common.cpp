@@ -648,10 +648,10 @@ void crsToFull (MyMatrix<MatType> &a,tpem_sparse const *matrix,Parameters const 
 			a.set(matrix->colind[k],i,MatType(realpart,imagpart));
 		}
 	}
-	if (!a.isHermitian()) {
-		std::cerr<<a<<endl;
-		exit(1);
-	}
+	//if (!a.isHermitian()) {
+	//	std::cerr<<a<<endl;
+	//	exit(1);
+	//}
 	
 }
 
