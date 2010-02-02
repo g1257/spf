@@ -38,7 +38,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #include <sys/resource.h>
 #include "common.h"
-#include "argument.h"
 #include "conductance.h"
 #include "VectorGenerator.h"
 #include "RandomGenerator.h"

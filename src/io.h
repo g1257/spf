@@ -53,7 +53,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "dynvars.h"
 #include "aux.h"
 #include "geometry.h"
-#include "argument.h"
 #include "Matrix.h"
 
 #ifdef __LIBCATAMOUNT__ 
@@ -598,17 +597,9 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	vector<int> lvector;
 
 
-	s=string(filename)+ ".int";
-	
-	if (ether.mpiRank==0) {
-		if (procFile(filename,s.c_str())>0) {
-			return 1;
-		}
-	}
-
 	ConcurrencyIoType::ConcurrencyType::barrier();
 	
-	std::ifstream fin(s.c_str());
+	std::ifstream fin(filename);
 	if (!fin || fin.bad()) {
 		cerr<<"FATAL: Cannot open file: "<<s.c_str()<<endl;
 		cerr<<"AT: "<<__FILE__<<" : "<<__LINE__<<endl;
@@ -647,19 +638,19 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	* - \b bcsvvector Specify bcsV as a vector of D*N doubles instead of a single number. 
 	*             Allows for a spatially dependent and anisotropic BcsV.
 	*/
-	fin>>ether.options; //META OPTIONS none 
+	reader.read(parameters.options); //META OPTIONS none 
 	/*! <b>Type of Lattice:</b> (choose a name of those between quotes)
 	
 	 *	- cubic types: "1d", "square", "cubic"
 	 *	- all sides equal: all cubic types and "fcc" "bcc" "triangular"
 	 *	- others:  "honeycomb", "prism", "rectangular"
 	*/
-	fin>>s; //%%INTERFACE LATTICE_TYPE
+	reader.read(s); //%%INTERFACE LATTICE_TYPE
 	/*! <b>Lattice Sides:</b> 
 	 * A comma-separated list of numbers, one for "1d", 2 for "square",
 	 * "triangular" and "honeycomb", 3 for the rest.
 	 */
-	fin>>s2; //%%INTERFACE LATTICE_L
+	reader.read(s2); //%%INTERFACE LATTICE_L
 	
 	if (ether.isSet("verbose")) i=1;
 	else i=0;
@@ -682,24 +673,22 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	 * is used as the starting point to adjust the chemical potential. Ignored if TPEM is used.
 	 * If non-positive it is ignored. 
 	 */ 
-	fin>>ether.carriers; //%%INTERFACE HAMILTONIAN_CARRIERS
+	reader.read(ether.carriers); //%%INTERFACE HAMILTONIAN_CARRIERS
 	
 	/*! <b>Chemical Potential: </b>
 	 *	Double. Value of Chemical potential. Note: If previous parameter 
 	 *	(HAMILTONIAN_NUMBER_OF_ELECTRONS > 0) then this only serves as the initial guess 
 	 *	for the adjustment of the chemical potential.
 	*/
-	fin>>aux.varMu; //%%INTERFACE HAMILTONIAN_CHEMICALPOTENTIAL
+	reader.read(aux.varMu); //%%INTERFACE HAMILTONIAN_CHEMICALPOTENTIAL
 	
 	/*! \b Beta: A number that indicates the numbers to follow, followed by 
 		a series of space-separated numbers, one beta per configuration
 		Each is a Double. Each is the inverse of Temperature unless "temperature" option is set in 
 	                 which case this must be the Temperature not its inverse.*/
-	fin>>ether.numberOfBetas;
-	ether.betaVector.resize(ether.numberOfBetas);
-	for (size_t i = 0;i<ether.numberOfBetas;i++) {
-		fin>>ether.betaVector[i]; //%%INTERFACE MONTECARLO_BETA
-	
+	reader.read(ether.betaVector);
+	for (size_t i = 0;i<ether.betaVector.size();i++) {
+		
 		if (ether.isSet("temperature")) {
 			ether.betaVector[i] = 1.0/ether.betaVector[i];
 		}
@@ -708,36 +697,30 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	
 	/*!  \b OutputRootname: String. Rootname for output files (See Io) */
 
-	fin>>temp2; //%%INTERFACE OUTPUT_ROOTNAME
-	ether.rootname=string(temp2); 
+	reader.read(ether.rootname); 
 	
 	/*! \b  MONTECARLO_THERMALIZATION: Integer. Number of Thermalization Steps */
-	fin>>ether.iterTherm; //%%INTERFACE MONTECARLO_THERMALIZATION
+	reader.read(ether.iterTherm); //%%INTERFACE MONTECARLO_THERMALIZATION
 	
 	/*! \b  MONTECARLO_EFFECTIVE: Integer. Number of Measurement Steps */
-	fin>>ether.iterEffective; //%%INTERFACE MONTECARLO_EFFECTIVE
+	reader.read(ether.iterEffective); //%%INTERFACE MONTECARLO_EFFECTIVE
 	
 	/*! \b  MONTECARLO_UNMEASURED: Integer. One plus the number of Steps left unmeasured during the measurement phase. */
-	fin>>ether.iterUnmeasured; //%%INTERFACE MONTECARLO_UNMEASURED
+	reader.read(ether.iterUnmeasured); //%%INTERFACE MONTECARLO_UNMEASURED
 	
 	/*! \b MONTECARLO_WINDOW:
 	 * Double. If positive or zero, this parameter determines the window used in changing the spin
 	  dynamical variables (12/19/03). If negative, the value itself is ignored, and the spins are 
 	  randomly changed without regard to the previous configuration. */
-	size_t tmpNumber = 0;
-	fin>>tmpNumber; // tmpNumber = numberOfBetas
-	ether.windowVector.resize(tmpNumber);
-	for (size_t i=0;i<tmpNumber;i++)
-		fin>>ether.windowVector[i]; //%%INTERFACE MONTECARLO_WINDOW
-		// ether.windowVector[i] = function(betaVector[i];	
+	reader.read(ether.windowVector);
 	
 	/*! \b MONTECARLO_FLAG: Integer. Possible values are:
 	 * - \b 1 Normal Monte Carlo.
 	 * - \b 0 all Monte Carlo propositions are rejected. (Useful for debugging).
 	 */
-	fin>>ether.mcflag; //%%INTERFACE MONTECARLO_FLAG
+	reader.read(ether.mcflag); //%%INTERFACE MONTECARLO_FLAG
 	
-	fin>>ether.startType; //%%INTERFACE MONTECARLO_STARTTYPE
+	reader.read(startType); //%%INTERFACE MONTECARLO_STARTTYPE
 	/*! \b MONTECARLO_STARTTYPE: Integer. Starting configuration. Possible values are:
 	 * - \b 0 Then theta=phi=0 for all sites. 
 	 * - \b 1 Then theta and phi are chosen randomly.
@@ -751,43 +734,43 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	
 	/*! \b DYNVARS_INPUT_FILE: String. The name of the input file for initial values of classical fields. 
 	 * This file must be in the SAV format (see OUTPUT FILES). Provide only if STARTYPE is 4 or 6. */
-	if (ether.startType==4 || ether.startType==6) fin>>ether.dynVarsInputFile;
+	if (ether.startType==4 || ether.startType==6) reader.read(ether.dynVarsInputFile);
 
 	
 	/*! \b DYNVARS_INPUT_STARTLEVEL: Integer. The number of the set from which to read
 	 * the dynvars from  DYNVARS_INPUT_FILE. Provide only if STARTYPE is 6. */
 	if (ether.startType==6) {
-		fin>>ether.startLevel;
+		reader.read(ether.startLevel);
 	} else {
 		ether.startLevel=1;
 	}
 	
 	/*! \b HISTOGRAM_STEPS: Integer. Number of steps for the histograms. */
-	fin>>ether.histSteps; //%%INTERFACE HISTOGRAM_STEPS
+	reader.read(ether.histSteps); //%%INTERFACE HISTOGRAM_STEPS
 	
 	/*! \b HISTOGRAM_BOUNDS: Two doubles. The min and max energies for the histograms.
 		Provide only if option histogrambounds is set. Fine Print: 
 		Applies to all histograms, in particular for  DOS and LDOS but for the optical
 		conductivity  the lower bound is always zero. */
 	if (ether.isSet("histogrambounds")) {
-		fin>>ether.hist1;
-		fin>>ether.hist2;
+		reader.read(ether.hist1);
+		reader.read(ether.hist2);
 	} 
 	
 	if (ether.isSet("spectrumbounds")) {
-		fin>>ether.energy1;
-		fin>>ether.energy2;
+		reader.read(ether.energy1);
+		reader.read(ether.energy2);
 	} 
 	
 	/*! \b HAMILTONIAN_CONCENTRATION: Integer. Number of Classical Spins. */
-	fin>>ether.conc; //%%INTERFACE MONTECARLO_
+	reader.read(ether.conc); //%%INTERFACE MONTECARLO_
 	
 	
 	/*! \b HAMILTONIAN_BC: String. Boundary conditions. Either "periodic", "antiperiodic",
 	"open" or 2D comma-separated numbers (but do not leave spaces) indicating the 
 	real and imaginary part of each boundary hopping.
 	*/
-	fin>>s2;
+	reader.read(s2);
 	if (setBoundaryConditions(s2,ether)!=0) {
 		cerr<<"AT THIS POINT "<<__FILE__<<" "<<__LINE__<<endl;
 		return 1;
@@ -797,96 +780,61 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	/*! \b HAMILTONIAN_J: Double for  MODEL_KONDO_FINITE or two Doubles for MODEL_KONDO_DMS_MANYBANDS.
 	 <i>Provide only for MODEL_KONDO_FINITE or MODEL_KONDO_DMS_MANYBANDS</i> */
 	
-#ifdef MODEL_KONDO_FINITE	
-	fin>>temp;
-	ether.J.push_back(temp);
-#endif
-#ifdef MODEL_KONDO_DMS_MANYBANDS
-	fin>>iTmp;
-	for (i=0;i<iTmp;i++) {
-		fin>>temp; 
-		ether.J.push_back(temp);
-	}
-#endif
+	reader.read(ether.J);
 
 	/*! \b HAMILTONIAN_JAF: Double or N doubles. The value of the direct exchange coupling between classical spins.
 	 If option jafvector is set (see OPTIONS above) then it is a vector of Dimension*N doubles specifying 
 	 Jaf[i+dir*N]. 
 	 If option jafvector is not set it is a single double specifying a spatially constant value (that can be zero) for the direct
 	  exchange coupling. */
-	if (ether.isSet("jafvector")) {
-		fin>>ether.jafFile;
-		s2="#Jafvector";
-		ether.JafVector.insert(ether.JafVector.begin(),ether.D*ether.linSize,0);
-		loadVector(ether.JafVector,ether.jafFile,s2,1);
-	} else {
-		fin>>ether.numberOfJafConfigs;
-		fin>>ether.jafCenter;
-		fin>>ether.jafDelta;
-		fin>>ether.jafSeparate;
+	ether.JafVector.resize(ether.linSize);
+	ether.JafVector.insert(ether.JafVector.begin(),ether.D*ether.linSize,0);
+	if (ether.isSet("jafdisorder")) {
+		reader.read(ether.numberOfJafConfigs);
+		reader.read(ether.jafCenter);
+		reader.read(ether.jafDelta);
+		reader.read(ether.jafSeparate);
 		ether.JafVector.resize(ether.D*ether.linSize);
 		//for (i=0;i<ether.D*ether.linSize;i++) ether.JafVector.push_back(temp);
-	}
-	
-	
+	} else if (ether.isSet("jafvector")) {
+		reader.read(temp);
+		SimpleReaderType reader2(temp);
+		reader2.read(ether.JafVector); // watch of for format of external file "temp"
+	} 
 	
 	/*! \b HAMILTONIAN_POTENTIAL: The name of the file containing a local potential
 	 <i>but provide only if the havepotential is set (see OPTIONS above).</i>
 	 */
-	  i=ether.linSize;
-#ifdef MODEL_KONDO_DMS_MANYBANDS
-	i=2*ether.linSize; /* potentials for each band, or spin-orbit couplings first N for a, last N for b */
-#endif
-	ether.potential.insert(ether.potential.begin(),i,0.0);
-	if (ether.isSet("havepotential")) {
-		fin>>ether.potentialFile;
-		s2="#Potential";
-		loadVector(ether.potential,ether.potentialFile,s2,1);
-	} else {
-		fin>>ether.numberOfMuConfigs;
-		fin>>ether.muCenter;
-		fin>>ether.muDelta;
-		fin>>ether.muSeparate;
+	ether.potential.resize(ether.linSize);
+	ether.potential.insert(ether.potential.begin(),ether.linSize,0);
+	
+	if (ether.isSet("potentialdisorder")) {
+		reader.read(ether.numberOfMuConfigs);
+		reader.read(ether.muCenter);
+		reader.read(ether.muDelta);
+		reader.read(ether.muSeparate);
 		ether.potential.resize(ether.linSize);
-	}
+	} else if (ether.isSet("havepotential")) {
+		reader.read(temp);
+		SimpleReaderType reader2(temp);
+		reader2.read(ether.potential); // watch of for format of external file "temp"
+	} 
 	
 	/*! \b NANOCLUSTER_PARAMETERS: All integers.
 	 <i>First one is the number of q's to monitor, the rest are their indices, provide only if option nanocluster option is set.</i>
 	 */
 	
 	if (ether.isSet("nanocluster")) {
-		fin>>ether.plaquetteMeshFactor;
-	        size_t tmp;
-		fin>>tmp; //read the number of q's to monitor
-		ether.q.resize(tmp);
-		for (i=0;i<ether.q.size();i++) {
-			fin>>ether.q[i]; //read the q indices to be monitored
-		}
+		reader.read(ether.plaquetteMeshFactor);
+		reader.read(ether.q);
 		ether.kmesh.init(ether.D,ether.plaquetteMeshFactor*ether.plaquetteSide);
 	}
 	
 	/*! \b MAGNETIC_FIELD: 3 Doubles. A Zeeman field in Bx, By and Bz 
 	 <i>but provide only if the magneticfield is set (see OPTIONS above).</i>
 	 */
-	 ether.magnetic.push_back(0);
-	 ether.magnetic.push_back(0);
-	 ether.magnetic.push_back(0);
 	 
-	if (ether.isSet("magneticfield")) {
-		for (i=0;i<3;i++) {
-			fin>>ether.magnetic[i];
-		}
-	}
-	
-	/*! \b TPRIME AND JAFPRIME: Two Doubles. A next-nearest neighbour coupling and direct exchange
-	 <i>but provide only if the tprime is set (see OPTIONS above).</i>
-	 */
-	ether.tprime = ether.jafprime = ether.tsecond = 0.0;
-	if (ether.isSet("tprime")) {
-		fin>>ether.tprime; // next nearest neighbour hopping
-		fin>>ether.jafprime; // next nearest neighbour direct exchange coupling
-		
-	}
+	if (ether.isSet("magneticfield")) reader.read(ether.magnetic);
 	
 	/*! \b TPEM_FLAG: Integer. Controlls the algorithm used for "diagonalization" of the one-electron sector.
 	                   Possible values are:
@@ -895,7 +843,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		- 2 PEM algorithm is used
 		- 3 TPEM without trace truncation is used.
 	*/
-	fin>>ether.tpem;
+	reader.read(ether.tpem);
 	if (ether.tpem<0 || ether.tpem>3) {
 		cerr<<"Illegal option "<<ether.tpem<<" for TPEM, must be 0 (none), 1(tpem) or 2 (pem)\n";
 		cerr<<"This happened here "<<__FILE__<<" "<<__LINE__<<endl;
@@ -907,9 +855,9 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	 * The cutoff and thresholds for product and trace truncation respectively but provide these
 	 * three only if TPEM_FLAG>0 */
 	if (ether.tpem) {		
-		fin>>ether.tpem_cutoff;
-		fin>>ether.tpem_epsProd;
-		fin>>ether.tpem_epsTrace;
+		reader.read(ether.tpem_cutoff);
+		reader.read(ether.tpem_epsProd);
+		reader.read(ether.tpem_epsTrace);
 		
 	} else {
 		if (ether.isSet("adjusttpembounds")) {
@@ -950,56 +898,29 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 #ifdef MODEL_KONDO_DMS_CUBIC
 	iTmp=int(iTmp/2);
 #endif
-	cerr<<"Reading "<<ether.numberOfOrbitals<<" band hoppings\n";
+	
 	for (i=0;i<ether.numberOfOrbitals*ether.numberOfOrbitals*iTmp;i++) {
-		 fin>>temp;
-		 fin>>tmp;
+		 reader.read(temp);
+		 reader.read(tmp);
 		 tempComplex=MatType(temp,tmp);
 		 ether.bandHoppings.push_back(tempComplex);
 		 //cerr<<"Read  "<<ether.bandHoppings[i]<<"\n";
 	}
 #endif
-#ifdef MODEL_KONDO_INF_TWOBANDS		
-	for (i=0;i<4*ether.D;i++) {
-		fin>>temp;
-		tempComplex=MatType(temp,0.0);
-		ether.bandHoppings.push_back(tempComplex);
-	}
-	for (i=0;i<3;i++) {
-		fin>>temp;
-		ether.phononEjt.push_back(temp);
-	}
-	for (i=0;i<3;i++) {
-		fin>>temp;
-		ether.phononEd.push_back(temp);
-	}
+#ifdef MODEL_KONDO_INF_TWOBANDS
+	reader.read(ether.bandHoppings); // size should be 4*ether.D
+	reader.read(ether.phononEjt); // size should be 3
+	reader.read(ether.phononEd); // size should be 3
 	ether.maxPhonons=4.0/sqrt(ether.beta*maxElement(ether.phononEd));	
 #endif
 #ifdef MODEL_KONDO_PHONONS
-	fin>>ether.phononLambda;
+	reader.read(ether.phononLambda);
 #endif
 #ifdef MODEL_KONDO_PHONONS_EX
-	fin>>ether.phononAlpha;
-	fin>>ether.phononDelta;
-	fin>>ether.phononGj;
+	reader.read(ether.phononAlpha);
+	reader.read(ether.phononDelta);
+	reader.read(ether.phononGj);
 #endif
-	ether.bcsDelta0=0;
-	ether.bcsV.insert(ether.bcsV.begin(),ether.D*ether.linSize,0);
-	
-#ifdef MODEL_KONDO_BCS
-	fin>>ether.bcsDelta0;
-	
-	if (ether.isSet("bcsvvector")) {
-		fin>>s3;
-		s2="#BcsV";
-		loadVector(ether.bcsV,s3,s2,1);
-	} else {
-		fin>>temp;
-		for (i=0;i<ether.D*ether.linSize;i++) ether.bcsV[i]=temp;
-	}	
-#endif
-
-	
 	
 	ether.modulus.clear();
 	ether.modulus.insert(ether.modulus.begin(),ether.linSize,1);

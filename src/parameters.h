@@ -69,7 +69,6 @@ struct Parameters {
 	int iterTherm,iterEffective,iterUnmeasured;
 	double window,beta;
 	std::vector<double> windowVector;
-	size_t numberOfBetas;
 	std::vector<double> betaVector;
 	int D,linSize,mcflag,startType,startLevel,conc;
 	vector<double> JafVector;
@@ -100,12 +99,7 @@ struct Parameters {
 	std::string options;
 	std::string dynVarsInputFile;
 	vector<double> J,phononEjt,phononEd;
-	double tprime; //next nearest neighbour hopping
-	double jafprime; // next nearest neighbor direct exchange coupling
-	double tsecond; // next next nearest neighbor hopping
 	vector<double> magnetic; // magnetic field
-	vector<double> bcsV;
-	double bcsDelta0;
 	std::string typeoflattice; //> type of lattice
 	
 	double tpem_epsProd,tpem_epsTrace;
