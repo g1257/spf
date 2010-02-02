@@ -47,39 +47,21 @@ extern "C" void zheev_(char &,char &,int &,MatType [],int &,
 int diag(MyMatrix<MatType> &matrix,std::vector<double> &eig,char jobz)
 {
 	int info,lwork,i,j;
-        MatType *work,*a;
-        double *rwork,*ee;
         char uu='U',jobz2;
         int matsize = matrix.getRank();
         //static int firstcall=1;        
         lwork = 3*matsize;
+        static std::vector<MatType> work(lwork+10);
+        static std::vector<double> rwork(3*matsize-1);
         
-        work = new MatType[lwork+10];
+        /*work = new MatType[lwork+10];
         rwork = new double[3*matsize-1];
-        a  = new MatType[matsize*matsize];
-        ee = new double[matsize];
-
-        for (i=0;i<matsize;i++) {
-        //        ee[i]=eig[i];
-                for (j=0;j<matsize;j++) {
-                        a[j+i*matsize]=matrix(j,i);
-                }
-        }
+*/
         jobz2=jobz;
-        zheev_(jobz2,uu,matsize,&(a[0]),matsize,ee,work,lwork,rwork,info);
-        for (i=0;i<matsize;i++) eig[i]=ee[i];
+        zheev_(jobz2,uu,matsize,&(matrix.pointer()[0]),matsize,&(eig[0]),&(work[0]),lwork,&(rwork[0]),info);
 
-        if (jobz=='V' || jobz=='v') {
-                for (i=0;i<matsize;i++) {
-                        for (j=0;j<matsize;j++) {
-                                matrix(i,j)=a[i+j*matsize];
-                        }
-                }
-        }
-        delete [] rwork;
-        delete [] work;
-        delete [] a;
-        delete [] ee;
+        /*delete [] rwork;
+        delete [] work;*/
         return info;
 }
 #else

@@ -60,6 +60,8 @@ using namespace std;
 
 extern void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		 tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type);
+extern void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
+		 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type);
 extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry, DynVars const &dynVars, 
         Parameters const &ether,Aux &aux,int bandindex);
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
@@ -626,26 +628,14 @@ void kTpemMoments(vector<double> const &moments,Aux &aux, Parameters const &ethe
 void crsToFull (MyMatrix<MatType> &a,tpem_sparse const *matrix,Parameters const &ether,Aux &aux)
 {
 	unsigned int i,n,k;
-	double tmp2,realpart,imagpart;
 	
 	n=a.getRank();
 	
 	for (i = 0; i < n ; i++) for (k=0;k<n;k++) a.set(i,k,0.0);
 		
 	for (i = 0; i < n; i++){
-		for (k = matrix->rowptr[i]; k < matrix->rowptr[i + 1]; k++){
-			//a[i * n + matrix->colind[k]] = matrix->values[k];
-			
-			
-			if(i==matrix->colind[k]){
-				tmp2=aux.varTpem_b;
-			}
-			else{
-				tmp2=0;
-			}
-			realpart=real(matrix->values[k])*aux.varTpem_a+tmp2;
-			imagpart=imag(matrix->values[k])*aux.varTpem_a;
-			a.set(matrix->colind[k],i,MatType(realpart,imagpart));
+		for (k = matrix->rowptr[i]; k < matrix->rowptr[i + 1]; k++){			
+			a.set(matrix->colind[k],i,matrix->values[k]);
 		}
 	}
 	//if (!a.isHermitian()) {
@@ -777,7 +767,7 @@ void diag(vector<double> &eig,Geometry const &geometry,DynVars const &dynVars,
 		diag(aux.matrix,eig,jobz);
 	}
 	
-		if (jobz!='V') sort(eig.begin(), eig.end(), less<double>());
+	if (jobz!='V') sort(eig.begin(), eig.end(), less<double>());
 	if (ether.isSet("eigprint")) {
 		for (i=0;i<eig.size();i++) {
 			cerr<<"eig["<<i<<"]="<<eig[i]<<endl;
@@ -1146,7 +1136,7 @@ void matrixPrint(MyMatrix<MatType> &matrix)
 void setupHamiltonian(MyMatrix<MatType> &matrix,Geometry const &geometry,DynVars const &dynVars,
 		Parameters const &ether,Aux &aux,int type)
 {
-	static int firstcall=1;
+	/*static int firstcall=1;
 	static tpem_sparse *spMatrix;
 	int matsize=ether.hilbertSize;
 	
@@ -1155,10 +1145,11 @@ void setupHamiltonian(MyMatrix<MatType> &matrix,Geometry const &geometry,DynVars
 		firstcall=0;
 	}
 	
-	kTpemHamiltonian (geometry,dynVars,spMatrix,ether,aux,type);
+	kTpemHamiltonian (geometry,dynVars,spMatrix,ether,aux,type);*/
+	createHamiltonian(geometry,dynVars,matrix,ether,aux,type);
 	
 	// no need to adjust spectrum since we're doing diagonalization here
-	crsToFull(matrix,spMatrix,ether,aux);
+	//crsToFull(matrix,spMatrix,ether,aux);
 
 }
 

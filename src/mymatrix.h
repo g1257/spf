@@ -72,11 +72,20 @@ public:
 		void set(int i,int j,T value) {
 			data[i+j*n]=value;
 		}
+		
+		std::vector<T>& pointer() 
+		{
+		  return data;
+		}
+		
 		MyMatrix &operator= (const MyMatrix& myObject); // assignment operator
 		MyMatrix(MyMatrix const &myObject); // copy constructor
 		int getRank() const { return n; }
 		int isHermitian() const;
 		friend std::ostream &operator<< <>(std::ostream &s,MyMatrix<T> const &myObject);
+		//template <typename MatType2>
+		//friend int diag(MyMatrix<MatType2> &myMatrix,std::vector<double> &e,char jobz='n');
+
 };
 
 int diag(MyMatrix<MatType> &myMatrix,std::vector<double> &e,char jobz='n');

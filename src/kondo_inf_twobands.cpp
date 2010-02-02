@@ -153,6 +153,62 @@ void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 
 }
 
+void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
+                 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type)
+  // Modified by IS Nov-08-04
+
+{
+	int	col, volume, i = 0, p,dir;
+	tpem_t hopping,hopping2,bandHop;
+	double	 tmp,tmp2;
+	int	j,iTmp;
+	volume = ether.linSize;
+	tpem_t S_ij;
+	vector<double> phonon_q1(volume);
+	vector<double> phonon_q2(volume);
+	vector<double> phonon_q3(volume);
+	
+	
+	Phonons<Parameters,Geometry> phonons(ether,geometry);
+	
+	for (p = 0; p < volume; p++) {
+		
+		
+		phonon_q1[p]=phonons.calcPhonon(p,dynVars,0);
+		phonon_q2[p]=phonons.calcPhonon(p,dynVars,1);
+		phonon_q3[p]=phonons.calcPhonon(p,dynVars,2);	
+		matrix(p,p) = ether.phononEjt[0]*phonon_q1[p]+ether.phononEjt[2]*phonon_q3[p]+ether.potential[p];
+		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2[p]);
+		matrix(p+volume,p) = conj(matrix(p,p+volume));
+		
+		for (j = 0; j < geometry.z(p); j++) {	/* hopping elements */
+			iTmp=geometry.borderId(p,j);;
+			if (iTmp>=0) hopping = ether.hoppings[iTmp];
+			else hopping= -1.0;
+			col = geometry.neighbor(p,j);
+			tmp=cos(0.5*dynVars.theta[p])*cos(0.5*dynVars.theta[col]);
+			tmp2=sin(0.5*dynVars.theta[p])*sin(0.5*dynVars.theta[col]);
+			S_ij=tpem_t(tmp+tmp2*cos(dynVars.phi[p]-dynVars.phi[col]),
+		 		-tmp2*sin(dynVars.phi[p]-dynVars.phi[col]));
+				
+			if (p>col) hopping2 = conj(hopping);
+			else hopping2=hopping;
+			dir = int(j/2);
+			
+			bandHop=ether.bandHoppings[0+0*2+dir*4];
+			hopping=hopping2 * bandHop ;
+			matrix(p,col) = hopping * S_ij;
+			matrix(col,p) = conj(matrix(p,col));
+			
+			bandHop=ether.bandHoppings[0+1*2+dir*4];
+			hopping= hopping2 * bandHop;
+		        matrix(p, col+volume)=hopping * S_ij;
+			matrix(col+volume,p) = conj(matrix(p,col+volume));
+		}
+	}
+
+}
+
 void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry)
 {
 	int j,col;
@@ -176,8 +232,8 @@ void setHilbertParams(Parameters &ether, Aux &aux,Geometry const &geometry)
 		ether.energy1= -2*d*maxElement(ether.bandHoppings)-maxElement(ether.potential);
 		ether.energy2= -ether.energy1;
 	}
-	aux.varTpem_a = 0.5*(ether.energy2-ether.energy1);
-	aux.varTpem_b = 0.5*(ether.energy2+ether.energy1);
+	aux.varTpem_a = 1; //0.5*(ether.energy2-ether.energy1);
+	aux.varTpem_b = 0; //0.5*(ether.energy2+ether.energy1);
 	ether.classFieldList.push_back(0);
 	ether.classFieldList.push_back(1);
 	
