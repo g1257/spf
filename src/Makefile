@@ -4,16 +4,16 @@
 # Platform: linux
 # RunType for TPEM: serial
 # RunType for Trivial: serial
-# Model: MODEL_KONDO_INF_TWOBANDS
+# Model: MODEL_KONDO_PNICTIDES
 # GSL: no
-LDFLAGS = -L.   -llapack -lblas -lm  -L../lib 
-EXENAME = spf2b
-CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_INF_TWOBANDS -DNO_GSL  -Wall -DNDEBUG  -DCONCURRENCYMPI
-CXX = mpicxx -g3 
+LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
+EXENAME = spfpnictides
+CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_PNICTIDES -DNO_GSL  -Wall -O2
+CXX = g++ 
 include filelist.make
 
-OBJECTS += kondo_inf_twobands.o
-OBJECTS += unified_launcher.o
+OBJECTS += kondo_pnictides.o
+OBJECTS += serial_launcher.o
 all: $(EXENAME)
 
 tpemSample: tpemSample.o tpemplus.o tpemplusSparse.o tpemplusSubspace.o tpemplus.h tpemplusTypes.h
