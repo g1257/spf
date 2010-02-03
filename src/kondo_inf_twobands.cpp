@@ -178,6 +178,7 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 		phonon_q2[p]=phonons.calcPhonon(p,dynVars,1);
 		phonon_q3[p]=phonons.calcPhonon(p,dynVars,2);	
 		matrix(p,p) = ether.phononEjt[0]*phonon_q1[p]+ether.phononEjt[2]*phonon_q3[p]+ether.potential[p];
+		matrix(p+volume,p+volume) =tmp = -ether.phononEjt[2]*phonon_q3[p]+ether.phononEjt[0]*phonon_q1[p]+ether.potential[p];
 		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2[p]);
 		matrix(p+volume,p) = conj(matrix(p,p+volume));
 		
