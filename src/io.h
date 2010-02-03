@@ -48,7 +48,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <functional>
 #include <cstring>
 #include <stdexcept>
-#include "basic.h"
 #include "parameters.h"
 #include "dynvars.h"
 #include "aux.h"

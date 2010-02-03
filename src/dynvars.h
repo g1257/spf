@@ -39,6 +39,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #ifndef DYNVARS_H_
 #define DYNVARS_H_
+#include <vector>
 
 /** \brief Dynamical Variables for the Monte Carlo simulation 
 

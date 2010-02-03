@@ -44,6 +44,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "basic_types.h"
 #include "Kmesh.h"
 #include "Phonons.h"
+#include "RandomNumberGenerator.h"
 
 using std::vector;
 using std::string;
@@ -107,6 +108,7 @@ struct Parameters {
 	int mpiRank,mpiTpemRank,mpiNop1,mpiNop2,mpiSize;
 	std::vector<int> localRank;
 	std::vector<size_t> localSize;
+	mutable RandomNumberGenerator rng;
 	
 	void print(ostream &s,char prefix='#');
 	bool isSet(char const *what) const;

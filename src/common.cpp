@@ -776,10 +776,10 @@ bool kTpemAllBands(int i,Geometry const &geometry,DynVars const &dynVars,
 		} else {
 			dS=1.0/(1.0+exp(-dS));
 		}
-		if (dS>myRandom()) accept=true;
+		if (dS>ether.rng.myRandom()) accept=true;
 		else accept=false;
 	}	else {
-		accept = (dS > 0.0 || myRandom () < exp (dS));
+		accept = (dS > 0.0 || ether.rng.myRandom () < exp (dS));
 	}
 	if (accept) {
 		// update current moments
@@ -812,7 +812,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	d=geometry.dim();
 	vector<double> vtmp;
 	
-	if (ether.isSet("randomize")) myRandomSeed(time(0));
+	if (ether.isSet("randomize")) ether.rng.myRandomSeed(time(0));
 	
 	// NOTE: THIS FUNCTION SHOULD NOT BE REENTRANT--> FIXME
 		
@@ -838,12 +838,12 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	for (i=0;i<n;i++) {
 		switch (ether.startType) {
 			case 1:
-				dynVars.theta[i]=M_PI*myRandom();
-				dynVars.phi[i]=2*M_PI*myRandom();
+				dynVars.theta[i]=M_PI*ether.rng.myRandom();
+				dynVars.phi[i]=2*M_PI*ether.rng.myRandom();
 				
 				if (!ether.isSet("freezephonons")) {
 					if (ether.isSet("verbose") && ether.mpiRank==0) cerr<<"Randomizing phonons\n";
-					for (j=0;j<d;j++) dynVars.phonons[i][j]=ether.maxPhonons*(myRandom()-0.5);
+					for (j=0;j<d;j++) dynVars.phonons[i][j]=ether.maxPhonons*(ether.rng.myRandom()-0.5);
 				}								
 				break;
 			case 2:
@@ -1031,7 +1031,7 @@ double calcNumber (vector<double> const &eig,Parameters const &ether,Aux &aux)
 	
 	n_electrons=0;
 	for (i=0;i<eig.size();i++) {
-		n_electrons += fermi((eig[i]-mu)*beta);
+		n_electrons += utils::fermi((eig[i]-mu)*beta);
 	}
 	return n_electrons;
 }
@@ -1048,7 +1048,7 @@ double calcElectronicEnergy(vector<double>  const &eig,Parameters const &ether,A
 	ee=0.0;
 	
 	for (i=0;i<eig.size();i++) {
-		ee += eig[i]*fermi((eig[i]-mu)*beta);
+		ee += eig[i]*utils::fermi((eig[i]-mu)*beta);
 	}
 	return ee;
 		
@@ -1065,7 +1065,7 @@ double calcAction(vector<double>  const &eig,Parameters const &ether,Aux &aux)
 	
 	for (i=0;i<eig.size();i++) {
 		tmp=beta*(eig[i]-mu);
-		ee += tmp+logfermi(tmp);
+		ee += tmp+utils::logfermi(tmp);
 		//cerr<<" calcaction "<<i<<" "<<ee<<" "<<tmp<<" "<<logfermi(tmp)<<endl;
 	}
 	return -ee;
@@ -1131,7 +1131,7 @@ bool doMetropolis(vector<double> const &eNew,vector<double> const &eOld,
 	X *= (double) exp(-beta*dsDirect);
 	X = (double)X/(1.0+X);
 	
-	r=myRandom(); 
+	r=ether.rng.myRandom(); 
 	
 //	cerr<<"X= "<<X<<" r="<<r<<endl;
 	if (X>r) return true;
@@ -1147,18 +1147,18 @@ void r_newSpins(double thetaOld, double phiOld, double &thetaNew,double &phiNew,
 		phiNew=0;
 	} else {
 		if (ether.window<0) {
-			thetaNew = 2*myRandom()-1;
-			phiNew = 2*M_PI*myRandom();
+			thetaNew = 2*ether.rng.myRandom()-1;
+			phiNew = 2*M_PI*ether.rng.myRandom();
 			thetaNew = acos(thetaNew);
 		} else {
-			thetaNew=2*myRandom()- 1;
+			thetaNew=2*ether.rng.myRandom()- 1;
 			if (thetaNew < -1) thetaNew= 0;
 			if (thetaNew > 1) thetaNew = 0;		
-			phiNew=phiOld+2*M_PI*(myRandom()- 0.5)*ether.window;
+			phiNew=phiOld+2*M_PI*(ether.rng.myRandom()- 0.5)*ether.window;
 			thetaNew = acos(thetaNew);
 		}
 		if (ether.isSet("sineupdate")) {
-			thetaNew = M_PI*myRandom();
+			thetaNew = M_PI*ether.rng.myRandom();
 		}
 	
 		
@@ -1181,19 +1181,12 @@ void r_newPhonons(vector<double> const &phononsOld,vector<double>  &phononsNew,P
 {
 	unsigned int i;
 	for (i=0;i<phononsNew.size();i++) {
-		phononsNew[i]=phononsOld[i] + (myRandom()- 0.5)*ether.window;
+		phononsNew[i]=phononsOld[i] + (ether.rng.myRandom()- 0.5)*ether.window;
 		//if (fabs(phononsNew[i]) > ether.maxPhonons) phononsNew[i]= 0.9*ether.maxPhonons;
 	}
 	
 }
 
-void r_newBcsFields(double bcsDeltaOld,vector<double> const &bcsPhiOld,double &bcsDeltaNew,vector<double> &bcsPhiNew,Parameters const
-&ether)
-{
-	unsigned int i;
-	bcsDeltaNew = bcsDeltaOld; //ether.bcsDelta0 * myRandom();
-	for (i=0;i<bcsPhiNew.size();i++) bcsPhiNew[i] = bcsPhiOld[i]+ M_PI * (0.5 -myRandom());
-}
 		
 // TPEM_FIXME: moment manipulation instead of diagonalization
 void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,

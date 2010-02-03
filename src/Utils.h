@@ -305,7 +305,7 @@ C           Wisniewski, J. A., (SNLA)
 		sort<double,ContainerTemplate<size_t,Field,Cmp,A>,Field>(x,iperm);				
 	}
 	
-	std::string getTimeDate()
+	inline std::string getTimeDate()
 	{
 		struct timeval tv;
 		time_t tt;
@@ -490,7 +490,7 @@ C           Wisniewski, J. A., (SNLA)
 		}
 	}
 	
-	void diag(psimag::Matrix<double> &m,std::vector<double> &eigs,char option)
+	inline void diag(psimag::Matrix<double> &m,std::vector<double> &eigs,char option)
 	{
 		char jobz=option;
 		char uplo='U';
@@ -514,7 +514,7 @@ C           Wisniewski, J. A., (SNLA)
 		
 	}
 	
-	void diag(psimag::Matrix<std::complex<double> > &m,std::vector<double> &eigs,char option)
+	inline void diag(psimag::Matrix<std::complex<double> > &m,std::vector<double> &eigs,char option)
 	{
 		char jobz=option;
 		char uplo='U';
@@ -690,7 +690,7 @@ C           Wisniewski, J. A., (SNLA)
 		return real(value1*conj(value2));
 	}
 	
-	void getrusageForLinux(std::ostream& os)
+	inline void getrusageForLinux(std::ostream& os)
 	{
 		
 		std::ifstream fin("/proc/self/stat");
@@ -706,7 +706,7 @@ C           Wisniewski, J. A., (SNLA)
 	}
 
 	
-	void memoryUsage(std::ostream& os)
+	inline void memoryUsage(std::ostream& os)
 	{
 		struct rusage usage;
 		
@@ -729,7 +729,73 @@ C           Wisniewski, J. A., (SNLA)
 		// etc, etc
 	}
 	
+	template<typename FieldType>
+	inline FieldType fermi(FieldType x)
+	{
+		FieldType res;
+		if (x>50) return 0;
+		if (x<-50) return 1;
+		res = 1.0/(1.0+exp(x));
+		return res;
+	}
 	
+	// Derivative (prime) of Fermi's function
+	template<typename FieldType>
+	inline FieldType fermiPrime(FieldType x)
+	{
+		FieldType res;
+		res= -fermi(x)*fermi(-x);
+		return res;
+	}
+	
+	template<typename FieldType>
+	inline FieldType logfermi(FieldType x)
+	{
+		FieldType res;
+		if (x>20) return -x;
+		if (x<-20) return 0;
+		res = -log(1.0+exp(x));
+		return res;
+	}
+	
+	template<typename FieldType>
+	inline int mySign(FieldType x)
+	{
+		if (x>0) return 1;
+		return -1;
+	}
+	
+	template <class T>
+	inline void mysplit(std::string const &s,std::vector<T> &c,char schar)
+	{
+		int i,l;
+		std::string buffer;
+		
+		c.clear();
+		l=s.length();
+		for (i=0;i<l;i++) {
+			if (s.at(i)==schar) {
+				c.push_back(atof(buffer.c_str()));
+				buffer="";
+			} else {
+				buffer=buffer + s.at(i);
+			}
+		}
+		c.push_back(atof(buffer.c_str()));
+		//cerr<<"Split function: tried to split "<<s<<endl;
+		//cerr<<"Split function: got "<<c[0]<<" "<<c[1]<<endl;
+	}
+	
+	inline void mychop(std::string &s)
+	{
+		std::string buffer;
+		int i,l=s.length();
+		
+		for (i=0;i<l-1;i++) {
+			buffer = buffer + s.at(i);
+		}
+		buffer = s;
+	}
 	
 }
 

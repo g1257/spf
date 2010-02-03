@@ -67,7 +67,7 @@ double calcNumber(DynVars const &dynVars,Geometry const &geometry,Parameters con
 			for (i=0;i<N;i++) {
 				temp+=conj(aux.matrix(i+N*band,lambda))*aux.matrix(i+N*band,lambda);
 			}
-			s+=real(temp)*fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu)); 
+			s+=real(temp)*utils::fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu)); 
 	}
 	return s;
 
@@ -269,7 +269,7 @@ void accLcd(Geometry const &geometry,DynVars const &dynVars,Parameters const &et
 		for (lambda=0;lambda<ether.hilbertSize;lambda++) {
 			for (alpha=0;alpha<int_dof;alpha++) {
 				tmp = conj(aux.matrix(i+alpha*ether.linSize,lambda))*aux.matrix(i+alpha*ether.linSize,lambda);
-				s+= real(tmp)*fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+				s+= real(tmp)*utils::fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
 			}
 		}
 		if (ether.isSet("savelcd")) {
@@ -303,7 +303,7 @@ double calcKinetic(DynVars const &dynVars,Geometry const &geometry,Parameters co
 			}
 		}
 	}
-		ret += tmp2 * fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+		ret += tmp2 * utils::fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
 	}
 	
 #else
@@ -320,7 +320,7 @@ double calcKinetic(DynVars const &dynVars,Geometry const &geometry,Parameters co
 				tmp2 += real(hopping)*real(tmp);
 			}
 		}
-		ret += tmp2 * fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+		ret += tmp2 * utils::fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
 	}
 #else
 	ret= -1; // not implemented
@@ -542,7 +542,7 @@ void accOptical(Geometry const &geometry,DynVars const &dynVars,Parameters const
 			}
 			temp = real(temp)*real(temp)+imag(temp)*imag(temp);
 			
-			temp = temp *(fermi(beta*e2)-fermi(beta*e1))/(e1-e2);
+			temp = temp *(utils::fermi(beta*e2)-utils::fermi(beta*e1))/(e1-e2);
 			//temp = temp * fermi(beta*e2) * fermi(-beta*e1);
 			//temp = temp * (1.0 - exp(-beta*(e1-e2)))/(e1-e2);
 			aux.Sigma.add(e1-e2,real(temp));
@@ -576,7 +576,7 @@ void accOptical(Geometry const &geometry,DynVars const &dynVars,Parameters const
 			}
 			temp = real(temp)*real(temp)+imag(temp)*imag(temp);
 			
-			temp = temp *(fermi(beta*e2)-fermi(beta*e1))/(e1-e2);
+			temp = temp *(utils::fermi(beta*e2)-utils::fermi(beta*e1))/(e1-e2);
 			//temp = temp * fermi(beta*e2) * fermi(-beta*e1);
 			//temp = temp * (1.0 - exp(-beta*(e1-e2)))/(e1-e2);
 			aux.Sigma.add(e1-e2,real(temp));
@@ -723,7 +723,7 @@ MatType greenFunction(int index1,int index2, Parameters const &ether,Aux &aux)
 	
 	tmp =0;
 	for (lambda=0;lambda<ether.hilbertSize;lambda++) {
-		tmp += conj(aux.matrix(index1,lambda))*aux.matrix(index2,lambda)*fermi(-ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+		tmp += conj(aux.matrix(index1,lambda))*aux.matrix(index2,lambda)*utils::fermi(-ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
 	}
 	return tmp;
 }
@@ -772,7 +772,7 @@ MatType calcOrbitalT(int i,int g1, int g2,Parameters const &ether,Aux &aux)
 	
 	for (lambda=0;lambda<2;lambda++) {
 		scomplex+=conj(aux.matrix(i+g1*volume,lambda)) * aux.matrix(i+g2*volume,lambda)*
-			fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+			utils::fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
 	}
 	return scomplex;
 }
@@ -815,9 +815,9 @@ void accOrbitalAngles(Geometry const &geometry,Parameters const &ether,Aux &aux)
 		cerr<<"CHECK "<<tx<<" "<<tz<<endl;
 		if (fabs(tz)>1e-10) {
 			psi = atan(tx/tz);
-			psi += (1.0-mySign(tz))*M_PI*0.5;
+			psi += (1.0-utils::mySign(tz))*M_PI*0.5;
 		} else {
-			psi = mySign(tx)*M_PI*0.5;
+			psi = utils::mySign(tx)*M_PI*0.5;
 		}
 		aux.orbitalAngles[i] += psi;
 	}

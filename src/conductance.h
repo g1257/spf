@@ -39,7 +39,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #ifndef MESCOND_H
 #define MESCOND_H
-#include "basic.h"
 #include "dynvars.h"
 #include "geometry.h"
 #include "mymatrix.h"

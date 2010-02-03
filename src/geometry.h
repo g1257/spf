@@ -43,7 +43,6 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "basic.h"
 #include "Plaquette.h"
 
 using std::vector;

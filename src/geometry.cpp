@@ -36,7 +36,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 
 
-
+#include "Utils.h"
 #include "geometry.h"
 
 /* SEE int main() at the end for an example of use */
@@ -1153,7 +1153,7 @@ void Geometry::init(string const &type,int l)
 void Geometry::init(string const &s1,string const &s2,size_t side,int verbose)
 {
 	vector<siteIndex> lvector;
-	mysplit(s2,lvector,',');
+	utils::mysplit(s2,lvector,',');
 	latticeType=s1;
 	if (allSidesEqual()) init(s1,lvector[0]);
 	else init(s1,lvector);
