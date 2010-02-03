@@ -76,8 +76,7 @@ tpem_subspace *new_tpem_subspace (unsigned int size)
 
 void tpem_subspace_fill(tpem_subspace *t)
 {
-	int state;
-	for (state=0;state<t->size;state++) tpem_subspace_push(t,state);
+	for (size_t state=0;state<t->size;state++) tpem_subspace_push(t,state);
 }
 
 void tpem_subspace_push (tpem_subspace *t, unsigned int state)

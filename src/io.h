@@ -54,6 +54,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "aux.h"
 #include "geometry.h"
 #include "Matrix.h"
+#include "SimpleReader.h"
 
 #ifdef __LIBCATAMOUNT__ 
 #include <catamount/dclock.h>
@@ -405,13 +406,6 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
 	concurrencyIo_->vectorPrint(aux.avMoments,"moments",file[0]);
 	
-	if (ether.bcsDelta0>0) 	{	
-		vectorDivide(aux.bcsCorxx,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		concurrencyIo_->vectorPrint(aux.bcsCorxx,"bcscorxx",file[0]);
-		
-		vectorDivide(aux.bcsCorxy,ether.iterEffective*ether.mpiNop2*ether.linSize);
-		concurrencyIo_->vectorPrint(aux.bcsCorxy,"bcscorxy",file[0]);
-	}
 	
 	for (bandIndex=0;bandIndex<ether.numberOfOrbitals;bandIndex++) {
 		file[0]<<"# Band "<<bandIndex<<"\n";
@@ -591,20 +585,15 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	int i;
 	char temp2[256];
 	string s,s2,s3;
-	double temp=0;
 	MatType tempComplex;
 	int iTmp;
 	vector<int> lvector;
 
-
+	typedef Dmrg::SimpleReader ReaderType;
 	ConcurrencyIoType::ConcurrencyType::barrier();
 	
-	std::ifstream fin(filename);
-	if (!fin || fin.bad()) {
-		cerr<<"FATAL: Cannot open file: "<<s.c_str()<<endl;
-		cerr<<"AT: "<<__FILE__<<" : "<<__LINE__<<endl;
-		throw std::runtime_error("Cannot read input file\n");
-	}
+	ReaderType reader(filename);
+	
 	/*! <H2>STRUCTURE OF THE INPUT FILE</H2>
 	 * The configuration file is a Unix style file. 
 	 * Lines beginning with # are ignored. Inline comments are not allowed.
@@ -638,7 +627,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	* - \b bcsvvector Specify bcsV as a vector of D*N doubles instead of a single number. 
 	*             Allows for a spatially dependent and anisotropic BcsV.
 	*/
-	reader.read(parameters.options); //META OPTIONS none 
+	reader.read(ether.options); //META OPTIONS none 
 	/*! <b>Type of Lattice:</b> (choose a name of those between quotes)
 	
 	 *	- cubic types: "1d", "square", "cubic"
@@ -655,7 +644,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	if (ether.isSet("verbose")) i=1;
 	else i=0;
 	if (ether.isSet("nanocluster")) {
-		fin>>ether.plaquetteSide;
+		reader.read(ether.plaquetteSide);
 	} else {
 		ether.plaquetteSide = 0;
 	}
@@ -720,7 +709,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	 */
 	reader.read(ether.mcflag); //%%INTERFACE MONTECARLO_FLAG
 	
-	reader.read(startType); //%%INTERFACE MONTECARLO_STARTTYPE
+	reader.read(ether.startType); //%%INTERFACE MONTECARLO_STARTTYPE
 	/*! \b MONTECARLO_STARTTYPE: Integer. Starting configuration. Possible values are:
 	 * - \b 0 Then theta=phi=0 for all sites. 
 	 * - \b 1 Then theta and phi are chosen randomly.
@@ -797,8 +786,8 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		ether.JafVector.resize(ether.D*ether.linSize);
 		//for (i=0;i<ether.D*ether.linSize;i++) ether.JafVector.push_back(temp);
 	} else if (ether.isSet("jafvector")) {
-		reader.read(temp);
-		SimpleReaderType reader2(temp);
+		reader.read(temp2);
+		ReaderType reader2(temp2);
 		reader2.read(ether.JafVector); // watch of for format of external file "temp"
 	} 
 	
@@ -815,8 +804,8 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		reader.read(ether.muSeparate);
 		ether.potential.resize(ether.linSize);
 	} else if (ether.isSet("havepotential")) {
-		reader.read(temp);
-		SimpleReaderType reader2(temp);
+		reader.read(temp2);
+		ReaderType reader2(temp2);
 		reader2.read(ether.potential); // watch of for format of external file "temp"
 	} 
 	
@@ -890,38 +879,15 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		// cerr<<"Read  "<<ether.bandHoppings[i]<<"\n";
 	}
 #endif */
-	ether.numberOfOrbitals=1;	
-#ifdef MODEL_KONDO_DMS_MANYBANDS
-	double tmp;
-	fin>>ether.numberOfOrbitals;
-	iTmp=geometry.z(0);
-#ifdef MODEL_KONDO_DMS_CUBIC
-	iTmp=int(iTmp/2);
-#endif
 	
-	for (i=0;i<ether.numberOfOrbitals*ether.numberOfOrbitals*iTmp;i++) {
-		 reader.read(temp);
-		 reader.read(tmp);
-		 tempComplex=MatType(temp,tmp);
-		 ether.bandHoppings.push_back(tempComplex);
-		 //cerr<<"Read  "<<ether.bandHoppings[i]<<"\n";
-	}
-#endif
+	reader.read(ether.bandHoppings); // size should be 4*ether.D	
+	ether.numberOfOrbitals=1;
+
 #ifdef MODEL_KONDO_INF_TWOBANDS
-	reader.read(ether.bandHoppings); // size should be 4*ether.D
 	reader.read(ether.phononEjt); // size should be 3
 	reader.read(ether.phononEd); // size should be 3
 	ether.maxPhonons=4.0/sqrt(ether.beta*maxElement(ether.phononEd));	
 #endif
-#ifdef MODEL_KONDO_PHONONS
-	reader.read(ether.phononLambda);
-#endif
-#ifdef MODEL_KONDO_PHONONS_EX
-	reader.read(ether.phononAlpha);
-	reader.read(ether.phononDelta);
-	reader.read(ether.phononGj);
-#endif
-	
 	ether.modulus.clear();
 	ether.modulus.insert(ether.modulus.begin(),ether.linSize,1);
 	
@@ -942,21 +908,8 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		if (ether.isSet("randommodulus")) { /* It will generate a random modulus. */
 			randomModulus(ether.modulus,ether.conc,ether.linSize); // from basic.h
 		} else { /* It will read the file. */
+			reader.read(ether.modulus);
 			ether.modulus.assign(ether.modulus.size(),0);
-			for (i=0;i<ether.conc;i++) {
-				fin>>iTmp;
-				if (iTmp<0 || iTmp>=ether.linSize) {
-					cerr<<"Index must be >=0 and <ether.linSize but found "<<iTmp<<" instead.\n";
-					cerr<<__FILE__<<" "<<__LINE__<<endl;
-					return 1; //ERROR CODE
-				}	
-				if (!fin.good() || fin.bad()) {
-					cerr<<"Premature end of input while reading spin moduli\n";
-					cerr<<"This happened here "<<__FILE__<<" "<<__LINE__<<endl;
-					//return 1; //ERROR CODE
-				}
-				ether.modulus[iTmp]=1;
-			}
 		}
 	} // modulus reading
 	
@@ -968,8 +921,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	if (ether.isSet("verbose")) {
 		vectorPrint(ether.modulus,"modulus",cerr);
 	}
-	
-	fin.close();
+
 	
 	return 0;
 }
@@ -994,7 +946,7 @@ int Io<ConcurrencyIoType>::setBoundaryConditions(std::string const &s,Parameters
 		for (i=0;i<ether.D;i++) ether.hoppings[i]=MatType(0,0);
 	} else {
 		mysplit(s,temp,',');
-		if (s.length()<2*ether.D) {
+		if (s.length()<size_t(2*ether.D)) {
 			cerr<<"Error setting boundary conditions "<<s<<endl;
 			return 1;
 		}

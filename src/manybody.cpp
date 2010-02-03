@@ -172,7 +172,7 @@ void accNOfOmega(Geometry const &geometry,DynVars const &dynVars, Parameters con
 #ifndef MODEL_KONDO_DMS_MANYBANDS
 void accNOfOmega(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
-	int lambda,i,N=geometry.volume();
+	int lambda,i;
 	double weight;
 	MatType temp;
 	double shiftmu=0.0;
@@ -196,8 +196,6 @@ void accNOfOmega(Geometry const &geometry,DynVars const &dynVars, Parameters con
 
 void accAkw(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
-	int r,lambda,i,j;
-	int n=ether.linSize,int_dof=ether.hilbertSize/ether.linSize;
 	MatType temp;
 	
 	
@@ -284,8 +282,7 @@ void accLcd(Geometry const &geometry,DynVars const &dynVars,Parameters const &et
 
 double calcKinetic(DynVars const &dynVars,Geometry const &geometry,Parameters const &ether,Aux &aux)
 {
-	int i,j,k,lambda,border;
-	double ret=0.0,tmp2;
+	double ret=0.0;
 	MatType tmp,hopping;
 		
 	//diag(aux.eigOneBand,geometry,dynVars,ether,aux,'V');
@@ -347,19 +344,18 @@ double measure_kinetic(Geometry const &geometry,Parameters const &ether,Aux &aux
 	static vector<double>	coeffs(cutoff);
 	static vector<vector<tpem_t> > moment;
 	static vector<tpem_t> tmpVector(cutoff);
-	int i,j,k,border;
 	MatType hopping;
 	double beta=ether.beta;
 	vector<double> save_moment(cutoff);
 	double ret=0.0;
 	
-	for (i=0;i<cutoff;i++) save_moment[i]=0.0;
+	for (int i=0;i<cutoff;i++) save_moment[i]=0.0;
 	
 	if (firstcall || ether.carriers>0) {
 		firstcall=0;
 		tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 		tpem_calculate_coeffs (coeffs, Density,tpemOptions);
-		for (i=0;i<ether.hilbertSize;i++) moment.push_back(tmpVector);
+		for (int i=0;i<ether.hilbertSize;i++) moment.push_back(tmpVector);
 	}
 	tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 	if (ether.isSet("adjusttpembounds")) tpem_calculate_coeffs (coeffs, Density,tpemOptions);
@@ -417,14 +413,10 @@ void kTpemMomentsOptical(Geometry const &geometry, Parameters const &ether,Aux &
 	static int firstcall=1;
 	static vector<vector<tpem_t> > moment,moment2;
 	static vector<tpem_t> tmpVector(cutoff+5);
-	int m,l,i,j,i2,j2,sign;
+	int m,l,i;
 	int n=ether.linSize;
 	vector<int> nx(2*n);
-	int tmp;
 	tpem_t val;
-	unsigned int k,activeProc,part;
-	double buf0,buf1;
-	
 	
 	if (firstcall) {
 		firstcall=0;
@@ -596,19 +588,19 @@ void accOptical(Geometry const &geometry,DynVars const &dynVars,Parameters const
 void kTpemMomentsCl(Geometry const &geometry, Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
 {
 	
-	int cutoff=ether.tpem_cutoff;
+	//int cutoff=ether.tpem_cutoff;
 	static int firstcall=1;
 	static vector<vector<tpem_t>  > moment;
 	vector<tpem_t> tmpVector(tpemOptions.cutoff);
-	int r,lambda,i,j,spin,m;
-	int n=ether.linSize,int_dof=ether.hilbertSize/ether.linSize;
+	//int r,lambda,i,j,spin,m;
+	//int n=ether.linSize,int_dof=ether.hilbertSize/ether.linSize;
 	tpem_t tmp;
-	unsigned int k,activeProc,part;
-	double buf0,buf1;
+	//unsigned int k,activeProc,part;
+	//double buf0,buf1;
 	
 	if (firstcall) {
 		firstcall=0;
-		for (i=0;i<ether.hilbertSize;i++) moment.push_back(tmpVector);
+		for (int i=0;i<ether.hilbertSize;i++) moment.push_back(tmpVector);
 	}
 	
 
@@ -741,16 +733,16 @@ MatType greenFunction(int index1,int index2, Parameters const &ether,Aux &aux)
 void accChargeCorrelation(size_t gamma, size_t gamma2, 
                                 Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
-        size_t x,w,v; //gamma is the orbital index
-        int n = geometry.volume();
+        size_t v; //gamma is the orbital index
+        size_t n = geometry.volume();
         MatType tmp;
         int int_dof =  int(ether.hilbertSize/n);
 	double density = 0.5*0.75; //density per orbital per site, hence the 0.5 factor
 		
         // Do for all x's
-        for (x=0;x<n;x++) {     // Sum over all i's (or w's)
+        for (size_t x=0;x<n;x++) {     // Sum over all i's (or w's)
                 tmp=0;
-                for (w=0;w<n;w++) {
+                for (size_t w=0;w<n;w++) {
                         //for (gamma=0;gamma<int_dof;gamma++) {
                              //   for (gamma2=0;gamma2<int_dof;gamma2++) {
                                         v=geometry.add(x,w);
@@ -900,7 +892,7 @@ void setupGtilde(psimag::Matrix<MatType> &Gtilde,const psimag::Matrix<MatType>& 
 void accOrbitalCorrelation(size_t gamma,size_t gamma2,
 				Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
 {
-        int n = geometry.volume();
+        size_t n = geometry.volume();
         int int_dof =  int(ether.hilbertSize/n);
 	
 	size_t twoN  = 2*n;
@@ -1048,7 +1040,7 @@ void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size
 {
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
 	
-	for (size_t plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
+	for (int plaquetteIndex=0;plaquetteIndex<ether.linSize;plaquetteIndex++) {
 		std::vector<double> cd;
 		std::vector<size_t> d;
 		

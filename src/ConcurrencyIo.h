@@ -78,7 +78,6 @@ class ConcurrencyIo {
 		{
 			SomeType result = value;
                         SomeType prevResult = value;
-			size_t i = 0;
                         for (size_t i=0;i<partialComm_.size();i++) {
 				ConcurrencyType::MPI_Reduce(prevResult,result,ConcurrencyType::MPISUM,0,partialComm_[i]);
 				//std::cerr<<"rank="<<rank<<"i="<<i<<" avNN="<<result<<"\n";

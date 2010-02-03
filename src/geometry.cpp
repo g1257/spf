@@ -244,7 +244,7 @@ void Geometry::g_geometryBcc(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l
 /* See geometry_honeycomb.fig for numbering */
 void Geometry::g_geometryHoneycomb(vector<siteIndex> &nn,vector<siteIndex> &nidx,vector<int> const &lvector)
 {
-	int volume=lvector[0]*lvector[1],x,y,tmp,b,nbasis=2,shift,type;
+	int volume=lvector[0]*lvector[1],x,y,tmp,b,nbasis=2,type;
 	nn.insert(nn.begin(),volume*nbasis,3);
 	
 	for (type=0;type<2;type++) {
@@ -282,17 +282,14 @@ void Geometry::g_add(int &xx,int &yy, int &zz,vector<int> const &v) const
 
 void Geometry::g_add(vector<double> &dest,vector<double> const &src) const
 {
-	int i;
-	for (i=0;i<src.size();i++) dest[i] += src[i];
-	
+	for (size_t i=0;i<src.size();i++) dest[i] += src[i];	
 }
 
 
 double Geometry::g_norm(vector<double> const &r)
 {
-	int i;
 	double s=0;
-	for (i=0;i<r.size();i++) s+= r[i]*r[i];
+	for (size_t i=0;i<r.size();i++) s+= r[i]*r[i];
 	return s;
 }
 
@@ -300,11 +297,10 @@ double Geometry::g_norm(vector<double> const &r)
 double Geometry::g_auxZb_distance(vector<double> const &r1,vector<double> const &r2,g_aux_Zb_data const &data)
 {
 	int l=data.length;
-	int i;
-	double minDistance=data.minDistance;
+	//double minDistance=data.minDistance;
 	vector<double> r(r1.size());
 	
-	for (i=0;i<r1.size();i++) {
+	for (size_t i=0;i<r1.size();i++) {
 		r[i]=r1[i]-r2[i];
 		while(r[i]<0.25) r[i]+=l;
 		while(r[i]>=l-0.25) r[i]-=l;
@@ -392,7 +388,7 @@ void Geometry::g_auxZb_findNn(vector<siteIndex> &v,int site,g_aux_Zb_data const 
 			v.push_back(i);
 		}
 	}
-	if (v.size()!=Nn[site]) {
+	if (v.size()!=size_t(Nn[site])) {
 		cerr<<"Site "<<site<<" has "<<v.size()<<" neighbours but it should be "<<Nn[site]<<" instead\n";
 		exit(1);
 	}
@@ -400,7 +396,7 @@ void Geometry::g_auxZb_findNn(vector<siteIndex> &v,int site,g_aux_Zb_data const 
 
 void Geometry::g_geometryZb(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l)
 {
-	int i,j,vol=l*l*l,nbasis=8;
+	size_t vol=l*l*l,nbasis=8;
 	vector<siteIndex> tmpVec;
 	nn.insert(nn.begin(),vol*nbasis,4);
 	g_aux_Zb_data data;
@@ -409,16 +405,15 @@ void Geometry::g_geometryZb(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l)
 	data.nbasis=nbasis;
 	data.volume=vol;
 	
-	for (i=0;i<vol*nbasis;i++) {
+	for (size_t i=0;i<vol*nbasis;i++) {
 		g_auxZb_findNn(tmpVec,i,data); // find sites that are a distance min from i and store them on tmpVec
-		for (j=0;j<tmpVec.size();j++) nidx.push_back(tmpVec[j]);
+		for (size_t j=0;j<tmpVec.size();j++) nidx.push_back(tmpVec[j]);
 	}
 }
 
 void Geometry::g_geometryZbDirection(vector<double> &r,siteIndex site1, siteIndex site2) const
 {
 	vector<double> r1,r2;
-	int i;
 	int l=Length[0];
 	
 	
@@ -429,7 +424,7 @@ void Geometry::g_geometryZbDirection(vector<double> &r,siteIndex site1, siteInde
 	r.clear();
 	//cerr<<"Direction site "<<site1<<" from site "<<site2<<endl;
 	
-	for (i=0;i<r1.size();i++) {
+	for (size_t i=0;i<r1.size();i++) {
 		//cerr<<r1[i]<<" "<<r2[i]<<endl;
 		r.push_back(r1[i]-r2[i]);
 		//cerr<<r[i]<<" ";
@@ -462,8 +457,7 @@ void Geometry::g_auxFcc_initBasis(vector<vector<double> > &basisVector) const
 
 int getBasisIndex(vector<vector<double> > const &basisVectors,vector<double> const &v)
 {
-	int i;
-	for (i=0;i<basisVectors.size();i++) {
+	for (size_t i=0;i<basisVectors.size();i++) {
 		if (v==basisVectors[i]) return i;
 	}
 	return -1; 
@@ -494,11 +488,10 @@ void Geometry::g_auxFcc_Index2Coor(vector<double> &r,int site,int vol) const
 double Geometry::g_auxFcc_distance(vector<double> const &r1,vector<double> const &r2,g_aux_Zb_data const &data)
 {
 	int l=data.length;
-	int i;
-	double minDistance=data.minDistance;
+	//double minDistance=data.minDistance;
 	vector<double> r(r1.size());
 	
-	for (i=0;i<r1.size();i++) {
+	for (size_t i=0;i<r1.size();i++) {
 		r[i]=r1[i]-r2[i];
 		while(r[i]<0.5) r[i]+=l;
 		while(r[i]>=l-0.5) r[i]-=l;
@@ -528,7 +521,7 @@ void Geometry::g_auxFcc_findNn(vector<siteIndex> &v,int site,g_aux_Zb_data const
 			v.push_back(i);
 		}
 	}
-	if (v.size()!=Nn[site]) {
+	if (v.size()!=size_t(Nn[site])) {
 		cerr<<"(FCC) Site "<<site<<" has "<<v.size()<<" neighbours but it should be "<<Nn[site]<<" instead\n";
 		exit(1);
 	}
@@ -536,7 +529,7 @@ void Geometry::g_auxFcc_findNn(vector<siteIndex> &v,int site,g_aux_Zb_data const
 	
 void Geometry::g_geometryFcc(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l)
 {
-	int i,j,vol=l*l*l,nbasis=4;
+	int vol=l*l*l,nbasis=4;
 	vector<siteIndex> tmpVec;
 	nn.insert(nn.begin(),vol*nbasis,12);
 	g_aux_Zb_data data;
@@ -545,23 +538,22 @@ void Geometry::g_geometryFcc(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l
 	data.nbasis=nbasis;
 	data.volume=vol;
 	
-	for (i=0;i<vol*nbasis;i++) {
+	for (int i=0;i<vol*nbasis;i++) {
 		g_auxFcc_findNn(tmpVec,i,data); // find sites that are a distance min from i and store them on tmpVec
-		for (j=0;j<tmpVec.size();j++) nidx.push_back(tmpVec[j]);
+		for (size_t j=0;j<tmpVec.size();j++) nidx.push_back(tmpVec[j]);
 	}
 }
 
 void Geometry::g_geometryFccDirection(vector<double> &r,siteIndex site1, siteIndex site2) const
 {
 	vector<double> r1,r2;
-	int i;
 	int l=Length[0];
 		
 	g_auxFcc_Index2Coor(r1,site1,l*l*l);
 	g_auxFcc_Index2Coor(r2,site2,l*l*l);
 	
 	r.clear();
-	for (i=0;i<r1.size();i++) {
+	for (size_t i=0;i<r1.size();i++) {
 		r.push_back(r1[i]-r2[i]);
 		while(r[i]<0.5) r[i]+=l;
 		while(r[i]>=l-0.5) r[i]-=l;
@@ -768,7 +760,7 @@ void Geometry::g_geometryCubic(vector<siteIndex> &nn,vector<siteIndex> &nidx,int
 
 void Geometry::g_geometryRectangle(vector<siteIndex> &nn,vector<siteIndex> &nidx,vector<siteIndex> const &lvector)
 {
-	int volume=lvector[0]*lvector[1],x,y,z,xx,yy,zz=0;
+	int volume=lvector[0]*lvector[1],x,y,xx,yy,zz=0;
 	nn.insert(nn.begin(),volume,4);
 	for (y=0;y<lvector[1];y++) { for (x=0;x<lvector[0];x++) {		
 		xx=x+1; yy=y;
@@ -898,7 +890,7 @@ double Geometry::scalarProd(siteIndex i,siteIndex j) const
 	
 	index2Coor(tmp,i,latticeType);
 	index2Coor(tmp2,j,latticeType);
-	for (i=0;i<tmp.size();i++) sum+= tmp[i]*tmp2[i];
+	for (size_t i=0;i<tmp.size();i++) sum+= tmp[i]*tmp2[i];
 			
 	return sum;
 				
@@ -958,7 +950,6 @@ int Geometry::add_fcc(siteIndex ind,siteIndex ind2) const
 	int indr,ind2r,b,b2,vol=Length[0]*Length[0]*Length[0];
 	vector<double> rvector(3),r2vector(3),rsumvector(3),bsumvector(3);
 	vector<siteIndex> r(3);
-	siteIndex i;
 	
 	if (firstcall==0) {
 		firstcall=1;
@@ -989,7 +980,7 @@ int Geometry::add_fcc(siteIndex ind,siteIndex ind2) const
 		cerr<<"Exiting at this point "<<__FILE__<<" "<<__LINE__<<"\n";
 		exit(1); //ERROR CODE
 	}
-	for (i=0;i<rsumvector.size();i++) r[i] = rsumvector[i];
+	for (size_t i=0;i<rsumvector.size();i++) r[i] = rsumvector[i];
 	indr = coor2Index(r,s);
 	return (indr + b*vol);
 }
@@ -998,9 +989,8 @@ int Geometry::add_fcc(siteIndex ind,siteIndex ind2) const
 // Generalize: FIXME NONCUBIC NON-CUBIC (added for prism and rectangle)
 int Geometry::add(siteIndex ind,siteIndex ind2) const
 {
-	siteIndex i;
 	vector<siteIndex> x,y;
-	siteIndex l=Length[0];
+	//siteIndex l=Length[0];
 	
 	
 	if (latticeType=="fcc") return add_fcc(ind,ind2);
@@ -1019,13 +1009,13 @@ int Geometry::add(siteIndex ind,siteIndex ind2) const
 	index2Coor(x,ind,latticeType);
 	index2Coor(y,ind2,latticeType);
 	//cerr<<"ind="<<ind<<" and ind2="<<ind2<<endl;
-	for (i=0;i<x.size();i++) {
+	for (size_t i=0;i<x.size();i++) {
 		//cerr<<"add: i="<<i<<" x="<<x[i]<<" y="<<y[i]<<endl;
 		x[i] += y[i];
 		g_pbc(x[i],Length[i]);
 		//cerr<<"add: after g_pbc: x["<<i<<"]="<<x[i]<<endl;
 	}
-	i=coor2Index(x,latticeType);
+	int i=coor2Index(x,latticeType);
 	return i;
 }
 
@@ -1110,7 +1100,7 @@ string const &type)
 
 void Geometry::nicePrint(ostream &s,int option) const
 {
-	int i,j,counter=0,tmp;
+	int counter=0,tmp;
 	vector<double> r(3);
 	
 	/* g_auxZb_Index2Coor(r,32,Length[0]*Length[0]*Length[0]);
@@ -1118,8 +1108,8 @@ void Geometry::nicePrint(ostream &s,int option) const
 	cerr<<endl;
 	exit(1); */ 
 	
-	for (i=0;i<Nn.size();i++) {
-		for (j=0;j<Nn[i];j++) {
+	for (size_t i=0;i<Nn.size();i++) {
+		for (int j=0;j<Nn[i];j++) {
 			s<<"The "<<j<<"-th neighbour of site "<<i<<" is "<<Nidx[counter];
 			if (option) s<<" with border="<<borderId(i,j);
 			if (latticeType == "zincblende" ||  latticeType =="fcc") {

@@ -103,7 +103,7 @@ private:
 	bool isInPlaquette3(const DistanceType& rp,const DistanceType& ri,size_t whatDimension) const
 	{
 		size_t tmp = vecDistOneDim(ri,rp,whatDimension); // wraps around
-		if (tmp>=sides_[whatDimension]) return false ;
+		if (tmp>=size_t(sides_[whatDimension])) return false ;
 		return true;
 	}
 	

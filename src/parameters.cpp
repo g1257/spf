@@ -140,12 +140,6 @@ void Parameters::print(ostream &s,char prefix)
 		s<<endl;
 	}
 	
-	if (isSet("tprime")) {
-		s<<prefix<<"TPRIME="<<tprime<<endl;
-		s<<prefix<<"JAFPRIME="<<jafprime<<endl;
-	}
-	if (isSet("tsecond")) s<<prefix<<"TSECOND="<<tsecond<<endl;
-
 	s<<prefix<<"ENERGY_LOWER_BOUND="<<energy1<<endl;
 	s<<prefix<<"ENERGY_UPPER_BOUND="<<energy2<<endl;
 	if (tpem) {
@@ -180,10 +174,7 @@ void Parameters::print(ostream &s,char prefix)
 	s<<prefix<<"Delta="<<phononDelta<<"\n";
 	s<<prefix<<"GJ="<<phononGj<<"\n";
 #endif
-	if (bcsDelta0>0) {
-		s<<prefix<<"BCSDELTA0="<<bcsDelta0<<endl;
-		s<<prefix<<"BCSV=FIXME (sorry)"<<endl;
-	}
+	
 	s<<prefix<<"Modulus=";
 	if (conc<linSize) {
 		for (i=0;i<linSize;i++) if (modulus[i]>0) s<<" "<<i;

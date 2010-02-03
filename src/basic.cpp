@@ -242,7 +242,8 @@ double myRandom()
 
 void myRandomSeed(unsigned  int seed)
 {
-	if (rngKiss.getLength()!=4294967295) {
+	size_t x = 4294967295;
+	if (rngKiss.getLength()!=x) {
 		cerr<<"SERIOUS PROBLEM: RANDOM NUMBER GENERATOR NOT RELIABLE ON THIS PLATFORM!!\n";
 		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
 		cerr<<"I will exit now, you should call your customer support 1-800 number.\n";
@@ -446,9 +447,9 @@ int loadVector(vector<double> &v,string const &filename,string &label,int level)
 	
 void randomModulus(vector<int> &v,int conc,int n)
 {
-	unsigned int i,j;
+	unsigned int j;
 	v.assign(v.size(),0);
-	for (i=0;i<conc;i++) {
+	for (int i=0;i<conc;i++) {
 		j=0;
 		while (v[j]==1) j=int(n*myRandom());		
 		v[j]=1;

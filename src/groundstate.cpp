@@ -75,8 +75,8 @@ double gsEnergyInternal(vector<double> &Theta,Geometry const &geometry,DynVars &
 double gsEnergy(vector<double> &theta_nonzero)
 {
 	vector<double> theta;
-	unsigned int i,j=0;
-	for (i=0;i<sgeometry.volume();i++) {
+	unsigned int j=0;
+	for (int i=0;i<sgeometry.volume();i++) {
 		theta.push_back(0.0);
 		if (j>=theta_nonzero.size()) {
 			cerr<<"Problem at "<<__FILE__<<" "<<__LINE__<<endl;
@@ -89,7 +89,7 @@ double gsEnergy(vector<double> &theta_nonzero)
 	
 void calcGroundState(Geometry const &geometry,DynVars &dynVars,Parameters const &ether,Aux &aux)
 {
-	int i,j,n=ether.conc;
+	size_t n=ether.conc;
 	vector<double> p(n);
 	vector<vector<double> > xi;
 	vector<double> vecTmp(n);
@@ -98,7 +98,7 @@ void calcGroundState(Geometry const &geometry,DynVars &dynVars,Parameters const 
 	double fret=0;
 	vector<double> theta_nonzero;
 	
-	for (i=0;i<geometry.volume();i++) {
+	for (int i=0;i<geometry.volume();i++) {
 		if (ether.modulus[i]!=0) theta_nonzero.push_back(dynVars.theta[i]);
 	}
 	
@@ -106,8 +106,8 @@ void calcGroundState(Geometry const &geometry,DynVars &dynVars,Parameters const 
 		cerr<<"Problem at "<<__FILE__<<" "<<__LINE__<<endl;
 		exit(1);
 	}
-	for (i=0;i<n;i++) {
-		for (j=0;j<n;j++) {
+	for (size_t i=0;i<n;i++) {
+		for (size_t j=0;j<n;j++) {
 			vecTmp[j]=0.0; 
 			if (i==j) vecTmp[j]=1;
 		}		
@@ -123,10 +123,10 @@ void calcGroundState(Geometry const &geometry,DynVars &dynVars,Parameters const 
 	cerr<<"In powell with n="<<n<<"\n";
 	powell(p,xi,n,ftol,iter,fret, gsEnergy);
 	vectorPrint(p,"gs",cerr);
-	for (i=0,j=0;i<geometry.volume();i++) {
+	for (int i=0,j=0;i<geometry.volume();i++) {
 		dynVars.theta[i]=0.0;
 		dynVars.phi[i]=0.0;
-		if (j>=p.size()) {
+		if (size_t(j)>=p.size()) {
 			cerr<<"Problem at "<<__FILE__<<" "<<__LINE__<<endl;
 			exit(1);
 		}

@@ -28,11 +28,11 @@ void auxCreateJmatrix(vector<MatType> &jmatrix,DynVars const &dynVars,Parameters
 void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		 tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type)
 {
-	int	row, col, volume, i = 0, p;
+	int	row,  volume, i = 0, p;
 	double	a=aux.varTpem_a, b=aux.varTpem_b, tmp;
 	int	j,k,dir;
 	volume = ether.linSize;
-	int level,gamma1,gamma2;
+	int gamma1,gamma2;
 	int dof = ether.numberOfOrbitals * 2; // the 2 comes because of the spin
 	vector<MatType> jmatrix(dof*dof);
         
@@ -98,7 +98,6 @@ void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry)
 {
 	int volume=geometry.volume();
-	int shift;
 	
 	support.push_back(i);
 	support.push_back(i+volume);
@@ -109,8 +108,7 @@ void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geo
 
 void setHilbertParams(Parameters &ether, Aux &aux,Geometry const &geometry)
 {
-	int n=geometry.volume(), d=geometry.dim();
-	int i;
+	int n=geometry.volume();
 	
 	ether.typeofmodel="MODEL_KONDO_PNICTIDES";
 	ether.hilbertSize=2*n*ether.numberOfOrbitals;

@@ -59,6 +59,8 @@ using namespace std;
 
 extern void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		 tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type);
+extern void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
+		 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type);
 extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry, DynVars const &dynVars, 
         Parameters const &ether,Aux &aux,int bandindex);
 extern void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
@@ -99,11 +101,11 @@ void setTheSizeVector(Parameters& ether,std::vector<size_t>& w)
 {
 	
 	w.resize(3);
-	w[0] = ether.numberOfBetas;
+	w[0] = ether.betaVector.size();
 	w[1] = ether.numberOfJafConfigs;
 	w[2] = ether.numberOfMuConfigs;
 	
-	if (ether.mpiSize!=volumeOf(w)) throw std::runtime_error("Number of processors mismatch\n");
+	if (size_t(ether.mpiSize)!=volumeOf(w)) throw std::runtime_error("Number of processors mismatch\n");
 }
 
 template<typename ConcurrencyType>
@@ -373,30 +375,7 @@ void customConfigAlter(int x, int y,Parameters &ether,Aux &aux)
 	
 }
 
-double calcBcsDelta2(DynVars const &dynVars,Parameters const &ether)
-{
-	unsigned int i;
-	double s=0;
-	for (i=0;i<dynVars.bcsDelta.size();i++) {
-		s += square(dynVars.bcsDelta[i]);
-	}
-	return s;
-}
 
-double calcBcsDeltaV2(DynVars const &dynVars,Parameters const &ether)
-{
-	unsigned int i,j;
-	double s=0;
-	double tmp=0;
-	
-	for (i=0;i<dynVars.bcsDelta.size();i++) {
-		tmp=0;
-		for (j=0;j<ether.D;j++) tmp += ether.bcsV[i+j*ether.linSize];
-		tmp /= ether.D;
-		s += tmp * square(dynVars.bcsDelta[i]);
-	}
-	return s;
-}
 
 
 void customConfig(Parameters &ether,Aux &aux,TpemOptions const &tpemOptions,
@@ -413,7 +392,6 @@ int nop3,double shift)
         // change an input property
         int color = int(tpemOptions.rank/tpemOptions.mpi_nop1);
         int x,y;
-        double tmp;
 
         if (tpemOptions.mpi_nop2< nop3 || tpemOptions.mpi_nop2 % nop3!=0) {
                 if (ether.mpiRank==0) {
@@ -489,16 +467,14 @@ double dSDirect(DynVars const &dynVars, DynVars const &dynVars2, int i, Geometry
 
 double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry const &geometry, Parameters const &ether,const Phonons<Parameters,Geometry>& phonons)
 {
-	double tmp;
-	int alpha,k,j;
 	double dE=0.0;
 	
 #ifdef MODEL_KONDO_INF_TWOBANDS
-	for (alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
-		tmp=0;
+	for (size_t alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
+		double tmp=0;
 		tmp += square(phonons.calcPhonon(i,dynVars2,alpha));
 		tmp -= square(phonons.calcPhonon(i,dynVars,alpha));
-		for (k=0;k<geometry.z(i);k++) {
+		for (int k=0;k<geometry.z(i);k++) {
 			j = geometry.neighbor(i,k);
 			tmp += square(phonons.calcPhonon(j,dynVars2,alpha));
 			tmp -= square(phonons.calcPhonon(j,dynVars,alpha));
@@ -506,7 +482,7 @@ double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry co
 		dE += ether.phononEd[alpha]*tmp;
 	}
 #else	
-	for (j=0;j<dynVars.phonons[i].size();j++)
+	for (size_t j=0;j<dynVars.phonons[i].size();j++)
 		dE += square(dynVars2.phonons[i][j])-square(dynVars.phonons[i][j]);
 #endif
 	return dE;
@@ -528,7 +504,7 @@ double directExchange2(DynVars const &dynVars, Geometry const &geometry, Paramet
 		p1=dynVars.phi[i];
 		p2=dynVars.phi[j];
 		tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-		dS += ether.jafprime*tmp;
+		//dS += ether.jafprime*tmp; // FIXME
 	}}
 	
 	return dS*0.5;
@@ -564,24 +540,21 @@ double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, const 
   // Written by IS Oct-19-04.
   // Calculates pure phononic energy of the system (last term in the Hamiltonian).
 {
-  int n = geometry.volume();
-  double tmp;
-  int i,j;
-  unsigned int alpha;
+  size_t n = geometry.volume();
   double dE=0.0;
 	
-  for (i=0;i<n;i++) 
+  for (size_t i=0;i<n;i++) 
     {
 
 #ifdef MODEL_KONDO_INF_TWOBANDS
-      for (alpha=0;alpha<dynVars.phonons[i].size();alpha++) 
+      for size_t (alpha=0;alpha<dynVars.phonons[i].size();alpha++) 
 	{
-	  tmp = phonons.calcPhonon(i,dynVars,alpha);
+	  double tmp = phonons.calcPhonon(i,dynVars,alpha);
 	  // cerr << "site "<< i << "phonon "<< alpha << ": " <<tmp << endl;
 	  dE += ether.phononEd[alpha]*square(tmp);
 	}
 #else	
-      for (j=0;j<dynVars.phonons[i].size();j++)
+      for (size_t j=0;j<dynVars.phonons[i].size();j++)
 	dE += square(dynVars.phonons[i][j]);
 #endif
     }
@@ -625,32 +598,20 @@ void kTpemMoments(vector<double> const &moments,Aux &aux, Parameters const &ethe
 void crsToFull (MyMatrix<MatType> &a,tpem_sparse const *matrix,Parameters const &ether,Aux &aux)
 {
 	unsigned int i,n,k;
-	double tmp2,realpart,imagpart;
 	
 	n=a.getRank();
 	
 	for (i = 0; i < n ; i++) for (k=0;k<n;k++) a.set(i,k,0.0);
 		
 	for (i = 0; i < n; i++){
-		for (k = matrix->rowptr[i]; k < matrix->rowptr[i + 1]; k++){
-			//a[i * n + matrix->colind[k]] = matrix->values[k];
-			
-			
-			if(i==matrix->colind[k]){
-				tmp2=aux.varTpem_b;
-			}
-			else{
-				tmp2=0;
-			}
-			realpart=real(matrix->values[k])*aux.varTpem_a+tmp2;
-			imagpart=imag(matrix->values[k])*aux.varTpem_a;
-			a.set(matrix->colind[k],i,MatType(realpart,imagpart));
+		for (k = matrix->rowptr[i]; k < matrix->rowptr[i + 1]; k++){			
+			a.set(matrix->colind[k],i,matrix->values[k]);
 		}
 	}
-	if (!a.isHermitian()) {
-		std::cerr<<a<<endl;
-		exit(1);
-	}
+	//if (!a.isHermitian()) {
+	//	std::cerr<<a<<endl;
+	//	exit(1);
+	//}
 	
 }
 
@@ -662,7 +623,6 @@ double calculate_dS (vector<double> &moment,tpem_sparse *matrix1, tpem_sparse *m
         double dS;
         static int firstcall=1;
         double a=aux.varTpem_a,b=aux.varTpem_b,mu=aux.varMu,beta=ether.beta;
-        int ii;
 	double e1=aux.varTpem_b-aux.varTpem_a, e2=aux.varTpem_a+aux.varTpem_b;
 	double e11=aux.btmp-aux.atmp, e21=aux.atmp+aux.btmp;
 	
@@ -722,8 +682,7 @@ double calculate_dS (vector<double> &moment,tpem_sparse *matrix1, tpem_sparse *m
 void diag(vector<double> &eig,Geometry const &geometry,DynVars const &dynVars,
 	Parameters const &ether,Aux &aux,char jobz)
 {
-	int i,j;
-	if (eig.size() != ether.hilbertSize) {
+	if (eig.size() != size_t(ether.hilbertSize)) {
 		cerr<<"Internal Error at diag\n";
 		exit(1);
 	}
@@ -734,34 +693,31 @@ void diag(vector<double> &eig,Geometry const &geometry,DynVars const &dynVars,
 		cerr<<aux.matrix<<endl;
 		//matrixPrint(matrix);
 	}
-	
-	
-
 
 	if (ether.isSet("blockmatrix")) {
 		// diagonalizes the matrix assuming it is block diagonal
 		MyMatrix<MatType> lowerMatrix,upperMatrix;
-		int blocksize=aux.matrix.getRank()/2;
+		size_t blocksize=aux.matrix.getRank()/2;
 		vector<double> eig1(blocksize),eig2(blocksize);
 		
 		
 		lowerMatrix.init(blocksize,0);
 		upperMatrix.init(blocksize,0);
-		for (i=0;i<blocksize;i++) {
-			for (j=0;j<blocksize;j++)  {
+		for (size_t i=0;i<blocksize;i++) {
+			for (size_t j=0;j<blocksize;j++)  {
 				upperMatrix(i,j)=aux.matrix(i,j);
 				lowerMatrix(i,j)=aux.matrix(i+blocksize,j+blocksize);
 			}
 		}
 		diag(upperMatrix,eig1,jobz);
 		diag(lowerMatrix,eig2,jobz);
-		for (i=0;i<blocksize;i++) {
+		for (size_t i=0;i<blocksize;i++) {
 			eig[i]=eig1[i];
 			eig[i+blocksize]=eig2[i];
 		}
 		if (jobz=='V') { // eigenvectors
-			for (i=0;i<blocksize;i++) {
-				for (j=0;j<blocksize;j++) {
+			for (size_t i=0;i<blocksize;i++) {
+				for (size_t j=0;j<blocksize;j++) {
 					aux.matrix(i,j)=upperMatrix(i,j);
 					aux.matrix(i,j+blocksize)=0;
 					aux.matrix(i+blocksize,j)=0;
@@ -776,9 +732,9 @@ void diag(vector<double> &eig,Geometry const &geometry,DynVars const &dynVars,
 		diag(aux.matrix,eig,jobz);
 	}
 	
-		if (jobz!='V') sort(eig.begin(), eig.end(), less<double>());
+	if (jobz!='V') sort(eig.begin(), eig.end(), less<double>());
 	if (ether.isSet("eigprint")) {
-		for (i=0;i<eig.size();i++) {
+		for (size_t i=0;i<eig.size();i++) {
 			cerr<<"eig["<<i<<"]="<<eig[i]<<endl;
 		}
 		exit(1);
@@ -797,8 +753,6 @@ bool kTpemAllBands(int i,Geometry const &geometry,DynVars const &dynVars,
 	vector<unsigned int> support;
 	bool glauber=true;
 	vector<double> moment(ether.tpem_cutoff);
-	unsigned int j;
-	
 
 	dS =0;
 	setSupport(support,i,geometry);
@@ -829,7 +783,7 @@ bool kTpemAllBands(int i,Geometry const &geometry,DynVars const &dynVars,
 	}
 	if (accept) {
 		// update current moments
-		for (j=0;j<ether.tpem_cutoff;j++) aux.curMoments[j] -= moment[j];		
+		for (int j=0;j<ether.tpem_cutoff;j++) aux.curMoments[j] -= moment[j];		
 	}
 	return accept;
 }
@@ -875,10 +829,6 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	
 	for (i=0;i<d;i++) vtmp.push_back(0.0);
 	
-	if (ether.bcsDelta0>0) {
-		dynVars.bcsDelta.insert(dynVars.bcsDelta.begin(),n,ether.bcsDelta0);
-		for (i=0;i<n;i++) dynVars.bcsPhi.push_back(vtmp);
-	}
 	
 	
 	for (i=0;i<n;i++) {
@@ -890,10 +840,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 			case 1:
 				dynVars.theta[i]=M_PI*myRandom();
 				dynVars.phi[i]=2*M_PI*myRandom();
-				if (ether.bcsDelta0>0) {
-					//dynVars.bcsDelta[i] = ether.bcsDelta0*myRandom();
-					for (j=0;j<dynVars.bcsPhi[i].size();j++) dynVars.bcsPhi[i][j] = 2*M_PI*myRandom();
-				}
+				
 				if (!ether.isSet("freezephonons")) {
 					if (ether.isSet("verbose") && ether.mpiRank==0) cerr<<"Randomizing phonons\n";
 					for (j=0;j<d;j++) dynVars.phonons[i][j]=ether.maxPhonons*(myRandom()-0.5);
@@ -905,11 +852,6 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 			case 3:
 				dynVars.theta[i]=M_PI*0.5;
 				dynVars.phi[i]=M_PI*0.5;
-				if (ether.bcsDelta0>0) {
-					//for (j=0;j<dynVars.bcsPhi[i].size();j++) dynVars.bcsPhi[i][j] = M_PI*0.5;
-					dynVars.bcsPhi[i][0] = 0;
-					dynVars.bcsPhi[i][1] = M_PI;
-				}
 				break;
 		}
 		if (ether.isSet("isingspins")) {
@@ -1145,7 +1087,7 @@ void matrixPrint(MyMatrix<MatType> &matrix)
 void setupHamiltonian(MyMatrix<MatType> &matrix,Geometry const &geometry,DynVars const &dynVars,
 		Parameters const &ether,Aux &aux,int type)
 {
-	static int firstcall=1;
+	/*static int firstcall=1;
 	static tpem_sparse *spMatrix;
 	int matsize=ether.hilbertSize;
 	
@@ -1154,10 +1096,11 @@ void setupHamiltonian(MyMatrix<MatType> &matrix,Geometry const &geometry,DynVars
 		firstcall=0;
 	}
 	
-	kTpemHamiltonian (geometry,dynVars,spMatrix,ether,aux,type);
+	kTpemHamiltonian (geometry,dynVars,spMatrix,ether,aux,type);*/
+	createHamiltonian(geometry,dynVars,matrix,ether,aux,type);
 	
 	// no need to adjust spectrum since we're doing diagonalization here
-	crsToFull(matrix,spMatrix,ether,aux);
+	//crsToFull(matrix,spMatrix,ether,aux);
 
 }
 
@@ -1256,25 +1199,20 @@ void r_newBcsFields(double bcsDeltaOld,vector<double> const &bcsPhiOld,double &b
 void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
 {
-	int i,n,k;
 	double phiNew,thetaNew,dsDirect=0,oldmu;
 	bool flag;
 	DynVars dynVars2;
 	int dof;
-	double sineupdate,bcsDeltaNew;
+	double sineupdate;
 	vector<double> bcsPhiNew(2);
 	
-	n = geometry.volume();
+	size_t n = geometry.volume();
 	
 	vector<int> nac(ether.classFieldList.size(),0);
 	vector<double> eigNewAllBands(ether.hilbertSize,0.0);
 	dynVars2.theta=dynVars.theta;
 	dynVars2.phi=dynVars.phi;
 	dynVars2.phonons=dynVars.phonons;
-	if (ether.bcsDelta0>0) {
-		dynVars2.bcsDelta=dynVars.bcsDelta;
-		dynVars2.bcsPhi=dynVars.bcsPhi;
-	}
 	
 	vector<double> phononsNew(ether.D,0.0);
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
@@ -1284,12 +1222,12 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 	if (ether.tpem && ether.carriers>0) calcMoments(dynVars,geometry,ether,aux,tpemOptions);
 	
 	
-	for (k=0; k<ether.classFieldList.size();k++) nac[k] = 0;
+	for (size_t k=0; k<ether.classFieldList.size();k++) nac[k] = 0;
 	
-	for (i=0;i<n;i++) {
+	for (size_t i=0;i<n;i++) {
 		if (ether.modulus[i]==0) continue;
 		
-		for (k=0;k<ether.classFieldList.size();k++) {
+		for (size_t k=0;k<ether.classFieldList.size();k++) {
 			dof = ether.classFieldList[k];
 		
 			if (ether.isSet("freezephonons") && dof==1) break;
@@ -1300,10 +1238,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 			dynVars2.theta=dynVars.theta;
 			dynVars2.phi=dynVars.phi;
 			dynVars2.phonons=dynVars.phonons;
-			if (ether.bcsDelta0>0) {
-				dynVars2.bcsDelta=dynVars.bcsDelta;
-				dynVars2.bcsPhi=dynVars.bcsPhi;
-			}
+			
 			switch (dof) {	
 			case 0:    // spin dof
 				r_newSpins(dynVars.theta[i],dynVars.phi[i],thetaNew,phiNew,ether);
@@ -1317,12 +1252,6 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				r_newPhonons(dynVars.phonons[i],phononsNew,ether);
 				dynVars2.phonons[i]=phononsNew;
 				dsDirect= dPhonons(dynVars,dynVars2,i,geometry,ether,phonons);
-				break;
-			case 2: // bcs delta/phi
-				r_newBcsFields(dynVars.bcsDelta[i],dynVars.bcsPhi[i],bcsDeltaNew,bcsPhiNew,ether);
-				dynVars2.bcsDelta[i] = bcsDeltaNew;
-				dynVars2.bcsPhi[i] = bcsPhiNew;
-				dsDirect = (calcBcsDeltaV2(dynVars2,ether)-calcBcsDeltaV2(dynVars,ether)); 
 				break;
 			}
 			oldmu=aux.varMu;	
@@ -1352,10 +1281,6 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				case 1:
 					dynVars.phonons[i]=phononsNew;
 					break;
-				case 2:
-					dynVars.bcsDelta[i] = bcsDeltaNew;
-					dynVars.bcsPhi[i] = bcsPhiNew;
-					break;
 				}
 				if (ether.tpem==0) copy(eigNewAllBands.begin(),eigNewAllBands.end(),aux.eigAllBands.begin());
 				else tpem_sparse_copy(aux.sparseTmp[0],aux.sparseMatrix[0]);
@@ -1368,7 +1293,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 		} // dof
 				
 	} // lattice sweep
-	for (k=0; k<ether.classFieldList.size();k++) aux.nac[k] += nac[k];
+	for (size_t k=0; k<ether.classFieldList.size();k++) aux.nac[k] += nac[k];
 
 }
 
@@ -1428,26 +1353,6 @@ double calcClasCor(DynVars const &dynVars,Parameters const &ether, int i,int j)
 	return temp;
 }
 
-// TPEM_FIXME: ok, no changes needed
-void calcBcsPhiCor(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,vector<double> &cc,
-	int link1,int link2)
-{
-	int i,j,k;
-	int n = geometry.volume();
-	double temp;
-	int counter;
-	
-	
-	for (i=0;i<n;i++) {
-		temp=0.0;
-		counter=0;
-		for (j=0;j<n;j++) {
-			k = geometry.add(i,j);
-			temp += cos(dynVars.bcsPhi[j][link1]-dynVars.bcsPhi[k][link2]);
-		}
-		cc[i] += temp;
-	}
-}
 
 double calcSq(vector<double> const &correlation,Geometry const &geometry,int q)
 {
@@ -1648,12 +1553,10 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
 {
 	double n_electrons;
-	unsigned int i;
 	unsigned int n=geometry.volume();
 	double temp,temp2;
 	int cutoff = ether.tpem_cutoff;
 	vector<double> moment(cutoff);
-	int dof;
 	string s;
 	int d = geometry.dim();
 	DynVars dynVars2;
@@ -1672,11 +1575,11 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	
 		diag(aux.eigOneBand,geometry,dynVars,ether,aux);
 		
-		for (i=0;i<ether.hilbertSize;i++) {
+		for (int i=0;i<ether.hilbertSize;i++) {
 			//aux.eigM[i] += aux.eigOneBand[i];
 		}
 #ifdef MODEL_KONDO_DMS_MANYBANDS
-		for (i=0;i<ether.numberOfOrbitals;i++) {
+		for (int i=0;i<ether.numberOfOrbitals;i++) {
 			temp = calcNumber(dynVars,geometry,ether,aux,i); // number of electrons for band i  
 			s ="Number_Of_Band"+ttos(i)+"=";
 			io.historyPrint(s,temp);
@@ -1739,14 +1642,14 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		io.historyPrint(s,aux.varTpem_b);
 	}
 	
-	for (i=0;i<n;i++) {
+	for (size_t i=0;i<n;i++) {
 		tmp[i]=0.0;
 		tmpweight[i]=0.0;
 	}
 	calcClasCor(geometry,dynVars,ether,tmp,tmpweight);
 	if (iter==0 && ether.mpiRank==0 && ether.conc<ether.linSize) {
 		cout<<"# weight = ";
-		for (i=0;i<n;i++) {
+		for (size_t i=0;i<n;i++) {
 			cout<<tmpweight[i]<<" ";
 		}
 		cout<<endl;
@@ -1757,6 +1660,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 
 	if (geometry.isCubicType()) {
 		int l = geometry.length();
+		int i=0;
 		switch (d) {
 			case 1:
 				i=int(l*0.5);
@@ -1777,7 +1681,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 			io.historyPrint(s,temp);
         	}
 	}
-	for (i=0;i<n;i++) aux.clasCor[i] += tmp[i];
+	for (size_t i=0;i<n;i++) aux.clasCor[i] += tmp[i];
 	
 	if (iter==0) {
 		s="Weight[0]=";
@@ -1804,7 +1708,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	s="phononDeltaV=";
 	io.historyPrint(s,temp);	
 #endif		
-	for (dof=0;dof<ether.classFieldList.size();dof++) {
+	for (size_t dof=0;dof<ether.classFieldList.size();dof++) {
 		aux.nac[dof] = (double)aux.nac[dof]/ether.iterUnmeasured;
 		s ="Accepted["+ttos(dof)+"]=";
 		io.historyPrint(s,aux.nac[dof]);
@@ -1877,14 +1781,6 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		temp /= geometry.dim();
 		s="Conductance=";
 		io.historyPrint(s,temp);
-	}
-	
-	if (ether.bcsDelta0>0) {
-		temp = calcBcsDelta2(dynVars,ether);
-		s ="Delta2=";
-		io.historyPrint(s,temp);
-		calcBcsPhiCor(geometry,dynVars,ether,aux.bcsCorxx,0,0);
-		calcBcsPhiCor(geometry,dynVars,ether,aux.bcsCorxy,0,1);
 	}
 	
 	if (ether.isSet("saveall")) io.printSnapshot(dynVars,ether);

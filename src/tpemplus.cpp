@@ -148,10 +148,11 @@ void MPI_VecReduce(vector<double> &v1)
 
 void tpem_init(int argc, char *argv[], TpemOptions &tpemOptions,char  *sfile) 
 {
-	int i;
+	//int i;
 	int MAX_WORD=256;
 	char *tempc;
-	int mpi_nop1=1,mpi_nop=1,tpem_rank=0,rank=0,tmp;
+	int mpi_nop1=1,tpem_rank=0,rank=0;
+	//int mpi_nop=1,tmp;
 	
 	tempc = new char[MAX_WORD]; 
 	
@@ -503,7 +504,7 @@ void tpem_calculate_moment (tpem_sparse *matrix, vector<double>  &moment,TpemOpt
 	vector<double> buf(n);
 	int rank = tpemOptions.tpem_rank;
 	int mpi_nop1 = tpemOptions.mpi_nop1;
-	double dummy=0.0;
+	//double dummy=0.0;
 	
 	
 	for (i = 0; i < n; i++)
@@ -553,7 +554,7 @@ void tpem_calculate_moment_diff (tpem_sparse *matrix0, tpem_sparse *matrix1,
 	unsigned int part,k,resto,activeProc;
 	int rank=tpemOptions.tpem_rank;
 	int mpi_nop1=tpemOptions.mpi_nop1;
-	double dummy=0.0;
+	//double dummy=0.0;
 	unsigned int total;
 	
 	info = new_tpem_subspace(matrix0->rank);
@@ -568,7 +569,7 @@ void tpem_calculate_moment_diff (tpem_sparse *matrix0, tpem_sparse *matrix1,
 	moment0[0] = moment1[0] = (double) matrix0->rank;
 	
 	total = info->top-info->stack;
-	if (mpi_nop1<2*total) {		
+	if (size_t(mpi_nop1)<2*total) {		
 		part  = total/mpi_nop1;
 		resto =	total % mpi_nop1;
 		if (resto>0) part++;
@@ -579,7 +580,7 @@ void tpem_calculate_moment_diff (tpem_sparse *matrix0, tpem_sparse *matrix1,
 		activeProc=2*total;
 	}
 	for (k=0;k<part;k++) {
-		if (mpi_nop1<2*total) {
+		if (size_t(mpi_nop1)<2*total) {
 			p=info->stack + (part*rank) +k;
 			if (p>=info->top) {
 				moment0[0]=moment1[0]=0.0;
@@ -588,13 +589,13 @@ void tpem_calculate_moment_diff (tpem_sparse *matrix0, tpem_sparse *matrix1,
 			tpem_diagonal_element (matrix0, moment0, *p, tpemOptions);
 			tpem_diagonal_element (matrix1, moment1, *p, tpemOptions);
 		} else {
-			if (rank<total) p=info->stack + (part*rank) +k;	
+			if (size_t(rank)<total) p=info->stack + (part*rank) +k;	
 			else p=info->stack + (part*(rank-total)) +k;
 			if (p>=info->top) {
 				moment0[0]=moment1[0]=0.0;
 				break;
 			}
-			if (rank<total) tpem_diagonal_element (matrix0, moment0, *p, tpemOptions);
+			if (size_t(rank)<total) tpem_diagonal_element (matrix0, moment0, *p, tpemOptions);
 			else tpem_diagonal_element (matrix1, moment1, *p, tpemOptions);
 		}
 	}
@@ -716,11 +717,12 @@ double my_f (double x, void * p) {
 
 void tpem_calculate_coeffs (unsigned int FKWCutOff,vector<double> &vobs, tpem_func_ptr funk)
 {
-	int m;
-	struct my_f_params params;
-	double *pts,result,result1,result2,abserr;
-	int npts,limit;
-	double epsabs,epsrel;
+	//int m;
+	//struct my_f_params params;
+	double *pts;
+	//double result,result1,result2,abserr;
+	//int npts,limit;
+	//double epsabs,epsrel;
 	
 	
 	
@@ -884,9 +886,9 @@ void tpem_clean ()
 
 void tpem_finalize()
 {
-	int rank=0;
 	tpem_clean();
 #ifdef USE_MPI
+	int rank=0;
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Finalize();
 #endif

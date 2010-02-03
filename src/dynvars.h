@@ -50,13 +50,11 @@ struct DynVars {
 	
 	std::vector<double> theta,phi;
 	std::vector<std::vector<double> > phonons;
-	std::vector<double> bcsDelta;
-	std::vector<vector<double> > bcsPhi;
 	
 	std::vector<double> Tx,Ty,Tz; //orbital pseudospin
 };
 
-inline void copyDynVars(DynVars &dv1,int i,DynVars const &dv2,int j) 
+inline void copyDynVars(DynVars &dv1,size_t i,DynVars const &dv2,size_t j) 
 {
 	if (dv1.theta.size()>i && dv2.theta.size()>j) {
 		dv1.theta[i]=dv2.theta[j];
@@ -64,10 +62,7 @@ inline void copyDynVars(DynVars &dv1,int i,DynVars const &dv2,int j)
 	}
 	if (dv1.phonons.size()>i && dv2.phonons.size()>j) 
 		dv1.phonons[i]=dv2.phonons[j];
-	if (dv1.bcsDelta.size()>i && dv2.bcsDelta.size()>j) 
-		dv1.bcsDelta[i]=dv2.bcsDelta[j];
-	if (dv1.bcsPhi.size()>i && dv2.bcsPhi.size()>j) 
-		dv1.bcsPhi[i]=dv2.bcsPhi[j];
+	
 }
 
 inline void copyDynVars(DynVars &dv1,DynVars const &dv2)
@@ -75,8 +70,6 @@ inline void copyDynVars(DynVars &dv1,DynVars const &dv2)
 	if (dv2.theta.size()>0) dv1.theta=dv2.theta;
 	if (dv2.phi.size()>0)  dv1.phi=dv2.phi;
 	if (dv2.phonons.size()>0) dv1.phonons=dv2.phonons;
-	if (dv2.bcsDelta.size()>0) dv1.bcsDelta=dv2.bcsDelta;
-	if (dv2.bcsPhi.size()>0) dv1.bcsPhi=dv2.bcsPhi;
 } 
 #endif
 

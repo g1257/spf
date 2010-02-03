@@ -44,11 +44,9 @@ computer code (http://mri-fre.ornl.gov/spf)."
 /********** ADJUST BOUNDS OF TPEM SPECTRUM USING LANCZOS ***********************/
 void tpem_sparse_scale(tpem_sparse *matrix,double a,double b)
 {
-	unsigned int i;
-	int j;
-
-	for(i=0;i<matrix->rank; i++) {
-	  for(j= (matrix->rowptr[i]); j < (matrix->rowptr[i+1]); j++) {
+	
+	for(size_t i=0;i<matrix->rank; i++) {
+	  for(size_t j= (matrix->rowptr[i]); j < (matrix->rowptr[i+1]); j++) {
 	    if ((matrix->colind[j]) == i)
 	      matrix->values[j] = (matrix->values[j]-b)/a;
 	    else 

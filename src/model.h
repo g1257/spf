@@ -40,3 +40,5 @@ computer code (http://mri-fre.ornl.gov/spf)."
                  void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type);
 void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry);
 void setHilbertParams(Parameters &ether, Aux &aux, Geometry const &geometry);
+void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
+                 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type);
