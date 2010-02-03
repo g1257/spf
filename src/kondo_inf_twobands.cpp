@@ -164,9 +164,9 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 	int	j,iTmp;
 	volume = ether.linSize;
 	tpem_t S_ij;
-	vector<double> phonon_q1(volume);
-	vector<double> phonon_q2(volume);
-	vector<double> phonon_q3(volume);
+	//static vector<double> phonon_q1(volume);
+	//static vector<double> phonon_q2(volume);
+	//static vector<double> phonon_q3(volume);
 	
 	
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
@@ -175,12 +175,12 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 			matrix(p,col)=0;
 	
 	for (p = 0; p < volume; p++) {
-		phonon_q1[p]=phonons.calcPhonon(p,dynVars,0);
-		phonon_q2[p]=phonons.calcPhonon(p,dynVars,1);
-		phonon_q3[p]=phonons.calcPhonon(p,dynVars,2);	
-		matrix(p,p) = ether.phononEjt[0]*phonon_q1[p]+ether.phononEjt[2]*phonon_q3[p]+ether.potential[p];
-		matrix(p+volume,p+volume) = -ether.phononEjt[2]*phonon_q3[p]+ether.phononEjt[0]*phonon_q1[p]+ether.potential[p];
-		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2[p]);
+		double phonon_q1=phonons.calcPhonon(p,dynVars,0);
+		double phonon_q2=phonons.calcPhonon(p,dynVars,1);
+		double phonon_q3=phonons.calcPhonon(p,dynVars,2);	
+		matrix(p,p) = ether.phononEjt[0]*phonon_q1+ether.phononEjt[2]*phonon_q3+ether.potential[p];
+		matrix(p+volume,p+volume) = -ether.phononEjt[2]*phonon_q3+ether.phononEjt[0]*phonon_q1+ether.potential[p];
+		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2);
 		matrix(p+volume,p) = conj(matrix(p,p+volume));
 		
 		for (j = 0; j < geometry.z(p); j++) {	/* hopping elements */
