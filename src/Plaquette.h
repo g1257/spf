@@ -1,13 +1,16 @@
 #ifndef PLAQUETTE_H
 #define PLAQUETTE_H
 #include "basic.h"
+#include "Matrix.h"
 #include <stdexcept>
 
 template<typename DistanceType,typename GeometryType>
 class Plaquette {
 public:
 	//! ugly because geometry needs plaquette
-	Plaquette(bool isEnabled) : isEnabled_(isEnabled) { }
+	Plaquette(bool isEnabled) : isEnabled_(isEnabled)
+	{
+	}
 	
 	void init(const GeometryType* geometry,size_t side)
 	{
@@ -21,17 +24,19 @@ public:
 		for (size_t i=0;i<dim_;i++) sides_.push_back(side);
 		
 		if (lt_!="square") throw std::runtime_error("Plaquette unimplemented\n");
+		size_t n = geometry->volume();
+		isInPlaquetteCached_.resize(n,n);	
+                for (size_t plaquetteIndex=0;plaquetteIndex<n;plaquetteIndex++)
+                        for (size_t i=0;i<n;i++)
+                                isInPlaquetteCached_(plaquetteIndex,i) = isInPlaquette_(plaquetteIndex,i);
+
 	}
 	
 	//! Is i in the plaquette given by plaquetteIndex?
 	bool isInPlaquette(size_t plaquetteIndex,size_t i) const
 	{
 		if (!isEnabled_) return false; // should be a warning
-		DistanceType rp;
-		geometry_->index2Coor(rp,plaquetteIndex,lt_);
-		DistanceType ri;
-		geometry_->index2Coor(ri,i,lt_);
-		return isInPlaquette2(rp,ri);
+		return isInPlaquetteCached_(plaquetteIndex,i);
 	}
 	
 	size_t distance(size_t i,size_t j) const
@@ -89,7 +94,7 @@ private:
 	size_t dim_;
 	std::vector<int> latticeLength_;
 	std::vector<int> sides_;
-	
+	psimag::Matrix<bool> isInPlaquetteCached_;	
 	
 	
 	bool isInPlaquette2(const DistanceType& rp,const DistanceType& ri) const
@@ -113,6 +118,18 @@ private:
 		if (tmp<0) tmp += latticeLength_[whatDimension];
 		return tmp;
 	}
+	
+	//! Is i in the plaquette given by plaquetteIndex?
+        bool isInPlaquette_(size_t plaquetteIndex,size_t i) const
+        {
+                if (!isEnabled_) return false; // should be a warning
+                DistanceType rp;
+                geometry_->index2Coor(rp,plaquetteIndex,lt_);
+                DistanceType ri;
+                geometry_->index2Coor(ri,i,lt_);
+                return isInPlaquette2(rp,ri);
+        }
+
 }; // class Plaquette
 
 

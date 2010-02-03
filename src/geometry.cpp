@@ -142,7 +142,7 @@ void Geometry::index2Coor(vector<T> &v,siteIndex i,std::string const &lt) const
 
 
 
-void Geometry::index2Coor(vector<double> &v,siteIndex i,std::string const &lt) const
+inline void Geometry::index2Coor(vector<double> &v,siteIndex i,std::string const &lt) const
 {
 	int x,y,z,l;
 	l=Length[0];
@@ -160,14 +160,14 @@ void Geometry::index2Coor(vector<double> &v,siteIndex i,std::string const &lt) c
 		y=int(x/l);
 		x = x % l;
 		v.push_back(x); v.push_back(y); v.push_back(z);
-	} else {
+	} /*else {
 		cerr<<"Geometry::index2Coor not implemented for latticeType="<<latticeType<<endl;
 		cerr<<"At this point "<<__FILE__<<" "<<__LINE__<<endl;
 		exit(1);
-	}
+	}*/
 } 
 
-void Geometry::index2Coor(vector<int> &v,siteIndex i,std::string const &lt) const
+inline void Geometry::index2Coor(vector<int> &v,siteIndex i,std::string const &lt) const
 {
 	int x,y,z,l,j;
 	l=Length[0];
@@ -195,11 +195,11 @@ void Geometry::index2Coor(vector<int> &v,siteIndex i,std::string const &lt) cons
 		x = i % Length[0];
 		y = int(i/Length[0]);
 		v.push_back(x); v.push_back(y);
-	} else	{
+	} /*else	{
 		cerr<<"Geometry::index2Coor not implemented for latticeType="<<latticeType<<endl;
 		cerr<<"At this point "<<__FILE__<<" "<<__LINE__<<endl;
 		exit(1);
-	}
+	}*/
 } 
 
 /*template<class T>

@@ -164,22 +164,23 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 	int	j,iTmp;
 	volume = ether.linSize;
 	tpem_t S_ij;
-	vector<double> phonon_q1(volume);
-	vector<double> phonon_q2(volume);
-	vector<double> phonon_q3(volume);
+	//static vector<double> phonon_q1(volume);
+	//static vector<double> phonon_q2(volume);
+	//static vector<double> phonon_q3(volume);
 	
 	
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
+	for (p = 0; p < matrix.getRank(); p++)
+		for (col = 0; col < matrix.getRank(); col++)
+			matrix(p,col)=0;
 	
 	for (p = 0; p < volume; p++) {
-		
-		
-		phonon_q1[p]=phonons.calcPhonon(p,dynVars,0);
-		phonon_q2[p]=phonons.calcPhonon(p,dynVars,1);
-		phonon_q3[p]=phonons.calcPhonon(p,dynVars,2);	
-		matrix(p,p) = ether.phononEjt[0]*phonon_q1[p]+ether.phononEjt[2]*phonon_q3[p]+ether.potential[p];
-		matrix(p+volume,p+volume) =tmp = -ether.phononEjt[2]*phonon_q3[p]+ether.phononEjt[0]*phonon_q1[p]+ether.potential[p];
-		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2[p]);
+		double phonon_q1=phonons.calcPhonon(p,dynVars,0);
+		double phonon_q2=phonons.calcPhonon(p,dynVars,1);
+		double phonon_q3=phonons.calcPhonon(p,dynVars,2);	
+		matrix(p,p) = ether.phononEjt[0]*phonon_q1+ether.phononEjt[2]*phonon_q3+ether.potential[p];
+		matrix(p+volume,p+volume) = -ether.phononEjt[2]*phonon_q3+ether.phononEjt[0]*phonon_q1+ether.potential[p];
+		matrix(p,p+volume) = (ether.phononEjt[1]*phonon_q2);
 		matrix(p+volume,p) = conj(matrix(p,p+volume));
 		
 		for (j = 0; j < geometry.z(p); j++) {	/* hopping elements */
@@ -199,14 +200,27 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 			bandHop=ether.bandHoppings[0+0*2+dir*4];
 			hopping=hopping2 * bandHop ;
 			matrix(p,col) = hopping * S_ij;
-			matrix(col,p) = conj(matrix(p,col));
+			matrix(col,p) = conj(hopping * S_ij);
 			
 			bandHop=ether.bandHoppings[0+1*2+dir*4];
 			hopping= hopping2 * bandHop;
 		        matrix(p, col+volume)=hopping * S_ij;
-			matrix(col+volume,p) = conj(matrix(p,col+volume));
+			matrix(col+volume,p)=conj(matrix(p,col+volume));
+			
+			//
+			bandHop=ether.bandHoppings[1+0*2+dir*4];
+			hopping= hopping2 * bandHop;
+			matrix(p+volume,col) =  hopping * S_ij;
+			matrix(col,p+volume) =  conj(matrix(p+volume,col));
+			
+			bandHop=ether.bandHoppings[1+1*2+dir*4];
+			hopping=hopping2 * bandHop;
+			matrix(p+volume,col+volume) =  hopping * S_ij;
+			matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 		}
 	}
+	//if (!matrix.isHermitian()) throw std::runtime_error("I'm barking\n");
+	
 
 }
 
