@@ -99,7 +99,7 @@ double nOfElectrons(double mu,double beta,vector<double> const &eig)
 	
 	n_electrons=0;
 	for (i=0;i<eig.size();i++) {
-		n_electrons += fermi((eig[i]-mu)*beta);
+		n_electrons += utils::fermi((eig[i]-mu)*beta);
 		//cerr<<"Here is i="<<i<<" and eig="<<eig[i]<<"and factor="<<(mu-eig[i])*beta<<"\n";
 	}
 	return n_electrons;
@@ -113,7 +113,7 @@ double nOfElectPrime(double mu,double beta,vector<double> const &eig)
 	
 	prime=0;
 	for (i=0;i<eig.size();i++) {
-		prime -= fermiPrime((eig[i]-mu)*beta)*beta;
+		prime -= utils::fermiPrime((eig[i]-mu)*beta)*beta;
 	}
 	return prime;
 }

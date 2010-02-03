@@ -95,9 +95,8 @@ int maxiter,double maxerror)
 	static int volume, *pivot;
 	static	Complex	**h0, **h1, **t0, **t1, **x;
 	static	Complex	**sigma_right, **sigma_left, **green_plus;
-	/* tpem_sparse	*matrix; */
-	int	 m, i, j, x0, x1, y0, y1, z0, z1, iter;
-	unsigned int	k;
+	char c123 = 'n';
+	int	 m, i, j, x0, x1, y0, y1, z0, iter;
 	double	eta = 0.0, a,b, error, cond;
 	Complex	one = Complex (1.0, 0.0), zero = Complex (0.0, 0.0), e;
 	
@@ -148,7 +147,7 @@ int maxiter,double maxerror)
 	case 3:
 		for (i = 0; i < l1; i++) {
 		for (j = 0; j < l1; j++) {
-			for (k=0;k<l1;k++) {
+			for (int k=0;k<l1;k++) {
 				x0=k*l1*l1+j*l1+i;
 				x[x0][x0]=x[x0+volume][x0+volume]=k;
 			}
@@ -157,7 +156,7 @@ int maxiter,double maxerror)
 	
 	for (i = 0; i < l1; i++) {
 	for (j = 0; j < l1; j++) {
-	for (k = 0; k < l1; k++) {
+	for (int k = 0; k < l1; k++) {
 		x1 = k*l1*l1 + j*l1 +i;
 		for (x0=0;x0<l1;x0++) {
 			for (y0=0;y0<l1;y0++) {
@@ -220,12 +219,13 @@ int maxiter,double maxerror)
 	
 #ifndef _AIX
 	/* velocity operator */
-	zgemm_ ("n", "n", &n, &n, &n, &one, *h0, &n, *x, &n, &zero, *t0, &n);
-    zgemm_ ("n", "n", &n, &n, &n, &one, *x, &n, *h0, &n, &zero, *t1, &n);
+	
+	zgemm_ (&c123, &c123, &n, &n, &n, &one, *h0, &n, *x, &n, &zero, *t0, &n);
+    zgemm_ (&c123, &c123, &n, &n, &n, &one, *x, &n, *h0, &n, &zero, *t1, &n);
 #else
 	/* zgemm(*h0,&n,"n",*x,&n,"c",*t0,&n,&n,&n,&n,NULL,0);
 	zgemm(*x,&n,"n",*h0,&n,"n",*t1,&n,&n,&n,&n,NULL,0); */
-	zgemm ("n", "n", &n, &n, &n, &one, *h0, &n, *x, &n, &zero, *t0, &n);
+	zgemm ('n', 'n', &n, &n, &n, &one, *h0, &n, *x, &n, &zero, *t0, &n);
     zgemm ("n", "n", &n, &n, &n, &one, *x, &n, *h0, &n, &zero, *t1, &n);
 #endif
 	
@@ -261,9 +261,9 @@ int maxiter,double maxerror)
 		zgetrf_ (&n, &n, *t1, &n, pivot, &x0);
 		zgetri_ (&n, *t1, &n, pivot, *t0, &m, &x0);
 		/* t1 = h1 * t1 * h1^H */
-		zgemm_ ("n", "n", &n, &n, &n, &one, *t1, &n, *h1, &n,
+		zgemm_ (&c123,&c123, &n, &n, &n, &one, *t1, &n, *h1, &n,
 				&zero, *t0, &n);
-	    zgemm_ ("c", "n", &n, &n, &n, &one, *h1, &n, *t0, &n,
+	    zgemm_ (&c123,&c123, &n, &n, &n, &one, *h1, &n, *t0, &n,
 				&zero, *t1, &n);
 	
 #else
@@ -316,9 +316,9 @@ int maxiter,double maxerror)
 #ifndef _AIX	
 		zgetrf_ (&n, &n, *t1, &n, pivot, &x0);
 		zgetri_ (&n, *t1, &n, pivot, *t0, &m, &x0);
-		zgemm_ ("n", "c", &n, &n, &n, &one, *t1, &n, *h1, &n,
+		zgemm_ (&c123,&c123, &n, &n, &n, &one, *t1, &n, *h1, &n,
 				&zero, *t0, &n);
-	    zgemm_ ("n", "n", &n, &n, &n, &one, *h1, &n, *t0, &n,
+	    zgemm_ (&c123,&c123, &n, &n, &n, &one, *h1, &n, *t0, &n,
 				&zero, *t1, &n);
 #else
 		for (i=0;i<n;i++) { 
@@ -413,9 +413,9 @@ int maxiter,double maxerror)
 	
 	/* Kubo formula */
 #ifndef _AIX
-	zgemm_ ("n", "n", &n, &n, &n, &one, *x, &n, *green_plus, &n,
+	zgemm_ (&c123,&c123, &n, &n, &n, &one, *x, &n, *green_plus, &n,
 			&zero, *t0,  &n);
-	zgemm_ ("n", "n", &n, &n, &n, &one, *t0, &n, *t0, &n, &zero,
+	zgemm_ (&c123,&c123, &n, &n, &n, &one, *t0, &n, *t0, &n, &zero,
 			*green_plus, &n);
 #else
 	/* zgemm(*v,&n,"n",*green_plus,&n,"n",*t0,&n,&n,&n,&n,NULL,0);

@@ -158,7 +158,7 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
   // Modified by IS Nov-08-04
 
 {
-	int	col, volume, i = 0, p,dir;
+	int	col, volume, p,dir;
 	tpem_t hopping,hopping2,bandHop;
 	double	 tmp,tmp2;
 	int	j,iTmp;
@@ -230,7 +230,7 @@ void setHilbertParams(Parameters &ether, Aux &aux,Geometry const &geometry)
 	ether.hilbertSize=2*n;
 	ether.nonzero= 4 * (2*d + 1) * n;
 	if (!ether.isSet("spectrumbounds")) {
-		ether.energy1= -2*d*maxElement(ether.bandHoppings)-maxElement(ether.potential);
+		ether.energy1= -2*d*utils::maxElement(ether.bandHoppings)-utils::maxElement(ether.potential);
 		ether.energy2= -ether.energy1;
 	}
 	aux.varTpem_a = 1; //0.5*(ether.energy2-ether.energy1);

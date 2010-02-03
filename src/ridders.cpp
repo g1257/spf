@@ -38,12 +38,11 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 
 #include "ridders.h"
+#include "Utils.h"
 
 using namespace std;
 
 
-double maxElement(vector<double> const &v);
-double minElement(vector<double> const &v);
 
 int root_count(vector<double> const &ff)
 {
@@ -59,8 +58,8 @@ double root_aux_find(vector<double> const &ff)
 	int c=root_count(ff);
 		
 	// c==1 then discard negative, if cc==2 then discard positive
-	if (c==1) return minElement(ff);
-	if (c==2) return maxElement(ff);
+	if (c==1) return utils::minElement(ff);
+	if (c==2) return utils::maxElement(ff);
 	cerr<<"c="<<c<<" in root_aux_find\n";
 	exit(1);
 	return 0; // to avoid compiler warning

@@ -86,6 +86,94 @@ extern void setSupport(vector<unsigned int> &support,unsigned int i,Geometry con
 // 	std::cout<<"Rank = "<<ether.mpiRank<<" v[0]="<<v[0]<<" v[1]="<<v[1]<<" size0="<<size0<<" mpiSize="<<ether.mpiSize<<"\n";
 // }
 
+/*!\brief Loads a vector from a file.
+	* \param v : The vector that must have been previously allocated (output).
+	* \param filename : The name of the file from where to read the vector. It should contain
+		a label and then a two column index value per line with the values of
+		the vector entries (input).
+	* \param label : The label that indicates from where to start to read the file (input).
+	* \param level : If there are many labels read the the level-th one.
+	*/
+int loadVector(vector<double> &v,string const &filename,string &label,int level)
+{
+	std::ifstream fin(filename.c_str());
+	int i,n;
+	string tmpLine;
+	int maxline=10240;
+	char *buffer;
+	
+	buffer  = new char[maxline];
+		
+	if (!fin || fin.bad()) {
+		cerr<<"Cannot open file "<<filename<<endl;
+		cerr<<"AT THIS POINT "<<__FILE__<<" "<<__LINE__<<endl;
+		exit(1); // throw an exception instead, caller must catch it
+	}
+	
+	//cerr<<"load vector: I just successfully opened: "<<filename<<endl;
+	for (i=0;i<level;i++) { // .sav will have 2 data sets, read the level-th data set
+		while(!fin.eof()) {
+			fin.getline(buffer,maxline);
+			tmpLine=string(buffer);
+			if (fin.fail()) {
+				cerr<<"loadVector: Premature end of file="<<filename<<" no label="<<label<<" found.\n";
+				cerr<<"AT THIS POINT "<<__FILE__<<" "<<__LINE__<<endl;
+				exit(1);
+			}
+			//cerr<<"Load vector, before chopping "<<tmpLine<<"*"<<endl;
+			utils::mychop(tmpLine);
+			//cerr<<"Load vector, after chopping "<<tmpLine<<"*"<<endl;
+			if (tmpLine==label) {
+				//cerr<<"I read "<<tmpLine<<" which IS equal to "<<label<<endl;
+				break;
+			}
+			//cerr<<"I read "<<tmpLine<<" which is not equal to "<<label<<endl;
+		}
+	}
+	
+	if (!(tmpLine==label)) {
+		cerr<<"loadVector: Problem trying to read file "<<filename<<endl;
+		cerr<<"Label="<<label<<" not found\n";
+		cerr<<"AT THIS POINT "<<__FILE__<<" "<<__LINE__<<endl;
+		exit(1);
+	}
+	n = v.size();
+	vector<double> c;
+	
+	for (i=0;i<n;i++) {
+		fin.getline(buffer,maxline);
+		tmpLine=string(buffer);
+		utils::mysplit(tmpLine,c,' ');
+		if (i!=c[0]) {
+			cerr<<"loadVector: Mismatch while reading label="<<label<<" in file "<<filename;
+			cerr<<" "<<i<<" not equal "<<c[0]<<endl;
+			cerr<<"AT THIS POINT "<<__FILE__<<" "<<__LINE__<<endl;
+			exit(1);// throw an exception instead, caller must catch it
+		} 
+		v[i]=c[1];
+	}
+	fin.close();
+	delete [] buffer;
+	return 0;
+}
+
+
+void tmpValues(double &a,double &b,double &mu,double &beta,int option)
+{
+	static double a1,b1,mu1,beta1;
+	if (option==0) { // set static members
+		a1 = a;
+		b1 = b;
+		mu1 = mu;
+		beta1 = beta;
+	} else { //retrieve static members
+		a = a1;
+		b = b1;
+		mu = mu1;
+		beta = beta1;
+	}
+}
+	
 
 // should go elsewhere:
 template<typename T>
@@ -283,7 +371,7 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	
 	  
 	for (iter=0;iter<ether.iterTherm;iter++) {
-		printProgress(iter,ether.iterTherm,10,'*',ether.mpiRank);
+		utils::printProgress(iter,ether.iterTherm,10,'*',ether.mpiRank);
 		doMonteCarlo(geometry,dynVars,ether,aux,tpemOptions);
 	}
 	if (ether.mpiRank==0) {
@@ -293,7 +381,7 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	}
 
 	for (iter=0;iter<ether.iterEffective;iter++) {
-		printProgress(iter,ether.iterEffective,10,'*',ether.mpiRank);
+		utils::printProgress(iter,ether.iterEffective,10,'*',ether.mpiRank);
 
 		
 		for (iter2=0;iter2<ether.iterUnmeasured;iter2++) {
@@ -367,7 +455,7 @@ void customConfigAlter(int x, int y,Parameters &ether,Aux &aux)
 	ether.beta = 1.0/ether.beta;
 	if (ether.isSet("ccdisorder")) {
                 // use x for disorder
-                ether.jafFile = ether.jafFile + dtos(y) + ".txt";
+                ether.jafFile = ether.jafFile + utils::ttos(y) + ".txt";
                 string s2="#Jafvector";
                 loadVector(ether.JafVector,ether.jafFile,s2,1);
                 ether.options = ether.options + ",jafvector";
@@ -475,7 +563,7 @@ double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry co
 		tmp += square(phonons.calcPhonon(i,dynVars2,alpha));
 		tmp -= square(phonons.calcPhonon(i,dynVars,alpha));
 		for (int k=0;k<geometry.z(i);k++) {
-			j = geometry.neighbor(i,k);
+			int j = geometry.neighbor(i,k);
 			tmp += square(phonons.calcPhonon(j,dynVars2,alpha));
 			tmp -= square(phonons.calcPhonon(j,dynVars,alpha));
 		}
@@ -547,7 +635,7 @@ double calcPhononEnergy(DynVars const &dynVars, Geometry const &geometry, const 
     {
 
 #ifdef MODEL_KONDO_INF_TWOBANDS
-      for size_t (alpha=0;alpha<dynVars.phonons[i].size();alpha++) 
+      for (size_t alpha=0;alpha<dynVars.phonons[i].size();alpha++) 
 	{
 	  double tmp = phonons.calcPhonon(i,dynVars,alpha);
 	  // cerr << "site "<< i << "phonon "<< alpha << ": " <<tmp << endl;
@@ -847,7 +935,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 				}								
 				break;
 			case 2:
-				dynVars.theta[i]=(parity(i,d,geometry.length())==1) ? 0 : M_PI;
+				dynVars.theta[i]=(utils::parity(i,d,geometry.length())==1) ? 0 : M_PI;
 				break;
 			case 3:
 				dynVars.theta[i]=M_PI*0.5;
@@ -933,7 +1021,6 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	int color = int(ether.mpiRank/ether.mpiNop1);
 	
 	tmpVector.insert(tmpVector.begin(),n,0.0);
-	
 	
 	if (ether.startType==4 || ether.startType==6) {
 		if (ether.isSet("customconfig")) {

@@ -366,7 +366,7 @@ C           Wisniewski, J. A., (SNLA)
 	}		
 	
 	template<class T>
-	std::string ttos(T t)
+	inline std::string ttos(T t)
 	{
 		std::stringstream ss;
 		std::string str;
@@ -374,6 +374,41 @@ C           Wisniewski, J. A., (SNLA)
 		ss<<t;
 		ss>>str;
 		return str;
+	}
+	
+	inline int parity(int i, int d, int L)
+	{
+		int x=0,y=0,z=0;
+		
+		switch (d) {
+			case 1:
+				x=i; y=0; z=0;
+				break;
+			case 2:
+				x=i%L;
+				y=(i-x)/L;
+				z=0;
+				break;
+			case 3:
+				x=i%L;
+				z=(i-x)/L;
+				y=z % L;
+				z=(z-y)/L;
+				break;
+		}
+		x += (y+z);
+		if (x%2==0) return 1;
+		else return 0;
+	}
+	
+	inline void printProgress(int i,int total,int nMarks,char mark,int option)
+	{
+		int every=total/nMarks;
+		if (every<=0 || i<=0) return;
+		if (i%every ==0) {
+			std::cout<<mark;
+			std::cout.flush();
+		}
 	}
 
 	template<class T>
@@ -418,14 +453,14 @@ C           Wisniewski, J. A., (SNLA)
 	}
 	
 	template<class T>
-	void vectorPrint(std::vector<T> const &v,char const *name,std::ostream &s)
+	inline void vectorPrint(std::vector<T> const &v,const std::string& name,std::ostream &s)
 	{
 		unsigned int i;
 		for (i=0;i<v.size();i++) s<<name<<"["<<i<<"]="<<v[i]<<std::endl;
 	}
 	
 	template<typename T1,typename T2>
-	void vectorPrint(std::map<T1,T2>  &v,char const *name,std::ostream &s)
+	inline void vectorPrint(std::map<T1,T2>  &v,const std::string& name,std::ostream &s)
 	{
 		// Stroustrup page 483
 		typedef typename std::map<T1,T2>::const_iterator CI;
@@ -435,7 +470,14 @@ C           Wisniewski, J. A., (SNLA)
 		}
 	}
 	
-	
+	template<typename FieldType,typename FieldType2>
+	inline void vectorDivide(std::vector<FieldType> &v,FieldType2 value)
+	{
+		if (value==0) return;
+		for (size_t i=0;i<v.size();i++) {
+			v[i] /= value;
+		}
+	}
 	
 	template<class T>
 	bool vectorEqual(std::vector<T> const &a,std::vector<T> const &b)
@@ -792,11 +834,34 @@ C           Wisniewski, J. A., (SNLA)
 		int i,l=s.length();
 		
 		for (i=0;i<l-1;i++) {
-			buffer = buffer + s.at(i);
+			buffer = buffer + s[i];
 		}
 		buffer = s;
 	}
 	
+	template<typename FieldType>
+	inline FieldType maxElement(std::vector<FieldType> const &v)
+	{
+		typename std::vector<FieldType>::const_iterator it = std::max_element(v.begin(), v.end());
+		return *it;
+	}
+	
+	template<typename FieldType>
+	inline FieldType maxElement(std::vector<std::complex<FieldType> > const &v)
+	{
+		std::vector<FieldType> vv(v.size());
+		unsigned int i;
+		for (i=0;i<v.size();i++) vv[i]=sqrt(real(v[i])*real(v[i])+imag(v[i])*imag(v[i]));
+		typename std::vector<FieldType>::const_iterator it = std::max_element(vv.begin(), vv.end());
+		return *it;
+	}
+	
+	template<typename FieldType>
+	inline FieldType minElement(std::vector<FieldType> const &v)
+	{
+		typename std::vector<FieldType>::const_iterator it = min_element(v.begin(), v.end());
+		return *it;
+	}
 }
 
 

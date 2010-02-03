@@ -78,7 +78,7 @@ class Io {
 				getHostInfo();
 				getCompilerInfo();
 				for (int i=0;i<nFiles;i++) {
-					if (isInVector(i,excludedfiles)>=0) continue;
+					if (utils::isInVector(excludedfiles,i)>=0) continue;
 					printMiscInfo(file[i]);
 				}
 			}
@@ -241,7 +241,7 @@ Io<ConcurrencyIoType>::~Io()
 	if (isInit) {
 		writeFinalStuff();
 		for (int i=0;i<nFiles;i++) {
-			if (isInVector(i,excludedfiles)>=0) continue;
+			if (utils::isInVector(excludedfiles,i)>=0) continue;
 			if (i>0 && rank>0) break;
 			file[i].close();
 		}
@@ -283,7 +283,7 @@ void Io<ConcurrencyIoType>::initOutput(Parameters &ether)
 		std::string filename;
 		for (i=0;i<nFiles;i++) {
 			//if (i>0 && rank>0) break;
-			if (isInVector(i,excludedfiles)>=0) continue;
+			if (utils::isInVector(excludedfiles,i)>=0) continue;
 			filename = std::string(ether.rootname) + extensions[i];
 			file[i].open(filename.c_str());
 			ether.print(file[i]);
@@ -339,7 +339,7 @@ void Io<ConcurrencyIoType>::writeFinalStuff()
         /*! <b> Footer printed to all output files</b>:
          * User, System and Real times for the program execution in seconds. */
         for (int i=0;i<nFiles;i++) {
-		if (isInVector(i,excludedfiles)>=0) continue;
+		if (utils::isInVector(excludedfiles,i)>=0) continue;
                 file[i]<<"# FinalTime "<<cTime<<endl;
                 if (tuser<0 || tsystem<0) {
 file[i]<<"# This platform does not support user/system time\n";
@@ -371,7 +371,7 @@ void Io<ConcurrencyIoType>::currentTime()
 template<typename ConcurrencyIoType>
 void Io<ConcurrencyIoType>::printLcd(Parameters const &ether,Aux &aux)
 {
-	vectorPrint(aux.lcd,"lcd",file[7]);
+	utils::vectorPrint(aux.lcd,"lcd",file[7]);
 }
 
 template<typename ConcurrencyIoType>
@@ -390,19 +390,19 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	
 #endif	
 	if (!ether.isSet("savelcd")) {	
-		vectorDivide(aux.lcd,ether.iterEffective*ether.mpiNop2);
-		vectorPrint(aux.lcd,"lcd",file[7]);
+		utils::vectorDivide(aux.lcd,ether.iterEffective*ether.mpiNop2);
+		utils::vectorPrint(aux.lcd,"lcd",file[7]);
 		//file[0]<<"#SUMLCD="<<vectorSum(aux.lcd);
 	}
-	vectorDivide(aux.eigM,ether.iterEffective*ether.mpiNop2);
-	vectorPrint(aux.eigM,"eigenvals",file[8]);
-	vectorDivide(aux.clasCor,ether.iterEffective*ether.mpiNop2);
-	vectorPrint(aux.clasCor,"clasCor",file[10]);
+	utils::vectorDivide(aux.eigM,ether.iterEffective*ether.mpiNop2);
+	utils::vectorPrint(aux.eigM,"eigenvals",file[8]);
+	utils::vectorDivide(aux.clasCor,ether.iterEffective*ether.mpiNop2);
+	utils::vectorPrint(aux.clasCor,"clasCor",file[10]);
 	if (aux.orbitalAngles.size()>0) {
-		vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
+		utils::vectorDivide(aux.orbitalAngles,ether.iterEffective*ether.mpiNop2);
 		concurrencyIo_->vectorPrint(aux.orbitalAngles,"OrbitalAngles",file[0]);
 	}
-	vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
+	utils::vectorDivide(aux.avMoments,ether.iterEffective*ether.mpiNop2);
 	concurrencyIo_->vectorPrint(aux.avMoments,"moments",file[0]);
 	
 	
@@ -414,7 +414,7 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	
 	if (ether.isSet("optical")) {
 		if (ether.tpem) {
-			vectorDivide(aux.opticalMoments,ether.iterEffective);
+			utils::vectorDivide(aux.opticalMoments,ether.iterEffective);
 			concurrencyIo_->vectorPrint(aux.opticalMoments,"optMoments",file[5]);
 		} else {
 			aux.Sigma.divide(ether.iterEffective,1);
@@ -426,8 +426,8 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 	
 	if (ether.isSet("akw")) {
 		if (ether.tpem) {	 
-			vectorDivide(aux.offdMoments,ether.iterEffective);
-			vectorPrint(aux.offdMoments,"moments",file[3]);
+			utils::vectorDivide(aux.offdMoments,ether.iterEffective);
+			utils::vectorPrint(aux.offdMoments,"moments",file[3]);
 		} else {
 			temp=ether.linSize;
 			if (ether.typeofmodel=="MODEL_KONDO_DMS_FCC") temp=6*ether.linSize;
@@ -458,31 +458,31 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 		}
 	}
 	if (ether.isSet("chargecorrelation")) {
-		vectorDivide(aux.cco,ether.iterEffective);
+		utils::vectorDivide(aux.cco,ether.iterEffective);
 		for (i=0;i<4*ether.linSize;i++) {
 			if (i<ether.linSize) aux.cco_aa[i%ether.linSize]=aux.cco[i];
 			else if (i>=ether.linSize && i<2*ether.linSize) aux.cco_ab[i%ether.linSize]=aux.cco[i];
 			else if (i>=2*ether.linSize && i<3*ether.linSize) aux.cco_ba[i%ether.linSize]=aux.cco[i];
 			else aux.cco_bb[i%ether.linSize]=aux.cco[i];
 		}
-		vectorPrint(aux.cco_aa,"ChargeCorrelation",file[9]);
-		vectorPrint(aux.cco_ab,"ChargeCorrelation",file[9]);
-		vectorPrint(aux.cco_ba,"ChargeCorrelation",file[9]);
-		vectorPrint(aux.cco_bb,"ChargeCorrelation",file[9]);
+		utils::vectorPrint(aux.cco_aa,"ChargeCorrelation",file[9]);
+		utils::vectorPrint(aux.cco_ab,"ChargeCorrelation",file[9]);
+		utils::vectorPrint(aux.cco_ba,"ChargeCorrelation",file[9]);
+		utils::vectorPrint(aux.cco_bb,"ChargeCorrelation",file[9]);
 	}
 	
 	if (ether.isSet("orbitalcorrelation")) {
-		vectorDivide(aux.oco,ether.iterEffective);
+		utils::vectorDivide(aux.oco,ether.iterEffective);
 		for (i=0;i<4*ether.linSize;i++) {
 			if (i<ether.linSize) aux.oco_aa[i%ether.linSize]=aux.oco[i];
 			else if (i>=ether.linSize && i<2*ether.linSize) aux.oco_ab[i%ether.linSize]=aux.oco[i];
 			else if (i>=2*ether.linSize && i<3*ether.linSize) aux.oco_ba[i%ether.linSize]=aux.oco[i];
 			else aux.oco_bb[i%ether.linSize]=aux.oco[i];
 		}
-		vectorPrint(aux.oco_aa,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.oco_ab,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.oco_ba,"OrbitalCorrelation",file[6]);
-		vectorPrint(aux.oco_bb,"OrbitalCorrelation",file[6]);
+		utils::vectorPrint(aux.oco_aa,"OrbitalCorrelation",file[6]);
+		utils::vectorPrint(aux.oco_ab,"OrbitalCorrelation",file[6]);
+		utils::vectorPrint(aux.oco_ba,"OrbitalCorrelation",file[6]);
+		utils::vectorPrint(aux.oco_bb,"OrbitalCorrelation",file[6]);
 	}
 
 }
@@ -514,18 +514,18 @@ void Io<ConcurrencyIoType>::printSnapshot(DynVars const &dynVars,Parameters cons
 	if (ether.mpiTpemRank>0) return;			
 	f<<"#Theta\n";
 	for (i=0;i<n;i++)
-		f<<i<<" "<<dynVars.theta[i]<<endl;
+		f<<dynVars.theta[i]<<endl;
 
 	f<<"#Phi\n";
 	for (i=0;i<n;i++)
-		f<<i<<" "<<dynVars.phi[i]<<endl;
+		f<<dynVars.phi[i]<<endl;
 #ifdef MODEL_KONDO_INF_ONEBAND_PHONONS
 	int j;
 	for (j=0;j<ether.D;j++)
 	{
 		f<<"#Phonons"<<j<<"\n";
 		for (i=0;i<n;i++) 
-			f<<i<<" "<<dynVars.phonons[i][j]<<endl;
+			f<<dynVars.phonons[i][j]<<endl;
 	}
 #endif
 #ifdef MODEL_KONDO_INF_TWOBANDS
@@ -534,25 +534,9 @@ void Io<ConcurrencyIoType>::printSnapshot(DynVars const &dynVars,Parameters cons
 	{
 		f<<"#Phonons"<<j<<"\n";
 		for (i=0;i<n;i++) 
-			f<<i<<" "<<dynVars.phonons[i][j]<<endl;
+			f<<dynVars.phonons[i][j]<<endl;
 	}
 #endif
-#ifdef MODEL_KONDO_BCS
-	unsigned int j;
-	f<<"#BcsDelta\n";
-	for (i=0;i<n;i++) {
-		f<<i<<" "<<dynVars.bcsDelta[i]<<endl;
-	}
-	f<<"#BcsPhi\n";
-	for (i=0;i<n;i++) {
-		f<<i<<" ";
-		for (j=0;j<dynVars.bcsPhi[i].size();j++) 
-			f<<dynVars.bcsPhi[i][j]<<" ";
-		if (ether.D==2) f<<(dynVars.bcsPhi[i][1]-dynVars.bcsPhi[i][0]);
-		f<<endl;
-	}
-#endif				
-				
 }
 
 template<typename ConcurrencyIoType>
@@ -885,7 +869,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 #ifdef MODEL_KONDO_INF_TWOBANDS
 	reader.read(ether.phononEjt); // size should be 3
 	reader.read(ether.phononEd); // size should be 3
-	ether.maxPhonons=4.0/sqrt(ether.beta*maxElement(ether.phononEd));	
+	ether.maxPhonons=4.0/sqrt(ether.beta*utils::maxElement(ether.phononEd));	
 #endif
 	ether.modulus.clear();
 	ether.modulus.insert(ether.modulus.begin(),ether.linSize,1);
@@ -905,7 +889,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	if (ether.conc<ether.linSize) {
 		cerr<<"conc="<<ether.conc<<" is less than linSize="<<ether.linSize<<" ==> reading modulus...\n";
 		if (ether.isSet("randommodulus")) { /* It will generate a random modulus. */
-			randomModulus(ether.modulus,ether.conc,ether.linSize); // from basic.h
+			ether.rng.randomModulus(ether.modulus,ether.conc,ether.linSize); 
 		} else { /* It will read the file. */
 			reader.read(ether.modulus);
 			ether.modulus.assign(ether.modulus.size(),0);
@@ -918,7 +902,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		return 1; //ERROR CODE
 	}
 	if (ether.isSet("verbose")) {
-		vectorPrint(ether.modulus,"modulus",cerr);
+		utils::vectorPrint(ether.modulus,"modulus",cerr);
 	}
 
 	
@@ -944,7 +928,7 @@ int Io<ConcurrencyIoType>::setBoundaryConditions(std::string const &s,Parameters
 	} else if (s=="open") {
 		for (i=0;i<ether.D;i++) ether.hoppings[i]=MatType(0,0);
 	} else {
-		mysplit(s,temp,',');
+		utils::mysplit(s,temp,',');
 		if (s.length()<size_t(2*ether.D)) {
 			cerr<<"Error setting boundary conditions "<<s<<endl;
 			return 1;

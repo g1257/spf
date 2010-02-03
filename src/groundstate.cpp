@@ -39,6 +39,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 #include "common.h"
 #include "powell.h"
+#include "Utils.h"
 
 extern double calcSuperExchange(DynVars const &dynVars, Geometry const &geometry, Parameters const &ether);
  
@@ -122,7 +123,7 @@ void calcGroundState(Geometry const &geometry,DynVars &dynVars,Parameters const 
 	sether=ether;
 	cerr<<"In powell with n="<<n<<"\n";
 	powell(p,xi,n,ftol,iter,fret, gsEnergy);
-	vectorPrint(p,"gs",cerr);
+	utils::vectorPrint(p,"gs",cerr);
 	for (int i=0,j=0;i<geometry.volume();i++) {
 		dynVars.theta[i]=0.0;
 		dynVars.phi[i]=0.0;

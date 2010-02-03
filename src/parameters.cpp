@@ -43,7 +43,6 @@ using namespace std;
 
 void Parameters::print(ostream &s,char prefix)
 {
-	int i,j;
 	
 #ifdef USE_MPI
 	if (mpiTpemRank==0) typeofmodel = typeofmodel + string("+MPI");
@@ -74,7 +73,7 @@ void Parameters::print(ostream &s,char prefix)
 	s<<prefix<<"HistgramBounds="<<hist1<<" "<<hist2<<endl;
 	s<<prefix<<"conc="<<conc<<endl;
 	s<<prefix<<"hoppings=";
-	for (i=0;i<D;i++) s<<" "<<hoppings[i];
+	for (int i=0;i<D;i++) s<<" "<<hoppings[i];
 	s<<endl;
 #ifdef MODEL_KONDO_FINITE	
 	s<<prefix<<"Couplings="<<J[0]<<endl;
@@ -110,13 +109,13 @@ void Parameters::print(ostream &s,char prefix)
 	s<<prefix<<"Couplings=infinity"<<endl;	
 #endif	
 	s<<prefix<<"JAF coupling(s)=";
-	j=JafVector.size();
+	int j=JafVector.size();
 	if (j>8 && !isSet("verbose")) j=8;
 	if (isSet("jafvector")) {
 		s<<jafFile;
-		for (i=0;i<j;i++) s<<JafVector[i]<<" ";
+		for (int i=0;i<j;i++) s<<JafVector[i]<<" ";
 	} else {
-		for (i=0;i<j;i++) s<<JafVector[i]<<" "; 
+		for (int i=0;i<j;i++) s<<JafVector[i]<<" "; 
 	}
 	
 	s<<endl;
@@ -129,14 +128,14 @@ void Parameters::print(ostream &s,char prefix)
 	
 	j=potential.size();
 	if (j>8 && !isSet("verbose")) j=8;
-	for (i=0;i<j;i++) s<<potential[i]<<" ";
+	for (int i=0;i<j;i++) s<<potential[i]<<" ";
 	s<<endl;
 		
 	
 	
 	if (isSet("magneticfield")) {
 		s<<prefix<<"Magnetic Field=";
-		for (i=0;i<3;i++) s<<magnetic[i]<<" ";
+		for (int i=0;i<3;i++) s<<magnetic[i]<<" ";
 		s<<endl;
 	}
 	
@@ -150,17 +149,17 @@ void Parameters::print(ostream &s,char prefix)
 	}		
 #ifdef MODEL_KONDO_INF_TWOBANDS
 	s<<prefix<<"#BandHoppings ";
-	for (i=0;i<bandHoppings.size();i++) {
+	for (size_t i=0;i<bandHoppings.size();i++) {
 		s<<bandHoppings[i]<<" ";
 	}
 	s<<endl;
 	s<<prefix<<"#EJTCouplings ";
-	for (i=0;i<phononEjt.size();i++) {
+	for (size_t i=0;i<phononEjt.size();i++) {
 		s<<phononEjt[i]<<" ";
 	}
 	s<<endl;
 	s<<prefix<<"#EdCouplings ";
-	for (i=0;i<phononEd.size();i++) {
+	for (size_t i=0;i<phononEd.size();i++) {
 		s<<phononEd[i]<<" ";
 	}
 	s<<endl;
@@ -177,7 +176,7 @@ void Parameters::print(ostream &s,char prefix)
 	
 	s<<prefix<<"Modulus=";
 	if (conc<linSize) {
-		for (i=0;i<linSize;i++) if (modulus[i]>0) s<<" "<<i;
+		for (int i=0;i<linSize;i++) if (modulus[i]>0) s<<" "<<i;
 	} else {
 		s<<"Concentrated";
 	}

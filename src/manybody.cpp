@@ -42,6 +42,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "Matrix.h"
 #include "Kmesh.h"
 #include "Phonons.h"
+#include "Utils.h"
 
 #ifdef USE_MPI
 extern
@@ -979,7 +980,7 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 			if (!geometry.isInPlaquette(plaquetteIndex,i)) continue;
 			if (!geometry.isInPlaquette(plaquetteIndex,j)) continue;
  			size_t thisD = geometry.plaquetteDistance(i,j); // thisD = calcDistance(i,j);
-			int x = isInVector(thisD,d);
+			int x = utils::isInVector(d,thisD);
 			if (x<0) {
 				d.push_back(thisD); // d[x] = thisD , 
 				cd.push_back(calcCorrelation<FieldType>(i,j,false,dynVars,phonons));

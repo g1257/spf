@@ -1,5 +1,6 @@
 #ifndef CONCURRENCY_IO_H
 #define CONCURRENCY_IO_H
+#include "Utils.h"
 
 template <typename ConcurrencyType_>
 class ConcurrencyIo {
@@ -46,7 +47,7 @@ class ConcurrencyIo {
 			for (size_t i=0;i<partialComm_.size();i++) 
 				if (rankInComm_[i]!=0) return;
 			
-			::vectorPrint(result,label,of);
+			utils::vectorPrint(result,label,of);
 		}
 		
 		template<typename T>
