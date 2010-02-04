@@ -755,14 +755,21 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 #ifdef MODEL_KONDO_FINITE
 	reader.read(ether.J);
 #endif
+#ifdef MODEL_KONDO_PNICTIDES
+	reader.read(ether.J);
+#endif
 	
 	/*! \b HAMILTONIAN_JAF: Double or N doubles. The value of the direct exchange coupling between classical spins.
 	 If option jafvector is set (see OPTIONS above) then it is a vector of Dimension*N doubles specifying 
 	 Jaf[i+dir*N]. 
 	 If option jafvector is not set it is a single double specifying a spatially constant value (that can be zero) for the direct
 	  exchange coupling. */
-	ether.JafVector.resize(ether.linSize);
+	//ether.JafVector.resize(ether.linSize);
 	ether.JafVector.insert(ether.JafVector.begin(),ether.D*ether.linSize,0);
+	ether.numberOfJafConfigs=1;
+	ether.jafSeparate=0;
+	ether.jafDelta=0;
+	ether.jafCenter=0;
 	if (ether.isSet("jafdisorder")) {
 		reader.read(ether.numberOfJafConfigs);
 		reader.read(ether.jafCenter);
@@ -774,14 +781,20 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		reader.read(temp2);
 		ReaderType reader2(temp2);
 		reader2.read(ether.JafVector); // watch of for format of external file "temp"
-	} 
+	}
+#ifdef MODEL_KONDO_PNICTIDES
+	reader.read(ether.JafVector); // should be size 2 for nn and nnn jaf
+#endif
 	
 	/*! \b HAMILTONIAN_POTENTIAL: The name of the file containing a local potential
 	 <i>but provide only if the havepotential is set (see OPTIONS above).</i>
 	 */
-	ether.potential.resize(ether.linSize);
+	//ether.potential.resize(ether.linSize);
 	ether.potential.insert(ether.potential.begin(),ether.linSize,0);
-	
+	ether.numberOfMuConfigs=1;
+	ether.muSeparate=0;
+	ether.muDelta=0;
+	ether.muCenter=0;
 	if (ether.isSet("potentialdisorder")) {
 		reader.read(ether.numberOfMuConfigs);
 		reader.read(ether.muCenter);
@@ -869,9 +882,15 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	ether.numberOfOrbitals=1;
 
 #ifdef MODEL_KONDO_INF_TWOBANDS
+	ether.numberOfOrbitals=2;
 	reader.read(ether.phononEjt); // size should be 3
 	reader.read(ether.phononEd); // size should be 3
 	ether.maxPhonons=4.0/sqrt(ether.beta*utils::maxElement(ether.phononEd));	
+#endif
+#ifdef MODEL_KONDO_PNICTIDES
+	ether.numberOfOrbitals=2;
+	ether.muSeparate= 10;
+	ether.jafSeparate= 10;
 #endif
 	ether.modulus.clear();
 	ether.modulus.insert(ether.modulus.begin(),ether.linSize,1);

@@ -253,13 +253,13 @@ chomp($ret);
 $bc=$ret;
 
 
-if ($model=~/MODEL_KONDO_FINITE/) {
+if ($model=~/MODEL_KONDO_FINITE/ || $model=~/PNICTIDE/i) {
 	print "Enter the value of J or JH.\n";
 	print "Default (press ENTER): 8\n";
 	$ret = <STDIN>;
 	$ret = "8\n" if ($ret eq "" or $ret eq "\n");
 	chomp($ret);
-	$J=$ret;
+	$J="1 $ret";
 } elsif ($model=~/MODEL_KONDO_DMS/) {
 	print "Enter the two values for J or JH separated by a space.\n";
 	print "Default (press ENTER): 8 8\n";
@@ -354,7 +354,7 @@ print FILE <<EOF;
 HAMILTONIANCONCENTRATION $conc
 BOUNDARYCONDITIONS $bc
 EOF
-if ($model=~/MODEL_KONDO_DMS/ || $model=~/MODEL_KONDO_FINITE/) {
+if ($model=~/MODEL_KONDO_DMS/ || $model=~/MODEL_KONDO_FINITE/ || $model=~/PNICTIDES/i) {
 	print FILE "HAMILTONIANJH $J\n";
 }
 if ($options=~/jafvector/) {
@@ -367,6 +367,17 @@ JAF_DELTA   $jafdis[2]
 JAF_SEPARATE $jafdis[3]
 EOF
 	}
+
+if ($model=~/PNICTIDES/i) {
+	print "Enter JAF(nn) and JAF(nnn)\n";
+	print "Available: any\n";
+	print "Default (press ENTER): 0.5 1.3\n";
+	$ret = <STDIN>;
+	chomp($ret);
+	$ret = "0.5 1.3" if ($ret eq "");
+	print FILE "JAFVECTOR 2 $ret\n";
+}
+
 
 if ($options=~/havepotential/) {
 	print FILE "HAMILTONIANPOTENTIAL $potential\n";
@@ -413,6 +424,20 @@ if ($model=~/MODEL_KONDO_INF_TWOBANDS/) {
 	print FILE <<EOF;
 EJT 3 $lambda $lambda $lambda
 EDT 3 $ejt1 $ejt2 $ejt2
+EOF
+}
+if ($model=~/PNICTIDES/) {
+print FILE<<EOF;
+hoppings
+16
+-0.058 0
+0 -0.2196
+-0.2196 0
+0 -0.058
+0.20828 +0.079
+0.079 +0.20828
+0.20828 -0.079
+-0.079 +0.20828
 EOF
 }
 

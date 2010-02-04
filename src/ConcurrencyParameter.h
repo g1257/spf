@@ -6,13 +6,13 @@ template<typename T,typename GeneratorType,typename ParametersType,typename Conc
 class ConcurrencyParameter {
 
 public:
-	enum {SEPARATE=0,GATHER=1};
+	enum {SEPARATE=0,GATHER=1,LEAVEALONE=10};
 	
 	ConcurrencyParameter(T& param,ParametersType& ether,GeneratorType& generator,size_t separateOrTogether,size_t localRank,
 		     typename ConcurrencyType::MPIComm& mpiComm,size_t size) 
 	: separateOrTogether_(separateOrTogether), localRank_(localRank),mpiCommSize_(size),mpiComm_(mpiComm)
 	{
-		generator(param);
+		if (separateOrTogether_<LEAVEALONE) generator(param);
 		if (separateOrTogether_ == SEPARATE) {
 			ether.rootname = ether.rootname  + ttos(localRank);
 			mpiComm_ = 0;
