@@ -25,120 +25,43 @@ void auxCreateJmatrix(vector<MatType> &jmatrix,DynVars const &dynVars,Parameters
 }
 
 
-void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
-		 tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type)
-{
-	int	row,  volume, i = 0, p;
-	double	a=aux.varTpem_a, b=aux.varTpem_b, tmp;
-	int	j,k,dir;
-	volume = ether.linSize;
-	int gamma1,gamma2;
-	int dof = ether.numberOfOrbitals * 2; // the 2 comes because of the spin
-	vector<MatType> jmatrix(dof*dof);
-        
-	  if (ether.isSet("adjusttpembounds")) {
-                a=1.0; b=0.0;
-        }
-
-	row=0;
-	
-	for (gamma1=0;gamma1<dof;gamma1++) {
-			for (p = 0; p < volume; p++, row++) {
-			
-			auxCreateJmatrix(jmatrix,dynVars,ether,p);
-
-			size_t spin1 = size_t(gamma1/2);
-			size_t orb1 = gamma1 % 2;
-			matrix->rowptr[row] = i;
-			matrix->colind[i] = row;		
-			tmp =real(jmatrix[spin1+2*spin1]) + ether.potential[p];
-//                        tmp =real(jmatrix[gamma1+6*gamma1])*double(ether.modulus[p]) + ether.potential[p];
-  			
-			matrix->values[i] = (tmp-b)/a; /* -b because it's diagonal */
-			i++;
-			
-				
-			for (j = 0; j <  geometry.z(p); j++) {	
-				k = geometry.neighbor(p,j);
-				dir = geometry.scalarDirection(p,k,j);
-//                               for (gamma1=0;gamma1<ether.numberOfOrbitals;gamma1++) {
-				for (gamma2=0;gamma2<dof;gamma2++) {
-					matrix->colind[i]=k+gamma2*volume;
-					matrix->values[i]=ether.bandHoppings[gamma1+gamma2*dof+dof*dof*dir]/a;
-					i++;
-				}
-//			}
-			
-                     }
-			
-			for (gamma2=0;gamma2<dof;gamma2++) {
-				size_t spin2 = size_t(gamma2/2);
-				size_t orb2 = gamma2 % 2;
-				if (orb1!=orb2) continue; // diagonal in orbitals
-				if (spin1==spin2) continue; // diagonal term already taken into account 
-				matrix->colind[i]=p + gamma2*volume;
-				matrix->values[i]=jmatrix[spin1+2*spin2]/a;
-				i++;
-			}
-			
-		}
-	}
-	
-	if (i!=ether.nonzero) {
-		cerr<<"i="<<i<<" but nonzero="<<ether.nonzero<<endl;
-		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
-		exit(1);
-	}
-}
-
 void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type)
 {
 	size_t volume = ether.linSize;
-	size_t dof = ether.numberOfOrbitals * 2; // the 2 comes because of the spin
+	size_t norb = ether.numberOfOrbitals;
+	size_t dof = norb * 2; // the 2 comes because of the spin
 	vector<MatType> jmatrix(dof*dof);
-        
-	  if (ether.isSet("adjusttpembounds")) {
-                a=1.0; b=0.0;
-        }
-
-	row=0;
 	
 	for (size_t gamma1=0;gamma1<dof;gamma1++) {
-		for (size_t p = 0; p < volume; p++, row++) {
+		for (size_t p = 0; p < volume; p++) {
 			
 			auxCreateJmatrix(jmatrix,dynVars,ether,p);
 
 			size_t spin1 = size_t(gamma1/2);
 			size_t orb1 = gamma1 % 2;
-			matrix(p,p) = real(jmatrix[spin1+2*spin1]) + ether.potential[p];
-			matrix(p+volume,p+volume) = matrix(p,p);			
+			matrix(p+gamma1*volume,p+gamma1*volume) = real(jmatrix[spin1+2*spin1]) + ether.potential[p];
 				
 			for (int j = 0; j <  geometry.z(p); j++) {	
 				int k = geometry.neighbor(p,j);
 				int dir = geometry.scalarDirection(p,k,j);
-				for (gamma2=0;gamma2<dof;gamma2++) {
-					matrix(p,k+gamma2*volume)=ether.bandHoppings[gamma1+gamma2*dof+dof*dof*dir];
+				for (size_t orb2=0;orb2<norb;orb2++) {
+					size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
+					matrix(p+gamma1*volume,k+gamma2*volume)=
+						ether.bandHoppings[orb1+orb2*norb+norb*norb*dir];
+					matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
 				}
                      	}
 			
-			for (size_t gamma2=0;gamma2<dof;gamma2++) {
-				size_t spin2 = size_t(gamma2/2);
-				size_t orb2 = gamma2 % 2;
-				if (orb1!=orb2) continue; // diagonal in orbitals
+			for (size_t spin2=0;spin2<2;spin2++) {
 				if (spin1==spin2) continue; // diagonal term already taken into account
-				matrix(p,p + gamma2*volume)=jmatrix[spin1+2*spin2]/a;
+				size_t gamma2 = orb1+spin2*norb; // orb2 == orb1 here
+				matrix(p+gamma1*volume,p + gamma2*volume)=jmatrix[spin1+2*spin2];
+				matrix(p + gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,p + gamma2*volume));
 			}
 		}
 	}
 	
-	if (i!=ether.nonzero) {
-		cerr<<"i="<<i<<" but nonzero="<<ether.nonzero<<endl;
-		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
-		exit(1);
-	}
-	
-		
 }
 
 void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry)

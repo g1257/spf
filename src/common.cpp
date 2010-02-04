@@ -57,8 +57,6 @@ bool Io<ConcurrencyIoType>::isInit=false;
 
 using namespace std;
 
-extern void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
-		 tpem_sparse *matrix,Parameters const &ether,Aux &aux,int type);
 extern void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 		 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type);
 extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry, DynVars const &dynVars, 
@@ -831,64 +829,7 @@ void diag(vector<double> &eig,Geometry const &geometry,DynVars const &dynVars,
 
 
 /***************** TPEM SPECIFIC CODE********************************/
-bool kTpemAllBands(int i,Geometry const &geometry,DynVars const &dynVars,
-	Parameters const &ether,Aux &aux,double dsDirect,TpemOptions const &tpemOptions)
-{
-	
-	
-	double dS=0;
-	bool accept;
-	vector<unsigned int> support;
-	bool glauber=true;
-	vector<double> moment(ether.tpem_cutoff);
 
-	dS =0;
-	setSupport(support,i,geometry);
-	
-	kTpemHamiltonian (geometry, dynVars,aux.sparseTmp[0],ether,aux,0);
-	if (ether.isSet("adjusttpembounds")) {
-		if (tpemAdjustBounds(aux.sparseTmp[0],ether,aux)!=0) {
-			cerr<<"Cannot adjust bounds for tpem spectrum\n";
-			exit(1);
-		}
-	}
-	dS += calculate_dS (moment,aux.sparseMatrix[0], aux.sparseTmp[0],
-	support,ether,aux,tpemOptions);
-
-	dS -= ether.beta*dsDirect;
-	tpem_bcast(&dS,tpemOptions);
-	
-	if (glauber) {
-		if (dS<0) {
-			dS=exp(dS)/(1.0+exp(dS));
-		} else {
-			dS=1.0/(1.0+exp(-dS));
-		}
-		if (dS>ether.rng.myRandom()) accept=true;
-		else accept=false;
-	}	else {
-		accept = (dS > 0.0 || ether.rng.myRandom () < exp (dS));
-	}
-	if (accept) {
-		// update current moments
-		for (int j=0;j<ether.tpem_cutoff;j++) aux.curMoments[j] -= moment[j];		
-	}
-	return accept;
-}
-
-void kTpemSetAllBands(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,Aux &aux)
-{
-	
-	
-	
-	kTpemHamiltonian (geometry, dynVars,aux.sparseMatrix[0],ether,aux,0);
-	if (ether.isSet("adjusttpembounds")) {
-		if (tpemAdjustBounds(aux.sparseMatrix[0],ether,aux)!=0) {
-			cerr<<"Cannot adjust bounds for tpem spectrum\n";
-			exit(1);
-		}
-	}
-}
 
 
 // TPEM_FIXME: vector allocations are for moments, matrix allocation 
@@ -1299,7 +1240,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 	
 	if (!ether.tpem) diag(aux.eigAllBands,geometry,dynVars2,ether,aux);
 		
-	if (ether.tpem && ether.carriers>0) calcMoments(dynVars,geometry,ether,aux,tpemOptions);
+	//if (ether.tpem && ether.carriers>0) calcMoments(dynVars,geometry,ether,aux,tpemOptions);
 	
 	
 	for (size_t k=0; k<ether.classFieldList.size();k++) nac[k] = 0;
@@ -1313,7 +1254,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 			if (ether.isSet("freezephonons") && dof==1) break;
 			if (ether.isSet("freezespins") && dof==0) continue;
 			
-			if (ether.tpem) kTpemSetAllBands(geometry,dynVars,ether,aux);
+			//if (ether.tpem) kTpemSetAllBands(geometry,dynVars,ether,aux);
 		
 			dynVars2.theta=dynVars.theta;
 			dynVars2.phi=dynVars.phi;
@@ -1336,10 +1277,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 			}
 			oldmu=aux.varMu;	
 			if (ether.tpem) {
-				aux.atmp=aux.varTpem_a;
-				aux.btmp=aux.varTpem_b;
-				if (ether.carriers>0) adjChemPotTpem(ether,aux,tpemOptions);
-				flag=kTpemAllBands(i,geometry,dynVars2,ether,aux,dsDirect,tpemOptions);
+				throw std::runtime_error("tpem no longer supported\n");
 			} else {
 				diag(eigNewAllBands,geometry,dynVars2,ether,aux);
 				if (ether.carriers>0) adjChemPot(eigNewAllBands,ether,aux);	
@@ -1597,35 +1535,6 @@ double measure_action (vector<double> const &moment,Parameters const &ether,Aux 
 	ret = tpem_expansion (moment, coeffs);
 	return ret;
 }
-
-
-
-void calcMoments(vector<double> &moment,DynVars const &dynVars,Geometry const &geometry,Parameters const &ether,
-	Aux &aux,TpemOptions const &tpemOptions)
-{	
-	
-	kTpemHamiltonian (geometry, dynVars,aux.sparseMatrix[0],ether,aux,0);
-	if (ether.isSet("adjusttpembounds")) {
-		if (tpemAdjustBounds(aux.sparseMatrix[0],ether,aux)!=0) {
-			cerr<<"Cannot adjust bounds for tpem spectrum\n";
-			exit(1);
-		}
-	}
-	tpem_calculate_moment (aux.sparseMatrix[0], moment, tpemOptions);
-	//if (ether.mpiRank==0) cerr<<"moment[0]="<<moment[0]<<endl;
-}
-
-void calcMoments(DynVars const &dynVars,Geometry const &geometry,Parameters const &ether,Aux &aux,TpemOptions const
-&tpemOptions)
-{
-	vector<double> moment(ether.tpem_cutoff);
-	calcMoments(moment,dynVars,geometry,ether,aux,tpemOptions);
-	for (unsigned int i=0;i<moment.size();i++) aux.curMoments[i] = moment[i];
-	
-}
-
-
-
 			
 // TPEM_FIXME: Electronic observables must be modified
 template<typename ConcurrencyIoType>
@@ -1649,8 +1558,8 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	n_electrons=0;
 		
 	if (ether.tpem) {
-		calcMoments(moment,dynVars,geometry,ether,aux,tpemOptions);
-		n_electrons=measure_density (moment, ether,aux,tpemOptions);
+		//calcMoments(moment,dynVars,geometry,ether,aux,tpemOptions);
+		//n_electrons=measure_density (moment, ether,aux,tpemOptions);
 	} else {
 	
 		diag(aux.eigOneBand,geometry,dynVars,ether,aux);
