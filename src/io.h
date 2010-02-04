@@ -751,9 +751,11 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	
 	/*! \b HAMILTONIAN_J: Double for  MODEL_KONDO_FINITE or two Doubles for MODEL_KONDO_DMS_MANYBANDS.
 	 <i>Provide only for MODEL_KONDO_FINITE or MODEL_KONDO_DMS_MANYBANDS</i> */
-	
-	reader.read(ether.J);
 
+#ifdef MODEL_KONDO_FINITE
+	reader.read(ether.J);
+#endif
+	
 	/*! \b HAMILTONIAN_JAF: Double or N doubles. The value of the direct exchange coupling between classical spins.
 	 If option jafvector is set (see OPTIONS above) then it is a vector of Dimension*N doubles specifying 
 	 Jaf[i+dir*N]. 

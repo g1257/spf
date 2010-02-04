@@ -99,13 +99,13 @@ namespace Dmrg {
 			parameters <= *this;
 		}
 
-		void read(std::string& s)  { fin_>>label_; fin_>>s; }
+		void read(std::string& s)  { readALabel(); fin_>>s; }
 
 		template<typename FieldType>
 		void read(std::vector<FieldType>& v) 
 		{
 			// read label
-			fin_>>label_;
+			readALabel();
 			// read vector length
 			size_t size;
 			fin_>>size;
@@ -119,8 +119,7 @@ namespace Dmrg {
 		template<typename FieldType>
 		void read(psimag::Matrix<FieldType>& v) 
 		{
-			// read label
-			fin_>>label_;
+			readALabel();	
 			// read row and col
 			size_t row,col;
 			fin_>>row;
@@ -133,11 +132,19 @@ namespace Dmrg {
 		}
 
 		template<typename FieldType>
-		void read(FieldType& x)  { fin_>>label_; fin_>>x; }
+		void read(FieldType& x)  { readALabel(); fin_>>x; }
 
 	private:
 		std::string    fileName_,label_;
 		std::ifstream fin_;
+
+		void readALabel()
+		{
+			while(true && !fin_.eof()) {
+				fin_>>label_;
+				if (label_[0]!='#') break;
+			} 
+		}
 	};
 } // namespace Dmrg
 

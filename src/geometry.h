@@ -220,8 +220,8 @@ private:
 	siteIndex coor2Index(vector<siteIndex> &v,string const &s) const;
 	//template<class T>
 	//void index2Coor(vector<T> &v,siteIndex i,std::string const &lt) const;
-	inline void index2Coor(vector<double> &v,siteIndex i,std::string const &lt) const;
-	inline void index2Coor(vector<siteIndex> &v,siteIndex i,std::string const &lt) const;
+	void index2Coor(vector<double> &v,siteIndex i,std::string const &lt) const;
+	void index2Coor(vector<siteIndex> &v,siteIndex i,std::string const &lt) const;
 	
 	bool allSidesEqual() const;
 	

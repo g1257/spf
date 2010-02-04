@@ -8,7 +8,7 @@
 # GSL: no
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spfpnictides
-CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_PNICTIDES -DNO_GSL  -Wall -O2
+CPPFLAGS = -I../PartialPsimag    -DMODEL_KONDO_PNICTIDES -DNO_GSL  -Wall -g3
 CXX = g++ 
 include filelist.make
 

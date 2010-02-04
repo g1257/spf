@@ -83,9 +83,55 @@ void kTpemHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 			
 		}
 	}
-						
-				
+	
+	if (i!=ether.nonzero) {
+		cerr<<"i="<<i<<" but nonzero="<<ether.nonzero<<endl;
+		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
+		exit(1);
+	}
+}
+
+void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
+		 MyMatrix<std::complex<double> >& matrix,Parameters const &ether,Aux &aux,int type)
+{
+	size_t volume = ether.linSize;
+	size_t dof = ether.numberOfOrbitals * 2; // the 2 comes because of the spin
+	vector<MatType> jmatrix(dof*dof);
+        
+	  if (ether.isSet("adjusttpembounds")) {
+                a=1.0; b=0.0;
+        }
+
+	row=0;
+	
+	for (size_t gamma1=0;gamma1<dof;gamma1++) {
+		for (size_t p = 0; p < volume; p++, row++) {
 			
+			auxCreateJmatrix(jmatrix,dynVars,ether,p);
+
+			size_t spin1 = size_t(gamma1/2);
+			size_t orb1 = gamma1 % 2;
+			matrix(p,p) = real(jmatrix[spin1+2*spin1]) + ether.potential[p];
+			matrix(p+volume,p+volume) = matrix(p,p);			
+				
+			for (int j = 0; j <  geometry.z(p); j++) {	
+				int k = geometry.neighbor(p,j);
+				int dir = geometry.scalarDirection(p,k,j);
+				for (gamma2=0;gamma2<dof;gamma2++) {
+					matrix(p,k+gamma2*volume)=ether.bandHoppings[gamma1+gamma2*dof+dof*dof*dir];
+				}
+                     	}
+			
+			for (size_t gamma2=0;gamma2<dof;gamma2++) {
+				size_t spin2 = size_t(gamma2/2);
+				size_t orb2 = gamma2 % 2;
+				if (orb1!=orb2) continue; // diagonal in orbitals
+				if (spin1==spin2) continue; // diagonal term already taken into account
+				matrix(p,p + gamma2*volume)=jmatrix[spin1+2*spin2]/a;
+			}
+		}
+	}
+	
 	if (i!=ether.nonzero) {
 		cerr<<"i="<<i<<" but nonzero="<<ether.nonzero<<endl;
 		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
@@ -122,8 +168,8 @@ void setHilbertParams(Parameters &ether, Aux &aux,Geometry const &geometry)
         	ether.energy1= -18.5;
 		ether.energy2= 20.5;
 	}
-	aux.varTpem_a = 0.5*(ether.energy2-ether.energy1);
-	aux.varTpem_b = 0.5*(ether.energy2+ether.energy1);
+	aux.varTpem_a = 1; //0.5*(ether.energy2-ether.energy1);
+	aux.varTpem_b = 0; //0.5*(ether.energy2+ether.energy1);
 	ether.classFieldList.push_back(0);
 	
 	
