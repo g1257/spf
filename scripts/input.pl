@@ -64,6 +64,34 @@ if ($latticetype=~/1d/) {
 	die "input.pl: Invalid lattice type $latticetype\n";
 }
 } # latticelengths
+
+#plaquette
+if ($options=~/nanocluster/) {
+	print "Please enter the plaquette length\n";
+	print "Available any divisor of the lattice length\n";
+	print "Default (press ENTER): 4\n";
+	$ret = <STDIN>;
+	chomp($ret);
+	$ret = 4 if ($ret eq "");
+	$plaquetteLength = 4;
+	
+	print "Please enter the meshfactor\n";
+	print "Available: any\n";
+	print "Default (press ENTER): 4\n";
+	$ret = <STDIN>;
+	chomp($ret);
+	$ret = 4 if ($ret eq "");
+	$meshfactor = $ret;
+
+	print "Please enter the Qs for nanocluster preceeding by their number\n";
+	print "Available: any\n";
+	print "Default/example (press ENTER): 10  0 1 2 3 4 68 204 136 196 76\n";
+	$ret = <STDIN>;
+	chomp($ret);
+	$ret = "10  0 1 2 3 4 68 204 136 196 76" if ($ret eq "");
+	$qsfornano = $ret;
+}
+
 if ($model=~/MODEL_KONDO_BCS/) {
 	$carriers= -1;
 	$mu=0;
@@ -217,7 +245,7 @@ $conc=$ret;
 #print "Enter the boundary conditions as $dimension words from the set {pbc,abc,open} separated by spaces.\n";
 #$n="pbc";
 #for ($i=1;$i<$dimension;$i++) { $n="$n pbc"; }
-print "Enter the boundary conditions (periodic, open, antiperiodic or ".(2*$D)." numbers.\n";
+print "Enter the boundary conditions (periodic, open, antiperiodic or twice the dimension numbers.\n";
 print "Default (press ENTER): periodic\n";
 $ret=<STDIN>;
 $ret = "periodic\n" if ($ret eq "" or $ret eq "\n");
@@ -250,18 +278,13 @@ if ($options=~/jafvector/) {
 	$ret = "jafvector.txt\n" if ($ret eq "" or $ret eq "\n");
 	chomp($ret);
 	$Jaf=$ret;
-} else {
-	if ($model=~/MODEL_KONDO_BCS/) {
-		$Jaf=0;
-	} elsif ($n==$conc) {
-		print "Enter the value for JAF.\n";
-		print "Default (press ENTER): 0\n";
-		$ret = <STDIN>;
-		$ret = "0\n" if ($ret eq "" or $ret eq "\n");
-		chomp($ret);
-		$Jaf=$ret;
-	}
-	
+} elsif ($options=~/jafdisorder/)  {
+	print "Enter JAF configs center delta and separate \n";
+	print "Default (press ENTER): 1 0.2 0 1\n";
+	$ret = <STDIN>;
+	chomp($ret);
+	$ret = "1 0.2 0 1" if ($ret eq "");
+	@jafdis = split(/ /,$ret);	
 }
 
 if ($options=~/havepotential/) {
@@ -271,6 +294,13 @@ if ($options=~/havepotential/) {
 	$ret = "potential.txt\n" if ($ret eq "" or $ret eq "\n");
 	chomp($ret);
 	$potential=$ret;
+} elsif ($options=~/potentialdisorder/) {
+	print "Enter Potential configs center delta and separate \n";
+        print "Default (press ENTER): 1 0.0 0.0 1\n";
+        $ret = <STDIN>;
+        chomp($ret);
+        $ret = "1 0.0 0.0 1" if ($ret eq "");
+	@potdis = split(/ /,$ret);
 }
 
 if ($options=~/magneticfield/) {
@@ -282,31 +312,7 @@ if ($options=~/magneticfield/) {
 	$magneticfield=$ret;
 }
 
-print "What kind of diagonalization algorithm do you want to use.\n";
-print "Available: DIAG TPEM PEM TPEM_FULLTRACE\n";
-print "Default (press ENTER): DIAG\n";
-$ret = <STDIN>;
-$ret = "DIAG\n" if ($ret eq "" or $ret eq "\n");
-chomp($ret);
-if ($ret eq "DIAG") {
-	$algorithm=0;
-} elsif ($ret eq "TPEM") {
-	$algorithm=1;
-} elsif ($ret eq "PEM") {
-	$algorithm=2;
-} elsif ($ret eq "TPEM_FULLTRACE") {
-	$algorithm=3;
-} else {
-	die "Algorithm $ret not available.\n";
-}
-
-if ($algorithm>0) {
-	print "Enter the number of moments and the thresholds for product and trace truncation separated by spaces.\n";
-	print "Example (press ENTER): 40 1e-5 1e-6\n";
-	 $ret = <STDIN>;
-	$ret = "40 1e-5 1e-6\n" if ($ret eq "" or $ret eq "\n");
-	$tpemvalues=$ret;
-}
+$algorithm = 0;
 
 if ($model=~/MODEL_KONDO_DMS/) {
 	print "ATTENTION: You will need to edit sampleinput.inp by hand and enter the band hoppings!!\n";
@@ -315,20 +321,20 @@ if ($model=~/MODEL_KONDO_DMS/) {
 
 open(FILE,">sampleinput.inp") or die "Cannot open file sampleinput.inp for writing: $!\n";
 print FILE<<EOF;
-# Created with input.pl for SPF v6.4
-# This script is in DEVELOPMENT, CHECK THIS FILE CAREFULLY FOR ERRORS
-#
 OPTIONS $options
 LATTICETYPE $latticetype
 LATTICELENGTHS $latticelengths
+EOF
+print FILE "PLAQUETTE $plaquetteLength\n" if ($options=~/nanocluster/);
+print FILE<<EOF;
 CARRIERS $carriers
 CHEMICALPOTENTIAL $mu
-$beta_label $beta
+$beta_label 1 $beta
 ROOTNAME $rootname
 MCTHERMALIZATIONS $mctherm
 MCEFFECTIVE $mceffective
 MCUNMEASURED $mcunmeasured
-MCWINDOW $mcwindow
+MCWINDOW  1 $mcwindow
 MCFLAG $mcflag
 MCSTARTTYPE $mcstarttype
 EOF
@@ -351,25 +357,41 @@ EOF
 if ($model=~/MODEL_KONDO_DMS/ || $model=~/MODEL_KONDO_FINITE/) {
 	print FILE "HAMILTONIANJH $J\n";
 }
-print FILE <<EOF;
-JAF $Jaf
+if ($options=~/jafvector/) {
+	print FILE "JAFFILE $Jaf\n";
+} elsif ($options=~/jafdisorder/) {
+	print FILE<<EOF;
+JAF_CONFIGS $jafdis[0] 
+JAF_CENTER  $jafdis[1]
+JAF_DELTA   $jafdis[2]
+JAF_SEPARATE $jafdis[3]
 EOF
+	}
 
 if ($options=~/havepotential/) {
 	print FILE "HAMILTONIANPOTENTIAL $potential\n";
+} elsif ($options=~/potentialdisorder/) {
+	print FILE<<EOF;
+POTENTIAL_CONFIGS $potdis[0] 
+POTENTIAL_CENTER  $potdis[1]
+POTENTIAL_DELTA   $potdis[2]
+POTENTIAL_SEPARATE $potdis[3]
+EOF
+	}
+if ($options=~/nanocluster/) {
+	print FILE "MESHFACTOR $meshfactor\n";
+	print FILE "QSFORNANOCLUSTER $qsfornano\n";
 }
+
 if ($options=~/magneticfield/) {
 	print FILE "HAMILTONIANZEEMAN $magneticfield\n";
 }
 print FILE "ALGORITHM $algorithm\n";
-if ($algorithm>0) {
-	print "TPEMVALUES $tpemvalues\n";
-}
 if ($model=~/MODEL_KONDO_INF_TWOBANDS/) {
 	if  ($dimension==2) {
-		$bandh="1 -0.577350269  -0.577350269 0.33333333 1  0.577350269  0.577350269 0.33333333 ";
+		$bandh="8 1 -0.577350269  -0.577350269 0.33333333 1  0.577350269  0.577350269 0.33333333 ";
 	} elsif ($dimension==3) {
-		$bandh=" 1 -0.577350269  -0.577350269 0.33333333 1  0.577350269  0.577350269 0.33333333 0 0 0 1.33333333 ";
+		$bandh=" 12 1 -0.577350269  -0.577350269 0.33333333 1  0.577350269  0.577350269 0.33333333 0 0 0 1.33333333 ";
 	} else {
 		$bandh="UNKNOWN";
 		print STDERR "Warning: Unknown band hoppings form MODEL_KONDO_INF_TWOBANDS in $dimension dimensions.\n";
@@ -389,18 +411,10 @@ if ($model=~/MODEL_KONDO_INF_TWOBANDS/) {
 		$ejt2 = 0.5;
 	}
 	print FILE <<EOF;
-EJT $lambda $lambda $lambda
-EDT $ejt1 $ejt2 $ejt2
+EJT 3 $lambda $lambda $lambda
+EDT 3 $ejt1 $ejt2 $ejt2
 EOF
 }
-if ($model=~/MODEL_KONDO_BCS/) {
-	print "Enter the value for Delta (which will remain frozen and homogeneous).\n";
-	print "Default (press ENTER): 1\n";
-	$ret = <STDIN>;
-	$ret = "1\n" if ($ret eq "" or $ret eq "\n");
-	chomp($ret);
-	print FILE "DELTA $ret 1\n";
-}	
 
 print FILE <<EOF;
 #EOF
@@ -408,7 +422,7 @@ EOF
 close(FILE);
 
 
-print "The file sampleinput.inp has been written.\n";
+print "sampleinput.inp has been written.\n";
 
 sub nofspins
 {
