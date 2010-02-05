@@ -525,7 +525,7 @@ double dSDirect(DynVars const &dynVars, DynVars const &dynVars2, int i, Geometry
 {
 	int j,k;
 	double dS=0;
-	double tmp,jaf;
+	double tmp,jaf=ether.JafVector[0];
 	
 	if (!geometry.isCubicType()) return 0;
 		
@@ -534,8 +534,10 @@ double dSDirect(DynVars const &dynVars, DynVars const &dynVars2, int i, Geometry
 		tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) 
 		    + (sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*sin(dynVars.phi[i]))*sin(dynVars.theta[j])*sin(dynVars.phi[j]) 
 		    + (cos(dynVars2.theta[i])-cos(dynVars.theta[i]))*cos(dynVars.theta[j]);
+#ifndef MODEL_KONDO_PNICTIDES
 		if (k==0 || k%2==0) jaf=ether.JafVector[i+k*ether.linSize/2];
 		else jaf=ether.JafVector[j+(k-1)*ether.linSize/2];
+#endif
 		
 		dS += jaf*tmp;
 	}
@@ -590,7 +592,7 @@ double directExchange2(DynVars const &dynVars, Geometry const &geometry, Paramet
 		p1=dynVars.phi[i];
 		p2=dynVars.phi[j];
 		tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-		//dS += ether.jafprime*tmp; // FIXME
+		dS += ether.JafVector[1]*tmp; // FIXME
 	}}
 	
 	return dS*0.5;
