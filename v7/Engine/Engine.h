@@ -56,4 +56,5 @@ namespace Spf {
 	}; // Engine
 } // namespace Spf
 
+/*@}*/
 #endif // SPF_ENGINE_H
