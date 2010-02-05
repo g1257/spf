@@ -147,12 +147,12 @@ void Parameters::print(ostream &s,char prefix)
 		s<<prefix<<"TPEM_EPSTRACE="<<tpem_epsTrace<<endl;
 		
 	}		
-#ifdef MODEL_KONDO_INF_TWOBANDS
 	s<<prefix<<"#BandHoppings ";
 	for (size_t i=0;i<bandHoppings.size();i++) {
 		s<<bandHoppings[i]<<" ";
 	}
 	s<<endl;
+#ifdef MODEL_KONDO_INF_TWOBANDS
 	s<<prefix<<"#EJTCouplings ";
 	for (size_t i=0;i<phononEjt.size();i++) {
 		s<<phononEjt[i]<<" ";

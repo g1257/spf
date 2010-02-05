@@ -1565,7 +1565,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		diag(aux.eigOneBand,geometry,dynVars,ether,aux);
 		
 		for (int i=0;i<ether.hilbertSize;i++) {
-			//aux.eigM[i] += aux.eigOneBand[i];
+			aux.eigM[i] += aux.eigOneBand[i];
 		}
 #ifdef MODEL_KONDO_DMS_MANYBANDS
 		for (int i=0;i<ether.numberOfOrbitals;i++) {

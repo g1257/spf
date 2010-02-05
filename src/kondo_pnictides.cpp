@@ -33,6 +33,10 @@ void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 	size_t dof = norb * 2; // the 2 comes because of the spin
 	vector<MatType> jmatrix(dof*dof);
 	
+	for (size_t gamma1=0;gamma1<matrix.getRank();gamma1++) 
+		for (size_t p = 0; p < matrix.getRank(); p++) 
+			matrix(gamma1,p)=0;
+	
 	for (size_t gamma1=0;gamma1<dof;gamma1++) {
 		for (size_t p = 0; p < volume; p++) {
 			
@@ -43,8 +47,23 @@ void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 			matrix(p+gamma1*volume,p+gamma1*volume) = real(jmatrix[spin1+2*spin1]) + ether.potential[p];
 				
 			for (int j = 0; j <  geometry.z(p); j++) {	
+				if (j%2!=0) continue;	
 				int k = geometry.neighbor(p,j);
-				int dir = geometry.scalarDirection(p,k,j);
+				
+				int dir = int(j/2);
+				for (size_t orb2=0;orb2<norb;orb2++) {
+					size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
+					matrix(p+gamma1*volume,k+gamma2*volume)=
+						ether.bandHoppings[orb1+orb2*norb+norb*norb*dir];
+					matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
+				}
+                     	}
+			//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw std::runtime_error("neighbours wrong\n");
+			for (int j = 0; j <  geometry.z(p,2); j++) {
+				if (j%2!=0) continue;	
+				int k = geometry.neighbor(p,j,2);
+				int dir = int(j/2)+2;
+				//std::cerr<<"Neigbors "<<p<<" "<<k<<"\n";
 				for (size_t orb2=0;orb2<norb;orb2++) {
 					size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
 					matrix(p+gamma1*volume,k+gamma2*volume)=
@@ -61,7 +80,13 @@ void createHamiltonian (Geometry const &geometry, DynVars const &dynVars,
 			}
 		}
 	}
+// 	std::cerr<<matrix;
+// 	throw std::runtime_error("testing\n");
 	
+	if (!matrix.isHermitian()) {
+		
+		throw std::runtime_error("Problem matrix non hermitian!!\n");
+	}
 }
 
 void setSupport(vector<unsigned int> &support,unsigned int i,Geometry const &geometry)

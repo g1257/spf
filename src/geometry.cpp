@@ -1192,7 +1192,7 @@ int Geometry::neighbor(int index,int n,int distance) const
 		cerr<<"At this point: "<<__FILE__<<" "<<__LINE__<<endl;
 		exit(1);
 	}
-	return Nidx[n+index*z(index)];
+	return Nidx2[n+index*z(index)];
 }
 
 int Geometry::borderId(int index,int n) const 
