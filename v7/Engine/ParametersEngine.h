@@ -95,7 +95,7 @@ namespace Spf {
 		std::string version;
 		std::string options; // options
 		size_t carriers;
-		FieldType chemicalPotential; 
+		FieldType mu; // chemical potential 
 		FieldType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
 		FieldType mcWindow; // monte carlo window of change
@@ -114,7 +114,7 @@ namespace Spf {
 		reader.read(parameters.version);
 		reader.read(parameters.filename);
 		reader.read(parameters.carriers);
-		reader.read(parameters.chemicalPotential);
+		reader.read(parameters.mu);
 		reader.read(parameters.beta);
 		reader.read(parameters.iterTherm);
 		reader.read(parameters.iterEffective);
@@ -137,7 +137,7 @@ namespace Spf {
 		os<<"parameters.filename="<<parameters.filename<<"\n";
 		os<<"parameters.options="<<parameters.options<<"\n";
 		os<<"parameters.carriers="<<parameters.carriers<<"\n";
-		os<<"parameters.chemicalPotential="<<parameters.chemicalPotential<<"\n";
+		os<<"parameters.mu="<<parameters.mu<<"\n";
 		os<<"parameters.beta="<<parameters.beta<<"\n";
 		os<<"parameters.iterTherm="<<parameters.iterTherm<<"\n";
 		os<<"parameters.iterEffective="<<parameters.iterEffective<<"\n";

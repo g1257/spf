@@ -2,18 +2,27 @@
 
 #include "SimpleReader.h"
 #include "ParametersEngine.h"
+#include "Engine.h"
 #include "ConcurrencySerial.h"
 #include "ParametersPnictidesTwoOrbitals.h"
+#include "PnictidesTwoOrbitals.h"
+#include "GeometrySquare.h"
 
 typedef double FieldType;
+typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
 typedef Dmrg::ConcurrencySerial<FieldType> ConcurrencyType;
+typedef Spf::GeometrySquare<FieldType> GeometryType;
 typedef Spf::ParametersPnictidesTwoOrbitals<FieldType> ParametersModelType;
+typedef Spf::PnictidesTwoOrbitals<FieldType,ParametersEngineType,ParametersModelType,GeometryType> ModelType;
+typedef ModelType::DynVarsType DynVarsType;
+typedef Spf::Engine<ParametersEngineType,ModelType,ConcurrencyType> EngineType;
+
  
 int main(int argc,char *argv[])
 {
 	ConcurrencyType concurrency(argc,argv);
 	ParametersModelType mp;
-	Spf::ParametersEngine<FieldType> engineParams;
+	ParametersEngineType engineParams;
 	Dmrg::SimpleReader reader(argv[1]);
 	reader.load(mp);
 	reader.load(engineParams);
@@ -37,9 +46,11 @@ int main(int argc,char *argv[])
 "// END LICENSE BLOCK\n"
 ;
 	if (concurrency.root()) std::cerr<<license;
-	/*GeometryType geometry;
-	ModelType model(mp,geometry);
-	EngineType engine(engineParams,model,concurrency);
+	GeometryType geometry(mp.linSize);
+	DynVarsType dynVars;
 	
-	engine.main(); */
+	ModelType model(engineParams,mp,geometry);
+	EngineType engine(engineParams,model,dynVars,concurrency);
+	
+	engine.main();
 }

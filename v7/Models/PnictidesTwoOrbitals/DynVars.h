@@ -16,6 +16,7 @@ namespace Spf {
 	struct DynVars { // Do not add functions here, this is a struct!!
 		std::vector<FieldType> theta;
 		std::vector<FieldType> phi;
+		bool isFrozen;
 	}; // DynVars
 } // namespace Spf
 

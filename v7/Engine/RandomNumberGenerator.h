@@ -41,7 +41,7 @@ namespace Spf {
 			v.assign(v.size(),0);
 			for (size_t i=0;i<conc;i++) {
 				j=0;
-				while (v[j]==1) j=size_t(n*myRandom());
+				while (v[j]==1) j=size_t(n*this->operator()());
 				v[j]=1;
 			}
 		}

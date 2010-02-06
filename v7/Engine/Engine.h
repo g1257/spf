@@ -13,12 +13,15 @@
 
 namespace Spf {
 	
-	template<typename ModelType,typename ConcurrencyType>
+	template<typename ParametersType,typename ModelType,typename ConcurrencyType>
 	class Engine {
-	
+		
+		typedef typename ModelType::DynVarsType DynVarsType;
+		
 		public:
 			
-		Engine(ModelType& model,ConcurrencyType& concurrency) : model_(model),concurrency_(concurrency)
+		Engine(ParametersType& params,ModelType& model,DynVarsType& dynVars,ConcurrencyType& concurrency) 
+			: params_(params),model_(model),dynVars_(dynVars),concurrency_(concurrency)
 		{
 		}
 				
@@ -35,24 +38,27 @@ namespace Spf {
 		
 		void thermalize()
 		{
-			for (size_t iter=0;iter<mp_.iterTherm;iter++) {
-				utils::printProgress(iter,mp_.iterTherm,10,'*',concurrency_.rank());
-				model_.doMonteCarlo(iter);
+			for (size_t iter=0;iter<params_.iterTherm;iter++) {
+				utils::printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
+				model_.doMonteCarlo(dynVars_,iter);
 			}
 		}
 		
 		void measure()
 		{
-			for (iter=0;iter<ether.iterEffective;iter++) {
-				utils::printProgress(iter,mp_.iterEffective,10,'*',concurrency_.rank());
-				for (size_t iter2=0;iter2<mp_.iterUnmeasured;iter2++) {
-					model_.doMonteCarlo(iter);
+			for (size_t iter=0;iter<params_.iterEffective;iter++) {
+				utils::printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
+				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
+					model_.doMonteCarlo(dynVars_,iter);
 				}
 				//model_.doMeasurements(iter); FIXME
 			}
 		}
 		
-		
+		const ParametersType params_;
+		ModelType& model_;
+		DynVarsType& dynVars_;
+		ConcurrencyType& concurrency_;
 	}; // Engine
 } // namespace Spf
 
