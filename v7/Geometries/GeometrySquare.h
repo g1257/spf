@@ -16,19 +16,127 @@ namespace Spf {
 	class GeometrySquare {
 		public:
 		//typedef FieldType_ FieldType;
+		enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3};
+		
 		typedef std::pair<size_t,size_t> PairType;
 		
-		GeometrySquare(size_t l) : l_(l) 
+		GeometrySquare(size_t l) : l_(l),volume_(l*l)
 		{
-			volume_ = l*l;
+			buildNeighbors();
+		}
+		
+		size_t z(size_t distance=1) const
+		{
+			return neighbors_[distance].n_col();
+		}
+		
+		// j-th neighbor of i at distance (starts from 1 for compatibility)
+		PairType neighbor(size_t i,size_t j,size_t distance=1) const
+		{
+			return neighbors_[distance-1](i,j);
 		}
 		
 		size_t volume() const { return volume_; }
 		
 		private:
 		
+		void buildNeighbors()
+		{
+			neighborsAt1();
+			neighborsAt2();
+		}
+		
+		void neighborsAt1()
+		{
+			size_t lx = l_;
+			size_t ly = l_;
+			size_t zz = 0;
+			//PairType zeroVal(0,0);
+			psimag::Matrix<PairType> matrix(lx*ly,4);
+			for (size_t y=0;y<ly;y++) {
+				for (size_t x=0;x<lx;x++) {
+					size_t i = x + y*lx;
+					size_t xx=x+1; size_t yy=y;
+					size_t counter = 0;
+					/*if (g_pbc(xx,lvector[0])) {
+						border.push_back(0);
+					} else {
+						border.push_back(-1);
+					}*/
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+					xx=x-1;
+					/*if (g_pbc(xx,lvector[0])) {
+						border.push_back(0);
+					} else {
+						border.push_back(-1);
+					}*/
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+					xx=x; yy=y+1;
+					/*if (g_pbc(yy,lvector[1])) {
+						border.push_back(1);
+					} else {
+						border.push_back(-1);
+					}*/
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+					yy=y-1;
+					/*if (g_pbc(yy,lvector[1])) {
+						border.push_back(1);
+					} else {
+						border.push_back(-1);
+					}*/
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+				}
+			}
+			neighbors_.push_back(matrix);
+		}
+		
+		void neighborsAt2()
+		{
+			size_t lx = l_;
+			size_t ly = l_;
+			size_t zz = 0;
+			//PairType zeroVal(0,0);
+			psimag::Matrix<PairType> matrix(lx*ly,4);
+			for (size_t y=0;y<ly;y++) {
+				for (size_t x=0;x<lx;x++) {
+					size_t i = x + y*lx;
+					size_t xx=x+1; size_t yy=y+1;
+					size_t counter=0;
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
+					xx=x-1; yy=yy-1;
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
+					xx=x-1; yy=y+1;
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXMY);
+					xx=x+1; yy=y-1;
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXMY);
+				}
+			}
+			neighbors_.push_back(matrix);
+		}
+		
+		bool g_pbc(size_t& x, size_t L) const
+		{
+			bool r=false;
+			if (x<0) r=true; 
+			if (x>=L) r=true; 
+			while(x<0) x+=L;
+			while(x>=L) x-=L;
+			return r;
+		}
+		
+		size_t g_index(size_t& x,size_t& y,size_t& z)
+		{
+			size_t lx = l_;
+			size_t ly = l_;
+			g_pbc(x,lx);
+			g_pbc(y,ly);
+			//g_pbc(z,lz);
+			return x+y*lx; //+z*L*L;
+		}
+		
 		size_t l_;
 		size_t volume_;
+		std::vector<psimag::Matrix<PairType> > neighbors_;
 	};
 	
 } // namespace Spf

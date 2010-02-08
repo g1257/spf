@@ -121,8 +121,8 @@ namespace Spf {
 			FieldType dS = 0;
 			
 			for (size_t i=0;i<n;i++) {
-				for (size_t k = 0; k<geometry_.z(i,2); k++){
-					size_t j=geometry_.neighbor(i,k,2); /**next nearest neighbor */
+				for (size_t k = 0; k<geometry_.z(2); k++){
+					size_t j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
 					FieldType t1=dynVars.theta[i];
 					FieldType t2=dynVars.theta[j];
 					FieldType p1=dynVars.phi[i];
@@ -140,7 +140,7 @@ namespace Spf {
 			FieldType dS = 0;
 				
 			for (size_t k = 0; k<geometry_.z(i); k++){
-				size_t j=geometry_.neighbor(i,k);
+				size_t j=geometry_.neighbor(i,k).first;
 				FieldType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
 						(sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*
@@ -226,11 +226,11 @@ namespace Spf {
 						}
 					}
 					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw std::runtime_error("neighbours wrong\n");
-					for (size_t j = 0; j <  geometry_.z(p,2); j++) {
+					for (size_t j = 0; j <  geometry_.z(2); j++) {
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j,2);
 						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second + 2; // int dir = int(j/2)+2;
+						size_t dir = tmpPair.second;
 						//std::cerr<<"Neigbors "<<p<<" "<<k<<"\n";
 						for (size_t orb2=0;orb2<norb;orb2++) {
 							size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
