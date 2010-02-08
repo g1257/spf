@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
 ;
 	if (concurrency.root()) std::cerr<<license;
 	GeometryType geometry(mp.linSize);
-	DynVarsType dynVars(geometry.volume());
+	DynVarsType dynVars(geometry.volume(),engineParams.dynvarsfile);
 	
 	ModelType model(engineParams,mp,geometry);
 	EngineType engine(engineParams,model,dynVars,concurrency);

@@ -71,77 +71,53 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 */
 // END LICENSE BLOCK
-/** \ingroup SPF */
+/** \ingroup DMRG */
 /*@{*/
 
-/*! \file ParametersModelHubbard.h
+/*! \file ProgressIndicator.h
  *
- *  Contains the parameters for the Hubbard model and function to read them from a JSON file
- *
+ *  This class handles output to a progress indicator (usually the terminal)
  */
-#ifndef PARAMETERSPNICTIDESTWOORBITALS_H
-#define PARAMETERSPNICTIDESTWOORBITALS_H
-#include "Utils.h"
-#include "SimpleReader.h"
+  
+#ifndef PROGRESS_INDICATOR_H
+#define PROGRESS_INDICATOR_H
 
-namespace Spf {
-	//! Hubbard Model Parameters
-	template<typename Field>
-	struct ParametersPnictidesTwoOrbitals {
-		// total number of sites in the system
-		int linSize;
-		
-		// packed as orbital1+orbital2*2 + dir*4
-		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		std::vector<Field> hoppings; 
-		// J value
-		Field J;
-		// Onsite potential values, one for each site
-		std::vector<Field> potentialV;
-		
-		// target number of electrons  in the system
-		//int nOfElectrons;
-		
-		// JAF n-n
-		Field jafNn;
-		
-		// JAF n-n-n
-		Field jafNnn;
-	};
+#include <iostream>
+#include <string>
+#include <vector>
 
-	//! Operator to read Model Parameters from inp file.
-	template<typename FieldType>
-	ParametersPnictidesTwoOrbitals<FieldType>&
-	operator <= (ParametersPnictidesTwoOrbitals<FieldType>& parameters,  Dmrg::SimpleReader& reader) 
-	{
-		reader.read(parameters.linSize);
-		reader.read(parameters.hoppings);
+namespace Dmrg {
+	class ProgressIndicator {
+	public:
+		ProgressIndicator(const std::string& caller,size_t rank) : caller_(caller),rank_(rank) 
+		{
+			prefix_ = caller_ + ": ";
+		}
 		
-		reader.read(parameters.J);
-		reader.read(parameters.potentialV);
-		//reader.read(parameters.nOfElectrons);
-		reader.read(parameters.jafNn);
-		reader.read(parameters.jafNnn);
-		
-		return parameters;
-	}
-	
-	//! Function that prints model parameters to stream os
-	template<typename FieldType>
-	std::ostream& operator<<(std::ostream &os,const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
-	{
-		os<<"parameters.linSize="<<parameters.linSize<<"\n";
-		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
-		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
-		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
-		os<<"parameters.J="<<parameters.J<<"\n";
-		os<<"parameters.potentialV\n";
-		os<<parameters.potentialV;
-		os<<"parameters.hoppings\n";
-		os<<parameters.hoppings;
-		return os;
-	}
-} // namespace Spf
+		void printline(const std::string &s,std::ostream& os) 
+		{
+			if (rank_!=0) return;
+			os<<prefix_<<s<<"\n";
+		}
 
-/*@}*/
+		void printline(std::ostringstream &s,std::ostream& os) 
+		{
+			if (rank_!=0) return;
+			os<<prefix_<<s.str()<<"\n";
+			s.seekp(std::ios_base::beg);
+		}
+		
+		void print(const std::string& something,std::ostream& os)
+		{
+			if (rank_!=0) return;
+			os<<prefix_<<something;
+		}
+	private:
+		std::string caller_;
+		size_t rank_;
+		std::string prefix_;
+	}; // ProgressIndicator
+} // namespace Dmrg
+
+/*@}*/	
 #endif

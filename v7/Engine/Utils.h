@@ -104,7 +104,8 @@ namespace std {
 	template<class X>
 	std::ostream &operator<<(std::ostream &s,std::vector<X> const &v)
 	{
-		for (size_t i=0;i<v.size();i++) s<<i<<" "<<v[i]<<"\n";
+		s<<v.size()<<"\n";
+		for (size_t i=0;i<v.size();i++) s<<v[i]<<"\n";
 		return s;
 	}
 	template<class X>
