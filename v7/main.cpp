@@ -24,13 +24,13 @@ int main(int argc,char *argv[])
 	ParametersModelType mp;
 	ParametersEngineType engineParams;
 	Dmrg::SimpleReader reader(argv[1]);
-	reader.load(mp);
 	reader.load(engineParams);
+	reader.load(mp);
 	// print license
 	std::string license = "Copyright © 2009 , UT-Battelle, LLC\n"
 "All rights reserved\n"
 "\n"
-"[DMRG++, Version 2.0.0]\n"
+"[SPF, Version 7.0.0]\n"
 "\n"
 "*********************************************************\n"
 "THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND\n"
@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
 ;
 	if (concurrency.root()) std::cerr<<license;
 	GeometryType geometry(mp.linSize);
-	DynVarsType dynVars;
+	DynVarsType dynVars(geometry.volume());
 	
 	ModelType model(engineParams,mp,geometry);
 	EngineType engine(engineParams,model,dynVars,concurrency);

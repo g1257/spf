@@ -139,7 +139,7 @@ namespace Spf {
 		{
 			FieldType dS = 0;
 				
-			for (size_t k = 0; k<geometry_.z(i); k++){
+			for (size_t k = 0; k<geometry_.z(1); k++){
 				size_t j=geometry_.neighbor(i,k).first;
 				FieldType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
@@ -213,7 +213,7 @@ namespace Spf {
 					size_t orb1 = gamma1 % 2;
 					matrix(p+gamma1*volume,p+gamma1*volume) = real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
 						
-					for (size_t j = 0; j <  geometry_.z(p); j++) {	
+					for (size_t j = 0; j <  geometry_.z(1); j++) {	
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j);
 						size_t k = tmpPair.first;

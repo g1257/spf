@@ -21,7 +21,7 @@ namespace Spf {
 		public:
 			
 		Engine(ParametersType& params,ModelType& model,DynVarsType& dynVars,ConcurrencyType& concurrency) 
-			: params_(params),model_(model),dynVars_(dynVars),concurrency_(concurrency)
+			: params_(params),model_(model),dynVars_(dynVars),concurrency_(concurrency),fout_(params_.filename.c_str())
 		{
 		}
 				
@@ -31,7 +31,7 @@ namespace Spf {
 			// announce thermalization done
 			measure();
 			// announce measurements done
-			//finalize(); FIXME
+			finalize();
 		}
 		
 		private:
@@ -55,10 +55,16 @@ namespace Spf {
 			}
 		}
 		
+		void finalize()
+		{
+			fout_<<dynVars_;
+		}
+		
 		const ParametersType params_;
 		ModelType& model_;
 		DynVarsType& dynVars_;
 		ConcurrencyType& concurrency_;
+		std::ofstream fout_;
 	}; // Engine
 } // namespace Spf
 

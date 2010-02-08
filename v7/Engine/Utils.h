@@ -406,8 +406,8 @@ C           Wisniewski, J. A., (SNLA)
 		int every=total/nMarks;
 		if (every<=0 || i<=0) return;
 		if (i%every ==0) {
-			std::cout<<mark;
-			std::cout.flush();
+			std::cerr<<mark;
+			std::cerr.flush();
 		}
 	}
 

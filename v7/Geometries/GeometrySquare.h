@@ -27,7 +27,7 @@ namespace Spf {
 		
 		size_t z(size_t distance=1) const
 		{
-			return neighbors_[distance].n_col();
+			return neighbors_[distance-1].n_col();
 		}
 		
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
@@ -114,13 +114,16 @@ namespace Spf {
 			neighbors_.push_back(matrix);
 		}
 		
-		bool g_pbc(size_t& x, size_t L) const
+		bool g_pbc(size_t& xx, size_t l) const
 		{
+			int x = xx;
+			int L = l;
 			bool r=false;
 			if (x<0) r=true; 
 			if (x>=L) r=true; 
 			while(x<0) x+=L;
 			while(x>=L) x-=L;
+			xx = x;
 			return r;
 		}
 		

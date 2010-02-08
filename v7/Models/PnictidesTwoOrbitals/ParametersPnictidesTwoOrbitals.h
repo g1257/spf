@@ -100,7 +100,7 @@ namespace Spf {
 		std::vector<Field> potentialV;
 		
 		// target number of electrons  in the system
-		int nOfElectrons;
+		//int nOfElectrons;
 		
 		// JAF n-n
 		Field jafNn;
@@ -119,7 +119,7 @@ namespace Spf {
 		
 		reader.read(parameters.J);
 		reader.read(parameters.potentialV);
-		reader.read(parameters.nOfElectrons);
+		//reader.read(parameters.nOfElectrons);
 		reader.read(parameters.jafNn);
 		reader.read(parameters.jafNnn);
 		
@@ -131,7 +131,7 @@ namespace Spf {
 	std::ostream& operator<<(std::ostream &os,const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
 	{
 		os<<"parameters.linSize="<<parameters.linSize<<"\n";
-		os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
+		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
 		utils::vectorPrint(parameters.J,"J",os);
