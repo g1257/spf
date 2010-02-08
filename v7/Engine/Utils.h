@@ -775,11 +775,11 @@ C           Wisniewski, J. A., (SNLA)
 	template<typename FieldType>
 	inline FieldType fermi(FieldType x)
 	{
-		FieldType res;
 		if (x>50) return 0;
 		if (x<-50) return 1;
-		res = 1.0/(1.0+exp(x));
-		return res;
+		if (x<0) return 1.0/(1.0+exp(x));
+		return exp(-x)/(1.0+exp(-x));
+		
 	}
 	
 	// Derivative (prime) of Fermi's function

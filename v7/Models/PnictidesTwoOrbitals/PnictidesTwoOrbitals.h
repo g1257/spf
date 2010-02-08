@@ -13,6 +13,7 @@
 #include "DynVars.h"
 #include "RandomNumberGenerator.h"
 #include "ProgressIndicator.h"
+#include "Adjustments.h"
 
 namespace Spf {
 	template<typename FieldType,typename EngineParamsType,typename ParametersModelType,typename GeometryType>
@@ -23,6 +24,7 @@ namespace Spf {
 		typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
+		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		
 		static const bool isingSpins_ = false;
 		static const size_t nbands_ = 2;
@@ -33,7 +35,7 @@ namespace Spf {
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),hilbertSize_(2*nbands_*geometry_.volume()),
-				      matrix_(hilbertSize_,hilbertSize_),progress_("PnictidesTwoOrbitals",0)
+				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0)
 		{
 		}
 		
@@ -61,7 +63,9 @@ namespace Spf {
 				//FieldType oldmu=engineParams_.mu;
 				std::vector<FieldType> eigNew;
 				fillAndDiag(eigNew,dynVars2);
-				// if (ether.carriers>0) adjChemPot(eigNewAllBands); FIXME
+				
+				adjustChemPot(eigNew);
+				
 				FieldType sineupdate= sin(dynVars.theta[i]);
 				if (sineupdate!=0) {
 					sineupdate = sin(dynVars2.theta[i])/sineupdate;
@@ -123,8 +127,7 @@ namespace Spf {
 			
 			//s="Number_Of_Holes=";
 			
-			//s="ChemPot="+utils::ttos(mu);
-			//progress_.printline(s,fout);
+			adjustments_.print(fout);
 			
 			temp = calcMag(dynVars);
 			s="Mag2="+utils::ttos(temp);
@@ -327,6 +330,17 @@ namespace Spf {
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
 		}
 		
+		void adjustChemPot(const std::vector<FieldType>& eigs)
+		{
+			if (engineParams_.carriers==0) return;
+			try {
+				engineParams_.mu = adjustments_.adjChemPot(eigs);
+			} catch (std::exception& e) {
+				std::cerr<<e.what()<<"\n";
+			}
+				
+		}
+		
 		FieldType calcNumber(const std::vector<FieldType>& eigs) const
 		{
 			FieldType sum=0;
@@ -403,6 +417,7 @@ namespace Spf {
 		const GeometryType& geometry_;
 		size_t hilbertSize_;
 		MatrixType matrix_;
+		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		RandomNumberGeneratorType rng_;
 		

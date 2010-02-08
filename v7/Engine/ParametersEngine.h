@@ -89,13 +89,15 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename FieldType>
+	template<typename FieldType_>
 	struct ParametersEngine {
+		typedef FieldType_ FieldType;
+		
 		std::string filename; // filename to save observables and continued fractions
 		std::string version;
 		std::string options; // options
 		size_t carriers;
-		FieldType mu; // chemical potential 
+		mutable FieldType mu; // chemical potential 
 		FieldType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
 		FieldType mcWindow; // monte carlo window of change
