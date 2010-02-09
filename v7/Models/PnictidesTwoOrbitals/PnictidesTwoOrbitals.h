@@ -16,18 +16,20 @@
 #include "Adjustments.h"
 #include "SpinOperations.h"
 #include "MonteCarlo.h"
+#include "ModelBase.h"
 
 namespace Spf {
-	template<typename FieldType,typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
-	class PnictidesTwoOrbitals {
+	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
+	class PnictidesTwoOrbitals : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
 		
+		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef PnictidesTwoOrbitals<FieldType,EngineParamsType,ParametersModelType_,GeometryType> ThisType;
+		typedef PnictidesTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
 		
 		static const size_t nbands_ = 2;
 		
@@ -148,9 +150,9 @@ namespace Spf {
 			return classicalSpinOperations_.sineUpdate(i);
 		}
 		
-		template<typename FieldType2,typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
+		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
-				const PnictidesTwoOrbitals<FieldType2,EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+				const PnictidesTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
 		
 		private:
 		
@@ -311,8 +313,8 @@ namespace Spf {
 		
 	}; // PnictidesTwoOrbitals
 	
-	template<typename FieldType,typename EngineParamsType,typename ParametersModelType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitals<FieldType,EngineParamsType,ParametersModelType,GeometryType>& model)
+	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
+	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

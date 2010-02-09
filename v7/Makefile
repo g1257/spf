@@ -11,7 +11,7 @@ EXENAME = spf
 CPPFLAGS = -I../PartialPsimag   -IGeometries -IModels/PnictidesTwoOrbitals -IEngine -IClassicalFields 
 CXX = g++ -Werror -Wall -g3
 
-$(EXENAME): main.o 
+$(EXENAME): clean main.o 
 	$(CXX) -o $(EXENAME) main.o $(LDFLAGS) 
 
 

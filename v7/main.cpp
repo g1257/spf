@@ -15,7 +15,7 @@ typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
 typedef Dmrg::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::GeometrySquare<FieldType> GeometryType;
 typedef Spf::ParametersPnictidesTwoOrbitals<FieldType> ParametersModelType;
-typedef Spf::PnictidesTwoOrbitals<FieldType,ParametersEngineType,ParametersModelType,GeometryType> ModelType;
+typedef Spf::PnictidesTwoOrbitals<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
