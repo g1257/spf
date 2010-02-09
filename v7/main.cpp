@@ -21,8 +21,8 @@ typedef Spf::Engine<ParametersEngineType,ModelType,ConcurrencyType> EngineType;
 int main(int argc,char *argv[])
 {
 	ConcurrencyType concurrency(argc,argv);
-	ParametersModelType mp;
 	ParametersEngineType engineParams;
+	ParametersModelType mp;
 	Dmrg::SimpleReader reader(argv[1]);
 	reader.load(engineParams);
 	reader.load(mp);

@@ -26,6 +26,8 @@ namespace Spf {
 			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
 		}
 				
+		size_t size() const { return theta.size(); }
+		
 		std::vector<FieldType> theta;
 		std::vector<FieldType> phi;
 		bool isFrozen;

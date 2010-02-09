@@ -96,7 +96,7 @@ namespace Dmrg {
 		template<typename ParametersType>
 		void load(ParametersType& parameters) 
 		{
-			parameters <= *this;
+			parameters <= *this; // operator<=(parameters,*this)
 		}
 
 		void read(std::string& s)  { readALabel(); fin_>>s; }

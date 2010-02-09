@@ -10,11 +10,12 @@
 #ifndef PNICTIDES_2ORB_H
 #define PNICTIDES_2ORB_H
 #include "Utils.h"
-#include "DynVars.h"
+#include "Spin.h"
 #include "RandomNumberGenerator.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
-#include "ClassicalSpinOperations.h"
+#include "SpinOperations.h"
+#include "MonteCarlo.h"
 
 namespace Spf {
 	template<typename FieldType,typename EngineParamsType,typename ParametersModelType,typename GeometryType>
@@ -26,6 +27,7 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
+		typedef PnictidesTwoOrbitals<FieldType,EngineParamsType,ParametersModelType,GeometryType> ThisType;
 		
 		static const size_t nbands_ = 2;
 		
@@ -33,50 +35,34 @@ namespace Spf {
 			
 		typedef DynVars<FieldType> DynVarsType;
 		typedef ClassicalSpinOperations<GeometryType,RandomNumberGeneratorType,DynVarsType> ClassicalSpinOperationsType;
+		typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),hilbertSize_(2*nbands_*geometry_.volume()),
 				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					rng_(),classicalSpinOperations_(geometry_,rng_,engineParams_.mcWindow)
+					rng_(),classicalSpinOperations_(geometry_,rng_,engineParams_.mcWindow),
+					monteCarlo_(engineParams,*this,rng_)
 		{
 		}
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		size_t doMonteCarlo(DynVarsType& dynVars, size_t iter)
+		FieldType deltaDirect(size_t i) const 
 		{
-			size_t acc = 0;
-			std::vector<FieldType> eigOld;
-			fillAndDiag(eigOld,dynVars);
-			size_t n = geometry_.volume();
-			
-			classicalSpinOperations_.set(dynVars);
-			for (size_t i=0;i<n;i++) {
-					
-				classicalSpinOperations_.propose(i);
-				
-				FieldType dsDirect = classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
-				
-				//FieldType oldmu=engineParams_.mu;
-				std::vector<FieldType> eigNew;
-				fillAndDiag(eigNew,classicalSpinOperations_.dynVars2());
-				
-				adjustChemPot(eigNew);
-				FieldType sineupdate = classicalSpinOperations_.sineUpdate(i);
-				
-				bool flag=doMetropolis(eigNew,eigOld,dsDirect,sineupdate);
-					
-				if (flag && !dynVars.isFrozen) { // Accepted
-					classicalSpinOperations_.accept(i);
-					eigOld = eigNew;
-					acc++;
-				} else { // not accepted
-					//engineParams_.mu=oldmu;
-				}
-			} // lattice sweep
-			return acc;
+			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		}
 		
+		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars); }
+		
+		void propose(size_t i) { classicalSpinOperations_.propose(i); }
+		
+
+		size_t doMonteCarlo(DynVarsType& dynVars, size_t iter)
+		{
+			return monteCarlo_(dynVars,iter);
+			
+		}
+				
 		void doMeasurements(DynVarsType& dynVars, size_t iter,std::ostream& fout)
 		{
 			std::string s = "iter=" + utils::ttos(iter); 
@@ -127,7 +113,14 @@ namespace Spf {
 			temp=calcKinetic(dynVars,eigs);
 			s ="KineticEnergy="+utils::ttos(temp);
 			progress_.printline(s,fout);
+			
+			//storedObservables_.doThem();
 		} // doMeasurements
+		
+		void fillAndDiag(std::vector<FieldType> &eig)
+		{
+			fillAndDiag(eig,classicalSpinOperations_.dynVars2());	
+		}
 		
 		void fillAndDiag(std::vector<FieldType> &eig,const DynVarsType& dynVars,char jobz='N')
 		{
@@ -139,39 +132,32 @@ namespace Spf {
 			if (jobz!='V') sort(eig.begin(), eig.end(), std::less<FieldType>());
 		}
 		
+		void adjustChemPot(const std::vector<FieldType>& eigs)
+		{
+			if (engineParams_.carriers==0) return;
+			try {
+				engineParams_.mu = adjustments_.adjChemPot(eigs);
+			} catch (std::exception& e) {
+				std::cerr<<e.what()<<"\n";
+			}
+				
+		}
+		
+		void accept(size_t i) 
+		{
+			return classicalSpinOperations_.accept(i);
+		}
+		
+		FieldType integrationMeasure(size_t i)
+		{
+			return classicalSpinOperations_.sineUpdate(i);
+		}
+		
 		template<typename FieldType2,typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 				const PnictidesTwoOrbitals<FieldType2,EngineParamsType2,ParametersModelType2,GeometryType2>& model);
 		
 		private:
-		
-		bool doMetropolis(const std::vector<FieldType>& eNew,const std::vector<FieldType>& eOld,
-			FieldType dsDirect,FieldType sineupdate)
-		{
-			FieldType mu=engineParams_.mu;
-			FieldType beta = engineParams_.beta;
-			FieldType X =1.0;
-			
-			for (size_t i=0;i<eNew.size();i++) {
-				FieldType temp = 0;
-				if (eNew[i]>mu)
-					temp = (double)(1.0+exp(-beta*(eNew[i]-mu)))/(1.0+exp(-beta*(eOld[i]-mu)));
-				else
-				temp =(double)(1.0+exp(beta*(eNew[i]-mu)))/
-							(exp(beta*(eNew[i]-mu))+exp(-beta*(eOld[i]-eNew[i])));
-			
-				X *= temp;
-			}
-			
-			//if (ether.isSet("sineupdate")) X *= sineupdate;
-			X *=  exp(-beta*dsDirect);
-			X = X/(1.0+X);
-			
-			FieldType r=rng_();
-			
-			if (X>r) return true;
-			else return false;
-		}
 		
 		void createHamiltonian (const DynVarsType& dynVars,MatrixType& matrix)
 		{
@@ -243,17 +229,6 @@ namespace Spf {
 			jmatrix[3]= -cos(dynVars.theta[site]);
 		
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
-		}
-		
-		void adjustChemPot(const std::vector<FieldType>& eigs)
-		{
-			if (engineParams_.carriers==0) return;
-			try {
-				engineParams_.mu = adjustments_.adjChemPot(eigs);
-			} catch (std::exception& e) {
-				std::cerr<<e.what()<<"\n";
-			}
-				
 		}
 		
 		FieldType calcNumber(const std::vector<FieldType>& eigs) const
@@ -336,6 +311,8 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		RandomNumberGeneratorType rng_;
 		ClassicalSpinOperationsType classicalSpinOperations_;
+		MonteCarloType monteCarlo_;
+		
 		
 	}; // PnictidesTwoOrbitals
 	
