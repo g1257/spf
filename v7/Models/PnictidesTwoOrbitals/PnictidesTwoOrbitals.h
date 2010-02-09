@@ -33,7 +33,7 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef DynVars<FieldType> DynVarsType;
+		typedef Spin<FieldType> DynVarsType;
 		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
 		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		

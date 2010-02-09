@@ -113,7 +113,7 @@ namespace Spf {
 					thetaNew = acos(thetaNew);
 				}
 				/*if (ether.isSet("sineupdate")) {
-					thetaNew = M_PI*ether.rng.myRandom();
+					thetaNew = M_PI*rng();
 				}*/
 			
 				while (thetaNew<0) {
