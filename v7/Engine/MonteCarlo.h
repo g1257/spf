@@ -25,12 +25,8 @@ namespace Spf {
 		size_t operator()(DynVarsType& dynVars, size_t iter)
 		{
 			size_t acc = 0;
-			std::vector<FieldType> eigOld;
-			model_.fillAndDiag(eigOld,dynVars);
-			size_t n = dynVars.size();
-			
-			model_.set(dynVars);
-			for (size_t i=0;i<n;i++) {
+			algorithm_.init(dynVars);
+			for (size_t i=0;i<dynVars.size();i++) {
 					
 				model_.propose(i,rng_);
 				

@@ -46,6 +46,8 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
+		size_t hilbertSize() const { return hilbertSize_; }
+		
 		FieldType deltaDirect(size_t i) const 
 		{
 			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);

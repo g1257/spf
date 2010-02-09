@@ -20,9 +20,18 @@ namespace Spf {
 	public:
 		
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
-			: engineParams_(engineParams),model_(model),rng_()
+			: engineParams_(engineParams),model_(model),rng_(),
+					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize())
 		{
 		}
+		
+		
+		template<typename DynVarsType>
+		void init(DynVarsType& dynVars)
+		{
+			model_.fillAndDiag(eigOld_,dynVars);
+			model_.set(dynVars);
+		}	
 		
 		bool isAccepted(size_t i)
 		{
