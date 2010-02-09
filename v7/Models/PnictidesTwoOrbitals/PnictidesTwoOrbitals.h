@@ -14,6 +14,7 @@
 #include "RandomNumberGenerator.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
+#include "ClassicalSpinOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename EngineParamsType,typename ParametersModelType,typename GeometryType>
@@ -26,21 +27,22 @@ namespace Spf {
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		
-		static const bool isingSpins_ = false;
 		static const size_t nbands_ = 2;
 		
 		public:
 			
 		typedef DynVars<FieldType> DynVarsType;
+		typedef ClassicalSpinOperations<GeometryType,RandomNumberGeneratorType,DynVarsType> ClassicalSpinOperationsType;
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),hilbertSize_(2*nbands_*geometry_.volume()),
-				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0)
+				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+					rng_(),classicalSpinOperations_(geometry_,rng_,engineParams_.mcWindow)
 		{
 		}
 		
 		size_t totalFlips() const { return geometry_.volume(); }
-			
+		
 		size_t doMonteCarlo(DynVarsType& dynVars, size_t iter)
 		{
 			size_t acc = 0;
@@ -48,35 +50,24 @@ namespace Spf {
 			fillAndDiag(eigOld,dynVars);
 			size_t n = geometry_.volume();
 			
+			classicalSpinOperations_.set(dynVars);
 			for (size_t i=0;i<n;i++) {
-				DynVarsType dynVars2 = dynVars;
-				FieldType thetaNew,phiNew;
 					
-				r_newSpins(dynVars.theta[i],dynVars.phi[i],thetaNew,phiNew);
+				classicalSpinOperations_.propose(i);
 				
-				dynVars2.theta[i]=thetaNew;
-				dynVars2.phi[i]=phiNew;
-				
-				FieldType dsDirect = dSDirect(dynVars,dynVars2,i);
-				dsDirect += directExchange2(dynVars2)-directExchange2(dynVars);
+				FieldType dsDirect = classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 				
 				//FieldType oldmu=engineParams_.mu;
 				std::vector<FieldType> eigNew;
-				fillAndDiag(eigNew,dynVars2);
+				fillAndDiag(eigNew,classicalSpinOperations_.dynVars2());
 				
 				adjustChemPot(eigNew);
+				FieldType sineupdate = classicalSpinOperations_.sineUpdate(i);
 				
-				FieldType sineupdate= sin(dynVars.theta[i]);
-				if (sineupdate!=0) {
-					sineupdate = sin(dynVars2.theta[i])/sineupdate;
-				} else {
-					sineupdate = 1.0;
-				}
 				bool flag=doMetropolis(eigNew,eigOld,dsDirect,sineupdate);
 					
 				if (flag && !dynVars.isFrozen) { // Accepted
-					dynVars.theta[i]=thetaNew;
-					dynVars.phi[i]=phiNew;
+					classicalSpinOperations_.accept(i);
 					eigOld = eigNew;
 					acc++;
 				} else { // not accepted
@@ -93,7 +84,7 @@ namespace Spf {
 			progress_.printline(s,fout);
 				
 			std::vector<FieldType> eigs;
-			fillAndDiag(eigs,dynVars);
+			fillAndDiag(eigs,dynVars,'V');
 				
 			FieldType temp=calcNumber(eigs);
 				
@@ -113,7 +104,7 @@ namespace Spf {
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
-				temp2=directExchange2(dynVars);
+				temp2=classicalSpinOperations_.directExchange2(dynVars,mp_.jafNnn);
 				s="Superexchange2="+utils::ttos(temp2);
 				progress_.printline(s,fout);
 				temp += temp2;
@@ -137,88 +128,6 @@ namespace Spf {
 			s ="KineticEnergy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 		} // doMeasurements
-
-		template<typename FieldType2,typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
-		friend std::ostream& operator<<(std::ostream& os,
-				const PnictidesTwoOrbitals<FieldType2,EngineParamsType2,ParametersModelType2,GeometryType2>& model);
-		
-		private:
-			
-		void r_newSpins(FieldType thetaOld, FieldType phiOld, FieldType &thetaNew,FieldType &phiNew)
-		{
-			if (isingSpins_) {
-				if (thetaOld==0) thetaNew=M_PI; 
-				else thetaNew=0;
-				phiNew=0;
-			} else {
-				if (engineParams_.mcWindow<0) {
-					thetaNew = 2*rng_()-1;
-					phiNew = 2*M_PI*rng_();
-					thetaNew = acos(thetaNew);
-				} else {
-					thetaNew=2*rng_()- 1;
-					if (thetaNew < -1) thetaNew= 0;
-					if (thetaNew > 1) thetaNew = 0;		
-					phiNew=phiOld+2*M_PI*(rng_()- 0.5)*engineParams_.mcWindow;
-					thetaNew = acos(thetaNew);
-				}
-				/*if (ether.isSet("sineupdate")) {
-					thetaNew = M_PI*ether.rng.myRandom();
-				}*/
-			
-				while (thetaNew<0) {
-					thetaNew = -thetaNew;
-					phiNew+=M_PI;
-				}	
-				while (thetaNew>M_PI) {
-					thetaNew -= M_PI;
-					phiNew+=M_PI;
-				}
-					
-				while (phiNew<0) phiNew += 2*M_PI;
-				while (phiNew>2*M_PI) phiNew -= 2*M_PI;
-			}
-		}
-		
-		FieldType directExchange2(const DynVarsType& dynVars)
-		{
-			size_t n = geometry_.volume();
-			FieldType dS = 0;
-			
-			for (size_t i=0;i<n;i++) {
-				for (size_t k = 0; k<geometry_.z(2); k++){
-					size_t j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
-					FieldType t1=dynVars.theta[i];
-					FieldType t2=dynVars.theta[j];
-					FieldType p1=dynVars.phi[i];
-					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-					dS += mp_.jafNnn*tmp; 
-				}
-			}
-			
-			return dS*0.5;
-		}
-		
-		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i)
-		{
-			FieldType dS = 0;
-				
-			for (size_t k = 0; k<geometry_.z(1); k++){
-				size_t j=geometry_.neighbor(i,k).first;
-				FieldType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
-					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
-						(sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*
-					sin(dynVars.phi[i]))*sin(dynVars.theta[j])*sin(dynVars.phi[j]) +
-					(cos(dynVars2.theta[i])-cos(dynVars.theta[i]))*cos(dynVars.theta[j]);
-				dS += mp_.jafNn*tmp;
-			}
-			//if (ether.isSet("magneticfield")) tmp = Zeeman(dynVars2,geometry,ether)-Zeeman(dynVars,geometry,ether);
-			//else tmp =0;
-			// dS += tmp;
-		
-			return dS;
-		}
 		
 		void fillAndDiag(std::vector<FieldType> &eig,const DynVarsType& dynVars,char jobz='N')
 		{
@@ -229,6 +138,12 @@ namespace Spf {
 
 			if (jobz!='V') sort(eig.begin(), eig.end(), std::less<FieldType>());
 		}
+		
+		template<typename FieldType2,typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
+		friend std::ostream& operator<<(std::ostream& os,
+				const PnictidesTwoOrbitals<FieldType2,EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+		
+		private:
 		
 		bool doMetropolis(const std::vector<FieldType>& eNew,const std::vector<FieldType>& eOld,
 			FieldType dsDirect,FieldType sineupdate)
@@ -420,6 +335,7 @@ namespace Spf {
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		RandomNumberGeneratorType rng_;
+		ClassicalSpinOperationsType classicalSpinOperations_;
 		
 	}; // PnictidesTwoOrbitals
 	

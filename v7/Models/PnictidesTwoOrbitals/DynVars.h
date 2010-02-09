@@ -13,9 +13,10 @@
 #include "IoSimple.h"
 
 namespace Spf {
-	template<typename FieldType>
+	template<typename FieldType_>
 	struct DynVars { // Do not add functions here, this is a struct!!
 		typedef typename Dmrg::IoSimple::In IoSimpleIn;
+		typedef FieldType_ FieldType;
 		
 		DynVars(size_t vol,const std::string& mcstarttype) : theta(vol),phi(vol),isFrozen(false)
 		{

@@ -16,7 +16,7 @@ namespace Spf {
 	
 	template<typename ParametersType,typename ModelType,typename ConcurrencyType>
 	class Engine {
-		
+		typedef typename ParametersType::FieldType FieldType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		
@@ -74,6 +74,11 @@ namespace Spf {
 		{
 			fout_<<model_;
 			fout_<<dynVars_;
+			std::vector<FieldType> eigs;
+			model_.fillAndDiag(eigs,dynVars_);
+			fout_<<"Eigenvalues\n";
+			fout_<<eigs;
+			std::cerr<<"\n";
 		}
 		
 		const ParametersType params_;

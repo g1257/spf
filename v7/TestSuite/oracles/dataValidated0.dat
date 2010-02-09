@@ -1,0 +1,570 @@
+PnictidesTwoOrbitals: iter=0
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=1025.951014
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 48%
+PnictidesTwoOrbitals: iter=1
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=457.1020485
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 46%
+PnictidesTwoOrbitals: iter=2
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=536.7600094
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 46%
+PnictidesTwoOrbitals: iter=3
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=668.1621681
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 46%
+PnictidesTwoOrbitals: iter=4
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=529.9248507
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 46%
+PnictidesTwoOrbitals: iter=5
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=450.4346626
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 47%
+PnictidesTwoOrbitals: iter=6
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=320.9265666
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 48%
+PnictidesTwoOrbitals: iter=7
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=186.5499312
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 49%
+PnictidesTwoOrbitals: iter=8
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=92.62897338
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 50%
+PnictidesTwoOrbitals: iter=9
+PnictidesTwoOrbitals: Number_Of_Electrons=128
+PnictidesTwoOrbitals: Electronic Energy=-51.59744804
+PnictidesTwoOrbitals: Superexchange=0
+PnictidesTwoOrbitals: TotalEnergy=-51.59744804
+Adjustments: mu=-0.0372189
+PnictidesTwoOrbitals: Mag2=110.1964702
+PnictidesTwoOrbitals: KineticEnergy=0
+Engine: Acceptance: 51%
+ModelParameters
+parameters.linSize=8
+parameters.jafNn=0
+parameters.jafNnn=0
+parameters.J=0
+parameters.potentialV
+64
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+parameters.hoppings
+16
+-0.058
+0
+0
+-0.2196
+-0.2196
+0
+0
+-0.058
+0.20828
+0.079
+0.079
+0.20828
+0.20828
+-0.079
+-0.079
+0.20828
+Theta
+64
+1.77252
+1.2022
+0.465652
+1.95771
+0.82455
+2.38716
+2.18063
+0.421308
+1.65519
+2.04505
+2.55947
+1.00771
+1.26755
+0.527263
+2.25559
+2.48937
+2.86995
+2.87789
+1.15259
+0.764555
+1.73868
+1.56579
+2.97023
+2.52684
+3.01486
+0.581073
+0.406237
+1.59886
+2.01444
+1.74457
+2.06519
+1.36914
+0.439291
+2.0231
+2.8246
+1.63402
+1.35624
+0.80485
+2.20976
+1.86316
+2.51323
+2.65833
+1.23784
+2.91979
+0.720345
+2.45731
+1.82237
+1.50298
+1.85061
+0.841426
+1.0309
+2.31762
+2.95195
+1.69434
+2.66342
+1.46709
+1.73017
+2.0609
+1.35207
+1.54988
+1.0049
+0.463465
+0.613523
+0.957109
+Phi
+64
+1.90687
+3.89951
+1.86385
+4.33617
+0.563632
+3.66408
+0.676755
+4.64867
+5.47655
+5.1608
+5.10336
+2.95864
+4.56217
+5.60863
+2.13583
+4.25887
+3.02757
+5.76592
+3.73169
+4.44703
+5.80189
+1.92525
+0.731098
+1.90372
+4.01631
+1.30015
+0.405115
+4.32315
+4.32165
+6.08298
+5.42727
+5.54768
+2.14718
+5.64129
+0.63241
+2.71683
+1.91637
+4.31419
+5.7654
+4.67582
+3.7452
+4.9789
+5.227
+0.0388613
+6.11769
+4.2668
+5.462
+6.106
+0.353883
+2.98303
+0.349103
+3.94426
+1.76219
+0.830968
+4.80515
+1.25773
+3.21701
+0.436889
+3.19078
+3.35344
+3.74369
+3.68421
+3.30267
+6.15464
+IsFrozen 0
+Eigenvalues
+256
+-1.15632
+-1.15632
+-1.15632
+-1.15632
+-0.94628
+-0.94628
+-0.94628
+-0.94628
+-0.94628
+-0.94628
+-0.94628
+-0.94628
+-0.783666
+-0.783666
+-0.783666
+-0.783666
+-0.783666
+-0.783666
+-0.783666
+-0.783666
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.694396
+-0.50992
+-0.50992
+-0.50992
+-0.50992
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.447262
+-0.4392
+-0.4392
+-0.4392
+-0.4392
+-0.4392
+-0.4392
+-0.4392
+-0.4392
+-0.394544
+-0.394544
+-0.394544
+-0.394544
+-0.394544
+-0.394544
+-0.394544
+-0.394544
+-0.316
+-0.316
+-0.316
+-0.316
+-0.316
+-0.316
+-0.316
+-0.316
+-0.231929
+-0.231929
+-0.231929
+-0.231929
+-0.231929
+-0.231929
+-0.231929
+-0.231929
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.138724
+-0.134026
+-0.134026
+-0.134026
+-0.134026
+-0.134026
+-0.134026
+-0.134026
+-0.134026
+-0.116
+-0.116
+-0.116
+-0.116
+-0.116
+-0.116
+-0.116
+-0.116
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+-0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0546758
+0.0678804
+0.0678804
+0.0678804
+0.0678804
+0.0678804
+0.0678804
+0.0678804
+0.0678804
+0.116
+0.116
+0.116
+0.116
+0.116
+0.116
+0.116
+0.116
+0.162544
+0.162544
+0.162544
+0.162544
+0.162544
+0.162544
+0.162544
+0.162544
+0.181974
+0.181974
+0.181974
+0.181974
+0.181974
+0.181974
+0.181974
+0.181974
+0.27792
+0.27792
+0.27792
+0.27792
+0.316
+0.316
+0.316
+0.316
+0.316
+0.316
+0.316
+0.316
+0.4392
+0.4392
+0.4392
+0.4392
+0.4392
+0.4392
+0.4392
+0.4392
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.447262
+0.651146
+0.651146
+0.651146
+0.651146
+0.651146
+0.651146
+0.651146
+0.651146
+0.967146
+0.967146
+0.967146
+0.967146
+0.967146
+0.967146
+0.967146
+0.967146
+1.01567
+1.01567
+1.01567
+1.01567
+1.01567
+1.01567
+1.01567
+1.01567
+1.11033
+1.11033
+1.11033
+1.11033
+1.11033
+1.11033
+1.11033
+1.11033
+1.38832
+1.38832
+1.38832
+1.38832
