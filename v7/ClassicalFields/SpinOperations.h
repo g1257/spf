@@ -13,15 +13,15 @@
 
 namespace Spf {
 	
-	template<typename GeometryType,typename RandomNumberGeneratorType,typename DynVarsType>
+	template<typename GeometryType,typename DynVarsType>
 	class ClassicalSpinOperations {
 		typedef typename DynVarsType::FieldType FieldType;
 			
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
 	public:
-		ClassicalSpinOperations(const GeometryType& geometry,RandomNumberGeneratorType& rng,FieldType mcwindow) 
-			: geometry_(geometry),rng_(rng),mcwindow_(mcwindow),dynVars2_(0,"none")
+		ClassicalSpinOperations(const GeometryType& geometry,FieldType mcwindow) 
+			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
 		}
 		
@@ -30,14 +30,15 @@ namespace Spf {
 			dynVars_=&dynVars;
 		}
 		
-		void propose(size_t i)
+		template<typename RandomNumberGeneratorType>
+		void propose(size_t i,RandomNumberGeneratorType& rng)
 		{
 			FieldType thetaOld = dynVars_->theta[i];
 			FieldType phiOld = dynVars_->phi[i];
 			
 			dynVars2_ = *dynVars_;
 			
-			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i]);
+			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
 			
 			
 		}
@@ -92,7 +93,8 @@ namespace Spf {
 		
 	private:
 		
-		void propose_(FieldType thetaOld, FieldType phiOld, FieldType &thetaNew,FieldType &phiNew)
+		template<typename RandomNumberGeneratorType>
+		void propose_(FieldType thetaOld, FieldType phiOld, FieldType &thetaNew,FieldType &phiNew,RandomNumberGeneratorType& rng)
 		{
 			if (isingSpins_) {
 				if (thetaOld==0) thetaNew=M_PI; 
@@ -100,14 +102,14 @@ namespace Spf {
 				phiNew=0;
 			} else {
 				if (mcwindow_<0) {
-					thetaNew = 2*rng_()-1;
-					phiNew = 2*M_PI*rng_();
+					thetaNew = 2*rng()-1;
+					phiNew = 2*M_PI*rng();
 					thetaNew = acos(thetaNew);
 				} else {
-					thetaNew=2*rng_()- 1;
+					thetaNew=2*rng()- 1;
 					if (thetaNew < -1) thetaNew= 0;
 					if (thetaNew > 1) thetaNew = 0;		
-					phiNew=phiOld+2*M_PI*(rng_()- 0.5)*mcwindow_;
+					phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_;
 					thetaNew = acos(thetaNew);
 				}
 				/*if (ether.isSet("sineupdate")) {
@@ -149,7 +151,6 @@ namespace Spf {
 		}
 		
 		const GeometryType& geometry_;
-		RandomNumberGeneratorType& rng_;
 		const FieldType& mcwindow_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;

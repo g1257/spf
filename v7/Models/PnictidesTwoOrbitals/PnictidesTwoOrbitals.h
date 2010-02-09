@@ -18,30 +18,29 @@
 #include "MonteCarlo.h"
 
 namespace Spf {
-	template<typename FieldType,typename EngineParamsType,typename ParametersModelType,typename GeometryType>
+	template<typename FieldType,typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
 	class PnictidesTwoOrbitals {
 		
 		typedef std::complex<FieldType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
-		typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
+		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef PnictidesTwoOrbitals<FieldType,EngineParamsType,ParametersModelType,GeometryType> ThisType;
+		typedef PnictidesTwoOrbitals<FieldType,EngineParamsType,ParametersModelType_,GeometryType> ThisType;
 		
 		static const size_t nbands_ = 2;
 		
 		public:
-			
+		typedef ParametersModelType_ ParametersModelType;
 		typedef DynVars<FieldType> DynVarsType;
-		typedef ClassicalSpinOperations<GeometryType,RandomNumberGeneratorType,DynVarsType> ClassicalSpinOperationsType;
-		typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
+		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
+		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),hilbertSize_(2*nbands_*geometry_.volume()),
 				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					rng_(),classicalSpinOperations_(geometry_,rng_,engineParams_.mcWindow),
-					monteCarlo_(engineParams,*this,rng_)
+					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
 		{
 		}
 		
@@ -54,14 +53,8 @@ namespace Spf {
 		
 		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars); }
 		
-		void propose(size_t i) { classicalSpinOperations_.propose(i); }
-		
-
-		size_t doMonteCarlo(DynVarsType& dynVars, size_t iter)
-		{
-			return monteCarlo_(dynVars,iter);
-			
-		}
+		template<typename RandomNumberGeneratorType>
+		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
 				
 		void doMeasurements(DynVarsType& dynVars, size_t iter,std::ostream& fout)
 		{
@@ -309,9 +302,9 @@ namespace Spf {
 		MatrixType matrix_;
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
-		RandomNumberGeneratorType rng_;
+		//RandomNumberGeneratorType& rng_;
 		ClassicalSpinOperationsType classicalSpinOperations_;
-		MonteCarloType monteCarlo_;
+		
 		
 		
 	}; // PnictidesTwoOrbitals

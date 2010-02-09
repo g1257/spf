@@ -7,6 +7,8 @@
 #include "ParametersPnictidesTwoOrbitals.h"
 #include "PnictidesTwoOrbitals.h"
 #include "GeometrySquare.h"
+#include "RandomNumberGenerator.h"
+#include "AlgorithmDiag.h"
 
 typedef double FieldType;
 typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
@@ -15,7 +17,9 @@ typedef Spf::GeometrySquare<FieldType> GeometryType;
 typedef Spf::ParametersPnictidesTwoOrbitals<FieldType> ParametersModelType;
 typedef Spf::PnictidesTwoOrbitals<FieldType,ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
-typedef Spf::Engine<ParametersEngineType,ModelType,ConcurrencyType> EngineType;
+typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
+typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
+typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType> EngineType;
 
  
 int main(int argc,char *argv[])
@@ -50,7 +54,8 @@ int main(int argc,char *argv[])
 	DynVarsType dynVars(geometry.volume(),engineParams.dynvarsfile);
 	
 	ModelType model(engineParams,mp,geometry);
-	EngineType engine(engineParams,model,dynVars,concurrency);
+	AlgorithmType algorithm(engineParams,model);
+	EngineType engine(engineParams,model,algorithm,dynVars,concurrency);
 	
 	engine.main();
 }
