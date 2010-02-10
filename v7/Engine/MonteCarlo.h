@@ -15,9 +15,9 @@
 namespace Spf {
 	template<typename EngineParamsType,typename ModelType,typename AlgorithmType,typename RandomNumberGeneratorType>
 	class MonteCarlo {
+	public:
 		typedef typename EngineParamsType::FieldType FieldType;
 		
-	public:
 		MonteCarlo(const EngineParamsType& engineParams,ModelType& model,AlgorithmType& algorithm) 
 			: engineParams_(engineParams),model_(model),rng_(),algorithm_(algorithm) { }
 		
@@ -25,7 +25,8 @@ namespace Spf {
 		size_t operator()(DynVarsType& dynVars, size_t iter)
 		{
 			size_t acc = 0;
-			algorithm_.init(dynVars);
+			model_.set(dynVars);
+			algorithm_.init();
 			for (size_t i=0;i<dynVars.size();i++) {
 					
 				model_.propose(i,rng_);
@@ -41,6 +42,7 @@ namespace Spf {
 			} // lattice sweep
 			return acc;
 		}
+		
 	private:
 		
 		

@@ -39,10 +39,12 @@ namespace Spf {
 		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
 		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		
+		enum {OLDFIELDS,NEWFIELDS};
+		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(2*nbands_*geometry_.volume()),
-				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
 		{
 		}
@@ -50,6 +52,8 @@ namespace Spf {
 		DynVarsType& dynVars() { return dynVars_; }
 		
 		size_t totalFlips() const { return geometry_.volume(); }
+		
+		size_t dof() const { return 2; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
@@ -63,26 +67,27 @@ namespace Spf {
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
 				
-		void doMeasurements(const DynVarsType& dynVars,size_t iter,std::ostream& fout)
+		template<typename GreenFunctionType>
+		void doMeasurements(const DynVarsType& dynVars,GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
 			std::string s = "iter=" + utils::ttos(iter); 
 			
 			progress_.printline(s,fout);
 				
-			std::vector<FieldType> eigs;
-			fillAndDiag(eigs,dynVars_,'V');
+			//std::vector<FieldType> eigs;
+			//fillAndDiag(eigs,dynVars_,'V');
 				
-			FieldType temp=calcNumber(eigs);
+			FieldType temp=calcNumber(greenFunction);
 				
 			s ="Number_Of_Electrons="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
 			//s = "rankGlobal=";
 			
-			temp=calcElectronicEnergy(eigs);
-			
-			s="Electronic Energy="+utils::ttos(temp);
-			progress_.printline(s,fout);
+// 			temp=calcElectronicEnergy(greenFunction);
+// 			
+// 			s="Electronic Energy="+utils::ttos(temp);
+// 			progress_.printline(s,fout);
 			
 			FieldType temp2=calcSuperExchange(dynVars_);
 			s="Superexchange="+utils::ttos(temp2);
@@ -110,26 +115,17 @@ namespace Spf {
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			temp=calcKinetic(dynVars_,eigs);
-			s ="KineticEnergy="+utils::ttos(temp);
-			progress_.printline(s,fout);
+// 			temp=calcKinetic(dynVars_,eigs);
+// 			s ="KineticEnergy="+utils::ttos(temp);
+// 			progress_.printline(s,fout);
 			
 			//storedObservables_.doThem();
 		} // doMeasurements
 		
-		void fillAndDiag(std::vector<FieldType> &eig)
+		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
 		{
-			fillAndDiag(eig,classicalSpinOperations_.dynVars2());	
-		}
-		
-		void fillAndDiag(std::vector<FieldType> &eig,const DynVarsType& dynVars,char jobz='N')
-		{
-			if (jobz=='v') jobz='V';
-			
-			createHamiltonian(dynVars,matrix_);
-			utils::diag(matrix_,eig,jobz);
-
-			if (jobz!='V') sort(eig.begin(), eig.end(), std::less<FieldType>());
+			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(classicalSpinOperations_.dynVars2(),matrix);
+			 else createHamiltonian(dynVars_,matrix);
 		}
 		
 		void adjustChemPot(const std::vector<FieldType>& eigs)
@@ -159,7 +155,7 @@ namespace Spf {
 		
 		private:
 		
-		void createHamiltonian (const DynVarsType& dynVars,MatrixType& matrix)
+		void createHamiltonian(const DynVarsType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = nbands_;
@@ -216,7 +212,7 @@ namespace Spf {
 			}
 		}
 		
-		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const DynVarsType& dynVars,size_t site)
+		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const DynVarsType& dynVars,size_t site) const
 		{
 			
 			jmatrix[0]=0.5*cos(dynVars.theta[site]);
@@ -231,13 +227,23 @@ namespace Spf {
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
 		}
 		
-		FieldType calcNumber(const std::vector<FieldType>& eigs) const
+// 		FieldType calcNumber(const std::vector<FieldType>& eigs) const
+// 		{
+// 			FieldType sum=0;
+// 			for (size_t i=0;i<eigs.size();i++) {
+// 				sum += utils::fermi((eigs[i]-engineParams_.mu)*engineParams_.beta);
+// 			}
+// 			return sum;
+// 		}
+		
+		template<typename GreenFunctionType>
+		FieldType calcNumber(GreenFunctionType& greenFunction) const
 		{
 			FieldType sum=0;
-			for (size_t i=0;i<eigs.size();i++) {
-				sum += utils::fermi((eigs[i]-engineParams_.mu)*engineParams_.beta);
+			for (size_t i=0;i<hilbertSize_;i++) {
+				sum += real(greenFunction(i,i));
 			}
-			return sum;
+			return hilbertSize_ - sum;
 		}
 		
 		FieldType calcElectronicEnergy(const std::vector<FieldType>& eigs) const
@@ -307,7 +313,6 @@ namespace Spf {
 		const GeometryType& geometry_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
-		MatrixType matrix_;
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;

@@ -9,6 +9,7 @@
 #include "GeometrySquare.h"
 #include "RandomNumberGenerator.h"
 #include "AlgorithmDiag.h"
+#include "GreenFunction.h"
 
 typedef double FieldType;
 typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
@@ -19,7 +20,8 @@ typedef Spf::PnictidesTwoOrbitals<ParametersEngineType,ParametersModelType,Geome
 typedef ModelType::DynVarsType DynVarsType;
 typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
-typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType> EngineType;
+typedef Spf::GreenFunction<AlgorithmType> GreenFunctionType;
+typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType,GreenFunctionType> EngineType;
 
  
 int main(int argc,char *argv[])

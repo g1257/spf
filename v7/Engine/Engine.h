@@ -13,9 +13,11 @@
 #include "ProgressIndicator.h"
 #include "MonteCarlo.h"
 
+
 namespace Spf {
 	
-	template<typename ParametersType,typename AlgorithmType,typename ModelType,typename ConcurrencyType,typename RandomNumberGeneratorType>
+	template<typename ParametersType,typename AlgorithmType,typename ModelType,typename ConcurrencyType,typename RandomNumberGeneratorType,
+ 			typename GreenFunctionType>
 	class Engine {
 		
 		typedef typename ParametersType::FieldType FieldType;
@@ -26,7 +28,8 @@ namespace Spf {
 		public:
 			
 		Engine(ParametersType& params,ModelType& model,AlgorithmType& algorithm,ConcurrencyType& concurrency) 
-			: params_(params),model_(model),dynVars_(model.dynVars()),concurrency_(concurrency),fout_(params_.filename.c_str()),
+			: params_(params),algorithm_(algorithm),model_(model),dynVars_(model.dynVars()),
+				  concurrency_(concurrency),fout_(params_.filename.c_str()),
 				  progress_("Engine",concurrency.rank()),monteCarlo_(params,model,algorithm)
 		{
 		}
@@ -65,7 +68,8 @@ namespace Spf {
 					acc += doMonteCarlo(dynVars_,iter);
 					counter++;
 				}
-				model_.doMeasurements(dynVars_,iter,fout_);
+				GreenFunctionType greenFunction(algorithm_);
+				model_.doMeasurements(dynVars_,greenFunction,iter,fout_);
 				if (counter==0) continue;
 				size_t pp = 100*acc/(counter*model_.totalFlips());
 				std::string s = "Acceptance: " + utils::ttos(pp) + "%";
@@ -77,10 +81,7 @@ namespace Spf {
 		{
 			fout_<<model_;
 			fout_<<dynVars_;
-			std::vector<FieldType> eigs;
-			model_.fillAndDiag(eigs,dynVars_);
-			fout_<<"Eigenvalues\n";
-			fout_<<eigs;
+			fout_<<algorithm_;
 			std::cerr<<"\n";
 		}
 		
@@ -91,6 +92,7 @@ namespace Spf {
 		}
 		
 		const ParametersType params_;
+		AlgorithmType& algorithm_;
 		ModelType& model_;
 		DynVarsType& dynVars_;
 		ConcurrencyType& concurrency_;
