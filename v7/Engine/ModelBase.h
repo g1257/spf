@@ -23,7 +23,7 @@ namespace Spf {
 		
 		size_t hilbertSize() const;
 		
-		FieldType deltaDirect(size_t i) const; 
+		FieldType deltaDirect(size_t i) const;
 	
 		void set(DynVarsType& dynVars);
 		

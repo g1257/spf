@@ -40,11 +40,14 @@ namespace Spf {
 		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
-			engineParams_(engineParams),mp_(mp),geometry_(geometry),hilbertSize_(2*nbands_*geometry_.volume()),
+			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
+				      hilbertSize_(2*nbands_*geometry_.volume()),
 				      matrix_(hilbertSize_,hilbertSize_),adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
 		{
 		}
+		
+		DynVarsType& dynVars() { return dynVars_; }
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
@@ -55,19 +58,19 @@ namespace Spf {
 			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		}
 		
-		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars); }
+		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars_); }
 		
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
 				
-		void doMeasurements(DynVarsType& dynVars, size_t iter,std::ostream& fout)
+		void doMeasurements(const DynVarsType& dynVars,size_t iter,std::ostream& fout)
 		{
 			std::string s = "iter=" + utils::ttos(iter); 
 			
 			progress_.printline(s,fout);
 				
 			std::vector<FieldType> eigs;
-			fillAndDiag(eigs,dynVars,'V');
+			fillAndDiag(eigs,dynVars_,'V');
 				
 			FieldType temp=calcNumber(eigs);
 				
@@ -81,13 +84,13 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=calcSuperExchange(dynVars);
+			FieldType temp2=calcSuperExchange(dynVars_);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
-				temp2=classicalSpinOperations_.directExchange2(dynVars,mp_.jafNnn);
+				temp2=classicalSpinOperations_.directExchange2(dynVars_,mp_.jafNnn);
 				s="Superexchange2="+utils::ttos(temp2);
 				progress_.printline(s,fout);
 				temp += temp2;
@@ -103,11 +106,11 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = calcMag(dynVars);
+			temp = calcMag(dynVars_);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			temp=calcKinetic(dynVars,eigs);
+			temp=calcKinetic(dynVars_,eigs);
 			s ="KineticEnergy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -302,6 +305,7 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		const ParametersModelType& mp_;
 		const GeometryType& geometry_;
+		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		MatrixType matrix_;
 		AdjustmentsType adjustments_;

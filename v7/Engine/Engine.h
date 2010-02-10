@@ -25,8 +25,8 @@ namespace Spf {
 		
 		public:
 			
-		Engine(ParametersType& params,ModelType& model,AlgorithmType& algorithm,DynVarsType& dynVars,ConcurrencyType& concurrency) 
-			: params_(params),model_(model),dynVars_(dynVars),concurrency_(concurrency),fout_(params_.filename.c_str()),
+		Engine(ParametersType& params,ModelType& model,AlgorithmType& algorithm,ConcurrencyType& concurrency) 
+			: params_(params),model_(model),dynVars_(model.dynVars()),concurrency_(concurrency),fout_(params_.filename.c_str()),
 				  progress_("Engine",concurrency.rank()),monteCarlo_(params,model,algorithm)
 		{
 		}
