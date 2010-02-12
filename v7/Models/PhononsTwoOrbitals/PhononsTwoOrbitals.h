@@ -15,6 +15,7 @@
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
 #include "SpinOperations.h"
+#include "PhononOperations.h"
 #include "MonteCarlo.h"
 #include "ModelBase.h"
 
@@ -26,7 +27,6 @@ namespace Spf {
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
-		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
@@ -38,13 +38,13 @@ namespace Spf {
 		typedef ParametersModelType_ ParametersModelType;
 		typedef Spin<FieldType> DynVarsType;
 		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
-		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
+		typedef PhononOperations<GeometryType,DynVarsType> PhononOperationsType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		PhononsTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(2*nbands_*geometry_.volume()),
+				      hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
 					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
 		{
@@ -54,13 +54,13 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		size_t dof() const { return 2; }
+		//size_t dof() const { return 2; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
 		FieldType deltaDirect(size_t i) const 
 		{
-			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			return classicalSpinOperations_.deltaDirect(i,mp_.jaf,0);
 		}
 		
 		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars_); }
@@ -89,12 +89,6 @@ namespace Spf {
 			progress_.printline(s,fout);
 			
 			temp += temp2;
-			if (mp_.jafNnn!=0) {
-				temp2=classicalSpinOperations_.directExchange2(dynVars_,mp_.jafNnn);
-				s="Superexchange2="+utils::ttos(temp2);
-				progress_.printline(s,fout);
-				temp += temp2;
-			}
 
 			// total energy = electronic energy + superexchange + phonon energy
 			s="TotalEnergy="+utils::ttos(temp);
@@ -154,83 +148,48 @@ namespace Spf {
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = nbands_;
-			size_t dof = norb * 2; // the 2 comes because of the spin
-			std::vector<ComplexType> jmatrix(dof*dof);
+			size_t dof = norb; // no spin here
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
-			
-			for (size_t gamma1=0;gamma1<dof;gamma1++) {
-				for (size_t p = 0; p < volume; p++) {
+
+			for (size_t p = 0; p < volume; p++) {
+				FieldType phonon_q1=phononOperations_.calcPhonon(p,dynVars,0);
+				FieldType phonon_q2=phononOperations_.calcPhonon(p,dynVars,1);
+				FieldTyp phonon_q3=phononOperations_.calcPhonon(p,dynVars,2);	
+				matrix(p,p) = mp_.phononSpinCouplings[0]*phonon_q1+
+						mp_.phononSpinCouplings[2]*phonon_q3+
+						mp_.potential[p];
+				matrix(p+volume,p+volume) = -mp_.phononSpinCouplings[2]*phonon_q3+
+						mp_.phononSpinCouplings[0]*phonon_q1+mp_.potential[p];
+				matrix(p,p+volume) = (mp_.phononSpinCouplings[1]*phonon_q2);
+				matrix(p+volume,p) = conj(matrix(p,p+volume));
+				
+				for (size_t j = 0; j < geometry.z(1); j++) {	/* hopping elements, n-n only */
+					PairType tmpPair = geometry_.neighbor(p,j);
+					size_t col = tmpPair.first;
+					size_t dir = tmpPair.second; // int(j/2);
 					
-					auxCreateJmatrix(jmatrix,dynVars,p);
-		
-					size_t spin1 = size_t(gamma1/2);
-					size_t orb1 = gamma1 % 2;
-					matrix(p+gamma1*volume,p+gamma1*volume) = real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
-						
-					for (size_t j = 0; j <  geometry_.z(1); j++) {	
-						if (j%2!=0) continue;	
-						PairType tmpPair = geometry_.neighbor(p,j);
-						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second; // int(j/2);
-						for (size_t orb2=0;orb2<norb;orb2++) {
-							size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
-							matrix(p+gamma1*volume,k+gamma2*volume)=
-								mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
-							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
-						}
-					}
-					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw std::runtime_error("neighbours wrong\n");
-					for (size_t j = 0; j <  geometry_.z(2); j++) {
-						if (j%2!=0) continue;	
-						PairType tmpPair = geometry_.neighbor(p,j,2);
-						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second;
-						//std::cerr<<"Neigbors "<<p<<" "<<k<<"\n";
-						for (size_t orb2=0;orb2<norb;orb2++) {
-							size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
-							matrix(p+gamma1*volume,k+gamma2*volume)=
-								mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
-							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
-						}
-					}
+					FieldType tmp=cos(0.5*dynVars.theta[p])*cos(0.5*dynVars.theta[col]);
+					FieldType tmp2=sin(0.5*dynVars.theta[p])*sin(0.5*dynVars.theta[col]);
+					FieldType S_ij=tpem_t(tmp+tmp2*cos(dynVars.phi[p]-dynVars.phi[col]),
+						-tmp2*sin(dynVars.phi[p]-dynVars.phi[col]));
 					
-					for (size_t spin2=0;spin2<2;spin2++) {
-						if (spin1==spin2) continue; // diagonal term already taken into account
-						size_t gamma2 = orb1+spin2*norb; // orb2 == orb1 here
-						matrix(p+gamma1*volume,p + gamma2*volume)=jmatrix[spin1+2*spin2];
-						matrix(p + gamma2*volume,p+gamma1*volume) =
-								conj(matrix(p+gamma1*volume,p + gamma2*volume));
-					}
+					matrix(p,col) = -mp_.bandHoppings[0+0*2+dir*4] * S_ij;
+					matrix(col,p) = conj(hopping * S_ij);
+					
+					matrix(p, col+volume)= -mp_.bandHoppings[0+1*2+dir*4] * S_ij;
+					matrix(col+volume,p)=conj(matrix(p,col+volume));
+					
+					matrix(p+volume,col) =  -mp_.bandHoppings[1+0*2+dir*4] * S_ij;
+					matrix(col,p+volume) =  conj(matrix(p+volume,col));
+					
+					matrix(p+volume,col+volume) =  -ether.bandHoppings[1+1*2+dir*4] * S_ij;
+					matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 				}
 			}
 		}
-
-		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const DynVarsType& dynVars,size_t site) const
-		{
-			
-			jmatrix[0]=0.5*cos(dynVars.theta[site]);
-		
-			jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
-				sin(dynVars.theta[site])*sin(dynVars.phi[site]));
-		
-			jmatrix[2]=conj(jmatrix[1]);
-		
-			jmatrix[3]= -cos(dynVars.theta[site]);
-		
-			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
-		}
-
-// 		FieldType calcNumber(const std::vector<FieldType>& eigs) const
-// 		{
-// 			FieldType sum=0;
-// 			for (size_t i=0;i<eigs.size();i++) {
-// 				sum += utils::fermi((eigs[i]-engineParams_.mu)*engineParams_.beta);
-// 			}
-// 			return sum;
-// 		}
 
 		template<typename GreenFunctionType>
 		FieldType calcNumber(GreenFunctionType& greenFunction) const
@@ -313,6 +272,7 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
 		ClassicalSpinOperationsType classicalSpinOperations_;
+		PhononsType phononOperations_;
 	}; // PhononsTwoOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>

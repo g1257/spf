@@ -53,7 +53,7 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		size_t dof() const { return 2; }
+		//size_t dof() const { return 2; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		

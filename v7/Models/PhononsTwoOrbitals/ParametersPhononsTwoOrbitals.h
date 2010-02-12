@@ -94,19 +94,18 @@ namespace Spf {
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		std::vector<Field> hoppings; 
-		// J value
-		Field J;
+		
 		// Onsite potential values, one for each site
 		std::vector<Field> potentialV;
 		
-		// target number of electrons  in the system
-		//int nOfElectrons;
-		
 		// JAF n-n
-		Field jafNn;
+		Field jaf;
 		
-		// JAF n-n-n
-		Field jafNnn;
+		// Phonon couplings
+		std::vector<Field> phononSpinCoupling;
+		
+		// Phonon dampings
+		std::vector<Field> phononDamping;
 	};
 
 	//! Operator to read Model Parameters from inp file.
@@ -116,12 +115,12 @@ namespace Spf {
 	{
 		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);
-		
-		reader.read(parameters.J);
 		reader.read(parameters.potentialV);
-		//reader.read(parameters.nOfElectrons);
-		reader.read(parameters.jafNn);
-		reader.read(parameters.jafNnn);
+		
+		reader.read(parameters.jaf);
+		
+		reader.read(parameters.phononSpinCoupling);
+		reader.read(parameters.phononDamping);
 		
 		return parameters;
 	}
@@ -131,14 +130,16 @@ namespace Spf {
 	std::ostream& operator<<(std::ostream &os,const ParametersPhononsTwoOrbitals<FieldType>& parameters)
 	{
 		os<<"parameters.linSize="<<parameters.linSize<<"\n";
-		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
-		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
-		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
-		os<<"parameters.J="<<parameters.J<<"\n";
+		os<<"parameters.jaf="<<parameters.jaf<<"\n";
 		os<<"parameters.potentialV\n";
 		os<<parameters.potentialV;
 		os<<"parameters.hoppings\n";
 		os<<parameters.hoppings;
+		os<<"parameters.phononSpinCoupling\n";
+		os<<parameters.phononSpinCoupling;
+		os<<"parameters.phononDampings\n";
+		os<<parameters.phononDamping;
+		
 		return os;
 	}
 } // namespace Spf
