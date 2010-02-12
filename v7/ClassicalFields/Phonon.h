@@ -46,7 +46,7 @@ namespace Spf {
 	Phonon<FieldType>&
 	operator <= (Phonon<FieldType>& dynVars,  typename Dmrg::IoSimple::In& ioin) 
 	{
-		ioin.read(dynVars.theta,"Phonon");
+		ioin.read(dynVars.phonon,"Phonon");
 		ioin.readline(dynVars.isFrozen,"IsFrozenPhonon");
 		
 		return dynVars;

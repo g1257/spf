@@ -99,27 +99,29 @@ namespace Spf {
 		
 		const std::string& name(size_t i) const { return name_[i]; }
 		
-		Var1Type& getField(size_t num)
+		template<typename T>
+		T& getField(T&)
 		{
-			if (num==0) return spin_;
-			else if (num==1) return phonon_;
-			else return void_;
+			throw std::runtime_error("Should not reach here!\n");
 		}
 		
-		const Var1Type& getField(size_t num) const
+		Var1Type& getField(Var1Type&)
 		{
-			if (num==0) return spin_;
-			else if (num==1) return phonon_;
-			else return void_;
+			return spin_;
 		}
-
+		
+		Var2Type& getField(Var2Type&)
+		{
+			return phonon_;
+		}
 		
 		template<typename FieldType2>
 		friend std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType2>& f);
 		
 	private:
-		static const std::vector<std::string> name_;
+		static std::vector<std::string> name_;
 		Var1Type spin_;
+		Var2Type phonon_;
 		Var1Type void_;
 		
 	}; // PhononsTwoOrbitalsFields
@@ -132,9 +134,7 @@ namespace Spf {
 		return os;
 	}
 	template<typename FieldType>
-	const std::string PhononsTwoOrbitalsFields<FieldType>::name_(2);
-	std::string PhononsTwoOrbitalsFields<FieldType>::name_[0] = "spin";
-	std::string PhononsTwoOrbitalsFields<FieldType>::name_[1] = "phonon";
+	std::vector<std::string> PhononsTwoOrbitalsFields<FieldType>::name_(2);
 	
 } // namespace Spf
 

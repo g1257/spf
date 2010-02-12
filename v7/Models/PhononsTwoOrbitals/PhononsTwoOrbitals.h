@@ -10,7 +10,7 @@
 #ifndef PHONONS_2ORB_H
 #define PHONONS_2ORB_H
 #include "Utils.h"
-#include "Spin.h"
+#include "PhononsTwoOrbitalsFields.h"
 #include "RandomNumberGenerator.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
@@ -36,9 +36,11 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef Spin<FieldType> DynVarsType;
-		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
-		typedef PhononOperations<GeometryType,DynVarsType> PhononOperationsType;
+		typedef PhononsTwoOrbitalsFields<FieldType> DynVarsType;
+		typedef typename DynVarsType::Var1Type SpinType;
+		typedef typename DynVarsType::Var2Type PhononType;
+		typedef ClassicalSpinOperations<GeometryType,SpinType> ClassicalSpinOperationsType;
+		typedef PhononOperations<GeometryType,PhononType> PhononOperationsType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
@@ -64,14 +66,19 @@ namespace Spf {
 			return classicalSpinOperations_.deltaDirect(i,mp_.jaf,0);
 		}
 		
-		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars_); }
+		void set(SpinType& dynVars) { classicalSpinOperations_.set(dynVars); }
+		
+		void set(PhononType& dynVars) { phononOperations_.set(dynVars); }
 		
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
 				
 		template<typename GreenFunctionType>
-		void doMeasurements(const DynVarsType& dynVars,GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
+			const SpinType& spinPart = dynVars_.getField(spinPart);
+			const PhononType& phononPart = dynVars_.getField(phononPart);
+			
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
 				
@@ -85,14 +92,14 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=calcSuperExchange(dynVars_);
+			FieldType temp2=calcSuperExchange(spinPart);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
-
+			
 			// total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy="+utils::ttos(temp);
+			s="TotalEnergy-FIXME-ADD-PHONON-PART="+utils::ttos(temp);
 			progress_.printline(s,fout);
 				
 			//s="Action=";
@@ -158,7 +165,7 @@ namespace Spf {
 			for (size_t p = 0; p < volume; p++) {
 				FieldType phonon_q1=phononOperations_.calcPhonon(p,dynVars,0);
 				FieldType phonon_q2=phononOperations_.calcPhonon(p,dynVars,1);
-				FieldTyp phonon_q3=phononOperations_.calcPhonon(p,dynVars,2);	
+				FieldType phonon_q3=phononOperations_.calcPhonon(p,dynVars,2);	
 				matrix(p,p) = mp_.phononSpinCouplings[0]*phonon_q1+
 						mp_.phononSpinCouplings[2]*phonon_q3+
 						mp_.potential[p];
@@ -167,7 +174,7 @@ namespace Spf {
 				matrix(p,p+volume) = (mp_.phononSpinCouplings[1]*phonon_q2);
 				matrix(p+volume,p) = conj(matrix(p,p+volume));
 				
-				for (size_t j = 0; j < geometry.z(1); j++) {	/* hopping elements, n-n only */
+				for (size_t j = 0; j < geometry_.z(1); j++) {	/* hopping elements, n-n only */
 					PairType tmpPair = geometry_.neighbor(p,j);
 					size_t col = tmpPair.first;
 					size_t dir = tmpPair.second; // int(j/2);
@@ -178,7 +185,7 @@ namespace Spf {
 						-tmp2*sin(dynVars.phi[p]-dynVars.phi[col]));
 					
 					matrix(p,col) = -mp_.bandHoppings[0+0*2+dir*4] * S_ij;
-					matrix(col,p) = conj(hopping * S_ij);
+					matrix(col,p) = conj(matrix(p,col));
 					
 					matrix(p, col+volume)= -mp_.bandHoppings[0+1*2+dir*4] * S_ij;
 					matrix(col+volume,p)=conj(matrix(p,col+volume));
@@ -186,7 +193,7 @@ namespace Spf {
 					matrix(p+volume,col) =  -mp_.bandHoppings[1+0*2+dir*4] * S_ij;
 					matrix(col,p+volume) =  conj(matrix(p+volume,col));
 					
-					matrix(p+volume,col+volume) =  -ether.bandHoppings[1+1*2+dir*4] * S_ij;
+					matrix(p+volume,col+volume) =  -mp_.bandHoppings[1+1*2+dir*4] * S_ij;
 					matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 				}
 			}
@@ -214,7 +221,7 @@ namespace Spf {
 				
 		}
 
-		FieldType calcSuperExchange(const DynVarsType& dynVars) const
+		FieldType calcSuperExchange(const SpinType& dynVars) const
 		{
 			FieldType sum = 0;
 			for (size_t i=0;i<geometry_.volume();i++) {
@@ -273,7 +280,7 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
 		ClassicalSpinOperationsType classicalSpinOperations_;
-		PhononsType phononOperations_;
+		PhononOperationsType phononOperations_;
 	}; // PhononsTwoOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>

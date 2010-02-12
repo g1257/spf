@@ -95,8 +95,8 @@ namespace Spf {
 		
 		void doMonteCarlo(std::vector<size_t> accepted,DynVarsType& dynVars, size_t iter)
 		{
-			for (size_t i=0;i<dynVars.size();i++) 
-				accepted[i] += monteCarlo_(dynVars.getField(i),iter);
+			for (size_t i=0;i<dynVars.size();i++) {
+				accepted[i] += monteCarlo_(dynVars.getField(),iter);
 			
 		}
 		

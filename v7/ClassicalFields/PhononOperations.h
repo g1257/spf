@@ -32,7 +32,7 @@ namespace Spf {
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng)
 		{
-			PhononType phononsOld = dynVars->phonons[i];
+			PhononType phononsOld = dynVars_->phonons[i];
 			
 			dynVars2_ = *dynVars_;
 			
@@ -115,10 +115,10 @@ namespace Spf {
 			double dS=0;
 
 			for (size_t alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
-				tmp = square(calcPhonon(i,dynVars2,alpha))
+				FieldType tmp = square(calcPhonon(i,dynVars2,alpha))
 				- square(calcPhonon(i,dynVars,alpha));
-				for (size_t k=0;k<geometry.z(1);k++) {
-					size_t j = geometry.neighbor(i,k).first;
+				for (size_t k=0;k<geometry_.z(1);k++) {
+					size_t j = geometry_.neighbor(i,k).first;
 					tmp += square(calcPhonon(j,dynVars2,alpha));
 					tmp -= square(calcPhonon(j,dynVars,alpha));
 				}
