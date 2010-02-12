@@ -19,7 +19,7 @@ namespace Spf {
 		typedef typename EngineParametersType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
-		
+
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
 			: engineParams_(engineParams),model_(model),rng_(),
 					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
@@ -27,14 +27,14 @@ namespace Spf {
 					matrix_(hilbertSize_,hilbertSize_),needsDiagonalization_(true)
 		{
 		}
-		
+
 		void init()
 		{
 			model_.createHamiltonian(matrix_,ModelType::OLDFIELDS);
 			utils::diag(matrix_,eigOld_,'N');
 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
-		}	
-		
+		}
+
 		bool isAccepted(size_t i)
 		{
 			FieldType dsDirect = model_.deltaDirect(i);
@@ -49,17 +49,16 @@ namespace Spf {
 				
 			return doMetropolis(dsDirect,integrationMeasure);
 		}
-		
+
 		void accept(size_t i)
 		{
 			model_.accept(i);
 			eigOld_ = eigNew_;
 			needsDiagonalization_ = true;
 		}
-		
+
 		ComplexType greenFunction(size_t lambda1,size_t lambda2)
 		{
-			
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
@@ -67,19 +66,22 @@ namespace Spf {
 			needsDiagonalization_ = false;
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
 				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
+			//FieldType x = 0.0;
+			//if (lambda1==lambda2) x = 1.0;
 			return sum;
 		}
-		
+
 		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N')
 		{
 			model_.createHamiltonian(matrix_,ModelType::NEWFIELDS);
 			utils::diag(matrix_,eigNew_,jobz);
 			if (jobz!='V') sort(eigNew_.begin(), eigNew_.end(), std::less<FieldType>());
 		}
-		
+
 		template<typename EngineParametersType2,typename ModelType2,typename RandomNumberGeneratorType2>
-		friend std::ostream& operator<<(std::ostream& os,AlgorithmDiag<EngineParametersType2,ModelType2,RandomNumberGeneratorType2>& a);
-		
+		friend std::ostream& operator<<
+			(std::ostream& os,AlgorithmDiag<EngineParametersType2,ModelType2,RandomNumberGeneratorType2>& a);
+
 	private:
 		bool doMetropolis(FieldType dsDirect,FieldType integrationMeasure)
 		{
@@ -97,17 +99,17 @@ namespace Spf {
 			
 				X *= temp;
 			}
-			
+
 			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
 			X *=  exp(-beta*dsDirect);
 			X = X/(1.0+X);
-			
+
 			FieldType r=rng_();
-			
+
 			if (X>r) return true;
 			else return false;
-		}	
-		
+		}
+
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		RandomNumberGeneratorType rng_;

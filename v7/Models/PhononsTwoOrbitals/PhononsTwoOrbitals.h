@@ -2,13 +2,13 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file PnictidesTwoOrbitals.h
+/*! \file PhononsTwoOrbitals.h
  *
- *  PnictidesTwoOrbitals model
+ *  PhononsTwoOrbitals model (JH infinity)
  *
  */
-#ifndef PNICTIDES_2ORB_H
-#define PNICTIDES_2ORB_H
+#ifndef PHONONS_2ORB_H
+#define PHONONS_2ORB_H
 #include "Utils.h"
 #include "Spin.h"
 #include "RandomNumberGenerator.h"
@@ -20,7 +20,8 @@
 
 namespace Spf {
 	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
-	class PnictidesTwoOrbitals : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
+	class PhononsTwoOrbitals : public ModelBase
+			<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
 		
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
@@ -29,7 +30,7 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef PnictidesTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
+		typedef PhononsTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
 		
 		static const size_t nbands_ = 2;
 		
@@ -41,10 +42,10 @@ namespace Spf {
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
-		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
+		PhononsTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(2*nbands_*geometry_.volume()),
-				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
 					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
 		{
 		}
@@ -145,7 +146,7 @@ namespace Spf {
 		
 		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
-				const PnictidesTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+				const PhononsTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
 		
 		private:
 		
@@ -312,10 +313,10 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
 		ClassicalSpinOperationsType classicalSpinOperations_;
-	}; // PnictidesTwoOrbitals
+	}; // PhononsTwoOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
+	std::ostream& operator<<(std::ostream& os,const PhononsTwoOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;
@@ -324,4 +325,4 @@ namespace Spf {
 } // namespace Spf
 
 /*@}*/
-#endif // PNICTIDES_2ORB_H
+#endif // PHONONS_2ORB_H
