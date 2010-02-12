@@ -1,5 +1,9 @@
-// This file will be produced by the driver.pl later
-
+/* DO NOT EDIT!!! Changes will be lost. Modify driver.pl instead
+ This main.cpp was written by driver.pl
+ SPF v7 by G.A. and C.S.
+ Platform: linux
+ Model: PnictidesTwoOrbitals
+ */
 #include "SimpleReader.h"
 #include "ParametersEngine.h"
 #include "Engine.h"
@@ -60,4 +64,7 @@ int main(int argc,char *argv[])
 	
 	engine.main();
 }
+
+
+/* ####### End of main.cpp ######## */
 

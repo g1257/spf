@@ -1,11 +1,8 @@
-# DO NOT EDIT!!! Changes will be lost. Modify configure.pl instead
-# This Makefile was written by configure.pl 
-# SPF v6.4 by G.A.
+# DO NOT EDIT!!! Changes will be lost. Modify driver.pl instead
+# This Makefile was written by driver.pl
+# SPF v7 by G.A. and C.S.
 # Platform: linux
-# RunType for TPEM: serial
-# RunType for Trivial: serial
-# Model: MODEL_KONDO_PNICTIDES
-# GSL: no
+# Model: PnictidesTwoOrbitals
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/PnictidesTwoOrbitals -IEngine -IClassicalFields 
@@ -17,9 +14,6 @@ $(EXENAME): clean main.o
 
 clean:
 	rm -f core* $(EXENAME) *.o *.ii *.tt
-
-$(EXENAME).tar: *.cpp *.h Makefile* *.pl *.inp *.c
-	tar -cvf $(EXENAME).tar  *.cpp *.h Makefile* *.pl *.inp *.c
 
 ######## End of Makefile ########
 
