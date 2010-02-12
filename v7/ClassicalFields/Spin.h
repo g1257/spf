@@ -18,7 +18,8 @@ namespace Spf {
 		typedef typename Dmrg::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
 		
-		Spin(size_t vol,const std::string& mcstarttype) : theta(vol),phi(vol),isFrozen(false)
+		Spin(size_t vol,const std::string& mcstarttype,bool freeze=false,bool makeVoid=false) : 
+				size(vol),theta(vol),phi(vol),isFrozen(freeze),isVoid(makeVoid)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);
@@ -26,11 +27,14 @@ namespace Spf {
 			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
 		}
 				
-		size_t size() const { return theta.size(); }
+		//size_t size() const { return theta.size(); }
 		
+		size_t size;
 		std::vector<FieldType> theta;
 		std::vector<FieldType> phi;
 		bool isFrozen;
+		bool isVoid;
+		
 	}; // Spin
 	
 	template<typename FieldType>

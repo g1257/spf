@@ -16,8 +16,8 @@
 
 namespace Spf {
 	
-	template<typename ParametersType,typename AlgorithmType,typename ModelType,typename ConcurrencyType,typename RandomNumberGeneratorType,
- 			typename GreenFunctionType>
+	template<typename ParametersType,typename AlgorithmType,typename ModelType,
+ 		typename ConcurrencyType,typename RandomNumberGeneratorType,typename GreenFunctionType>
 	class Engine {
 		
 		typedef typename ParametersType::FieldType FieldType;
@@ -47,33 +47,41 @@ namespace Spf {
 		
 		void thermalize()
 		{
-			size_t acc = 0;
+			std::vector<size_t> accepted(dynVars_.size());
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
 				utils::printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
-				acc += doMonteCarlo(dynVars_,iter);
+				doMonteCarlo(accepted,dynVars_,iter);
 			}
 			if (params_.iterTherm ==0) return;
-			size_t pp = 100*acc/params_.iterTherm;
-			std::string s = "Thermalization finished. " + utils::ttos(acc) + " or " + utils::ttos(pp) + "%";
+			std::string s = "Thermalization finished. ";
 			progress_.printline(s,fout_);
+			for (size_t i=0;i<dynVars_.size();i++) {
+				size_t pp = 100*accepted[i]/params_.iterTherm;
+				s=  "Acceptance: " + dynVars_.name(i) + " " + utils::ttos(accepted[i]) +
+							" or " + utils::ttos(pp) + "%";
+				progress_.printline(s,fout_);
+			}
 		}
 		
 		void measure()
 		{
-			size_t acc = 0;
+			std::vector<size_t> accepted(dynVars_.size());
 			size_t counter = 0;
 			for (size_t iter=0;iter<params_.iterEffective;iter++) {
 				utils::printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
-					acc += doMonteCarlo(dynVars_,iter);
+					doMonteCarlo(accepted,dynVars_,iter);
 					counter++;
 				}
 				GreenFunctionType greenFunction(algorithm_);
-				model_.doMeasurements(dynVars_,greenFunction,iter,fout_);
+				model_.doMeasurements(greenFunction,iter,fout_);
 				if (counter==0) continue;
-				size_t pp = 100*acc/(counter*model_.totalFlips());
-				std::string s = "Acceptance: " + utils::ttos(pp) + "%";
-				progress_.printline(s,fout_);
+				for (size_t i=0;i<dynVars_.size();i++) {
+					size_t pp = 100*accepted[i]/counter;
+					std::string s=  "Acceptance: " + dynVars_.name(i) + " " + utils::ttos(accepted[i]) +
+							" or " + utils::ttos(pp) + "%";
+					progress_.printline(s,fout_);
+				}
 			}
 		}
 		
@@ -85,9 +93,10 @@ namespace Spf {
 			std::cerr<<"\n";
 		}
 		
-		size_t doMonteCarlo(DynVarsType& dynVars, size_t iter)
+		void doMonteCarlo(std::vector<size_t> accepted,DynVarsType& dynVars, size_t iter)
 		{
-			return monteCarlo_(dynVars,iter);
+			for (size_t i=0;i<dynVars.size();i++) 
+				accepted[i] += monteCarlo_(dynVars.getField(i),iter);
 			
 		}
 		

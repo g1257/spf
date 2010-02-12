@@ -41,48 +41,34 @@ namespace Spf {
 		
 		const DynVarsType& dynVars2() const { return dynVars2_; } 
 		
-		FieldType deltaDirect(size_t i,FieldType coupling1,FieldType coupling2) const
+		FieldType deltaDirect(size_t i,const PhononType& coupling) const
 		{
-			FieldType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1);
-			sum += directExchange2(dynVars2_,coupling2)
-						-directExchange2(*dynVars_,coupling2);
-			return sum;
+			return dSDirect(*dynVars_,dynVars2_,i,coupling);
 		}
-		
-				
+
 		FieldType sineUpdate(size_t i) const
 		{
-			FieldType sineupdate= sin(dynVars_->theta[i]);
-			if (sineupdate!=0) {
-				sineupdate = sin(dynVars2_.theta[i])/sineupdate;
-			} else {
-				sineupdate = 1.0;
-			}
-			return sineupdate;
+			return 1.0; // no measure for phonons
 		}
 		
 		void accept(size_t i)
 		{
-			dynVars_->theta[i]=dynVars2_.theta[i];
-			dynVars_->phi[i]=dynVars2_.phi[i];
+			dynVars_->phonons[i]=dynVars2_.phonons[i];
 		}
 	
-		
-		template<typename DynVarsType>
-		double calcPhononDiff(int direction,int ind,DynVarsType const &dynVars) const
+		FieldType calcPhononDiff(size_t direction,size_t ind,const DynVarsType& dynVars) const
 		{
 			if (direction >= geometry_.dim()) return 0; 
-			int j = geometry_.neighbor(ind,2*direction+1);
+			size_t j = geometry_.neighbor(ind,2*direction+1).first;
 			return  (dynVars.phonons[ind][direction]-dynVars.phonons[j][direction]);
 		}
 		
-		template<typename DynVarsType>
-		double calcPhonon(int ind,DynVarsType const &dynVars,int what) const
+		FieldType calcPhonon(size_t ind,const DynVarsType& dynVars,size_t what) const
 		{
-			double ret=0;
-			double sqrt3=1.732050807569;
-			double sqrt2=1.414213562373;
-			double sqrt6=2.449489742783;
+			FieldType ret=0;
+			FieldType sqrt3=1.732050807569;
+			FieldType sqrt2=1.414213562373;
+			FieldType sqrt6=2.449489742783;
 			
 			if (what==0)  { /* calc q1 */
 				ret = (calcPhononDiff(0,ind,dynVars) + calcPhononDiff(1,ind,dynVars) +
@@ -95,13 +81,11 @@ namespace Spf {
 				ret = (2*calcPhononDiff(2,ind,dynVars)-calcPhononDiff(0,ind,dynVars)-calcPhononDiff(1,ind,dynVars));
 				ret /= sqrt6;
 			} else {
-				std::cerr<<"I don't know what to calculate at "<<__FILE__<<" "<<__LINE__<<" with what="<<what<<std::endl;
 				throw std::runtime_error("Phonons class\n");
 			}
 			return ret;
 		}
-		
-		template<typename FieldType,typename DynVarsType>
+
 		void calcQvector(std::vector<FieldType>& v,size_t p,const DynVarsType& dynVars) const
 		{
 			size_t numberOfNormalModes = 3;
@@ -125,7 +109,8 @@ namespace Spf {
 			}
 		}
 
-		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,FieldType coupling) const
+		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,
+				  const PhononType& coupling) const
 		{
 			double dS=0;
 
@@ -141,7 +126,7 @@ namespace Spf {
 			}
 			return dS;
 		}
-	};
+	}; // PhononOperations
 
 } // namespace Spf
 

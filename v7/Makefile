@@ -9,7 +9,7 @@
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/PnictidesTwoOrbitals -IEngine -IClassicalFields 
-CXX = g++ -Werror -Wall -O2 -pg
+CXX = g++ -Werror -Wall -g3 -pg
 
 $(EXENAME): clean main.o 
 	$(CXX) -o $(EXENAME) main.o $(LDFLAGS) 

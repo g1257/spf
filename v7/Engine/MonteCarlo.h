@@ -27,7 +27,7 @@ namespace Spf {
 			size_t acc = 0;
 			model_.set(dynVars);
 			algorithm_.init();
-			for (size_t i=0;i<dynVars.size();i++) {
+			for (size_t i=0;i<dynVars.size;i++) {
 					
 				model_.propose(i,rng_);
 				

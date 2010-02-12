@@ -10,7 +10,7 @@
 #ifndef PNICTIDES_2ORB_H
 #define PNICTIDES_2ORB_H
 #include "Utils.h"
-#include "Spin.h"
+#include "PnictidesTwoOrbitalsFields.h"
 #include "RandomNumberGenerator.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
@@ -35,8 +35,8 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef Spin<FieldType> DynVarsType;
-		typedef ClassicalSpinOperations<GeometryType,DynVarsType> ClassicalSpinOperationsType;
+		typedef PnictidesTwoOrbitalsFields<FieldType> DynVarsType;
+		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::Var1Type> ClassicalSpinOperationsType;
 		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -62,14 +62,16 @@ namespace Spf {
 			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		}
 		
-		void set(DynVarsType& dynVars) { classicalSpinOperations_.set(dynVars_); }
+		void set(typename DynVarsType::Var1Type& dynVars) { classicalSpinOperations_.set(dynVars); }
 		
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
 				
 		template<typename GreenFunctionType>
-		void doMeasurements(const DynVarsType& dynVars,GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
+			const typename DynVarsType::Var1Type& dynVars = dynVars_.getField(0);
+			
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
 				
@@ -83,13 +85,13 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=calcSuperExchange(dynVars_);
+			FieldType temp2=calcSuperExchange(dynVars);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
-				temp2=classicalSpinOperations_.directExchange2(dynVars_,mp_.jafNnn);
+				temp2=classicalSpinOperations_.directExchange2(dynVars,mp_.jafNnn);
 				s="Superexchange2="+utils::ttos(temp2);
 				progress_.printline(s,fout);
 				temp += temp2;
@@ -105,7 +107,7 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = calcMag(dynVars_);
+			temp = calcMag(dynVars);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -118,8 +120,9 @@ namespace Spf {
 		
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
 		{
+			const typename DynVarsType::Var1Type& dynVars = dynVars_.getField(0);
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(classicalSpinOperations_.dynVars2(),matrix);
-			 else createHamiltonian(dynVars_,matrix);
+			 else createHamiltonian(dynVars,matrix);
 		}
 		
 		void adjustChemPot(const std::vector<FieldType>& eigs)
@@ -149,7 +152,7 @@ namespace Spf {
 		
 		private:
 		
-		void createHamiltonian(const DynVarsType& dynVars,MatrixType& matrix) const
+		void createHamiltonian(const typename DynVarsType::Var1Type& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = nbands_;
@@ -207,7 +210,8 @@ namespace Spf {
 			}
 		}
 
-		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const DynVarsType& dynVars,size_t site) const
+		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
+				typename DynVarsType::Var1Type& dynVars,size_t site) const
 		{
 			
 			jmatrix[0]=0.5*cos(dynVars.theta[site]);
@@ -253,7 +257,7 @@ namespace Spf {
 				
 		}
 
-		FieldType calcSuperExchange(const DynVarsType& dynVars) const
+		FieldType calcSuperExchange(const typename DynVarsType::Var1Type& dynVars) const
 		{
 			FieldType sum = 0;
 			for (size_t i=0;i<geometry_.volume();i++) {
@@ -270,7 +274,7 @@ namespace Spf {
 			return sum*0.5;
 		}
 
-		FieldType calcMag(const DynVarsType& dynVars) const
+		FieldType calcMag(const typename DynVarsType::Var1Type& dynVars) const
 		{
 			std::vector<FieldType> mag(3);
 			
