@@ -20,7 +20,7 @@ namespace Spf {
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
 	public:
-		ClassicalSpinOperations(const GeometryType& geometry,FieldType mcwindow) 
+		ClassicalSpinOperations(const GeometryType& geometry,const FieldType& mcwindow) 
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
 		}
@@ -28,6 +28,8 @@ namespace Spf {
 		void set(DynVarsType& dynVars)
 		{
 			dynVars_=&dynVars;
+			std::cerr<<"Set\n";
+			std::cerr<<(*dynVars_);
 		}
 		
 		template<typename RandomNumberGeneratorType>
@@ -37,9 +39,11 @@ namespace Spf {
 			FieldType phiOld = dynVars_->phi[i];
 			
 			dynVars2_ = *dynVars_;
-			
+			std::cerr<<"Dynvars2\n";
+			std::cerr<<(dynVars2_);
 			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
-			
+			std::cerr<<"Dynvars2AFTER\n";
+			std::cerr<<(dynVars2_);
 			
 		}
 		
@@ -100,34 +104,37 @@ namespace Spf {
 				if (thetaOld==0) thetaNew=M_PI; 
 				else thetaNew=0;
 				phiNew=0;
+				return;
+			} 
+		
+			if (mcwindow_<0) {
+				thetaNew = 2*rng()-1;
+				phiNew = 2*M_PI*rng();
+				thetaNew = acos(thetaNew);
 			} else {
-				if (mcwindow_<0) {
-					thetaNew = 2*rng()-1;
-					phiNew = 2*M_PI*rng();
-					thetaNew = acos(thetaNew);
-				} else {
-					thetaNew=2*rng()- 1;
-					if (thetaNew < -1) thetaNew= 0;
-					if (thetaNew > 1) thetaNew = 0;		
-					phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_;
-					thetaNew = acos(thetaNew);
-				}
-				/*if (ether.isSet("sineupdate")) {
-					thetaNew = M_PI*rng();
-				}*/
-			
-				while (thetaNew<0) {
-					thetaNew = -thetaNew;
-					phiNew+=M_PI;
-				}	
-				while (thetaNew>M_PI) {
-					thetaNew -= M_PI;
-					phiNew+=M_PI;
-				}
-					
-				while (phiNew<0) phiNew += 2*M_PI;
-				while (phiNew>2*M_PI) phiNew -= 2*M_PI;
+				thetaNew=2*rng()- 1;
+				if (thetaNew < -1) thetaNew= 0;
+				if (thetaNew > 1) thetaNew = 0;		
+				phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_;
+				thetaNew = acos(thetaNew);
 			}
+			/*if (ether.isSet("sineupdate")) {
+				thetaNew = M_PI*rng();
+			}*/
+		
+			while (thetaNew<0) {
+				thetaNew = -thetaNew;
+				phiNew+=M_PI;
+			}	
+			while (thetaNew>M_PI) {
+				thetaNew -= M_PI;
+				phiNew+=M_PI;
+			}
+				
+			while (phiNew<0) phiNew += 2*M_PI;
+			while (phiNew>2*M_PI) phiNew -= 2*M_PI;
+			std::cerr<<"ThetaOld="<<thetaOld<<" thetaNew="<<thetaNew<<"\n";
+			std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
 		}
 		
 		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,FieldType coupling) const

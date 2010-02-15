@@ -43,9 +43,9 @@ namespace Spf {
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(2*nbands_*geometry_.volume()),
+				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					classicalSpinOperations_(geometry_,engineParams_.mcWindow)
+					classicalSpinOperations_(geometry,engineParams.mcWindow)
 		{
 		}
 		
@@ -110,6 +110,7 @@ namespace Spf {
 			temp = calcMag(dynVars);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
+
 			
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+utils::ttos(temp);

@@ -96,9 +96,9 @@ namespace Spf {
 			return eigNew_[i];
 		}
 
-		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N')
+		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N',size_t fields=ModelType::NEWFIELDS)
 		{
-			model_.createHamiltonian(matrix_,ModelType::NEWFIELDS);
+			model_.createHamiltonian(matrix_,fields);
 			utils::diag(matrix_,eigNew_,jobz);
 			if (jobz!='V') sort(eigNew_.begin(), eigNew_.end(), std::less<FieldType>());
 		}
@@ -153,7 +153,7 @@ namespace Spf {
 		typedef typename EngineParametersType::FieldType FieldType;
 		std::vector<FieldType> eigNew(a.hilbertSize_);
 		psimag::Matrix<std::complex<FieldType> > matrix(a.hilbertSize_,a.hilbertSize_);
-		a.diagonalize(matrix,eigNew,'V');
+		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";
 		os<<eigNew;
 		return os;
