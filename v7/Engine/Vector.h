@@ -45,6 +45,7 @@ namespace PsimagLite {
 	template<typename FieldType>
 	std::ostream& operator<<(std::ostream& os,const Vector<FieldType>& v) 
 	{
+		os<<v.size()<<"\n";
 		for (size_t i=0;i<v.size();i++) os<<v[i]<<"\n";
 		return os;
 	}
