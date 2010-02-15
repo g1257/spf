@@ -38,6 +38,17 @@ namespace Spf {
 		
 		size_t volume() const { return volume_; }
 		
+		size_t add(size_t ind,size_t ind2) const
+		{
+			std::vector<size_t> x(2),y(2);
+			index2Coor(x,ind);
+			index2Coor(y,ind2);
+			for (size_t i=0;i<x.size();i++) {
+				x[i] += y[i];
+				g_pbc(x[i],l_);
+			}
+			return g_index(x);
+		}
 		private:
 		
 		void buildNeighbors()
@@ -127,7 +138,13 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(size_t& x,size_t& y,size_t& z)
+		size_t g_index(std::vector<size_t>& x) const
+		{
+			size_t zz=0;
+			return g_index(x[0],x[1],zz);
+		}
+		
+		size_t g_index(size_t& x,size_t& y,size_t& z) const
 		{
 			size_t lx = l_;
 			size_t ly = l_;
@@ -136,7 +153,13 @@ namespace Spf {
 			//g_pbc(z,lz);
 			return x+y*lx; //+z*L*L;
 		}
-		
+
+		void index2Coor(std::vector<size_t> &v,size_t i) const
+		{
+			size_t lx = l_;
+			v[0] = i%lx;
+			v[1] = size_t(i/lx);
+		}
 		size_t l_;
 		size_t volume_;
 		std::vector<psimag::Matrix<PairType> > neighbors_;

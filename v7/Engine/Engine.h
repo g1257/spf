@@ -90,6 +90,7 @@ namespace Spf {
 		
 		void finalize()
 		{
+			model_.finalize(fout_);
 			fout_<<"#FinalClassicalFieldConfiguration:\n";
 			fout_<<dynVars_;
 			fout_<<"#AlgorithmRelated:\n";

@@ -119,7 +119,7 @@ namespace Spf {
 // 			s ="KineticEnergy="+utils::ttos(temp);
 // 			progress_.printline(s,fout);
 			
-			//storedObservables_.doThem();
+			observablesStored_(dynVars);
 		} // doMeasurements
 		
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
@@ -148,6 +148,11 @@ namespace Spf {
 		FieldType integrationMeasure(size_t i)
 		{
 			return spinOperations_.sineUpdate(i);
+		}
+		
+		void finalize(std::ostream& fout)
+		{
+			observablesStored_.finalize(fout);	
 		}
 		
 		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>

@@ -10,12 +10,14 @@
 #ifndef CLASSICAL_SPIN_OPS_H
 #define CLASSICAL_SPIN_OPS_H
 #include "Utils.h"
+#include "Vector.h"
 
 namespace Spf {
 	
 	template<typename GeometryType,typename DynVarsType_>
 	class ClassicalSpinOperations {
 		typedef typename DynVarsType_::FieldType FieldType;
+		typedef PsimagLite::Vector<FieldType> VectorType;
 			
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
@@ -120,7 +122,7 @@ namespace Spf {
 			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
 		}
 		
-		void classicalCorrelations(std::vector<FieldType> &cc,
+		void classicalCorrelations(VectorType &cc,
 				 //std::vector<FieldType> &weight,
 				 const DynVarsType& dynVars)
 		{
