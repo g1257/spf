@@ -2,14 +2,14 @@
  This main.cpp was written by driver.pl
  SPF v7 by G.A. and C.S.
  Platform: linux
- Model: PhononsTwoOrbitals
+ Model: PnictidesTwoOrbitals
  */
 #include "SimpleReader.h"
 #include "ParametersEngine.h"
 #include "Engine.h"
 #include "ConcurrencySerial.h"
-#include "ParametersPhononsTwoOrbitals.h"
-#include "PhononsTwoOrbitals.h"
+#include "ParametersPnictidesTwoOrbitals.h"
+#include "PnictidesTwoOrbitals.h"
 #include "GeometrySquare.h"
 #include "RandomNumberGenerator.h"
 #include "AlgorithmDiag.h"
@@ -19,8 +19,8 @@ typedef double FieldType;
 typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
 typedef Dmrg::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::GeometrySquare<FieldType> GeometryType;
-typedef Spf::ParametersPhononsTwoOrbitals<FieldType> ParametersModelType;
-typedef Spf::PhononsTwoOrbitals<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
+typedef Spf::ParametersPnictidesTwoOrbitals<FieldType> ParametersModelType;
+typedef Spf::PnictidesTwoOrbitals<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;

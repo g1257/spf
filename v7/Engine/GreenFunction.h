@@ -27,6 +27,16 @@ namespace Spf {
 			return algorithm_.greenFunction(lambda1,lambda2);
 		}
 		
+		ComplexType matrix(size_t lambda1,size_t lambda2)
+		{
+			return algorithm_.matrix(lambda1,lambda2);
+		}
+		
+		FieldType e(size_t i)
+		{
+			return algorithm_.e(i);
+		}
+		
 	private:			
 		AlgorithmType& algorithm_;
 		

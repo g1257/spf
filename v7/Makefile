@@ -2,10 +2,10 @@
 # This Makefile was written by driver.pl
 # SPF v7 by G.A. and C.S.
 # Platform: linux
-# Model: PhononsTwoOrbitals
+# Model: PnictidesTwoOrbitals
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
-CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/PhononsTwoOrbitals -IEngine -IClassicalFields 
+CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/PnictidesTwoOrbitals -IEngine -IClassicalFields 
 CXX = g++ -Werror -Wall -g3 -pg
 
 $(EXENAME): clean main.o 

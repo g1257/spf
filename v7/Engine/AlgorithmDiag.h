@@ -64,11 +64,36 @@ namespace Spf {
 			FieldType mu = engineParams_.mu;
 			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
 			needsDiagonalization_ = false;
+			return matrix_(lambda1,lambda2);
+			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
 				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
 			//FieldType x = 0.0;
 			//if (lambda1==lambda2) x = 1.0;
 			return sum;
+		}
+		
+		ComplexType matrix(size_t lambda1,size_t lambda2)
+		{
+			ComplexType sum = 0;
+			//FieldType beta = engineParams_.beta;
+			//FieldType mu = engineParams_.mu;
+			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
+			needsDiagonalization_ = false;
+			return matrix_(lambda1,lambda2);
+			
+			/*for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
+				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
+			//FieldType x = 0.0;
+			//if (lambda1==lambda2) x = 1.0;
+			return sum;*/
+		}
+		
+		FieldType e(size_t i)
+		{
+			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
+			needsDiagonalization_ = false;
+			return eigNew_[i];
 		}
 
 		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N')

@@ -225,33 +225,33 @@ namespace Spf {
 		
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
 		}
-
-// 		FieldType calcNumber(const std::vector<FieldType>& eigs) const
-// 		{
-// 			FieldType sum=0;
-// 			for (size_t i=0;i<eigs.size();i++) {
-// 				sum += utils::fermi((eigs[i]-engineParams_.mu)*engineParams_.beta);
-// 			}
-// 			return sum;
-// 		}
-
+		
 		template<typename GreenFunctionType>
 		FieldType calcNumber(GreenFunctionType& greenFunction) const
 		{
 			FieldType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
-				sum += real(greenFunction(i,i));
+				sum += utils::fermi((greenFunction.e(i)-engineParams_.mu)*engineParams_.beta);
 			}
 			return sum;
 		}
 
+// 		template<typename GreenFunctionType>
+// 		FieldType calcNumber(GreenFunctionType& greenFunction) const
+// 		{
+// 			FieldType sum=0;
+// 			for (size_t i=0;i<hilbertSize_;i++) {
+// 				sum += real(greenFunction(i,i));
+// 			}
+// 			return sum;
+// 		}
+
 		template<typename GreenFunctionType>
 		FieldType calcElectronicEnergy(GreenFunctionType& greenFunction) const
 		{
-			FieldType sum = 0;
+			FieldType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
-				FieldType g = real(greenFunction(i,i));
-				sum += g*(engineParams_.mu+log(1./g-1.)/engineParams_.beta);
+				sum +=greenFunction.e(i)*utils::fermi((greenFunction.e(i)-engineParams_.mu)*engineParams_.beta);
 			}
 			return sum;
 				
