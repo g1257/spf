@@ -24,14 +24,15 @@ namespace Spf {
 			: engineParams_(engineParams),model_(model),rng_(),
 					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
 					hilbertSize_(model_.hilbertSize()),
-					matrix_(hilbertSize_,hilbertSize_),needsDiagonalization_(true)
+					matrixNew_(hilbertSize_,hilbertSize_),
+					matrixOld_(hilbertSize_,hilbertSize_),needsDiagonalization_(true)
 		{
 		}
 
 		void init()
 		{
-			model_.createHamiltonian(matrix_,ModelType::OLDFIELDS);
-			utils::diag(matrix_,eigOld_,'N');
+			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
+			utils::diag(matrixOld_,eigOld_,'N');
 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
 		}
 
@@ -41,8 +42,10 @@ namespace Spf {
 				
 			//FieldType oldmu=engineParams_.mu;
 			
-			model_.createHamiltonian(matrix_,ModelType::NEWFIELDS);
-			diagonalize(matrix_,eigNew_,'N');
+			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
+			diagonalize(matrixNew_,eigNew_,'N');
+			//testMatrix();
+			//testEigs();
 			
 			model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			FieldType integrationMeasure = model_.integrationMeasure(i);
@@ -62,12 +65,11 @@ namespace Spf {
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
 			needsDiagonalization_ = false;
-			return matrix_(lambda1,lambda2);
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
+				sum += conj(matrixNew_(lambda1,lambda)) * matrixNew_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
 			//FieldType x = 0.0;
 			//if (lambda1==lambda2) x = 1.0;
 			return sum;
@@ -78,9 +80,9 @@ namespace Spf {
 			ComplexType sum = 0;
 			//FieldType beta = engineParams_.beta;
 			//FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
 			needsDiagonalization_ = false;
-			return matrix_(lambda1,lambda2);
+			return matrixNew_(lambda1,lambda2);
 			
 			/*for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
 				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
@@ -91,16 +93,16 @@ namespace Spf {
 		
 		FieldType e(size_t i)
 		{
-			if (needsDiagonalization_) diagonalize(matrix_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
 			needsDiagonalization_ = false;
 			return eigNew_[i];
 		}
 
 		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N',size_t fields=ModelType::NEWFIELDS)
 		{
-			model_.createHamiltonian(matrix_,fields);
-			utils::diag(matrix_,eigNew_,jobz);
-			if (jobz!='V') sort(eigNew_.begin(), eigNew_.end(), std::less<FieldType>());
+			model_.createHamiltonian(matrix,fields);
+			utils::diag(matrix,eigs,jobz);
+			if (jobz!='V') sort(eigs.begin(), eigs.end(), std::less<FieldType>());
 		}
 
 		template<typename EngineParametersType2,typename ModelType2,typename RandomNumberGeneratorType2>
@@ -117,30 +119,51 @@ namespace Spf {
 			for (size_t i=0;i<eigNew_.size();i++) {
 				FieldType temp = 0;
 				if (eigNew_[i]>mu)
-					temp = (double)(1.0+exp(-beta*(eigNew_[i]-mu)))/(1.0+exp(-beta*(eigOld_[i]-mu)));
+					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/(1.0+exp(-beta*(eigOld_[i]-mu)));
 				else
-				temp =(double)(1.0+exp(beta*(eigNew_[i]-mu)))/
+				temp =(1.0+exp(beta*(eigNew_[i]-mu)))/
 							(exp(beta*(eigNew_[i]-mu))+exp(-beta*(eigOld_[i]-eigNew_[i])));
 			
 				X *= temp;
 			}
-
+			//std::cerr<<"Xbefore="<<X<<" ";
 			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
 			X *=  exp(-beta*dsDirect);
 			X = X/(1.0+X);
 
 			FieldType r=rng_();
-
+			//std::cerr<<"dsDirect="<<dsDirect<<" beta="<<beta<<" X = "<<X<<" r="<<r<<"\n";
 			if (X>r) return true;
 			else return false;
 		}
-
+		
+		void testEigs() const
+		{
+			FieldType eps = 1e-6;
+			for (size_t i=0;i<eigOld_.size();i++) {
+				if (fabs(eigOld_[i]-eigNew_[i])>eps) return;
+			}
+			throw std::runtime_error("Eigs are equal!!\n");
+		}
+		
+		void testMatrix() const
+		{
+			FieldType eps = 1e-6;
+			for (size_t i=0;i<matrixOld_.n_row();i++) {
+				for (size_t j=0;j<matrixOld_.n_col();j++) {
+					if (fabs(real(matrixOld_(i,j)-matrixNew_(i,j)))>eps &&
+					fabs(imag(matrixOld_(i,j)-matrixNew_(i,j)))>eps) return;
+				}
+			}
+			throw std::runtime_error("Matrix are equal!!\n");
+		}
+		
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		RandomNumberGeneratorType rng_;
 		std::vector<FieldType> eigNew_,eigOld_;
 		size_t hilbertSize_;
-		MatrixType matrix_;
+		MatrixType matrixNew_,matrixOld_;
 		bool needsDiagonalization_;
 		
 		

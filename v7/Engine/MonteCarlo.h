@@ -15,6 +15,8 @@
 namespace Spf {
 	template<typename EngineParamsType,typename ModelType,typename AlgorithmType,typename RandomNumberGeneratorType>
 	class MonteCarlo {
+		typedef std::pair<size_t,size_t> PairType;
+		
 	public:
 		typedef typename EngineParamsType::FieldType FieldType;
 		
@@ -22,9 +24,9 @@ namespace Spf {
 			: engineParams_(engineParams),model_(model),rng_(),algorithm_(algorithm) { }
 		
 		template<typename DynVarsType>
-		size_t operator()(DynVarsType& dynVars, size_t iter)
+		PairType operator()(DynVarsType& dynVars, size_t iter)
 		{
-			size_t acc = 0;
+			PairType acc = PairType(0,0);
 			model_.set(dynVars);
 			algorithm_.init();
 			for (size_t i=0;i<dynVars.size;i++) {
@@ -32,13 +34,14 @@ namespace Spf {
 				model_.propose(i,rng_);
 				
 				bool flag= algorithm_.isAccepted(i);
-					
+				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted
 					algorithm_.accept(i);
-					acc++;
+					acc.first++;
 				} else { // not accepted
 					//engineParams_.mu=oldmu;
 				}
+				acc.second++;
 			} // lattice sweep
 			return acc;
 		}

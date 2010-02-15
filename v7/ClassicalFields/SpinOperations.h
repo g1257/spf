@@ -13,13 +13,15 @@
 
 namespace Spf {
 	
-	template<typename GeometryType,typename DynVarsType>
+	template<typename GeometryType,typename DynVarsType_>
 	class ClassicalSpinOperations {
-		typedef typename DynVarsType::FieldType FieldType;
+		typedef typename DynVarsType_::FieldType FieldType;
 			
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
 	public:
+		typedef DynVarsType_ DynVarsType;
+		
 		ClassicalSpinOperations(const GeometryType& geometry,const FieldType& mcwindow) 
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
@@ -28,8 +30,6 @@ namespace Spf {
 		void set(DynVarsType& dynVars)
 		{
 			dynVars_=&dynVars;
-			std::cerr<<"Set\n";
-			std::cerr<<(*dynVars_);
 		}
 		
 		template<typename RandomNumberGeneratorType>
@@ -39,12 +39,8 @@ namespace Spf {
 			FieldType phiOld = dynVars_->phi[i];
 			
 			dynVars2_ = *dynVars_;
-			std::cerr<<"Dynvars2\n";
-			std::cerr<<(dynVars2_);
-			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
-			std::cerr<<"Dynvars2AFTER\n";
-			std::cerr<<(dynVars2_);
 			
+			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
 		}
 		
 		const DynVarsType& dynVars2() const { return dynVars2_; } 
@@ -95,6 +91,60 @@ namespace Spf {
 			return dS*0.5;
 		}
 		
+		FieldType calcSuperExchange(const DynVarsType& dynVars,FieldType coupling) const
+		{
+			FieldType sum = 0;
+			for (size_t i=0;i<geometry_.volume();i++) {
+				for (size_t k = 0; k<geometry_.z(1); k++){
+					size_t j=geometry_.neighbor(i,k).first;
+					FieldType t1=dynVars.theta[i];
+					FieldType t2=dynVars.theta[j];
+					FieldType p1=dynVars.phi[i];
+					FieldType p2=dynVars.phi[j];
+					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
+					sum += coupling*tmp;
+				}
+			}
+			return sum*0.5;
+		}
+
+		FieldType calcMag(const DynVarsType& dynVars) const
+		{
+			std::vector<FieldType> mag(3);
+			
+			for (size_t i=0;i<geometry_.volume();i++) {
+				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
+				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
+				mag[2] += cos(dynVars.theta[i]);
+			}
+			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
+		}
+		
+		void classicalCorrelations(std::vector<FieldType> &cc,
+				 //std::vector<FieldType> &weight,
+				 const DynVarsType& dynVars)
+		{
+			size_t n = geometry_.volume();
+			
+			for (size_t i=0;i<n;i++) {
+				FieldType temp=0;
+				size_t counter=0;
+				for (size_t j=0;j<n;j++) {
+					size_t k = geometry_.add(i,j);
+					//cerr<<"calcClasCor: "<<i<<"+"<<j<<"="<<k<<endl;
+					//if (ether.modulus[k]==0 || ether.modulus[j]==0) continue;
+					temp+= cos(dynVars.theta[k])*cos(dynVars.theta[j])+
+							sin(dynVars.theta[k])*sin(dynVars.theta[j])*
+							cos(dynVars.phi[k]-dynVars.phi[j]);
+					counter++;
+				}
+				if (counter>0) temp /= counter;
+				//weight[i]=counter;
+				cc[i] += temp;
+			}
+		}
+
+		
 	private:
 		
 		template<typename RandomNumberGeneratorType>
@@ -133,8 +183,8 @@ namespace Spf {
 				
 			while (phiNew<0) phiNew += 2*M_PI;
 			while (phiNew>2*M_PI) phiNew -= 2*M_PI;
-			std::cerr<<"ThetaOld="<<thetaOld<<" thetaNew="<<thetaNew<<"\n";
-			std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
+			//std::cerr<<"ThetaOld="<<thetaOld<<" thetaNew="<<thetaNew<<"\n";
+			//std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
 		}
 		
 		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,FieldType coupling) const

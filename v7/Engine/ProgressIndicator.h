@@ -94,7 +94,7 @@ namespace Dmrg {
 			prefix_ = caller_ + ": ";
 		}
 		
-		void printline(const std::string &s,std::ostream& os) 
+		void printline(const std::string &s,std::ostream& os) const
 		{
 			if (rank_!=0) return;
 			os<<prefix_<<s<<"\n";

@@ -17,6 +17,7 @@
 #include "SpinOperations.h"
 #include "MonteCarlo.h"
 #include "ModelBase.h"
+#include "ObservablesStored.h"
 
 namespace Spf {
 	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
@@ -37,7 +38,8 @@ namespace Spf {
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PnictidesTwoOrbitalsFields<FieldType> DynVarsType;
 		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::Var1Type> ClassicalSpinOperationsType;
-		//typedef MonteCarlo<EngineParamsType,ThisType,DynVarsType,RandomNumberGeneratorType> MonteCarloType;
+		typedef ObservablesStored<ClassicalSpinOperationsType> ObservablesStoredType;
+		
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
@@ -45,7 +47,8 @@ namespace Spf {
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					classicalSpinOperations_(geometry,engineParams.mcWindow)
+					spinOperations_(geometry,engineParams.mcWindow),
+					observablesStored_(spinOperations_,geometry.volume()) 
 		{
 		}
 		
@@ -59,13 +62,13 @@ namespace Spf {
 		
 		FieldType deltaDirect(size_t i) const 
 		{
-			return classicalSpinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		}
 		
-		void set(typename DynVarsType::Var1Type& dynVars) { classicalSpinOperations_.set(dynVars); }
+		void set(typename DynVarsType::Var1Type& dynVars) { spinOperations_.set(dynVars); }
 		
 		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
+		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
 				
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
@@ -85,13 +88,13 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=calcSuperExchange(dynVars);
+			FieldType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
-				temp2=classicalSpinOperations_.directExchange2(dynVars,mp_.jafNnn);
+				temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
 				s="Superexchange2="+utils::ttos(temp2);
 				progress_.printline(s,fout);
 				temp += temp2;
@@ -107,7 +110,7 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = calcMag(dynVars);
+			temp = spinOperations_.calcMag(dynVars);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 
@@ -122,8 +125,8 @@ namespace Spf {
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
 		{
 			const typename DynVarsType::Var1Type& dynVars = dynVars_.getField(0);
-			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(classicalSpinOperations_.dynVars2(),matrix);
-			 else createHamiltonian(dynVars,matrix);
+			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
+			else createHamiltonian(dynVars,matrix);
 		}
 		
 		void adjustChemPot(const std::vector<FieldType>& eigs)
@@ -139,12 +142,12 @@ namespace Spf {
 		
 		void accept(size_t i) 
 		{
-			return classicalSpinOperations_.accept(i);
+			return spinOperations_.accept(i);
 		}
 		
 		FieldType integrationMeasure(size_t i)
 		{
-			return classicalSpinOperations_.sineUpdate(i);
+			return spinOperations_.sineUpdate(i);
 		}
 		
 		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
@@ -164,10 +167,10 @@ namespace Spf {
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 			
-			for (size_t gamma1=0;gamma1<dof;gamma1++) {
-				for (size_t p = 0; p < volume; p++) {
+			for (size_t p = 0; p < volume; p++) {
+				auxCreateJmatrix(jmatrix,dynVars,p);
+				for (size_t gamma1=0;gamma1<dof;gamma1++) {		
 					
-					auxCreateJmatrix(jmatrix,dynVars,p);
 		
 					size_t spin1 = size_t(gamma1/2);
 					size_t orb1 = gamma1 % 2;
@@ -258,35 +261,7 @@ namespace Spf {
 				
 		}
 
-		FieldType calcSuperExchange(const typename DynVarsType::Var1Type& dynVars) const
-		{
-			FieldType sum = 0;
-			for (size_t i=0;i<geometry_.volume();i++) {
-				for (size_t k = 0; k<geometry_.z(1); k++){
-					size_t j=geometry_.neighbor(i,k).first;
-					FieldType t1=dynVars.theta[i];
-					FieldType t2=dynVars.theta[j];
-					FieldType p1=dynVars.phi[i];
-					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-					sum += mp_.jafNn*tmp;
-				}
-			}
-			return sum*0.5;
-		}
-
-		FieldType calcMag(const typename DynVarsType::Var1Type& dynVars) const
-		{
-			std::vector<FieldType> mag(3);
-			
-			for (size_t i=0;i<geometry_.volume();i++) {
-				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
-				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
-				mag[2] += cos(dynVars.theta[i]);
-			}
-			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
-		}
-
+		
 		FieldType calcKinetic(const DynVarsType& dynVars,
 				      const std::vector<FieldType>& eigs) const
 		{
@@ -316,7 +291,8 @@ namespace Spf {
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
-		ClassicalSpinOperationsType classicalSpinOperations_;
+		ClassicalSpinOperationsType spinOperations_;
+		ObservablesStoredType observablesStored_;
 	}; // PnictidesTwoOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
