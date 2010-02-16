@@ -96,7 +96,7 @@ namespace Spf {
 		std::vector<Field> hoppings; 
 		
 		// Onsite potential values, one for each site
-		std::vector<Field> potentialV;
+		std::vector<Field> potential;
 		
 		// JAF n-n
 		Field jaf;
@@ -115,7 +115,7 @@ namespace Spf {
 	{
 		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);
-		reader.read(parameters.potentialV);
+		reader.read(parameters.potential);
 		
 		reader.read(parameters.jaf);
 		
@@ -131,8 +131,8 @@ namespace Spf {
 	{
 		os<<"parameters.linSize="<<parameters.linSize<<"\n";
 		os<<"parameters.jaf="<<parameters.jaf<<"\n";
-		os<<"parameters.potentialV\n";
-		os<<parameters.potentialV;
+		os<<"parameters.potential\n";
+		os<<parameters.potential;
 		os<<"parameters.hoppings\n";
 		os<<parameters.hoppings;
 		os<<"parameters.phononSpinCoupling\n";

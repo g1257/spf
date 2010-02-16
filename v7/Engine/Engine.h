@@ -106,10 +106,16 @@ namespace Spf {
 		
 		void doMonteCarlo(std::vector<PairType>& accepted,DynVarsType& dynVars, size_t iter)
 		{
-			// fixme: generalize
-			PairType res= monteCarlo_(dynVars.getField(0),iter);
+			
+			PairType res= monteCarlo_(dynVars.template getField<0,typename DynVarsType::Type0>(),iter); // (accepted, totalflips)
 			accepted[0].first += res.first;
 			accepted[0].second += res.second;
+			
+			if (dynVars.size()==1) return;
+			
+			res= monteCarlo_(dynVars.template getField<1,typename DynVarsType::Type1>(),iter); // (accepted, totalflips)
+			accepted[1].first += res.first;
+			accepted[1].second += res.second;
 			
 		}
 		

@@ -49,6 +49,9 @@ namespace Spf {
 			}
 			return g_index(x);
 		}
+		
+		size_t dim() const { return 2; }
+		
 		private:
 		
 		void buildNeighbors()

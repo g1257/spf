@@ -18,6 +18,7 @@ namespace PsimagLite {
 	class Vector {
 		public:
 			Vector(size_t n) : data_(n) {}
+			Vector() { }
 			
 			void operator/=(FieldType d)
 			{
@@ -49,6 +50,14 @@ namespace PsimagLite {
 		for (size_t i=0;i<v.size();i++) os<<v[i]<<"\n";
 		return os;
 	}
+	
+		
+ 	template<typename FieldType> // move somewhere else
+ 	std::istream& operator>>(std::istream& is,Vector<FieldType>& v)
+ 	{
+ 		for (size_t i=0;i<v.size();i++) is>>v[i];
+ 		return is;
+ 	}
 };
 
 /*@}*/

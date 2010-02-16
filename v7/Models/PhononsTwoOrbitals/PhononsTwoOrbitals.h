@@ -37,8 +37,8 @@ namespace Spf {
 		public:
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PhononsTwoOrbitalsFields<FieldType> DynVarsType;
-		typedef typename DynVarsType::Var1Type SpinType;
-		typedef typename DynVarsType::Var2Type PhononType;
+		typedef typename DynVarsType::SpinType SpinType;
+		typedef typename DynVarsType::PhononType PhononType;
 		typedef ClassicalSpinOperations<GeometryType,SpinType> ClassicalSpinOperationsType;
 		typedef PhononOperations<GeometryType,PhononType> PhononOperationsType;
 		
@@ -76,8 +76,8 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
-			const SpinType& spinPart = dynVars_.getField(spinPart);
-			const PhononType& phononPart = dynVars_.getField(phononPart);
+			const SpinType& spinPart = dynVars_.template getField<0,typename DynVarsType::Type0>();
+			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
 			
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
@@ -92,7 +92,7 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=calcSuperExchange(spinPart);
+			FieldType temp2=classicalSpinOperations_.calcSuperExchange(spinPart, mp_.jaf);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
@@ -108,7 +108,7 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = calcMag(dynVars_);
+			temp = classicalSpinOperations_.calcMag(spinPart);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -119,9 +119,13 @@ namespace Spf {
 			//storedObservables_.doThem();
 		} // doMeasurements
 		
-		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
+		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) 
 		{
-			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(classicalSpinOperations_.dynVars2(),matrix);
+			DynVarsType newDynVars(classicalSpinOperations_.dynVars2(),
+					       dynVars_.template getField<1,PhononType>());
+			
+			
+			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
 			 else createHamiltonian(dynVars_,matrix);
 		}
 		
@@ -146,32 +150,37 @@ namespace Spf {
 			return classicalSpinOperations_.sineUpdate(i);
 		}
 		
+		void finalize(std::ostream& fout)
+		{
+			
+		}
+		
 		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 				const PhononsTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
 		
 		private:
 		
-		void createHamiltonian(const DynVarsType& dynVars,MatrixType& matrix) const
+		void createHamiltonian(DynVarsType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
-			size_t norb = nbands_;
-			size_t dof = norb; // no spin here
+			const SpinType& spinPart = dynVars.template getField<0,typename DynVarsType::Type0>();
+			const PhononType& phononPart = dynVars.template getField<1,typename DynVarsType::Type1>();
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 
 			for (size_t p = 0; p < volume; p++) {
-				FieldType phonon_q1=phononOperations_.calcPhonon(p,dynVars,0);
-				FieldType phonon_q2=phononOperations_.calcPhonon(p,dynVars,1);
-				FieldType phonon_q3=phononOperations_.calcPhonon(p,dynVars,2);	
-				matrix(p,p) = mp_.phononSpinCouplings[0]*phonon_q1+
-						mp_.phononSpinCouplings[2]*phonon_q3+
+				FieldType phonon_q1=phononOperations_.calcPhonon(p,phononPart,0);
+				FieldType phonon_q2=phononOperations_.calcPhonon(p,phononPart,1);
+				FieldType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);	
+				matrix(p,p) = mp_.phononSpinCoupling[0]*phonon_q1+
+						mp_.phononSpinCoupling[2]*phonon_q3+
 						mp_.potential[p];
-				matrix(p+volume,p+volume) = -mp_.phononSpinCouplings[2]*phonon_q3+
-						mp_.phononSpinCouplings[0]*phonon_q1+mp_.potential[p];
-				matrix(p,p+volume) = (mp_.phononSpinCouplings[1]*phonon_q2);
+				matrix(p+volume,p+volume) = -mp_.phononSpinCoupling[2]*phonon_q3+
+						mp_.phononSpinCoupling[0]*phonon_q1+mp_.potential[p];
+				matrix(p,p+volume) = (mp_.phononSpinCoupling[1]*phonon_q2);
 				matrix(p+volume,p) = conj(matrix(p,p+volume));
 				
 				for (size_t j = 0; j < geometry_.z(1); j++) {	/* hopping elements, n-n only */
@@ -179,21 +188,21 @@ namespace Spf {
 					size_t col = tmpPair.first;
 					size_t dir = tmpPair.second; // int(j/2);
 					
-					FieldType tmp=cos(0.5*dynVars.theta[p])*cos(0.5*dynVars.theta[col]);
-					FieldType tmp2=sin(0.5*dynVars.theta[p])*sin(0.5*dynVars.theta[col]);
-					FieldType S_ij=tpem_t(tmp+tmp2*cos(dynVars.phi[p]-dynVars.phi[col]),
-						-tmp2*sin(dynVars.phi[p]-dynVars.phi[col]));
+					FieldType tmp=cos(0.5*spinPart.theta[p])*cos(0.5*spinPart.theta[col]);
+					FieldType tmp2=sin(0.5*spinPart.theta[p])*sin(0.5*spinPart.theta[col]);
+					ComplexType S_ij=ComplexType(tmp+tmp2*cos(spinPart.phi[p]-spinPart.phi[col]),
+						-tmp2*sin(spinPart.phi[p]-spinPart.phi[col]));
 					
-					matrix(p,col) = -mp_.bandHoppings[0+0*2+dir*4] * S_ij;
+					matrix(p,col) = -mp_.hoppings[0+0*2+dir*4] * S_ij;
 					matrix(col,p) = conj(matrix(p,col));
 					
-					matrix(p, col+volume)= -mp_.bandHoppings[0+1*2+dir*4] * S_ij;
+					matrix(p, col+volume)= -mp_.hoppings[0+1*2+dir*4] * S_ij;
 					matrix(col+volume,p)=conj(matrix(p,col+volume));
 					
-					matrix(p+volume,col) =  -mp_.bandHoppings[1+0*2+dir*4] * S_ij;
+					matrix(p+volume,col) =  -mp_.hoppings[1+0*2+dir*4] * S_ij;
 					matrix(col,p+volume) =  conj(matrix(p+volume,col));
 					
-					matrix(p+volume,col+volume) =  -mp_.bandHoppings[1+1*2+dir*4] * S_ij;
+					matrix(p+volume,col+volume) =  -mp_.hoppings[1+1*2+dir*4] * S_ij;
 					matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 				}
 			}
@@ -220,36 +229,7 @@ namespace Spf {
 			return sum;
 				
 		}
-
-		FieldType calcSuperExchange(const SpinType& dynVars) const
-		{
-			FieldType sum = 0;
-			for (size_t i=0;i<geometry_.volume();i++) {
-				for (size_t k = 0; k<geometry_.z(1); k++){
-					size_t j=geometry_.neighbor(i,k).first;
-					FieldType t1=dynVars.theta[i];
-					FieldType t2=dynVars.theta[j];
-					FieldType p1=dynVars.phi[i];
-					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-					sum += mp_.jafNn*tmp;
-				}
-			}
-			return sum*0.5;
-		}
-
-		FieldType calcMag(const DynVarsType& dynVars) const
-		{
-			std::vector<FieldType> mag(3);
-			
-			for (size_t i=0;i<geometry_.volume();i++) {
-				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
-				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
-				mag[2] += cos(dynVars.theta[i]);
-			}
-			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
-		}
-
+		
 		FieldType calcKinetic(const DynVarsType& dynVars,
 				      const std::vector<FieldType>& eigs) const
 		{

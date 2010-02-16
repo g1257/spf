@@ -13,7 +13,7 @@
 #include "Utils.h"
 
 namespace Spf {
-	template<typename GeometryType,typename DynVarsType>
+	template<typename GeometryType,typename DynVarsType> // DynVarsType == PhononsType
 	class PhononOperations {
 		typedef typename DynVarsType::FieldType FieldType;
 		typedef std::vector<FieldType> PhononType;
@@ -60,7 +60,7 @@ namespace Spf {
 		{
 			if (direction >= geometry_.dim()) return 0; 
 			size_t j = geometry_.neighbor(ind,2*direction+1).first;
-			return  (dynVars.phonons[ind][direction]-dynVars.phonons[j][direction]);
+			return  (dynVars.phonon[ind][direction]-dynVars.phonon[j][direction]);
 		}
 		
 		FieldType calcPhonon(size_t ind,const DynVarsType& dynVars,size_t what) const

@@ -88,41 +88,41 @@ namespace Spf {
 	template<typename FieldType>
 	class PhononsTwoOrbitalsFields {
 	public:
-		typedef Spin<FieldType> Var1Type;
-		typedef Phonon<FieldType> Var2Type;
+		typedef Spin<FieldType> SpinType;
+		typedef Phonon<FieldType> PhononType;
+		typedef SpinType Type0;
+		typedef PhononType Type1;
 		
 		PhononsTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
-				spin_(vol,mcstarttype),phonon_(vol,mcstarttype),void_(1,"none",false,true)
+				spin_(vol,mcstarttype),phonon_(vol,mcstarttype)
 		{}
+		
+		PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) : 
+				spin_(spin),phonon_(phonon)
+		{
+		}
 		
 		size_t size() const { return 2; } //  spins and phonons for this model need MC simulation
 		
 		const std::string& name(size_t i) const { return name_[i]; }
 		
-		template<typename T>
-		T& getField(T&)
-		{
-			throw std::runtime_error("Should not reach here!\n");
-		}
 		
-		Var1Type& getField(Var1Type&)
-		{
-			return spin_;
-		}
+// 		template<typename T>
+// 		T& getField(T&)
+// 		{
+// 			throw std::runtime_error("Should not reach here!\n");
+// 		}
 		
-		Var2Type& getField(Var2Type&)
-		{
-			return phonon_;
-		}
+		template<int num,typename SomeType>
+		SomeType& getField();
 		
 		template<typename FieldType2>
 		friend std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType2>& f);
 		
 	private:
 		static std::vector<std::string> name_;
-		Var1Type spin_;
-		Var2Type phonon_;
-		Var1Type void_;
+		SpinType spin_;
+		PhononType phonon_;
 		
 	}; // PhononsTwoOrbitalsFields
 	
@@ -136,6 +136,19 @@ namespace Spf {
 	template<typename FieldType>
 	std::vector<std::string> PhononsTwoOrbitalsFields<FieldType>::name_(2);
 	
+	template<>
+	template<>
+	PhononsTwoOrbitalsFields<double>::SpinType& PhononsTwoOrbitalsFields<double>::getField<0, PhononsTwoOrbitalsFields<double>::SpinType>()	
+	{
+		return spin_;
+	}
+
+	template<>
+	template<>
+	PhononsTwoOrbitalsFields<double>::PhononType& PhononsTwoOrbitalsFields<double>::getField<1,PhononsTwoOrbitalsFields<double>::PhononType>()	
+	{
+		return phonon_;
+	}
 } // namespace Spf
 
 /*@}*/

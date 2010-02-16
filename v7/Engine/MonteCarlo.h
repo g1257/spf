@@ -23,7 +23,7 @@ namespace Spf {
 		MonteCarlo(const EngineParamsType& engineParams,ModelType& model,AlgorithmType& algorithm) 
 			: engineParams_(engineParams),model_(model),rng_(),algorithm_(algorithm) { }
 		
-		template<typename DynVarsType>
+		template<typename DynVarsType> // DynVarsType is either Spin or Phonon
 		PairType operator()(DynVarsType& dynVars, size_t iter)
 		{
 			PairType acc = PairType(0,0);

@@ -11,6 +11,7 @@
 #define PHONON_H
 #include "Utils.h"
 #include "IoSimple.h"
+#include "Vector.h"
 
 namespace Spf {
 	template<typename FieldType_>
@@ -18,18 +19,18 @@ namespace Spf {
 		typedef typename Dmrg::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
 		
-		Phonon(size_t vol,const std::string& mcstarttype) : phonon(vol),isFrozen(false)
+		Phonon(size_t vol,const std::string& mcstarttype) : size(vol),phonon(vol),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);
 			(*this)<=ioin;
 			if (phonon.size()==0) throw std::runtime_error("Problem in phonon\n");
 		}
-				
-		size_t size() const { return phonon.size(); }
 		
-		std::vector<FieldType> phonon;
+		size_t size;
+		std::vector<PsimagLite::Vector<FieldType> > phonon;
 		bool isFrozen;
+		
 	}; // Spin
 	
 	template<typename FieldType>
@@ -51,6 +52,7 @@ namespace Spf {
 		
 		return dynVars;
 	}
+
 	
 } // namespace Spf
 
