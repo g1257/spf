@@ -37,7 +37,8 @@ namespace Spf {
 		public:
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PnictidesTwoOrbitalsFields<FieldType> DynVarsType;
-		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::Var1Type> ClassicalSpinOperationsType;
+		typedef typename DynVarsType::SpinType SpinType;
+		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::SpinType> ClassicalSpinOperationsType;
 		typedef ObservablesStored<ClassicalSpinOperationsType> ObservablesStoredType;
 		
 		
@@ -65,7 +66,7 @@ namespace Spf {
 			return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		}
 		
-		void set(typename DynVarsType::Var1Type& dynVars) { spinOperations_.set(dynVars); }
+		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
@@ -73,7 +74,7 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
-			const typename DynVarsType::Var1Type& dynVars = dynVars_.getField(0);
+			const SpinType& dynVars = dynVars_.template getField<0,SpinType>();
 			
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
@@ -122,9 +123,9 @@ namespace Spf {
 			observablesStored_(dynVars);
 		} // doMeasurements
 		
-		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) const
+		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
-			const typename DynVarsType::Var1Type& dynVars = dynVars_.getField(0);
+			const SpinType& dynVars = dynVars_.template getField<0,SpinType>();
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
 			else createHamiltonian(dynVars,matrix);
 		}
@@ -161,7 +162,7 @@ namespace Spf {
 		
 		private:
 		
-		void createHamiltonian(const typename DynVarsType::Var1Type& dynVars,MatrixType& matrix) const
+		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = nbands_;
@@ -220,7 +221,7 @@ namespace Spf {
 		}
 
 		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
-				typename DynVarsType::Var1Type& dynVars,size_t site) const
+				typename DynVarsType::SpinType& dynVars,size_t site) const
 		{
 			
 			jmatrix[0]=0.5*cos(dynVars.theta[site]);

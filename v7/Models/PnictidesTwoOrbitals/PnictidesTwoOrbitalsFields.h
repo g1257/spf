@@ -87,35 +87,30 @@ namespace Spf {
 	template<typename FieldType>
 	class PnictidesTwoOrbitalsFields {
 	public:	
-		typedef Spin<FieldType> Var1Type;
+		typedef Spin<FieldType> SpinType;
+		typedef SpinType Type0;
+		typedef SpinType Type1; // bogus
+		
 		PnictidesTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
-				spin_(vol,mcstarttype),void_(1,"none",false,true)
+				spin_(vol,mcstarttype)
 		{}
 		
 		size_t size() const { return 1; } // only spin for this model needs MC simulation
 		
 		const std::string& name(size_t i) const { return name_; }
 		
-		Var1Type& getField(size_t num)
+		template<int num,typename SomeType>
+		SomeType& getField()
 		{
-			if (num==0) return spin_;
-			else return void_;
+			return spin_;
 		}
-		
-		const Var1Type& getField(size_t num) const
-		{
-			if (num==0) return spin_;
-			else return void_;
-		}
-
 		
 		template<typename FieldType2>
 		friend std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType2>& f);
 		
 	private:
 		static const std::string name_;
-		Var1Type spin_;
-		Var1Type void_;
+		SpinType spin_;
 		
 	}; // PnictidesTwoOrbitalsFields
 	
@@ -127,6 +122,7 @@ namespace Spf {
 	}
 	template<typename FieldType>
 	const std::string PnictidesTwoOrbitalsFields<FieldType>::name_="spin";
+	
 } // namespace Spf
 
 /*@}*/

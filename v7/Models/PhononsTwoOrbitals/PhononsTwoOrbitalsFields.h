@@ -145,7 +145,7 @@ namespace Spf {
 
 	template<>
 	template<>
-	PhononsTwoOrbitalsFields<double>::PhononType& PhononsTwoOrbitalsFields<double>::getField<1,PhononsTwoOrbitalsFields<double>::PhononType>()	
+	PhononsTwoOrbitalsFields<double>::PhononType& PhononsTwoOrbitalsFields<double>::getField<1,PhononsTwoOrbitalsFields<double>::PhononType>()
 	{
 		return phonon_;
 	}
