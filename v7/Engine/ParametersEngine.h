@@ -100,7 +100,7 @@ namespace Spf {
 		mutable FieldType mu; // chemical potential 
 		FieldType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
-		FieldType mcWindow; // monte carlo window of change
+		std::vector<FieldType> mcWindow; // monte carlo window of change
 		std::string dynvarsfile; // file with fields to start from or none
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
@@ -144,7 +144,8 @@ namespace Spf {
 		os<<"parameters.iterTherm="<<parameters.iterTherm<<"\n";
 		os<<"parameters.iterEffective="<<parameters.iterEffective<<"\n";
 		os<<"parameters.iterUnmeasured="<<parameters.iterUnmeasured<<"\n";
-		os<<"parameters.mcWindow="<<parameters.mcWindow<<"\n";
+		os<<"parameters.mcWindow\n";
+		os<<parameters.mcWindow;
 		os<<"parameters.dynvarsfile="<<parameters.dynvarsfile<<"\n";
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";

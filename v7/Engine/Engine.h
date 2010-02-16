@@ -88,7 +88,9 @@ namespace Spf {
 			fout_<<"#This is SPF v7\n";
 			time_t t = time(0);
 			fout_<<ctime(&t);
+			fout_<<params_;
 			fout_<<model_;
+		
 		}
 		
 		void finalize()

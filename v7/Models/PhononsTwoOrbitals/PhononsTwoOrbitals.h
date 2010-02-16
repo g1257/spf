@@ -48,8 +48,8 @@ namespace Spf {
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
-					classicalSpinOperations_(geometry_,engineParams_.mcWindow),
-					phononOperations_(geometry_,engineParams_.mcWindow) // should be window for phonons
+					classicalSpinOperations_(geometry_,engineParams_.mcWindow[0]),
+					phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
 		{
 		}
 		
