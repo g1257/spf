@@ -19,7 +19,7 @@ namespace Spf {
 		typedef typename Dmrg::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
 		
-		Phonon(size_t vol,const std::string& mcstarttype) : size(vol),phonon(vol),isFrozen(false)
+		Phonon(size_t vol,const std::string& mcstarttype) : size(vol),phonon(vol, PsimagLite::Vector<FieldType>(3)),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);
@@ -28,6 +28,7 @@ namespace Spf {
 		}
 		
 		size_t size;
+                //PsimagLite::Vector<FieldType> dummy_;
 		std::vector<PsimagLite::Vector<FieldType> > phonon;
 		bool isFrozen;
 		
