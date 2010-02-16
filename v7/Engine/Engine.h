@@ -54,7 +54,9 @@ namespace Spf {
 				utils::printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
 				doMonteCarlo(accepted,dynVars_,iter);
 			}
+			std::cerr<<"\n";
 			printProgress(accepted);
+			
 // 			if (params_.iterTherm ==0) return;
 // 			std::string s = "Thermalization finished. ";
 // 			progress_.printline(s,fout_);
@@ -78,6 +80,7 @@ namespace Spf {
 				model_.doMeasurements(greenFunction,iter,fout_);
 				printProgress(accepted);
 			}
+			std::cerr<<"\n";
 		}
 		
 		void writeHeader()
@@ -98,7 +101,6 @@ namespace Spf {
 			time_t t = time(0);
 			fout_<<ctime(&t);
 			fout_<<"#EOF\n";
-			std::cerr<<"\n";
 		}
 		
 		
