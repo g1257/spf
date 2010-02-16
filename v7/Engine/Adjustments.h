@@ -31,19 +31,21 @@ namespace Spf {
 			FieldType mu=engineParams_.mu;
 			bool converged=false;
 			size_t n0=engineParams_.carriers;
-			
+			//std::cerr<<"Starting with "<<mu<<" n0="<<n0<<"\n";
+
 			for (size_t iter=0;iter<maxIter_;iter++) {
 				FieldType denom=nOfElectPrime(mu,engineParams_.beta,eigs);
 				FieldType tmp = nOfElectrons(mu,engineParams_.beta,eigs);
+				//std::cerr<<"with mu="<<mu<<" denom(prime) = "<<denom<<" electrons=" <<tmp<<"\n";
+
 				if (fabs(denom)<1e-3) break;
 				mu = mu -(tmp-n0)/denom;
-
+				//std::cerr<<"iter="<<iter<<" mu ="<<mu<<"\n";
 				if (fabs(nOfElectrons(mu,engineParams_.beta,eigs)-n0)<tolerance_) {
 					converged=true;
 					break;
 				}
 			}
-			
 			if (!converged) {
 				std::cerr<<"achieved: "<<nOfElectrons(mu,engineParams_.beta,eigs)<<" "<<mu<<"\n";
 				throw std::runtime_error("Adjustments: adjChemPot: Failed to converged.\n");
@@ -62,6 +64,10 @@ namespace Spf {
 		{
 			FieldType sum = 0;
 			for (size_t i=0;i<eig.size();i++) sum += utils::fermi((eig[i]-mu)*beta);
+			//for (size_t i=0;i<eig.size()-1;i++) {
+			       //if (eig[i]>eig[i+1]) throw std::runtime_error("problem sorting\n");
+			       //std::cerr<<i<<" "<<eig[i]<<"\n";
+			//}	       
 			return sum;
 		}
 
