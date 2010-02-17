@@ -47,6 +47,23 @@ namespace Spf {
 			return sum;
 				
 		}
+		
+		void localCharge(PsimagLite::Vector<FieldType>& lc)
+		{
+			for (size_t i=0;i<hilbertSize_;i++) {
+				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
+					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
+					FieldType s = real(tmp)*utils::fermi(engineParams_.beta*
+							(algorithm_.e(lambda)-engineParams_.mu));
+					//if (ether.isSet("savelcd")) {
+					//	lc[i+alpha*linSize] = s;
+					//} else {
+						lc[i] += s;
+					//}
+				}
+			}
+		}
+
 		ComplexType matrix(size_t lambda1,size_t lambda2)
 		{
 			return algorithm_.matrix(lambda1,lambda2);
