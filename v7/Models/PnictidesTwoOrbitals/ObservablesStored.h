@@ -21,19 +21,21 @@ namespace Spf {
 		typedef PsimagLite::Vector<FieldType> VectorType;
 		
 	public:
-		ObservablesStored(SpinOperationsType& spinOperations,size_t vol) : 
-			spinOperations_(spinOperations),cc_(vol)
+		ObservablesStored(SpinOperationsType& spinOperations,size_t vol,size_t nbands) : 
+			spinOperations_(spinOperations),cc_(vol),lc_(nbands*vol)
 		{}
 				
-		void operator()(const DynVarsType& spins)
+		template<typename GreenFunctionType>
+		void operator()(const DynVarsType& spins,GreenFunctionType& greenFunction)
 		{
 			spinOperations_.classicalCorrelations(cc_,spins);
+			greenFunction.localCharge(lc_);
 			counter_++;
 		}
 		
 		void finalize(std::ostream& fout)
 		{
-			//cc_/=counter_;
+			cc_/=counter_;
 			fout<<"#ClassicalCorrelations:\n";
 			fout<<cc_;	
 		}
@@ -41,6 +43,7 @@ namespace Spf {
 	private:
 		SpinOperationsType& spinOperations_;
 		VectorType cc_;
+		VectorType lc_;
 		size_t counter_;
 	}; // ObservablesStored
 	

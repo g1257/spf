@@ -22,9 +22,9 @@ sub loadData {
 	while(<FILE>) {
 		last if (/^$finalLabel/);
 	}
-	#$_=<FILE>; # size;
+	$_=<FILE>; # size;
 	chomp;
-	my $n = 64; #$_;	
+	my $n = $_;	
 	my $counter=0;
 	while (<FILE>) {
 		chomp;

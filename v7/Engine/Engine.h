@@ -76,7 +76,7 @@ namespace Spf {
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
-				GreenFunctionType greenFunction(algorithm_);
+				GreenFunctionType greenFunction(params_,algorithm_,model_.hilbertSize());
 				model_.doMeasurements(greenFunction,iter,fout_);
 				printProgress(accepted);
 			}

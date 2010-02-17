@@ -49,7 +49,7 @@ namespace Spf {
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow[0]),
-					observablesStored_(spinOperations_,geometry.volume()) 
+					observablesStored_(spinOperations_,geometry.volume(),nbands_)
 		{
 		}
 		
@@ -79,13 +79,13 @@ namespace Spf {
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
 				
-			FieldType temp=calcNumber(greenFunction);
+			FieldType temp=greenFunction.calcNumber();
 			s ="Number_Of_Electrons="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
 			//s = "rankGlobal=";
 			
-			temp=calcElectronicEnergy(greenFunction);
+			temp=greenFunction.calcElectronicEnergy();
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -120,7 +120,7 @@ namespace Spf {
 // 			s ="KineticEnergy="+utils::ttos(temp);
 // 			progress_.printline(s,fout);
 			
-			observablesStored_(dynVars);
+			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
 		
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
@@ -236,15 +236,7 @@ namespace Spf {
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
 		}
 		
-		template<typename GreenFunctionType>
-		FieldType calcNumber(GreenFunctionType& greenFunction) const
-		{
-			FieldType sum=0;
-			for (size_t i=0;i<hilbertSize_;i++) {
-				sum += utils::fermi((greenFunction.e(i)-engineParams_.mu)*engineParams_.beta);
-			}
-			return sum;
-		}
+		
 
 // 		template<typename GreenFunctionType>
 // 		FieldType calcNumber(GreenFunctionType& greenFunction) const
@@ -256,16 +248,7 @@ namespace Spf {
 // 			return sum;
 // 		}
 
-		template<typename GreenFunctionType>
-		FieldType calcElectronicEnergy(GreenFunctionType& greenFunction) const
-		{
-			FieldType sum=0;
-			for (size_t i=0;i<hilbertSize_;i++) {
-				sum +=greenFunction.e(i)*utils::fermi((greenFunction.e(i)-engineParams_.mu)*engineParams_.beta);
-			}
-			return sum;
-				
-		}
+		
 
 		
 		FieldType calcKinetic(const DynVarsType& dynVars,

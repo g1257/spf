@@ -75,7 +75,7 @@ typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType> Model
 typedef ModelType::DynVarsType DynVarsType;
 typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
-typedef Spf::GreenFunction<AlgorithmType> GreenFunctionType;
+typedef Spf::GreenFunction<ParametersEngineType,AlgorithmType> GreenFunctionType;
 typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType,GreenFunctionType> EngineType;
 
  

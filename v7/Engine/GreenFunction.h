@@ -12,13 +12,14 @@
 #include "Utils.h"
 
 namespace Spf {
-	template<typename AlgorithmType>
+	template<typename EngineParametersType,typename AlgorithmType>
 	class GreenFunction {
 		typedef typename AlgorithmType::FieldType FieldType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
 	public:	
 		
-		GreenFunction(AlgorithmType& algorithm) : algorithm_(algorithm)
+		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,size_t hilbertSize) :
+			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize)
 		{
 		}
 		
@@ -27,6 +28,25 @@ namespace Spf {
 			return algorithm_.greenFunction(lambda1,lambda2);
 		}
 		
+		FieldType calcNumber() const
+		{
+			FieldType sum=0;
+			for (size_t i=0;i<hilbertSize_;i++) {
+				sum += utils::fermi((algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
+			}
+			return sum;
+		}
+		
+		
+		FieldType calcElectronicEnergy() const
+		{
+			FieldType sum=0;
+			for (size_t i=0;i<hilbertSize_;i++) {
+				sum +=algorithm_.e(i)*utils::fermi((algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
+			}
+			return sum;
+				
+		}
 		ComplexType matrix(size_t lambda1,size_t lambda2)
 		{
 			return algorithm_.matrix(lambda1,lambda2);
@@ -37,13 +57,15 @@ namespace Spf {
 			return algorithm_.e(i);
 		}
 		
-	private:			
+	private:
+		const EngineParametersType& engineParams_;	
 		AlgorithmType& algorithm_;
+		size_t hilbertSize_;
 		
 	}; // GreenFunction
 	
-	template<typename AlgorithmType>
-	std::ostream& operator<<(std::ostream& os,GreenFunction<AlgorithmType>& algorithm)
+	template<typename EngineParametersType,typename AlgorithmType>
+	std::ostream& operator<<(std::ostream& os,GreenFunction<EngineParametersType,AlgorithmType>& algorithm)
 	{
 		throw std::runtime_error("unimplemented operator<< for GreenFunction\n");
 		return os;
