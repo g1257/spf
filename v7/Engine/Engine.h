@@ -23,7 +23,6 @@ namespace Spf {
 		typedef typename ParametersType::FieldType FieldType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
-		typedef MonteCarlo<ParametersType,ModelType,AlgorithmType,RandomNumberGeneratorType> MonteCarloType;
 		typedef std::pair<size_t,size_t> PairType;
 		
 		public:
@@ -31,7 +30,7 @@ namespace Spf {
 		Engine(ParametersType& params,ModelType& model,AlgorithmType& algorithm,ConcurrencyType& concurrency) 
 			: params_(params),algorithm_(algorithm),model_(model),dynVars_(model.dynVars()),
 				  concurrency_(concurrency),fout_(params_.filename.c_str()),
-				  progress_("Engine",concurrency.rank()),monteCarlo_(params,model,algorithm)
+				  progress_("Engine",concurrency.rank())
 		{
 			writeHeader();
 		}
@@ -108,14 +107,27 @@ namespace Spf {
 		
 		void doMonteCarlo(std::vector<PairType>& accepted,DynVarsType& dynVars, size_t iter)
 		{
-			
-			PairType res= monteCarlo_(dynVars.template getField<0,typename DynVarsType::Type0>(),iter); // (accepted, totalflips)
+			typedef typename DynVarsType::OperationsType0 OperationsType0;
+			typedef typename DynVarsType::Type0 Type0;
+			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmType,RandomNumberGeneratorType,
+					Type0> MonteCarloType0;
+
+			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm_);
+			Type0& spinPart = dynVars.getField((Type0*)0);
+			PairType res= monteCarlo0(spinPart,iter); // (accepted, totalflips)
 			accepted[0].first += res.first;
 			accepted[0].second += res.second;
 			
 			if (dynVars.size()==1) return;
 			
-			res= monteCarlo_(dynVars.template getField<1,typename DynVarsType::Type1>(),iter); // (accepted, totalflips)
+			typedef typename DynVarsType::OperationsType1 OperationsType1;
+			typedef typename DynVarsType::Type1 Type1;
+			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmType,RandomNumberGeneratorType,
+   				Type1> MonteCarloType1;
+			
+			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm_);
+			Type1& phononPart = dynVars.getField((Type1*)0);
+			res= monteCarlo1(phononPart,iter); // (accepted, totalflips)
 			accepted[1].first += res.first;
 			accepted[1].second += res.second;
 			
@@ -139,7 +151,6 @@ namespace Spf {
 		ConcurrencyType& concurrency_;
 		std::ofstream fout_;
 		ProgressIndicatorType progress_;
-		MonteCarloType monteCarlo_;
 		
 	}; // Engine
 } // namespace Spf

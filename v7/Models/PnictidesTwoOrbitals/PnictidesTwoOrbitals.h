@@ -15,7 +15,6 @@
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
 #include "SpinOperations.h"
-#include "MonteCarlo.h"
 #include "ModelBase.h"
 #include "ObservablesStored.h"
 
@@ -38,8 +37,8 @@ namespace Spf {
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PnictidesTwoOrbitalsFields<FieldType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
-		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::SpinType> ClassicalSpinOperationsType;
-		typedef ObservablesStored<ClassicalSpinOperationsType> ObservablesStoredType;
+		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::SpinType> SpinOperationsType;
+		typedef ObservablesStored<SpinOperationsType> ObservablesStoredType;
 		
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -67,24 +66,6 @@ namespace Spf {
 		}
 		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
-		
-		template<typename RandomNumberGeneratorType>
-		void proposeChange(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
-				
-		//! How to sweep the lattice
-		template<typename RandomNumberGeneratorType>
-		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
-		{
-			return i; //<-- zig-zag horizontal
-			// zig-zag vertical:
-			/*size_t l = geometry_.length();
-			size_t x = i % l;
-			size_t y = i / l;
-			return y + x*l;*/
-			// random:
-			//return size_t(rng()*geometry_.volume());
-			
-		}
 		
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
@@ -295,7 +276,7 @@ namespace Spf {
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
-		ClassicalSpinOperationsType spinOperations_;
+		SpinOperationsType spinOperations_;
 		ObservablesStoredType observablesStored_;
 	}; // PnictidesTwoOrbitals
 

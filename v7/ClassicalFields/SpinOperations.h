@@ -33,9 +33,24 @@ namespace Spf {
 		{
 			dynVars_=&dynVars;
 		}
+
+		//! How to sweep the lattice
+		template<typename RandomNumberGeneratorType>
+		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
+		{
+			return i; //<-- zig-zag horizontal
+			// zig-zag vertical:
+			/*size_t l = geometry_.length();
+			size_t x = i % l;
+			size_t y = i / l;
+			return y + x*l;*/
+			// random:
+			//return size_t(rng()*geometry_.volume());
+			
+		}
 		
 		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng)
+		void proposeChange(size_t i,RandomNumberGeneratorType& rng)
 		{
 			FieldType thetaOld = dynVars_->theta[i];
 			FieldType phiOld = dynVars_->phi[i];

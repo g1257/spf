@@ -13,25 +13,25 @@
 #include "ProgressIndicator.h"
 
 namespace Spf {
-	template<typename EngineParamsType,typename ModelType,typename AlgorithmType,typename RandomNumberGeneratorType>
+	template<typename EngineParamsType,typename OperationsType,typename AlgorithmType,typename RandomNumberGeneratorType,
+ typename DynVarsType>
 	class MonteCarlo {
 		typedef std::pair<size_t,size_t> PairType;
 		
 	public:
 		typedef typename EngineParamsType::FieldType FieldType;
 		
-		MonteCarlo(const EngineParamsType& engineParams,ModelType& model,AlgorithmType& algorithm) 
-			: engineParams_(engineParams),model_(model),rng_(),algorithm_(algorithm) { }
+		MonteCarlo(const EngineParamsType& engineParams,OperationsType& ops,AlgorithmType& algorithm) 
+			: engineParams_(engineParams),ops_(ops),rng_(),algorithm_(algorithm) { }
 		
-		template<typename DynVarsType> // DynVarsType is either Spin or Phonon
 		PairType operator()(DynVarsType& dynVars, size_t iter)
 		{
 			PairType acc = PairType(0,0);
-			model_.set(dynVars);
+			ops_.set(dynVars);
 			algorithm_.init();
 			for (size_t j=0;j<dynVars.size;j++) {
-				size_t i = model_.proposeSite(j,rng_);	
-				model_.proposeChange(i,rng_);
+				size_t i = ops_.proposeSite(j,rng_);	
+				ops_.proposeChange(i,rng_);
 				
 				bool flag= algorithm_.isAccepted(i);
 				//std::cerr<<"flag="<<flag<<"\n";
@@ -49,9 +49,10 @@ namespace Spf {
 	private:
 		
 		const EngineParamsType& engineParams_;
-		ModelType& model_;
+		OperationsType& ops_;
 		RandomNumberGeneratorType rng_;
 		AlgorithmType& algorithm_;
+		
 	}; // MonteCarlo
 } // namespace Spf
 

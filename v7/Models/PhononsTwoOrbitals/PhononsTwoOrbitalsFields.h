@@ -83,15 +83,21 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #define PHONONS_2ORB_FIELDS_H
 #include "Spin.h"
 #include "Phonon.h"
+#include "SpinOperations.h"
+#include "PhononOperations.h"
 
 namespace Spf {
-	template<typename FieldType>
+	template<typename FieldType,typename GeometryType>
 	class PhononsTwoOrbitalsFields {
 	public:
 		typedef Spin<FieldType> SpinType;
 		typedef Phonon<FieldType> PhononType;
+		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
+		typedef PhononOperations<GeometryType,PhononType> PhononOperationsType;
 		typedef SpinType Type0;
 		typedef PhononType Type1;
+		typedef SpinOperationsType OperationsType0;
+		typedef PhononOperationsType OperationsType1;
 		
 		PhononsTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
 				spin_(vol,mcstarttype),phonon_(vol,mcstarttype)
@@ -106,18 +112,18 @@ namespace Spf {
 		
 		const std::string& name(size_t i) const { return name_[i]; }
 		
+		SpinType& getField(SpinType*)
+		{
+			return spin_;
+		}
 		
-// 		template<typename T>
-// 		T& getField(T&)
-// 		{
-// 			throw std::runtime_error("Should not reach here!\n");
-// 		}
+		PhononType& getField(PhononType*)
+		{
+			return phonon_;
+		}
 		
-		template<int num,typename SomeType>
-		SomeType& getField();
-		
-		template<typename FieldType2>
-		friend std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType2>& f);
+		template<typename FieldType2,typename GeometryType2>
+		friend std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
 		static std::vector<std::string> name_;
@@ -126,17 +132,17 @@ namespace Spf {
 		
 	}; // PhononsTwoOrbitalsFields
 	
-	template<typename FieldType>
-	std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType>& f)
+	template<typename FieldType,typename GeometryType>
+	std::ostream& operator<<(std::ostream& os,PhononsTwoOrbitalsFields<FieldType,GeometryType>& f)
 	{
 		os<<f.spin_;
 		os<<f.phonon_;
 		return os;
 	}
-	template<typename FieldType>
-	std::vector<std::string> PhononsTwoOrbitalsFields<FieldType>::name_(2);
+	template<typename FieldType,typename GeometryType>
+	std::vector<std::string> PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
 	
-	template<>
+	/*template<>
 	template<>
 	PhononsTwoOrbitalsFields<double>::SpinType& PhononsTwoOrbitalsFields<double>::getField<0, PhononsTwoOrbitalsFields<double>::SpinType>()	
 	{
@@ -148,7 +154,7 @@ namespace Spf {
 	PhononsTwoOrbitalsFields<double>::PhononType& PhononsTwoOrbitalsFields<double>::getField<1,PhononsTwoOrbitalsFields<double>::PhononType>()
 	{
 		return phonon_;
-	}
+	}*/
 } // namespace Spf
 
 /*@}*/

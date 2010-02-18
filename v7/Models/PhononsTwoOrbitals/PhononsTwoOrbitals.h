@@ -16,14 +16,13 @@
 #include "Adjustments.h"
 #include "SpinOperations.h"
 #include "PhononOperations.h"
-#include "MonteCarlo.h"
 #include "ModelBase.h"
 
 namespace Spf {
 	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
 	class PhononsTwoOrbitals : public ModelBase
 			<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
-		
+
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
@@ -36,11 +35,12 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef PhononsTwoOrbitalsFields<FieldType> DynVarsType;
+		typedef PhononsTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::PhononType PhononType;
-		typedef ClassicalSpinOperations<GeometryType,SpinType> ClassicalSpinOperationsType;
-		typedef PhononOperations<GeometryType,PhononType> PhononOperationsType;
+		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
+		typedef typename DynVarsType::PhononOperationsType PhononOperationsType;
+		
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
@@ -48,7 +48,7 @@ namespace Spf {
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
-					classicalSpinOperations_(geometry_,engineParams_.mcWindow[0]),
+					spinOperations_(geometry_,engineParams_.mcWindow[0]),
 					phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
 		{
 		}
@@ -57,26 +57,25 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		//size_t dof() const { return 2; }
+		PhononOperationsType& ops(PhononOperationsType*) { return phononOperations_; }
+		
+		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
 		FieldType deltaDirect(size_t i) const 
 		{
-			return classicalSpinOperations_.deltaDirect(i,mp_.jaf,0);
+			return spinOperations_.deltaDirect(i,mp_.jaf,0);
 		}
-		
-		void set(SpinType& dynVars) { classicalSpinOperations_.set(dynVars); }
-		
-		void set(PhononType& dynVars) { phononOperations_.set(dynVars); }
-		
+
 		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng) { classicalSpinOperations_.propose(i,rng); }
+		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
 				
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
-			const SpinType& spinPart = dynVars_.template getField<0,typename DynVarsType::Type0>();
+			typedef typename DynVarsType::Type0 Type0;
+			const SpinType& spinPart = dynVars_.getField((Type0*)0);
 			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
 			
 			std::string s = "iter=" + utils::ttos(iter); 
@@ -92,7 +91,7 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=classicalSpinOperations_.calcSuperExchange(spinPart, mp_.jaf);
+			FieldType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
@@ -108,7 +107,7 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = classicalSpinOperations_.calcMag(spinPart);
+			temp = spinOperations_.calcMag(spinPart);
 			s="Mag2="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -121,8 +120,9 @@ namespace Spf {
 		
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) 
 		{
-			DynVarsType newDynVars(classicalSpinOperations_.dynVars2(),
-					       dynVars_.template getField<1,PhononType>());
+			typedef typename DynVarsType::Type1 Type1;
+			DynVarsType newDynVars(spinOperations_.dynVars2(),
+					       dynVars_.getField((Type1*)0));
 			
 			
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
@@ -142,12 +142,12 @@ namespace Spf {
 		
 		void accept(size_t i) 
 		{
-			return classicalSpinOperations_.accept(i);
+			return spinOperations_.accept(i);
 		}
 		
 		FieldType integrationMeasure(size_t i)
 		{
-			return classicalSpinOperations_.sineUpdate(i);
+			return spinOperations_.sineUpdate(i);
 		}
 		
 		void finalize(std::ostream& fout)
@@ -164,8 +164,8 @@ namespace Spf {
 		void createHamiltonian(DynVarsType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
-			const SpinType& spinPart = dynVars.template getField<0,typename DynVarsType::Type0>();
-			const PhononType& phononPart = dynVars.template getField<1,typename DynVarsType::Type1>();
+			const SpinType& spinPart = dynVars.getField((SpinType*)0);
+			const PhononType& phononPart = dynVars.getField((PhononType*)0);
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
@@ -259,7 +259,7 @@ namespace Spf {
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
-		ClassicalSpinOperationsType classicalSpinOperations_;
+		SpinOperationsType spinOperations_;
 		PhononOperationsType phononOperations_;
 	}; // PhononsTwoOrbitals
 

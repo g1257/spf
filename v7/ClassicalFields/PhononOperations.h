@@ -11,12 +11,13 @@
 #define PHONON_OPS_H_
 
 #include "Utils.h"
+#include "Vector.h"
 
 namespace Spf {
 	template<typename GeometryType,typename DynVarsType> // DynVarsType == PhononsType
 	class PhononOperations {
 		typedef typename DynVarsType::FieldType FieldType;
-		typedef std::vector<FieldType> PhononType;
+		typedef PsimagLite::Vector<FieldType> PhononType;
 		
 	public:
 		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
@@ -28,15 +29,31 @@ namespace Spf {
 		{
 			dynVars_=&dynVars;
 		}
+
+		//! How to sweep the lattice
+		template<typename RandomNumberGeneratorType>
+		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
+		{
+			return i; //<-- zig-zag horizontal
+			// zig-zag vertical:
+			/*size_t l = geometry_.length();
+			size_t x = i % l;
+			size_t y = i / l;
+			return y + x*l;*/
+			// random:
+			//return size_t(rng()*geometry_.volume());
+			
+		}
+		
 		
 		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng)
+		void proposeChange(size_t i,RandomNumberGeneratorType& rng)
 		{
-			PhononType phononsOld = dynVars_->phonons[i];
+			PhononType phononsOld = dynVars_->phonon[i];
 			
 			dynVars2_ = *dynVars_;
 			
-			propose_(phononsOld,dynVars2_.phonons[i],rng);
+			propose_(phononsOld,dynVars2_.phonon[i],rng);
 		}
 		
 		const DynVarsType& dynVars2() const { return dynVars2_; } 
