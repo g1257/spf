@@ -112,7 +112,7 @@ namespace Spf {
 			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmType,RandomNumberGeneratorType,
 					Type0> MonteCarloType0;
 
-			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm_);
+			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm_,rng_);
 			Type0& spinPart = dynVars.getField((Type0*)0);
 			PairType res= monteCarlo0(spinPart,iter); // (accepted, totalflips)
 			accepted[0].first += res.first;
@@ -125,7 +125,7 @@ namespace Spf {
 			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmType,RandomNumberGeneratorType,
    				Type1> MonteCarloType1;
 			
-			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm_);
+			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm_,rng_);
 			Type1& phononPart = dynVars.getField((Type1*)0);
 			res= monteCarlo1(phononPart,iter); // (accepted, totalflips)
 			accepted[1].first += res.first;
@@ -151,7 +151,7 @@ namespace Spf {
 		ConcurrencyType& concurrency_;
 		std::ofstream fout_;
 		ProgressIndicatorType progress_;
-		
+		RandomNumberGeneratorType rng_;
 	}; // Engine
 } // namespace Spf
 

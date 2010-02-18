@@ -35,9 +35,9 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef PnictidesTwoOrbitalsFields<FieldType> DynVarsType;
+		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
-		typedef ClassicalSpinOperations<GeometryType,typename DynVarsType::SpinType> SpinOperationsType;
+		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ObservablesStored<SpinOperationsType> ObservablesStoredType;
 		
 		
@@ -56,7 +56,7 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		//size_t dof() const { return 2; }
+		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
@@ -70,7 +70,7 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
-			const SpinType& dynVars = dynVars_.template getField<0,SpinType>();
+			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
@@ -121,7 +121,7 @@ namespace Spf {
 		
 		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
-			const SpinType& dynVars = dynVars_.template getField<0,SpinType>();
+			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
 			else createHamiltonian(dynVars,matrix);
 		}

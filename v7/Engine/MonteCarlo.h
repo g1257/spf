@@ -21,8 +21,9 @@ namespace Spf {
 	public:
 		typedef typename EngineParamsType::FieldType FieldType;
 		
-		MonteCarlo(const EngineParamsType& engineParams,OperationsType& ops,AlgorithmType& algorithm) 
-			: engineParams_(engineParams),ops_(ops),rng_(),algorithm_(algorithm) { }
+		MonteCarlo(const EngineParamsType& engineParams,OperationsType& ops,AlgorithmType& algorithm,
+			   RandomNumberGeneratorType& rng) 
+			: engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
 		
 		PairType operator()(DynVarsType& dynVars, size_t iter)
 		{

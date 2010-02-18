@@ -82,14 +82,18 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef PNICTIDES_2ORB_FIELDS_H
 #define PNICTIDES_2ORB_FIELDS_H
 #include "Spin.h"
+#include "SpinOperations.h"
 
 namespace Spf {
-	template<typename FieldType>
+	template<typename FieldType,typename GeometryType>
 	class PnictidesTwoOrbitalsFields {
 	public:	
 		typedef Spin<FieldType> SpinType;
+		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
 		typedef SpinType Type0;
-		typedef SpinType Type1; // bogus
+		typedef SpinType Type1; //bogus
+		typedef SpinOperationsType OperationsType0;
+		typedef SpinOperationsType OperationsType1; // bogus
 		
 		PnictidesTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
 				spin_(vol,mcstarttype)
@@ -99,14 +103,14 @@ namespace Spf {
 		
 		const std::string& name(size_t i) const { return name_; }
 		
-		template<int num,typename SomeType>
-		SomeType& getField()
+		
+		SpinType& getField(SpinType*)
 		{
 			return spin_;
 		}
 		
-		template<typename FieldType2>
-		friend std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType2>& f);
+		template<typename FieldType2,typename GeometryType2>
+		friend std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
 		static const std::string name_;
@@ -114,14 +118,14 @@ namespace Spf {
 		
 	}; // PnictidesTwoOrbitalsFields
 	
-	template<typename FieldType>
-	std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType>& f)
+	template<typename FieldType,typename GeometryType>
+	std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType,GeometryType>& f)
 	{
 		os<<f.spin_;
 		return os;
 	}
-	template<typename FieldType>
-	const std::string PnictidesTwoOrbitalsFields<FieldType>::name_="spin";
+	template<typename FieldType,typename GeometryType>
+	const std::string PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
 	
 } // namespace Spf
 

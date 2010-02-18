@@ -47,7 +47,7 @@ namespace Spf {
 			//testMatrix();
 			//testEigs();
 			
-			model_.adjustChemPot(eigNew_); //changes engineParams_.mu
+			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			FieldType integrationMeasure = model_.integrationMeasure(i);
 				
 			return doMetropolis(dsDirect,integrationMeasure);
