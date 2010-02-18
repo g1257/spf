@@ -37,7 +37,6 @@ namespace Spf {
 			return sum;
 		}
 		
-		
 		FieldType calcElectronicEnergy() const
 		{
 			FieldType sum=0;

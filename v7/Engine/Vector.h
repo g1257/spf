@@ -20,11 +20,11 @@ namespace PsimagLite {
 			Vector(size_t n) : data_(n) {}
 			Vector() { }
 			
-			void operator/=(FieldType d)
+			void operator/=(const FieldType& d)
 			{
 				if (d==0) return;
 				for (size_t i=0;i<data_.size();i++)
-					data_[i] /= d;	
+					data_[i] /= d;
 			}
 			
 			size_t size() const { return data_.size(); }

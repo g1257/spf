@@ -29,9 +29,9 @@ namespace Spf {
 			PairType acc = PairType(0,0);
 			model_.set(dynVars);
 			algorithm_.init();
-			for (size_t i=0;i<dynVars.size;i++) {
-					
-				model_.propose(i,rng_);
+			for (size_t j=0;j<dynVars.size;j++) {
+				size_t i = model_.proposeSite(j,rng_);	
+				model_.proposeChange(i,rng_);
 				
 				bool flag= algorithm_.isAccepted(i);
 				//std::cerr<<"flag="<<flag<<"\n";
@@ -47,7 +47,6 @@ namespace Spf {
 		}
 		
 	private:
-		
 		
 		const EngineParamsType& engineParams_;
 		ModelType& model_;

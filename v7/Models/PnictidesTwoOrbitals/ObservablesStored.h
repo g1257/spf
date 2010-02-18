@@ -47,7 +47,7 @@ namespace Spf {
 		
 		void divideAndPrint(std::ostream& fout,VectorType& v,const std::string& label)
 		{
-			v/=counter_;
+			//v/=counter_;
 			fout<<label<<"\n";
 			fout<<v;
 		}

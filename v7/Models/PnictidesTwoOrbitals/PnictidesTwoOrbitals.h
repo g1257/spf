@@ -49,7 +49,7 @@ namespace Spf {
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow[0]),
-					observablesStored_(spinOperations_,geometry.volume(),nbands_)
+					observablesStored_(spinOperations_,geometry.volume(),hilbertSize_)
 		{
 		}
 		
@@ -69,8 +69,23 @@ namespace Spf {
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
 		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
+		void proposeChange(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
 				
+		//! How to sweep the lattice
+		template<typename RandomNumberGeneratorType>
+		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
+		{
+			return i; //<-- zig-zag horizontal
+			// zig-zag vertical:
+			/*size_t l = geometry_.length();
+			size_t x = i % l;
+			size_t y = i / l;
+			return y + x*l;*/
+			// random:
+			//return size_t(rng()*geometry_.volume());
+			
+		}
+		
 		template<typename GreenFunctionType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
 		{
@@ -143,7 +158,7 @@ namespace Spf {
 		
 		void accept(size_t i) 
 		{
-			return spinOperations_.accept(i);
+			spinOperations_.accept(i);
 		}
 		
 		FieldType integrationMeasure(size_t i)

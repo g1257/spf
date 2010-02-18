@@ -40,7 +40,7 @@ namespace Spf {
 		
 		size_t add(size_t ind,size_t ind2) const
 		{
-			std::vector<size_t> x(2),y(2);
+			std::vector<int> x(2),y(2);
 			index2Coor(x,ind);
 			index2Coor(y,ind2);
 			for (size_t i=0;i<x.size();i++) {
@@ -52,6 +52,8 @@ namespace Spf {
 		
 		size_t dim() const { return 2; }
 		
+		size_t length() const { return l_; }
+		
 		private:
 		
 		void buildNeighbors()
@@ -62,15 +64,16 @@ namespace Spf {
 		
 		void neighborsAt1()
 		{
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t zz = 0;
+			int lx = l_;
+			int ly = l_;
+			int zz = 0;
 			//PairType zeroVal(0,0);
 			psimag::Matrix<PairType> matrix(lx*ly,4);
-			for (size_t y=0;y<ly;y++) {
-				for (size_t x=0;x<lx;x++) {
+			for (int y=0;y<ly;y++) {
+				for (int x=0;x<lx;x++) {
 					size_t i = x + y*lx;
-					size_t xx=x+1; size_t yy=y;
+					int xx=x+1;
+					int yy=y;
 					size_t counter = 0;
 					/*if (g_pbc(xx,lvector[0])) {
 						border.push_back(0);
@@ -106,18 +109,19 @@ namespace Spf {
 		
 		void neighborsAt2()
 		{
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t zz = 0;
+			int lx = l_;
+			int ly = l_;
+			int zz = 0;
 			//PairType zeroVal(0,0);
 			psimag::Matrix<PairType> matrix(lx*ly,4);
-			for (size_t y=0;y<ly;y++) {
-				for (size_t x=0;x<lx;x++) {
+			for (int y=0;y<ly;y++) {
+				for (int x=0;x<lx;x++) {
 					size_t i = x + y*lx;
-					size_t xx=x+1; size_t yy=y+1;
+					int xx=x+1; 
+					int yy=y+1;
 					size_t counter=0;
 					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
-					xx=x-1; yy=yy-1;
+					xx=x-1; yy=y-1;
 					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
 					xx=x-1; yy=y+1;
 					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXMY);
@@ -128,26 +132,24 @@ namespace Spf {
 			neighbors_.push_back(matrix);
 		}
 		
-		bool g_pbc(size_t& xx, size_t l) const
+		bool g_pbc(int& x, size_t l) const
 		{
-			int x = xx;
 			int L = l;
 			bool r=false;
 			if (x<0) r=true; 
 			if (x>=L) r=true; 
 			while(x<0) x+=L;
 			while(x>=L) x-=L;
-			xx = x;
 			return r;
 		}
 		
-		size_t g_index(std::vector<size_t>& x) const
+		size_t g_index(std::vector<int>& x) const
 		{
-			size_t zz=0;
+			int zz=0;
 			return g_index(x[0],x[1],zz);
 		}
 		
-		size_t g_index(size_t& x,size_t& y,size_t& z) const
+		size_t g_index(int& x,int& y,int& z) const
 		{
 			size_t lx = l_;
 			size_t ly = l_;
@@ -157,7 +159,7 @@ namespace Spf {
 			return x+y*lx; //+z*L*L;
 		}
 
-		void index2Coor(std::vector<size_t> &v,size_t i) const
+		void index2Coor(std::vector<int> &v,size_t i) const
 		{
 			size_t lx = l_;
 			v[0] = i%lx;
