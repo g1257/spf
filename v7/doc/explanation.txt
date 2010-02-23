@@ -1,0 +1,155 @@
+	
+I'd like you to focus on the file "main.cpp".
+This is the only .cpp file we have. 
+The rest are .h files that declare, define and implement the
+classes.
+
+The program starts in main.cpp, in this function:
+
+int main(int argc,char *argv[])
+
+(This is called the "entry point.")
+
+By the way, all C++ programs have a int main() function, 
+and that's where they all start.
+SPF has this main function in the file main.cpp.
+(In SPF main.cpp is written by the driver.pl script.
+This is because we have a different main.cpp for each model.
+But this is not very important for now.)
+
+At this point, we need to distinguish between:
+(i) Model independent code:
+This is the code that is the same for all models. As you'll see, we have different
+"flavors" of spin-fermion models for different materials (cuprates, pnictides, manganites, etc).
+And even for a single material such as manganites we have different models.
+
+So we don't want to have a code for each but we want to *reuse* as much code as possible.
+So, we'll try to make as much of the code model independent as possible.
+Model independent code is under the directories: 
+Engine/			<-- model-independent algorithmic stuff
+Geometries/		<-- model-independent geometries, square, rectangle, cube, honeycomb, triangular, etc 
+ClassicalFields/	<-- classical fields, such as "spins", "phonons", etc
+
+(ii) Model dependent code.
+The model we're interested in is under Models/PnictidesTwoOrbitals/
+Under this directory is the code specific to this model.
+
+In other words, we have a generic "engine" that builds a program using
+a given model. In this way, we reuse as much code as we can.
+As you will see, for the "engine" to be able to use our model we need
+to write our model in a certain way. In other words, the model needs
+to follow or implement an interface to the engine.
+In a sense, we need to tell the "engine" how our model looks like.
+
+But now let us go back to the "entry point", that is, to the "int main()" function,
+where program execution starts.
+This is a short function  (fits in a screen). I explain what each thing does
+briefly below. Remember that now I'm in file "main.cpp":
+
+Most of it is preparation for the action, if you will.
+So all this is preparation:
+
+// This is an object to handle serial and parallel code with the same
+ConcurrencyType concurrency(argc,argv);
+
+// Parameters of the engine, such as the Monte Carlo stuff
+ParametersEngineType engineParams;
+
+// Parameters specific to the model, such as the hoppings and couplings:
+ParametersModelType mp;
+
+// This is the "reader" that will read the input file
+Dmrg::SimpleReader reader(argv[1]);
+
+// We read the engine parameters first...
+reader.load(engineParams);
+
+// ...and then the model parameters
+reader.load(mp);
+
+// Now we build the geometry object...
+GeometryType geometry(mp.linSize);
+	
+// ... and the model object that represents our model
+ModelType model(engineParams,mp,geometry);
+
+//... we build an algorithm (Monte Carlo with exact diagonalization in this case)
+AlgorithmType algorithm(engineParams,model);
+
+// And finally, the engine
+// Note that we pass to the engine
+// the parameters, the model, the algorithm and the concurrency object	
+EngineType engine(engineParams,model,algorithm,concurrency);
+
+Now we came to the action part:
+// Now we tell the engine to do stuff!
+// This will run the Monte Carlo and compute the observables:	
+engine.main();
+
+// And that's all folks! We are done!
+
+We now need to revisit each step in more detail.
+Maybe it's better to start from the end, because only at the end
+is it that we do stuff. The rest is preparation, as I said.
+I'll explain preparation as well, but I think the part that
+does the stuff is more motivational.
+So, we'll look at:
+engine.main();
+
+Here engine is an object of class EngineType because we said:
+EngineType engine(...);
+
+And EngineType is really an Engine
+typedef Spf::Engine<...> EngineType;
+(you can also find this line in main.cpp)
+
+At this point, let me explain what typedef does.
+typedef simply create an alias for a type.
+So if you want integers (called "int" in C++) to go by the name of MyIntegers, you can say:
+typedef int MyIntegers;
+now MyIntegers are the same as int.
+So, why do we use typedefs?
+Well, because using 
+Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType,GreenFunctionType>
+is a bit long :-) and so we use
+EngineType
+as an alias to mean the same thing.
+
+So engine is an object of type Engine. 
+When we say:
+engine.main()
+we call function main() in class Engine.h
+Note the "." after the object engine. 
+We say that main() is a member function of Engine.
+
+So, now let's look in file
+Engine/Engine.h
+and look at function:
+void main()
+{
+	thermalize();
+	// announce thermalization done
+	measure();
+	// announce measurements done
+	finalize();
+}
+This is short, isn't it?
+So, what it does is very simple, if you know the basics of Monte Carlo. 
+(And if you don't, this is a good time to read about the classical Monte Carlo algorithm)
+So, the engine first "thermalizes" the Monte Carlo, then "measures" the observables
+and then it "finalizes", meaning it does some things that need to be done
+at the very end, like normalizing the averages, and writing the results to disk.
+
+From here we can go forward and explore what each function ---thermalize, measure and
+finalize--- does. You'll see that, for example, "thermalize" calls other functions, etc.
+So, the structure of the code resembles a fractal in a sense, and we could go on and on,
+each time revealing more and more fine detail about the code.
+
+I, however, will stop here, and let you explore things a little bit, to let you
+familiarize yourself with the syntax.
+You will see that each file is formatted in exactly the same way, and the writing is
+very uniform. I hope this helps.
+
+In any case, if you're not familiar with C++, we need to go through a few topics before.
+I'd be glad to help you with learning C++, but we need to think how to do this.
+C++ is the only lengthy thing you'll need to learn for this, perl is much easier.
