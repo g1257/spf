@@ -26,6 +26,8 @@ namespace PsimagLite {
 				for (size_t i=0;i<data_.size();i++)
 					data_[i] /= d;
 			}
+
+			void resize(size_t x) { data_.resize(x); }
 			
 			size_t size() const { return data_.size(); }
 			
@@ -55,6 +57,9 @@ namespace PsimagLite {
  	template<typename FieldType> // move somewhere else
  	std::istream& operator>>(std::istream& is,Vector<FieldType>& v)
  	{
+		size_t ss=0;
+		is>>ss;
+		v.resize(ss);
  		for (size_t i=0;i<v.size();i++) is>>v[i];
  		return is;
  	}
