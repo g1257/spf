@@ -76,13 +76,11 @@ sub generatefileAF
 	print "Phonon\n";
 	print "$linsize\n";
 	for (my $i=0; $i<$linsize; $i++) {
-		for (my $j=0; $j<3; $j++) {
-			print "3\n";
-			print "0\n";
-			print "0\n";
-			print "0\n";
-			#print "\n";
-		}
+		print "3\n";
+		print "0\n";
+		print "0\n";
+		print "0\n";
+		#print "\n";
 	}
 	print "IsFrozenPhonon $freezephonons\n";
 }
