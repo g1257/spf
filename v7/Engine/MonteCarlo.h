@@ -30,6 +30,7 @@ namespace Spf {
 			PairType acc = PairType(0,0);
 			ops_.set(dynVars);
 			algorithm_.init();
+			//std::cerr<<"F:"<<rng_()<<"\n";
 			for (size_t j=0;j<dynVars.size;j++) {
 				size_t i = ops_.proposeSite(j,rng_);	
 				ops_.proposeChange(i,rng_);
@@ -51,7 +52,7 @@ namespace Spf {
 		
 		const EngineParamsType& engineParams_;
 		OperationsType& ops_;
-		RandomNumberGeneratorType rng_;
+		RandomNumberGeneratorType& rng_;
 		AlgorithmType& algorithm_;
 		
 	}; // MonteCarlo
