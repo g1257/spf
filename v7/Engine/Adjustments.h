@@ -38,7 +38,8 @@ namespace Spf {
 				FieldType tmp = nOfElectrons(mu,engineParams_.beta,eigs);
 				//std::cerr<<"with mu="<<mu<<" denom(prime) = "<<denom<<" electrons=" <<tmp<<"\n";
 
-				if (fabs(denom)<1e-3) break;
+				//std::cerr<<"denom="<<denom<<"\n";
+				if (fabs(denom)<1e-5) break;
 				mu = mu -(tmp-n0)/denom;
 				//std::cerr<<"iter="<<iter<<" mu ="<<mu<<"\n";
 				if (fabs(nOfElectrons(mu,engineParams_.beta,eigs)-n0)<tolerance_) {
@@ -46,6 +47,10 @@ namespace Spf {
 					break;
 				}
 			}
+			if (fabs(nOfElectrons(mu,engineParams_.beta,eigs)-n0)<tolerance_) {
+				converged=true;
+			}
+
 			if (!converged) {
 				std::cerr<<"achieved: "<<nOfElectrons(mu,engineParams_.beta,eigs)<<" "<<mu<<"\n";
 				throw std::runtime_error("Adjustments: adjChemPot: Failed to converged.\n");
