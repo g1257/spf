@@ -24,7 +24,7 @@ namespace Spf {
 	public:
 		typedef DynVarsType_ DynVarsType;
 		
-		ClassicalSpinOperations(const GeometryType& geometry,const FieldType& mcwindow) 
+		ClassicalSpinOperations(const GeometryType& geometry,const std::vector<FieldType>& mcwindow) 
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
 		}
@@ -174,7 +174,7 @@ namespace Spf {
 				return;
 			} 
 		
-			if (mcwindow_<0) {
+			if (mcwindow_[0]<0) {
 				thetaNew = 2*rng()-1;
 				phiNew = 2*M_PI*rng();
 				thetaNew = acos(thetaNew);
@@ -182,7 +182,7 @@ namespace Spf {
 				thetaNew=2*rng()- 1;
 				if (thetaNew < -1) thetaNew= 0;
 				if (thetaNew > 1) thetaNew = 0;		
-				phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_;
+				phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_[1];
 				thetaNew = acos(thetaNew);
 			}
 			/*if (ether.isSet("sineupdate")) {
@@ -225,7 +225,7 @@ namespace Spf {
 		}
 		
 		const GeometryType& geometry_;
-		const FieldType& mcwindow_;
+		const std::vector<FieldType>& mcwindow_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
 		

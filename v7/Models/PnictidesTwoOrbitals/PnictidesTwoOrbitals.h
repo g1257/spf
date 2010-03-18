@@ -47,7 +47,7 @@ namespace Spf {
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					spinOperations_(geometry,engineParams.mcWindow[0]),
+					spinOperations_(geometry,engineParams.mcWindow),
 					observablesStored_(spinOperations_,geometry.volume(),hilbertSize_)
 		{
 		}
