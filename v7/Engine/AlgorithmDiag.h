@@ -77,7 +77,6 @@ namespace Spf {
 		
 		ComplexType matrix(size_t lambda1,size_t lambda2)
 		{
-			ComplexType sum = 0;
 			//FieldType beta = engineParams_.beta;
 			//FieldType mu = engineParams_.mu;
 			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
