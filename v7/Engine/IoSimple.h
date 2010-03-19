@@ -220,13 +220,20 @@ namespace Dmrg {
 
 				In(std::string const &fn) : filename_(fn), fin_(fn.c_str())
 				{
-					
+					if (!fin_ || fin_.bad() || !fin_.good()) {
+						std::cerr<<"IoSimple::In(...): open failed, file: "<<fn<<" (does it exits? is it readable?)\n";
+						throw std::runtime_error("IoSimple.h constructor\n");
+					}
 				}
 
 				void open(std::string const &fn)
 				{
 					filename_=fn;
 					fin_.open(fn.c_str());
+					if (!fin_ || fin_.bad() || !fin_.good()) {
+						std::cerr<<"IoSimple::In.open(...): open failed, file: "<<fn<<" (does it exits? is it readable?)\n";
+						throw std::runtime_error("IoSimple.h open(...)\n");
+					}
 				}
 
 				void close() 

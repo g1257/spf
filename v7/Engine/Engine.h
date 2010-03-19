@@ -144,7 +144,7 @@ namespace Spf {
 			}
 		}
 		
-		const ParametersType params_;
+		const ParametersType& params_;
 		AlgorithmType& algorithm_;
 		ModelType& model_;
 		DynVarsType& dynVars_;

@@ -34,14 +34,16 @@ namespace Spf {
 			for (size_t j=0;j<dynVars.size;j++) {
 				size_t i = ops_.proposeSite(j,rng_);	
 				ops_.proposeChange(i,rng_);
-				
+				//FieldType oldmu = engineParams_.mu;
 				bool flag= algorithm_.isAccepted(i);
+				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted
 					algorithm_.accept(i);
 					acc.first++;
 				} else { // not accepted
 					//engineParams_.mu=oldmu;
+					//std::cerr<<"Not accepted: oldmu="<<oldmu<<"\n";
 				}
 				acc.second++;
 			} // lattice sweep

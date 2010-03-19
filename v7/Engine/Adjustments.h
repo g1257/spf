@@ -47,14 +47,16 @@ namespace Spf {
 					break;
 				}
 			}
-			if (fabs(nOfElectrons(mu,engineParams_.beta,eigs)-n0)<tolerance_) {
+			int nn = nOfElectrons(mu,engineParams_.beta,eigs);
+			if (fabs(nn-n0)<tolerance_) {
 				converged=true;
 			}
 
 			if (!converged) {
-				std::cerr<<"achieved: "<<nOfElectrons(mu,engineParams_.beta,eigs)<<" "<<mu<<"\n";
+				std::cerr<<"achieved: "<<nn<<" "<<mu<<"\n";
 				throw std::runtime_error("Adjustments: adjChemPot: Failed to converged.\n");
 			}
+			//std::cerr<<"Converged: "<<mu<<" "<<nn<<"\n";
 			return mu;
 		}
 		
