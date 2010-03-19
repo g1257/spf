@@ -47,7 +47,7 @@ namespace Spf {
 					break;
 				}
 			}
-			int nn = nOfElectrons(mu,engineParams_.beta,eigs);
+			FieldType nn = nOfElectrons(mu,engineParams_.beta,eigs);
 			if (fabs(nn-n0)<tolerance_) {
 				converged=true;
 			}
