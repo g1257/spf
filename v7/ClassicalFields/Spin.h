@@ -44,7 +44,7 @@ namespace Spf {
 		os<<dynVars.theta;
 		os<<"Phi\n";
 		os<<dynVars.phi;
-		os<<"IsFrozen "<<dynVars.isFrozen<<"\n";
+		os<<"IsFrozen"<<dynVars.isFrozen<<"\n";
 		return os;
 	}
 	

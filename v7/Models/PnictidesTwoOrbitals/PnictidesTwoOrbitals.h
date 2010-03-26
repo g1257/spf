@@ -48,7 +48,7 @@ namespace Spf {
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
-					observablesStored_(spinOperations_,geometry.volume(),hilbertSize_)
+					observablesStored_(spinOperations_,geometry.volume(),2*nbands_)
 		{
 		}
 		
