@@ -220,7 +220,7 @@ namespace Spf {
 				typename DynVarsType::SpinType& dynVars,size_t site) const
 		{
 			
-			jmatrix[0]=0.5*cos(dynVars.theta[site]);
+			jmatrix[0]=cos(dynVars.theta[site]);
 		
 			jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
 				sin(dynVars.theta[site])*sin(dynVars.phi[site]));

@@ -22,7 +22,7 @@ namespace Spf {
 		
 	public:
 		ObservablesStored(SpinOperationsType& spinOperations,size_t vol,size_t dof) : 
-			spinOperations_(spinOperations),cc_(vol),lc_(dof*vol)
+			spinOperations_(spinOperations),cc_(vol),lc_(dof*vol),counter_(0)
 		{}
 				
 		template<typename GreenFunctionType>
@@ -47,7 +47,7 @@ namespace Spf {
 		
 		void divideAndPrint(std::ostream& fout,VectorType& v,const std::string& label)
 		{
-			//v/=counter_;
+			v /= counter_;
 			fout<<label<<"\n";
 			fout<<v;
 		}

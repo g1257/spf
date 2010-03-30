@@ -16,15 +16,17 @@
 namespace PsimagLite {
 	template<typename FieldType>
 	class Vector {
+			typedef Vector<FieldType> ThisType;
 		public:
 			Vector(size_t n) : data_(n) {}
 			Vector() { }
 			
-			void operator/=(const FieldType& d)
+			ThisType& operator/=(const FieldType& d)
 			{
-				if (d==0) return;
+				if (d==0) return *this;
 				for (size_t i=0;i<data_.size();i++)
 					data_[i] /= d;
+				return *this;
 			}
 
 			void resize(size_t x) { data_.resize(x); }
