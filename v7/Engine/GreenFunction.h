@@ -51,7 +51,7 @@ namespace Spf {
 		{
 			for (size_t i=0;i<hilbertSize_;i++) {
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
+					ComplexType tmp =conj(algorithm_.matrix(lambda,i))*algorithm_.matrix(lambda,i);
 					FieldType s = real(tmp)*utils::fermi(engineParams_.beta*
 							(algorithm_.e(lambda)-engineParams_.mu));
 					//if (ether.isSet("savelcd")) {
