@@ -25,7 +25,7 @@ namespace Spf {
 					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
 					hilbertSize_(model_.hilbertSize()),
 					matrixNew_(hilbertSize_,hilbertSize_),
-					matrixOld_(hilbertSize_,hilbertSize_),needsDiagonalization_(true)
+					matrixOld_(hilbertSize_,hilbertSize_)
 		{
 		}
 
@@ -57,7 +57,6 @@ namespace Spf {
 		{
 			model_.accept(i);
 			eigOld_ = eigNew_;
-			needsDiagonalization_ = true;
 		}
 
 		ComplexType greenFunction(size_t lambda1,size_t lambda2)
@@ -65,8 +64,6 @@ namespace Spf {
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
-			needsDiagonalization_ = false;
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
 				sum += conj(matrixNew_(lambda1,lambda)) * matrixNew_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
@@ -78,28 +75,15 @@ namespace Spf {
 		void prepare()
 		{
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
-			needsDiagonalization_ = false;
 		}
 		
-		ComplexType matrix(size_t lambda1,size_t lambda2)
+		ComplexType matrix(size_t lambda1,size_t lambda2) const
 		{
-			//FieldType beta = engineParams_.beta;
-			//FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
-			needsDiagonalization_ = false;
 			return matrixNew_(lambda1,lambda2);
-			
-			/*for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += conj(matrix_(lambda1,lambda)) * matrix_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
-			//FieldType x = 0.0;
-			//if (lambda1==lambda2) x = 1.0;
-			return sum;*/
 		}
 		
-		FieldType e(size_t i)
+		FieldType e(size_t i) const
 		{
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
-			needsDiagonalization_ = false;
 			return eigNew_[i];
 		}
 
@@ -169,7 +153,6 @@ namespace Spf {
 		std::vector<FieldType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
-		bool needsDiagonalization_;
 		
 		
 	}; // AlgorithmDiag
