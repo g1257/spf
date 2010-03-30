@@ -21,6 +21,7 @@ namespace Spf {
 		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,size_t hilbertSize) :
 			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize)
 		{
+			algorithm_.prepare();
 		}
 		
 		ComplexType operator()(size_t lambda1,size_t lambda2)
@@ -49,9 +50,12 @@ namespace Spf {
 		
 		void localCharge(PsimagLite::Vector<FieldType>& lc)
 		{
+			//checkUs();
+			//checkLevels();
 			for (size_t i=0;i<hilbertSize_;i++) {
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-					ComplexType tmp =conj(algorithm_.matrix(lambda,i))*algorithm_.matrix(lambda,i);
+					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
+					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
 					FieldType s = real(tmp)*utils::fermi(engineParams_.beta*
 							(algorithm_.e(lambda)-engineParams_.mu));
 					//if (ether.isSet("savelcd")) {
@@ -60,6 +64,7 @@ namespace Spf {
 						lc[i] += s;
 					//}
 				}
+				//std::cerr<<"Done i="<<i<<" ss="<<ss<<"\n";
 			}
 		}
 
@@ -74,6 +79,29 @@ namespace Spf {
 		}
 		
 	private:
+		
+		void checkUs() const
+		{
+			for (size_t i=0;i<hilbertSize_;i++) {
+				ComplexType s = 0;
+				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
+					ComplexType tmp =conj(algorithm_.matrix(lambda,i))*algorithm_.matrix(lambda,i);
+					s += tmp;
+				}
+				std::cerr<<"i="<<i<<" sum_lambda U*_{lambda,i} U_{lambda,i} = "<<s<<"\n";
+			}
+		}
+
+		void checkLevels() const
+		{
+			FieldType sum = 0;
+			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
+				if (algorithm_.e(lambda)>=engineParams_.mu) continue;
+				sum++;
+			}
+			std::cerr<<"mu = "<<engineParams_.mu<<" Levels below="<<sum<<"\n"; 
+		}
+
 		const EngineParametersType& engineParams_;	
 		AlgorithmType& algorithm_;
 		size_t hilbertSize_;

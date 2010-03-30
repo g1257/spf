@@ -65,7 +65,7 @@ namespace Spf {
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 			needsDiagonalization_ = false;
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
@@ -75,11 +75,17 @@ namespace Spf {
 			return sum;
 		}
 		
+		void prepare()
+		{
+			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
+			needsDiagonalization_ = false;
+		}
+		
 		ComplexType matrix(size_t lambda1,size_t lambda2)
 		{
 			//FieldType beta = engineParams_.beta;
 			//FieldType mu = engineParams_.mu;
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 			needsDiagonalization_ = false;
 			return matrixNew_(lambda1,lambda2);
 			
@@ -92,7 +98,7 @@ namespace Spf {
 		
 		FieldType e(size_t i)
 		{
-			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V');
+			if (needsDiagonalization_) diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 			needsDiagonalization_ = false;
 			return eigNew_[i];
 		}
