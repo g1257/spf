@@ -94,18 +94,22 @@ namespace Spf {
 			FieldType dS = 0;
 			
 			for (size_t i=0;i<n;i++) {
+				FieldType t1=dynVars.theta[i];
+				FieldType p1=dynVars.phi[i];
+				FieldType cost1 = cos(t1);
+				FieldType sint1 = sin(t1);
+				FieldType cosp1 = cos(p1);
+				FieldType sinp1 = sin(p1);
 				for (size_t k = 0; k<geometry_.z(2); k++){
 					size_t j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
-					FieldType t1=dynVars.theta[i];
 					FieldType t2=dynVars.theta[j];
-					FieldType p1=dynVars.phi[i];
 					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-					dS += coupling*tmp; 
+					FieldType tmp = cost1*cos(t2)+sint1*sin(t2)*(cosp1*cos(p2)+sinp1*sin(p2));
+					dS += tmp; 
 				}
 			}
 			
-			return dS*0.5;
+			return coupling*dS*0.5;
 		}
 		
 		FieldType calcSuperExchange(const DynVarsType& dynVars,FieldType coupling) const
