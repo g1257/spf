@@ -28,10 +28,8 @@ namespace Spf {
 	// 			exit(1);
 	// 		}
 			//rngKiss.seed(seed);
-			if (seed<1) 
-       				seed = time(0);
-	
-			srand48(seed);
+			if (seed<1)	seed = time(0);
+			else		srand48(seed);
 			
 		}
 		
