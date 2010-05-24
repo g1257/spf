@@ -32,6 +32,7 @@ namespace Spf {
 				  concurrency_(concurrency),fout_(params_.filename.c_str()),
 				  progress_("Engine",concurrency.rank())
 		{
+			rng_.seed(params_.randomSeed);
 			writeHeader();
 		}
 				

@@ -12,12 +12,13 @@
 #define RNG_HEADER_H
 
 #include "KISS.h"
+#include <time.h>
 
 namespace Spf {
 	template<typename FieldType>
 	class RandomNumberGenerator {
 		public:
-		void myRandomSeed(size_t seed)
+		void seed(long int seed)
 		{
 	// 		size_t x = 4294967295;
 	// 		if (rngKiss.getLength()!=x) {
@@ -26,13 +27,18 @@ namespace Spf {
 	// 			cerr<<"I will exit now, you should call your customer support 1-800 number.\n";
 	// 			exit(1);
 	// 		}
-			rngKiss.seed(seed);
+			//rngKiss.seed(seed);
+			if (seed<1) 
+       				seed = time(0);
+	
+			srand48(seed);
 			
 		}
 		
 		FieldType operator()()
 		{
-			return rngKiss();
+			//return rngKiss();
+			return drand48();
 		}
 		
 		void randomModulus(std::vector<int> &v,size_t conc,int n)
@@ -47,7 +53,7 @@ namespace Spf {
 		}
 		
 		private:
-		psimag::KISS rngKiss;
+		//psimag::KISS rngKiss;
 		
 		
 	};

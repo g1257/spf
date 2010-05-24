@@ -105,6 +105,7 @@ namespace Spf {
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
 		std::string boundaryConditions; // boundary conditions
+		long int randomSeed;
 	};
 
 	//! Read Dmrg parameters from inp file
@@ -126,7 +127,11 @@ namespace Spf {
 		reader.read(parameters.dynvarslevel);
 		reader.read(parameters.histSteps);
 		reader.read(parameters.boundaryConditions);
-		
+		std::string s;
+		reader.read(s);
+		if (s == "TIME" || s == "time") 
+			parameters.randomSeed = -1;
+		else    parameters.randomSeed = atoi(s.c_str());
 		return parameters;
 	} 
 
@@ -150,6 +155,9 @@ namespace Spf {
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";
 		os<<"parameters.boundaryConditions="<<parameters.boundaryConditions<<"\n";
+		std::string s = utils::ttos(parameters.randomSeed);
+		if (parameters.randomSeed<0) s="TIME";
+		os<<"parameters.randomSeed="<<s<<"\n";
 		return os;
 	}
 } // namespace Dmrg
