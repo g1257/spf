@@ -38,7 +38,7 @@ namespace Spf {
 		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ObservablesStored<SpinOperationsType> ObservablesStoredType;
+		typedef ObservablesStored<SpinOperationsType,ComplexType> ObservablesStoredType;
 		
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -48,7 +48,7 @@ namespace Spf {
 				      hilbertSize_(2*nbands_*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
-					observablesStored_(spinOperations_,geometry.volume(),2*nbands_)
+					observablesStored_(spinOperations_,geometry,2*nbands_)
 		{
 		}
 		

@@ -5,18 +5,18 @@
 use strict;
 
 
-my ($filename) = @ARGV;
+my ($filename,$label) = @ARGV;
 my $Dim = 2;
 
+$label = "#ClassicalCorrelations:" if (!defined($label));
 
 my @cc;
-loadData(\@cc);
+loadData(\@cc,$label);
 my $L = sqrt($#cc+1);
 procData(\@cc,$#cc+1);
 
 sub loadData {
-	my ($cc)=@_;
-	my $finalLabel = "#ClassicalCorrelations:";
+	my ($cc,$finalLabel)=@_;
 	
 	open(FILE,$filename) or die "Cannot open file $filename$!\n";
 	while(<FILE>) {

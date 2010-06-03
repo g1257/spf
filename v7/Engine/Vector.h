@@ -18,7 +18,7 @@ namespace PsimagLite {
 	class Vector {
 			typedef Vector<FieldType> ThisType;
 		public:
-			Vector(size_t n) : data_(n) {}
+			Vector(size_t n,FieldType v) : data_(n,v) {}
 			Vector() { }
 			
 			ThisType& operator/=(const FieldType& d)

@@ -66,12 +66,13 @@ namespace Spf {
 			FieldType mu = engineParams_.mu;
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += conj(matrixNew_(lambda1,lambda)) * matrixNew_(lambda2,lambda) *utils::fermi(beta*(eigNew_[lambda]-mu));
+				sum += conj(matrixNew_(lambda1,lambda)) * matrixNew_(lambda2,lambda) *utils::fermi(-beta*(eigNew_[lambda]-mu));
 			//FieldType x = 0.0;
 			//if (lambda1==lambda2) x = 1.0;
 			return sum;
 		}
-		
+
+
 		void prepare()
 		{
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);

@@ -14,7 +14,7 @@
 
 namespace Spf {
 	
-	template<typename GeometryType,typename DynVarsType_>
+	template<typename GeometryType_,typename DynVarsType_>
 	class ClassicalSpinOperations {
 		typedef typename DynVarsType_::FieldType FieldType;
 		typedef PsimagLite::Vector<FieldType> VectorType;
@@ -22,6 +22,7 @@ namespace Spf {
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
 	public:
+		typedef GeometryType_ GeometryType;
 		typedef DynVarsType_ DynVarsType;
 		
 		ClassicalSpinOperations(const GeometryType& geometry,const std::vector<FieldType>& mcwindow) 
