@@ -133,7 +133,7 @@ public:
 	
 	* If the j-th neighbor of i does not cross a lattice boundary it returns -1.
 	* Otherwise it returns the direction across which a lattice boundary is crossed */
-	int borderId(siteIndex i,siteIndex j) const;
+	int borderId(siteIndex i,siteIndex j,int distance=1) const;
 	
 	/** \brief Returns the type of Lattice as initialized with init*/
 	std::string latticeName()  const;

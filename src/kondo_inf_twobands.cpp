@@ -218,6 +218,43 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 			matrix(p+volume,col+volume) =  hopping * S_ij;
 			matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 		}
+		
+		for (j = 0; j < geometry.z(p,2); j++) {	/* hopping elements */
+			iTmp=geometry.borderId(p,j,2);
+			hopping= -1.0;
+			if (iTmp>=0) hopping = ether.hoppings[iTmp];
+			
+			col = geometry.neighbor(p,j,2);
+			tmp=cos(0.5*dynVars.theta[p])*cos(0.5*dynVars.theta[col]);
+			tmp2=sin(0.5*dynVars.theta[p])*sin(0.5*dynVars.theta[col]);
+			S_ij=tpem_t(tmp+tmp2*cos(dynVars.phi[p]-dynVars.phi[col]),
+		 		-tmp2*sin(dynVars.phi[p]-dynVars.phi[col]));
+				
+			if (p>col) hopping2 = conj(hopping);
+			else hopping2=hopping;
+			dir = int(j/2);
+			
+			bandHop=ether.bandHoppings[0+0*2+dir*4]*ether.tprime;
+			hopping=hopping2 * bandHop ;
+			matrix(p,col) = hopping * S_ij;
+			matrix(col,p) = conj(hopping * S_ij);
+			
+			bandHop=ether.bandHoppings[0+1*2+dir*4]*ether.tprime;
+			hopping= hopping2 * bandHop;
+		        matrix(p, col+volume)=hopping * S_ij;
+			matrix(col+volume,p)=conj(matrix(p,col+volume));
+			
+			//
+			bandHop=ether.bandHoppings[1+0*2+dir*4]*ether.tprime;
+			hopping= hopping2 * bandHop;
+			matrix(p+volume,col) =  hopping * S_ij;
+			matrix(col,p+volume) =  conj(matrix(p+volume,col));
+			
+			bandHop=ether.bandHoppings[1+1*2+dir*4]*ether.tprime;
+			hopping=hopping2 * bandHop;
+			matrix(p+volume,col+volume) =  hopping * S_ij;
+			matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
+		}
 	}
 	//if (!matrix.isHermitian()) throw std::runtime_error("I'm barking\n");
 	
