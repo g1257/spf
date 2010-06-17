@@ -219,6 +219,7 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 			matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 		}
 		
+		if (ether.isSet("tprime")) {
 		for (j = 0; j < geometry.z(p,2); j++) {	/* hopping elements */
 			iTmp=geometry.borderId(p,j,2);
 			hopping= -1.0;
@@ -255,6 +256,7 @@ void createHamiltonian(Geometry const &geometry, DynVars const &dynVars,
 			matrix(p+volume,col+volume) =  hopping * S_ij;
 			matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 		}
+	}
 	}
 	//if (!matrix.isHermitian()) throw std::runtime_error("I'm barking\n");
 	
