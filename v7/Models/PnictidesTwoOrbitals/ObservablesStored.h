@@ -50,6 +50,7 @@ namespace Spf {
 				       GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
+			//allChargeCorrelation(greenFunction); // for debugging only, comment out for production
 			for (size_t gamma=0;gamma<dof_;gamma++) {
 				for (size_t gamma2=0;gamma2<dof_;gamma2++) {
 					PsimagLite::Vector<FieldType> tmpV(dof_*dof_*volume,0);
@@ -66,28 +67,62 @@ namespace Spf {
 				       size_t gamma,size_t gamma2,GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
-			size_t dof = dof_; // the 2 comes because of the spin
-			
+			size_t dof = dof_; 
         		// Do for all x's
+			FieldType slip = 0;
         		for (size_t x=0;x<volume;x++) {     // Sum over all i's (or w's)
                 		ComplexType tmp=0;
+				//ComplexType test= ComplexType(0.,0.);
                 		for (size_t w=0;w<volume;w++) {
 					size_t v=geometry_.add(x,w);
-                                        if (x==0 && gamma==gamma2) {
-                                                tmp += (1.0-greenFunction(w+gamma*volume,
-								w+gamma*volume));
-                                        } else {
-						tmp +=(1.0-greenFunction(w+gamma*volume,
-								w+gamma*volume))*
-						(1.0-greenFunction(v+gamma2*volume,
-									v+gamma2*volume));
-                                                tmp -= greenFunction(v+gamma2*volume,
-								w+gamma*volume)*
-						greenFunction(w+gamma*volume,v+gamma2*volume);
-					}
+                                        tmp += chargeCorrelation(w,gamma,v,gamma2,greenFunction);
+					
+					//test += (1.0-greenFunction(w+gamma*volume,
+					//			w+gamma*volume));
 				}
+				slip += imag(tmp);
                 		cc[x+gamma*volume+gamma2*volume*dof] += real(tmp)/volume;
 			}
+			
+			if (fabs(slip)>1e-6) std::cerr<<"slipping="<<slip<<"\n";
+		}
+		template<typename GreenFunctionType>
+		void allChargeCorrelation(GreenFunctionType& greenFunction)
+		{
+			size_t volume = geometry_.volume();
+			psimag::Matrix<FieldType> m(volume*2,volume*2);
+			for (size_t i=0;i<volume;i++) {
+				for (size_t gamma=0;gamma<4;gamma++) {
+					size_t orb1 = (gamma & 1);
+					for (size_t j=0;j<volume;j++) {
+						for (size_t gamma2=0;gamma2<4;gamma2++) {
+							size_t orb2 = (gamma2 & 1);
+							m(i+orb1*volume,j+orb2*volume) += 
+								real(chargeCorrelation(i,gamma,j,gamma2,greenFunction));
+						}
+					}
+				}
+			}
+			std::cerr<<m;
+			throw std::runtime_error("testing\n");
+							
+		}
+		
+		template<typename GreenFunctionType>
+		ComplexType chargeCorrelation(size_t w, size_t gamma,size_t v, size_t gamma2,
+			GreenFunctionType& greenFunction)
+		{
+			size_t volume = geometry_.volume();
+			ComplexType tmp = 0;
+			if (v==w && gamma==gamma2) {
+				tmp += (1.0-greenFunction(w+gamma*volume,w+gamma*volume));
+			} else {
+				tmp +=(1.0-greenFunction(w+gamma*volume,w+gamma*volume))*
+					(1.0-greenFunction(v+gamma2*volume,v+gamma2*volume));
+				tmp -= greenFunction(v+gamma2*volume,w+gamma*volume)*
+					greenFunction(w+gamma*volume,v+gamma2*volume);
+			}
+			return tmp;
 		}
 		
 		void finalize(std::ostream& fout)
