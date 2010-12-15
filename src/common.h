@@ -71,6 +71,11 @@ double electronPhononTerm(int p,Geometry const &geometry, DynVars const
 &dynVars,Parameters const &ether);
 #endif
 
+#ifdef MODEL_KONDO_INF_TWOBANDS
+double calcPhononDiff(int direction,int ind,DynVars const &dynVars,Geometry const &geometry);
+#endif
+
+
 // from adjustments.cpp
 void tpem_sparse_scale(tpem_sparse *matrix,double a,double b);
 int tpemAdjustBounds(tpem_sparse *matrix,Parameters const &ether, Aux &aux);
