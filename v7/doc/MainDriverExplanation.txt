@@ -150,6 +150,3 @@ familiarize yourself with the syntax.
 You will see that each file is formatted in exactly the same way, and the writing is
 very uniform. I hope this helps.
 
-In any case, if you're not familiar with C++, we need to go through a few topics before.
-I'd be glad to help you with learning C++, but we need to think how to do this.
-C++ is the only lengthy thing you'll need to learn for this, perl is much easier.

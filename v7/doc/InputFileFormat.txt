@@ -1,0 +1,79 @@
+# The first line is the options line, options are separated by commas, but leave no spaces between them.
+# At least one option is needed, usually written as none:
+OPTIONS none
+
+# The version line, ignored, but must be there:
+VERSION SPFv7
+
+# This is the output file, where the results will be written.
+# It'll be overwritten if it exits:
+FILENAME output0
+
+# How many electrons you want. If set to zero, mu will not adjust.
+CARRIERS 128
+
+# The initial mu.
+# Note that mu will be adjusted such that the simulation achieves the targeted number of carriers
+MU  -0.5
+
+# The inverse temperature in units of the hopping:
+BETA 10
+
+# Number of Monte Carlo (MC) thermalizations
+MCTHERMALIZATIONS 0
+
+# Number of Monte Carlo (MC) measurements
+MCEFFECTIVE 10
+
+# 1 + Number of Monte Carlo (MC) steps left unmeasured between measurements
+# This is to avoid auto-correlation
+MCUNMEASURED 1
+
+# The number 1 followed by the Monte Carlo window
+MCWINDOW   1 0.5
+
+# The starting type, either none or a file to read from
+# This is useful to continue a simulation after it finishes.
+MCSTARTTYPE none
+
+# Ignore this for now.
+MCSTARTLEVEL 0
+
+# Ignore this for now
+HISTOGRAMSTEPS 1000
+
+# Unused for now
+BOUNDARYCONDITIONS periodic
+
+# Linear size of 8 means an 8x8 lattice
+# WE need to generalize this in the future
+LINSIZE 8
+
+# The number 16 followed by the 16 hoppings for this model
+# See the Hamiltonian explanation (spinFermion.pdf I think it was) for 
+# the meaning of these hoppings.
+hoppings
+16
+-0.058 0
+0 -0.2196
+-0.2196 0
+0 -0.058
+0.20828 +0.079
+0.079 +0.20828
+0.20828 -0.079
+-0.079 +0.20828
+
+# The coupling between localized "spins" and itinerant electrons
+PARAMETERSJ 0.0
+
+# A Coulomb potential (64 is the number of numbers to follow)
+POTENTIALV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+
+# Nearest-Neighbor direct coupling
+JAFNN 0.0
+
+# Next-Nearest-Neighbor direct coupling
+JAFNNN 0.0
+#EOF
+
+

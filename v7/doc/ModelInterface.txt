@@ -1,0 +1,71 @@
+Let me go ahead and explain the reason why the MonteCarlo class is templated on an OperationsType.
+
+This assumes that we are working with the PnictidesTwoOrbitals model, for simplicity.
+
+The idea is that the MonteCarlo class is *generic*: It can integrate any classical fields that appear for spin-fermion models.
+We have three examples (so far): spins, phonons and superconducting order parameters (so called "bcs deltas").
+A big advantage is that people working on different models
+ can all benefit from having a lot of commonality (Engine, MonteCarlo, etc).
+Bugs found in the PhononsTwoOrbital model help those working on the PnictidesTwoOrbital model, etc.
+Improvements in the Engine/MonteCarlo benefit everybody, and one gets to understand other spin-fermion models. 
+
+So, the model needs to tell the MonteCarlo class (or rather tell the Engine class and thru the Engine class tell 
+the MonteCarlo class), what are the classical variables
+that need integration via MonteCarlo.
+
+Before explaining how the Model "talks" to the Engine you probably realize that they need to understand each other, speak the same language, if you will.
+This is called an "interface" in C++. All models need to speak the same language, or have the same interface, even if they do different things...
+The Engine expects something from the Model. I chose to have the Model talk to the engine by having the Model declare two things:
+
+1) A DynVarsType that encapsulates what "type" of things need integration thru MonteCarlo. For our model that's simply the "classical spin" or theta and phi.
+[You find this in Line 38 of PnictidesTwoOrbitals.h]
+
+2) A member function:
+DynVarsType dynVars()
+{
+...
+}
+that returns the actual fields, or the data, because the classical fields are owned by the Model. [We'll need to address ownership of data later, it's a topic in itself,
+but I'll just mention it in passing here].
+Now, this is (more or less) the classical spins in our model, that's all there's to it for us, and is in line 55 of PnicitidesTwoOrbitals.h for us. 
+By the way, the PhononsTwoOrbitals model, for example, has spins *and* phonons, so the classical fields are different, 
+but the interface of that model is the same, it has to be... otherwise the Engine
+couldn't understand his model.
+Anyway, I hope this gives you a quick view on the problems and solutions related to writing generic code.
+
+This would be all if DynVarsType was actually the "classical spin" for us.
+However, DynVarsType is actually:
+
+PnictidesTwoOrbitalsFields.h
+
+and not simply
+
+Spin.h
+
+The reason is that our model needs to tell the engine: "look, I have just one classical field to integrate". 
+So, if you look in line 110 of PnictidesTwoOrbitalsFields.h you find precisely that:
+
+size_t size() const { return 1; } // only spin for this model needs MC simulation
+
+Now, the engine will say: "well, ok, so, what classical field you want me to integrate?"
+And our model has to reply: "The spin."
+That's precisely what it says here: (find this in PnictidesTwoOrbitalsFields.h)
+
+SpinType& getField(SpinType*)
+{
+	return spin_;
+}
+
+and it also tells it the name (also in PnictidesTwoOrbitalsFields.h):
+
+const std::string& name(size_t i) const { return name_; }
+
+which is simply:
+
+template<typename FieldType,typename GeometryType>
+const std::string PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
+
+So, now you see why I need the PnictidesTwoOrbitalsFields.h and not simply "Spin.h", i.e., 
+PnictidesTwoOrbitalsFields.h is just a wrapper around Spin.h so that the Engine will be able to understand our model.
+Anyway, there are a few technical details (okay, okay, a lot!) that i have omitted, but those are just that, technical details related to C++
+

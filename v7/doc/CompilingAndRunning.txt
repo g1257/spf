@@ -1,0 +1,16 @@
+To produce the executable, do:
+
+cd spf/
+cd v7/
+perl driver.pl 1
+perl input.pl 1 > inputTest.inp
+make
+And this will create the executable
+spf
+under the directory v7.
+
+
+When you have the executable file "spf" under v7/ you can do a quick run like this:
+./spf ../TestSuite/inputs/input0.inp
+for example.
+
