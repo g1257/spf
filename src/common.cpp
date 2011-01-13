@@ -613,7 +613,55 @@ double calcPhononV2(Geometry const &geometry,DynVars const &dynVars,Parameters c
 	return sum;
 }
 
-#endif	
+#endif
+
+#ifdef MODEL_KONDO_INF_TWOBANDS
+double calcPhononV(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether)
+{
+	int i;
+	int direction;
+	double sum=0;
+	for (i=0;i<ether.linSize;i++) {
+		for (direction=0;direction<geometry.dim();direction++) {
+			sum+= calcPhononDiff(direction,i,dynVars,geometry);
+		}
+	}
+	return sum;
+}
+
+double calcPhononV2(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether)
+{
+	int i;
+	int direction;
+	double sum=0;
+	for (i=0;i<ether.linSize;i++) {
+		for (direction=0;direction<geometry.dim();direction++) {
+			sum += square(calcPhononDiff(direction,i,dynVars,geometry));
+		}
+	}
+	return sum;
+}
+#endif
+
+double calcPhononDiff(int direction,int ind,DynVars const &dynVars,Geometry const &geometry)
+{
+	if (direction >= geometry.dim()) return 0; 
+	int j = geometry.neighbor(ind,2*direction+1);
+	return  (dynVars.phonons[ind][direction]-dynVars.phonons[j][direction]);
+}
+
+double electronPhononTerm(int p,Geometry const &geometry, DynVars const &dynVars,Parameters const &ether)
+{
+	double sum=0;
+	int alpha,j;
+	for (alpha=0;alpha<geometry.z(p);alpha++) {
+		if (alpha>=geometry.dim()) break;
+		j = geometry.neighbor(p,2*alpha+1);
+		sum += dynVars.phonons[j][alpha];
+		sum -= dynVars.phonons[p][alpha];
+	}
+	return sum;
+}
 
 void kTpemMoments(vector<double> const &moments,Aux &aux, Parameters const &ether)
 {
@@ -1795,7 +1843,18 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	temp=temp2/ether.linSize - square(temp/ether.linSize);
 	s="phononDeltaV=";
 	io.historyPrint(s,temp);	
-#endif		
+#endif
+#ifdef MODEL_KONDO_INF_TWOBANDS
+	temp=calcPhononV(geometry,dynVars,ether);
+	temp2=calcPhononV2(geometry,dynVars,ether);
+	s="calcPhononV=";
+	io.historyPrint(s,temp);
+	s="calcPhononV2=";
+	io.historyPrint(s,temp2);
+	temp=temp2/ether.linSize - square(temp/ether.linSize);
+	s="phononDeltaV=";
+	io.historyPrint(s,temp);	
+#endif	
 	for (dof=0;dof<ether.classFieldList.size();dof++) {
 		aux.nac[dof] = (double)aux.nac[dof]/ether.iterUnmeasured;
 		s ="Accepted["+ttos(dof)+"]=";
