@@ -88,7 +88,7 @@ int main(int argc,char *argv[])
 	reader.load(engineParams);
 	reader.load(mp);
 	// print license
-	std::string license = "Copyright © 2009 , UT-Battelle, LLC\\n"
+	std::string license = "Copyright (c) 2009 , UT-Battelle, LLC\\n"
 "All rights reserved\\n"
 "\\n"
 "[SPF, Version 7.0.0]\\n"
