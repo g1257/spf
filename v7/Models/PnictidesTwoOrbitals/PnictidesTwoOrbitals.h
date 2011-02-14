@@ -31,24 +31,24 @@ namespace Spf {
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef PnictidesTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
 		
-		static const size_t nbands_ = 2;
 		
+
 		public:
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType> ObservablesStoredType;
-		
+		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(2*nbands_*geometry.volume()),
+				      hilbertSize_(2*ORBITALS*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
-					observablesStored_(spinOperations_,geometry,2*nbands_)
+					observablesStored_(spinOperations_,geometry,2*ORBITALS)
 		{
 		}
 		
@@ -161,7 +161,7 @@ namespace Spf {
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
-			size_t norb = nbands_;
+			size_t norb = ORBITALS;
 			size_t dof = norb * 2; // the 2 comes because of the spin
 			std::vector<ComplexType> jmatrix(dof*dof);
 			

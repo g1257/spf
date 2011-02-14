@@ -23,7 +23,7 @@ namespace PsimagLite {
 			
 			ThisType& operator/=(const FieldType& d)
 			{
-				if (d==0) return *this;
+				if (d==static_cast<FieldType>(0)) return *this;
 				for (size_t i=0;i<data_.size();i++)
 					data_[i] /= d;
 				return *this;
