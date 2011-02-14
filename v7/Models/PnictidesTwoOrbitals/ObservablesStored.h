@@ -22,6 +22,7 @@ namespace Spf {
 		typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
+		enum {ORBITAL_XZ,ORBITAL_YZ};
 		enum {SPIN_UP,SPIN_DOWN};
 		static size_t const DIRECTIONS  = 3;
 
@@ -50,8 +51,8 @@ namespace Spf {
 			spinOperations_.classicalCorrelations(cc_,spins);
 			greenFunction.localCharge(lc_);
 			chargeCorrelation(chargeCor_,greenFunction);
-			mCorrelation(mc_,spins,greenFunction);
-			//tCorrelation(tc_,greenFunction);
+			mCorrelation(spins,greenFunction);
+			tCorrelation(greenFunction);
 			counter_++;
 		}
 		
@@ -61,13 +62,13 @@ namespace Spf {
 			divideAndPrint(fout,lc_,"#LocalCharge:");
 			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
 			divideAndPrint(fout,mc_,"#MCorrelations:");
+			divideAndPrint(fout,tc_,"#TCorrelations:");
 		}
 
 	private:
 
 		template<typename GreenFunctionType>
 		void mCorrelation(
-				PsimagLite::Vector<ComplexType>& cc,
 				const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
@@ -82,12 +83,10 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		void tCorrelation(
-				PsimagLite::Vector<FieldType>& cc,
-				GreenFunctionType& greenFunction)
+		void tCorrelation(GreenFunctionType& greenFunction)
 		{
 
-			psimag::Matrix<FieldType> ti(cc.size(),DIRECTIONS);
+			psimag::Matrix<ComplexType> ti(geometry_.volume(),DIRECTIONS);
 			calcTi(ti,greenFunction);
 			correlation(tc_,ti,greenFunction);
 		}
@@ -124,7 +123,7 @@ namespace Spf {
 
 					me(i,DIRECTION_X) -= 0.5*(
 							greenFunction(x,y) + greenFunction(y,x));
-					me(i,DIRECTION_Y) -= 0.5*sqrtOfMinus1*(
+					me(i,DIRECTION_Y) += 0.5*sqrtOfMinus1*(
 							greenFunction(x,y) - greenFunction(y,x));
 					me(i,DIRECTION_Z) -= 0.5*
 							(greenFunction(x,x) - greenFunction(y,y));
@@ -143,9 +142,30 @@ namespace Spf {
 				FieldType phi = spins.phi[i];
 				ms(i,DIRECTION_X) = sin(theta) * cos(phi);
 				ms(i,DIRECTION_Y) = sin(theta) * sin(phi);
-				ms(i,DIRECTION_X) = cos(theta);
+				ms(i,DIRECTION_Z) = cos(theta);
 			}
 		}
+
+		template<typename GreenFunctionType>
+		void calcTi(psimag::Matrix<ComplexType>& ti,
+				GreenFunctionType& greenFunction)
+		{
+			ComplexType sqrtOfMinus1 = ComplexType(0,1);
+			size_t volume = ti.n_row();
+			for (size_t i=0;i<volume;i++) {
+				for (size_t spin=0;spin<2;spin++) {
+					size_t x = i+(ORBITAL_XZ+spin*ORBITALS)*volume;
+					size_t y = i+(ORBITAL_YZ+spin*ORBITALS)*volume;
+					ti(i,DIRECTION_X) = (-0.5)*(
+							greenFunction(x,y) + greenFunction(y,x));
+					ti(i,DIRECTION_Y) = sqrtOfMinus1*0.5*(
+							greenFunction(x,y) - greenFunction(y,x));
+					ti(i,DIRECTION_Z) = (-0.5)*(
+							greenFunction(x,x) - greenFunction(y,y));
+				}
+			}
+		}
+
 		// C_x = \sum_i <n_i n_{i+x}>, where n_i = \sum_{dof} n_{i dof}  
 		template<typename GreenFunctionType>
 		void chargeCorrelation(PsimagLite::Vector<FieldType>& cc,
