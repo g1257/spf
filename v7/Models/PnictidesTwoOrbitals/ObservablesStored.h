@@ -94,7 +94,7 @@ namespace Spf {
 		// C_x = \sum_i <M_i M_{i+x}>, where M_i is passed in
 		template<typename GreenFunctionType>
 		void correlation(
-				PsimagLite::Vector<ComplexType>& cc,
+				VectorType& cc,
 				const psimag::Matrix<ComplexType>& m,
 				GreenFunctionType& greenFunction)
 		{
@@ -102,7 +102,7 @@ namespace Spf {
 				for (size_t i=0;i<cc.size();i++) {
 					size_t j = geometry_.add(i,x);
 					for (size_t dir=0;dir<DIRECTIONS;dir++)
-						cc[x] += m(i,dir) * m(j,dir);
+						cc[x] += real(m(i,dir) * m(j,dir));
 				}
 			}
 		}
@@ -264,8 +264,8 @@ namespace Spf {
 		VectorType cc_;
 		VectorType lc_;
 		VectorType chargeCor_;
-		ComplexVectorType mc_;
-		ComplexVectorType tc_;
+		VectorType mc_;
+		VectorType tc_;
 		size_t counter_;
 
 	}; // ObservablesStored

@@ -36,6 +36,8 @@ namespace Spf {
 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
 		}
 
+		size_t hilbertSize() const { return hilbertSize_; }
+
 		bool isAccepted(size_t i)
 		{
 			FieldType dsDirect = model_.deltaDirect(i);

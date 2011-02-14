@@ -19,14 +19,17 @@ namespace Spf {
 	public:	
 		
 		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,size_t hilbertSize) :
-			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize)
+			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize),data_(hilbertSize,hilbertSize)
 		{
 			algorithm_.prepare();
+			size_t n = hilbertSize_;
+			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
+				data_(i,j) = algorithm_.greenFunction(i,j);
 		}
 		
 		ComplexType operator()(size_t lambda1,size_t lambda2)
 		{
-			return algorithm_.greenFunction(lambda1,lambda2);
+			return data_(lambda1,lambda2);
 		}
 		
 		FieldType calcNumber() const
@@ -105,6 +108,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;	
 		AlgorithmType& algorithm_;
 		size_t hilbertSize_;
+		psimag::Matrix<ComplexType> data_;
 		
 	}; // GreenFunction
 	
