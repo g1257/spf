@@ -21,6 +21,8 @@ namespace Spf {
 		typedef PsimagLite::Vector<FieldType> VectorType;
 		typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
+		typedef psimag::Matrix<FieldType> MatrixType;
+
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
 		enum {ORBITAL_XZ,ORBITAL_YZ};
 		enum {SPIN_UP,SPIN_DOWN};
@@ -39,8 +41,8 @@ namespace Spf {
 			cc_(geometry.volume(),0),
 			lc_(dof*geometry.volume(),0),
 			chargeCor_(geometry.volume(),0),
-			mc_(geometry.volume(),0),
-			tc_(geometry.volume(),0),
+			mc_(geometry.volume(),DIRECTIONS),
+			tc_(geometry.volume(),DIRECTIONS),
 			counter_(0)
 		{}
 				
@@ -61,8 +63,8 @@ namespace Spf {
 			divideAndPrint(fout,cc_,"#ClassicalCorrelations:");
 			divideAndPrint(fout,lc_,"#LocalCharge:");
 			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
-			divideAndPrint(fout,mc_,"#MCorrelations:");
-			divideAndPrint(fout,tc_,"#TCorrelations:");
+			divideAndPrint(fout,mc_,"#MCorrelations");
+			divideAndPrint(fout,tc_,"#TCorrelations");
 		}
 
 	private:
@@ -94,15 +96,15 @@ namespace Spf {
 		// C_x = \sum_i <M_i M_{i+x}>, where M_i is passed in
 		template<typename GreenFunctionType>
 		void correlation(
-				VectorType& cc,
+				MatrixType& cc,
 				const psimag::Matrix<ComplexType>& m,
 				GreenFunctionType& greenFunction)
 		{
-			for (size_t x=0;x<cc.size();x++) {
-				for (size_t i=0;i<cc.size();i++) {
+			for (size_t x=0;x<cc.n_row();x++) {
+				for (size_t i=0;i<cc.n_row();i++) {
 					size_t j = geometry_.add(i,x);
-					for (size_t dir=0;dir<DIRECTIONS;dir++)
-						cc[x] += real(m(i,dir) * m(j,dir));
+					for (size_t dir=0;dir<cc.n_col();dir++)
+						cc(x,dir) += real(m(i,dir) * m(j,dir));
 				}
 			}
 		}
@@ -247,15 +249,27 @@ namespace Spf {
 			return tmp;
 		}
 		
-		template<typename SomeVectorType>
 		void divideAndPrint(
 				std::ostream& fout,
-				SomeVectorType& v,
+				VectorType& v,
 				const std::string& label)
 		{
 			v /= counter_;
 			fout<<label<<"\n";
 			fout<<v;
+		}
+
+		void divideAndPrint(
+				std::ostream& fout,
+				MatrixType& m,
+				const std::string& label)
+		{
+			VectorType v(m.n_row(),0);
+			for (size_t dir=0;dir<m.n_col();dir++) {
+				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
+				std::string newlabel = label+utils::ttos(dir);
+				divideAndPrint(fout,v,newlabel);
+			}
 		}
 
 		SpinOperationsType& spinOperations_;
@@ -264,8 +278,8 @@ namespace Spf {
 		VectorType cc_;
 		VectorType lc_;
 		VectorType chargeCor_;
-		VectorType mc_;
-		VectorType tc_;
+		MatrixType mc_;
+		MatrixType tc_;
 		size_t counter_;
 
 	}; // ObservablesStored
