@@ -38,11 +38,12 @@ namespace Spf {
 			spinOperations_(spinOperations),
 			geometry_(geometry),
 			dof_(dof),
-			cc_(geometry.volume(),0),
 			lc_(dof*geometry.volume(),0),
 			chargeCor_(geometry.volume(),0),
 			mc_(geometry.volume(),DIRECTIONS),
 			tc_(geometry.volume(),DIRECTIONS),
+			cs_(geometry.volume(),DIRECTIONS),
+			qs_(geometry.volume(),DIRECTIONS),
 			counter_(0)
 		{}
 				
@@ -50,37 +51,44 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-			spinOperations_.classicalCorrelations(cc_,spins);
+			//spinOperations_.classicalCorrelations(cc_,spins);
 			greenFunction.localCharge(lc_);
 			chargeCorrelation(chargeCor_,greenFunction);
-			mCorrelation(spins,greenFunction);
+			psimag::Matrix<FieldType> mi(spins.size,DIRECTIONS);
+			calcMagSpins(mi,spins);
+			psimag::Matrix<ComplexType> qi(spins.size,DIRECTIONS);
+			calcMagElectrons(qi,greenFunction);
+			mCorrelation(mi,qi,greenFunction);
 			tCorrelation(greenFunction);
+			correlation(cs_,mi,greenFunction);
+			correlation(qs_,qi,greenFunction);
 			counter_++;
 		}
 		
 		void finalize(std::ostream& fout)
 		{
-			divideAndPrint(fout,cc_,"#ClassicalCorrelations:");
 			divideAndPrint(fout,lc_,"#LocalCharge:");
 			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
 			divideAndPrint(fout,mc_,"#MCorrelations");
 			divideAndPrint(fout,tc_,"#TCorrelations");
+			divideAndPrint(fout,cs_,"#ClassicalSpinCorrelations");
+			divideAndPrint(fout,qs_,"#ItinerantSpinCorrelations");
 		}
 
 	private:
 
+		// Correlations of classical + itinerant spins
 		template<typename GreenFunctionType>
 		void mCorrelation(
-				const DynVarsType& spins,
+				const psimag::Matrix<FieldType>& mi,
+				const psimag::Matrix<ComplexType>& qi,
 				GreenFunctionType& greenFunction)
 		{
-			psimag::Matrix<ComplexType> v(spins.size,DIRECTIONS);
-			calcMagElectrons(v,greenFunction);
-			psimag::Matrix<FieldType> mi(spins.size,DIRECTIONS);
-			calcMagSpins(mi,spins);
+			psimag::Matrix<ComplexType> v;
+			v.resize(mi.n_row(),mi.n_col());
 			for (size_t i=0;i<v.n_row();i++)
-				for (size_t dir=0;dir<DIRECTIONS;dir++)
-					v(i,dir) += mi(i,dir);
+				for (size_t dir=0;dir<v.n_col();dir++)
+					v(i,dir) = mi(i,dir) + qi(i,dir);
 			correlation(mc_,v,greenFunction);
 		}
 
@@ -109,7 +117,7 @@ namespace Spf {
 			}
 		}
 
-		// Magnetization vector of the electrons
+		// Magnetization vector of the itinerant electrons
 		template<typename GreenFunctionType>
 		void calcMagElectrons(
 				psimag::Matrix<ComplexType>& me,
@@ -275,11 +283,12 @@ namespace Spf {
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
 		size_t dof_;
-		VectorType cc_;
 		VectorType lc_;
 		VectorType chargeCor_;
 		MatrixType mc_;
 		MatrixType tc_;
+		MatrixType cs_;
+		MatrixType qs_;
 		size_t counter_;
 
 	}; // ObservablesStored
