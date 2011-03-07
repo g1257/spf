@@ -133,7 +133,7 @@ namespace Spf {
 
 					me(i,DIRECTION_X) -= 0.5*(
 							greenFunction(x,y) + greenFunction(y,x));
-					me(i,DIRECTION_Y) += 0.5*sqrtOfMinus1*(
+					me(i,DIRECTION_Y) -= 0.5*sqrtOfMinus1*(
 							greenFunction(x,y) - greenFunction(y,x));
 					me(i,DIRECTION_Z) -= 0.5*
 							(greenFunction(x,x) - greenFunction(y,y));
@@ -166,11 +166,11 @@ namespace Spf {
 				for (size_t spin=0;spin<2;spin++) {
 					size_t x = i+(ORBITAL_XZ+spin*ORBITALS)*volume;
 					size_t y = i+(ORBITAL_YZ+spin*ORBITALS)*volume;
-					ti(i,DIRECTION_X) = (-0.5)*(
+					ti(i,DIRECTION_X) += (-0.5)*(
 							greenFunction(x,y) + greenFunction(y,x));
-					ti(i,DIRECTION_Y) = sqrtOfMinus1*0.5*(
+					ti(i,DIRECTION_Y) -= sqrtOfMinus1*0.5*(
 							greenFunction(x,y) - greenFunction(y,x));
-					ti(i,DIRECTION_Z) = (-0.5)*(
+					ti(i,DIRECTION_Z) += (-0.5)*(
 							greenFunction(x,x) - greenFunction(y,y));
 				}
 			}
