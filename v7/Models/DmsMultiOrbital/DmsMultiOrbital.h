@@ -11,7 +11,7 @@
 #define DMS_MULIORBITAL_H
 #include "Utils.h"
 #include "DmsMultiOrbitalFields.h"
-#include "RandomNumberGenerator.h"
+#include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
 #include "SpinOperations.h"
@@ -29,7 +29,7 @@ namespace Spf {
 		
 		typedef typename EngineParamsType::FieldType RealType;
 		typedef std::complex<RealType> ComplexType;
-		typedef psimag::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
@@ -132,7 +132,9 @@ namespace Spf {
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
 		
-		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(
+				PsimagLite::Matrix<ComplexType>& matrix,
+				size_t oldOrNewDynVars)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			if (oldOrNewDynVars==NEWFIELDS)

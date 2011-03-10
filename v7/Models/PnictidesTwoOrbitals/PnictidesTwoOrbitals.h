@@ -11,7 +11,7 @@
 #define PNICTIDES_2ORB_H
 #include "Utils.h"
 #include "PnictidesTwoOrbitalsFields.h"
-#include "RandomNumberGenerator.h"
+#include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
 #include "SpinOperations.h"
@@ -24,7 +24,7 @@ namespace Spf {
 		
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
-		typedef psimag::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
@@ -119,7 +119,7 @@ namespace Spf {
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
 		
-		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
@@ -251,7 +251,7 @@ namespace Spf {
 				      const std::vector<FieldType>& eigs) const
 		{
 			FieldType sum = 0;
-			//const psimag::Matrix<ComplexType>& matrix = matrix_;
+			//const PsimagLite::Matrix<ComplexType>& matrix = matrix_;
 // 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 // 				FieldType tmp2=0.0;
 // 				for (size_t i=0;i<geometry_.volume();i++) {

@@ -15,7 +15,7 @@
 namespace Spf {
 	template<typename FieldType_>
 	struct Spin { // Do not add functions here, this is a struct!!
-		typedef typename Dmrg::IoSimple::In IoSimpleIn;
+		typedef typename PsimagLite::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
 		
 		Spin(size_t vol,const std::string& mcstarttype,bool freeze=false,bool makeVoid=false) : 
@@ -50,8 +50,9 @@ namespace Spf {
 	
 	//! Operator to read Dynvars from file
 	template<typename FieldType>
-	Spin<FieldType>&
-	operator <= (Spin<FieldType>& dynVars,  typename Dmrg::IoSimple::In& ioin) 
+	Spin<FieldType>& operator<=(
+			Spin<FieldType>& dynVars,
+			typename PsimagLite::IoSimple::In& ioin)
 	{
 		ioin.read(dynVars.theta,"Theta");
 		ioin.read(dynVars.phi,"Phi");

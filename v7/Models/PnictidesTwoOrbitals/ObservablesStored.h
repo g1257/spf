@@ -18,10 +18,10 @@ namespace Spf {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType FieldType;
-		typedef PsimagLite::Vector<FieldType> VectorType;
-		typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
+		typedef std::vector<FieldType> VectorType;
+		typedef std::vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
-		typedef psimag::Matrix<FieldType> MatrixType;
+		typedef PsimagLite::Matrix<FieldType> MatrixType;
 
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
 		enum {ORBITAL_XZ,ORBITAL_YZ};
@@ -54,9 +54,9 @@ namespace Spf {
 			//spinOperations_.classicalCorrelations(cc_,spins);
 			greenFunction.localCharge(lc_);
 			chargeCorrelation(chargeCor_,greenFunction);
-			psimag::Matrix<FieldType> mi(spins.size,DIRECTIONS);
+			PsimagLite::Matrix<FieldType> mi(spins.size,DIRECTIONS);
 			calcMagSpins(mi,spins);
-			psimag::Matrix<ComplexType> qi(spins.size,DIRECTIONS);
+			PsimagLite::Matrix<ComplexType> qi(spins.size,DIRECTIONS);
 			calcMagElectrons(qi,greenFunction);
 			mCorrelation(mi,qi,greenFunction);
 			tCorrelation(greenFunction);
@@ -80,11 +80,11 @@ namespace Spf {
 		// Correlations of classical + itinerant spins
 		template<typename GreenFunctionType>
 		void mCorrelation(
-				const psimag::Matrix<FieldType>& mi,
-				const psimag::Matrix<ComplexType>& qi,
+				const PsimagLite::Matrix<FieldType>& mi,
+				const PsimagLite::Matrix<ComplexType>& qi,
 				GreenFunctionType& greenFunction)
 		{
-			psimag::Matrix<ComplexType> v;
+			PsimagLite::Matrix<ComplexType> v;
 			v.resize(mi.n_row(),mi.n_col());
 			for (size_t i=0;i<v.n_row();i++)
 				for (size_t dir=0;dir<v.n_col();dir++)
@@ -96,7 +96,7 @@ namespace Spf {
 		void tCorrelation(GreenFunctionType& greenFunction)
 		{
 
-			psimag::Matrix<ComplexType> ti(geometry_.volume(),DIRECTIONS);
+			PsimagLite::Matrix<ComplexType> ti(geometry_.volume(),DIRECTIONS);
 			calcTi(ti,greenFunction);
 			correlation(tc_,ti,greenFunction);
 		}
@@ -105,7 +105,7 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void correlation(
 				MatrixType& cc,
-				const psimag::Matrix<ComplexType>& m,
+				const PsimagLite::Matrix<ComplexType>& m,
 				GreenFunctionType& greenFunction)
 		{
 			for (size_t x=0;x<cc.n_row();x++) {
@@ -120,7 +120,7 @@ namespace Spf {
 		// Magnetization vector of the itinerant electrons
 		template<typename GreenFunctionType>
 		void calcMagElectrons(
-				psimag::Matrix<ComplexType>& me,
+				PsimagLite::Matrix<ComplexType>& me,
 				GreenFunctionType& greenFunction)
 		{
 
@@ -143,7 +143,7 @@ namespace Spf {
 
 		// Magnetization of the classical spins
 		void calcMagSpins(
-				psimag::Matrix<FieldType>& ms,
+				PsimagLite::Matrix<FieldType>& ms,
 				const DynVarsType& spins)
 		{
 			size_t volume = ms.n_row();
@@ -157,7 +157,7 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		void calcTi(psimag::Matrix<ComplexType>& ti,
+		void calcTi(PsimagLite::Matrix<ComplexType>& ti,
 				GreenFunctionType& greenFunction)
 		{
 			ComplexType sqrtOfMinus1 = ComplexType(0,1);
@@ -178,14 +178,14 @@ namespace Spf {
 
 		// C_x = \sum_i <n_i n_{i+x}>, where n_i = \sum_{dof} n_{i dof}  
 		template<typename GreenFunctionType>
-		void chargeCorrelation(PsimagLite::Vector<FieldType>& cc,
+		void chargeCorrelation(std::vector<FieldType>& cc,
 				       GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
 			//allChargeCorrelation(greenFunction); // for debugging only, comment out for production
 			for (size_t gamma=0;gamma<dof_;gamma++) {
 				for (size_t gamma2=0;gamma2<dof_;gamma2++) {
-					PsimagLite::Vector<FieldType> tmpV(dof_*dof_*volume,0);
+					std::vector<FieldType> tmpV(dof_*dof_*volume,0);
 					chargeCorrelation(tmpV,gamma,gamma2,greenFunction);
 					for (size_t x=0;x<volume;x++) {
 						cc[x] += tmpV[x + gamma*volume+gamma2*volume*dof_];
@@ -195,7 +195,7 @@ namespace Spf {
 		}
 		
 		template<typename GreenFunctionType>
-		void chargeCorrelation(PsimagLite::Vector<FieldType>& cc,
+		void chargeCorrelation(std::vector<FieldType>& cc,
 				       size_t gamma,size_t gamma2,GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
@@ -222,7 +222,7 @@ namespace Spf {
 		void allChargeCorrelation(GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
-			psimag::Matrix<FieldType> m(volume*2,volume*2);
+			PsimagLite::Matrix<FieldType> m(volume*2,volume*2);
 			for (size_t i=0;i<volume;i++) {
 				for (size_t gamma=0;gamma<4;gamma++) {
 					size_t orb1 = (gamma & 1);

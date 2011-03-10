@@ -90,7 +90,6 @@ namespace Spf {
 		// total number of sites in the system
 		int linSize;
 		
-
 		// packed as gamma1+gamma2*dof + dir*4
 		// where dir=0 is FIXME
 		// and dof = 2*orbitals
@@ -118,7 +117,7 @@ namespace Spf {
 	template<typename FieldType>
 	ParametersDmsMultiOrbital<FieldType>& operator<=(
 			ParametersDmsMultiOrbital<FieldType>& parameters,
-			Dmrg::SimpleReader& reader)
+			SimpleReader& reader)
 	{
 		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);

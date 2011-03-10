@@ -84,7 +84,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "Utils.h"
 
 
-namespace Dmrg {
+namespace Spf {
 	class SimpleReader {
 	public:
 		SimpleReader(const std::string& fileName): fileName_(fileName),fin_(fileName.c_str())
@@ -117,7 +117,7 @@ namespace Dmrg {
 		}
 
 		template<typename FieldType>
-		void read(psimag::Matrix<FieldType>& v) 
+		void read(PsimagLite::Matrix<FieldType>& v)
 		{
 			readALabel();	
 			// read row and col
@@ -146,7 +146,7 @@ namespace Dmrg {
 			} 
 		}
 	};
-} // namespace Dmrg
+} // namespace Spf
 
 /*@}*/
 #endif

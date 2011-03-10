@@ -1,5 +1,16 @@
-This is an old code that needs to be rewritten
-completely, in progres...
+---------------------------------------------------
+The new code is in directory
+v7/
+
+and some models have already been ported
+to the new clean conventions.
+
+----------------------------------------------------
+Directory
+src/ 
+
+contains the old code that needs to be rewritten
+completely, in progress...
 
 This is the Spin Phonon Fermion (SPF) Code.
 SPF version 6.4 (yellow)
@@ -7,4 +18,5 @@ Released: March 29, 2006.
 
 For more info see
 http://mri-fre.ornl.gov/spf/
+----------------------------------------------------
 

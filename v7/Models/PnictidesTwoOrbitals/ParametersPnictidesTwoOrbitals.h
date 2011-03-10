@@ -111,8 +111,9 @@ namespace Spf {
 
 	//! Operator to read Model Parameters from inp file.
 	template<typename FieldType>
-	ParametersPnictidesTwoOrbitals<FieldType>&
-	operator <= (ParametersPnictidesTwoOrbitals<FieldType>& parameters,  Dmrg::SimpleReader& reader) 
+	ParametersPnictidesTwoOrbitals<FieldType>& operator<=(
+			ParametersPnictidesTwoOrbitals<FieldType>& parameters,
+			SimpleReader& reader)
 	{
 		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);
@@ -128,7 +129,9 @@ namespace Spf {
 	
 	//! Function that prints model parameters to stream os
 	template<typename FieldType>
-	std::ostream& operator<<(std::ostream &os,const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
+	std::ostream& operator<<(
+			std::ostream &os,
+			const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
 	{
 		os<<"parameters.linSize="<<parameters.linSize<<"\n";
 		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";

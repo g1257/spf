@@ -51,7 +51,7 @@ namespace Spf {
 				
 		}
 		
-		void localCharge(PsimagLite::Vector<FieldType>& lc)
+		void localCharge(std::vector<FieldType>& lc)
 		{
 			//checkUs();
 			//checkLevels();
@@ -108,7 +108,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;	
 		AlgorithmType& algorithm_;
 		size_t hilbertSize_;
-		psimag::Matrix<ComplexType> data_;
+		PsimagLite::Matrix<ComplexType> data_;
 		
 	}; // GreenFunction
 	

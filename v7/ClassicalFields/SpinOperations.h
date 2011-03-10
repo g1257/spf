@@ -169,8 +169,13 @@ namespace Spf {
 		
 	private:
 		
-		template<typename RandomNumberGeneratorType>
-		void propose_(FieldType thetaOld, FieldType phiOld, FieldType &thetaNew,FieldType &phiNew,RandomNumberGeneratorType& rng)
+		template<typename RngType>
+		void propose_(
+				FieldType thetaOld,
+				FieldType phiOld,
+				FieldType &thetaNew,
+				FieldType &phiNew,
+				RngType& rng)
 		{
 			if (isingSpins_) {
 				if (thetaOld==0) thetaNew=M_PI; 
@@ -180,14 +185,14 @@ namespace Spf {
 			} 
 		
 			if (mcwindow_[0]<0) {
-				thetaNew = 2*rng()-1;
-				phiNew = 2*M_PI*rng();
+				thetaNew = 2*RngType::random()-1;
+				phiNew = 2*M_PI*RngType::random();
 				thetaNew = acos(thetaNew);
 			} else {
-				thetaNew=2*rng()- 1;
+				thetaNew=2*RngType::random()- 1;
 				if (thetaNew < -1) thetaNew= 0;
 				if (thetaNew > 1) thetaNew = 0;		
-				phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindow_[1];
+				phiNew=phiOld+2*M_PI*(RngType::random()- 0.5)*mcwindow_[1];
 				thetaNew = acos(thetaNew);
 			}
 			/*if (ether.isSet("sineupdate")) {

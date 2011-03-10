@@ -68,7 +68,7 @@ namespace Spf {
 			int ly = l_;
 			int zz = 0;
 			//PairType zeroVal(0,0);
-			psimag::Matrix<PairType> matrix(lx*ly,4);
+			PsimagLite::Matrix<PairType> matrix(lx*ly,4);
 			for (int y=0;y<ly;y++) {
 				for (int x=0;x<lx;x++) {
 					size_t i = x + y*lx;
@@ -113,7 +113,7 @@ namespace Spf {
 			int ly = l_;
 			int zz = 0;
 			//PairType zeroVal(0,0);
-			psimag::Matrix<PairType> matrix(lx*ly,4);
+			PsimagLite::Matrix<PairType> matrix(lx*ly,4);
 			for (int y=0;y<ly;y++) {
 				for (int x=0;x<lx;x++) {
 					size_t i = x + y*lx;
@@ -167,7 +167,7 @@ namespace Spf {
 		}
 		size_t l_;
 		size_t volume_;
-		std::vector<psimag::Matrix<PairType> > neighbors_;
+		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
 	};
 	
 } // namespace Spf

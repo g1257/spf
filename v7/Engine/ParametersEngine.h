@@ -111,7 +111,7 @@ namespace Spf {
 	//! Read Dmrg parameters from inp file
 	template<typename FieldType>
 	ParametersEngine<FieldType>&
-	operator <= (ParametersEngine<FieldType>& parameters,  Dmrg::SimpleReader& reader) 
+	operator <= (ParametersEngine<FieldType>& parameters, SimpleReader& reader)
 	{
 		reader.read(parameters.options); 
 		reader.read(parameters.version);

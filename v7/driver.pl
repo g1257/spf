@@ -1,7 +1,23 @@
 #!/usr/bin/perl -w
 use strict;
 
-my ($model)=@ARGV;
+my $model = "PnictidesTwoOrbitals";
+print "What model do you want to compile?\n";
+print "Available: DmsMultiOrbital  PhononsTwoOrbitals  PnictidesTwoOrbitals\n";
+print "Default is: PnictidesTwoOrbitals (press ENTER): ";
+$_=<STDIN>;
+s/ //g;
+chomp;
+$model = $_ unless ($_ eq "");
+
+my $geometry = "Square";
+print "What geometry do you want to use?\n";
+print "Available: Square Cubic Fcc\n";
+print "Default is: Square (press ENTER): ";
+$_=<STDIN>;
+s/ //g;
+chomp;
+$geometry = $_ unless ($_ eq "");
 
 createMakefile();
 createDriver();
@@ -19,7 +35,7 @@ print FOUT<<EOF;
 # Model: $model
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
-CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/$model -IEngine -IClassicalFields 
+CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields 
 CXX = g++ -Werror -Wall -g3 -pg
 
 all: \$(EXENAME)
@@ -55,19 +71,19 @@ print FOUT<<EOF;
 #include "ConcurrencySerial.h"
 #include "Parameters$model.h"
 #include "$model.h"
-#include "GeometrySquare.h"
-#include "RandomNumberGenerator.h"
+#include "Geometry$geometry.h"
+#include "Random48.h"
 #include "AlgorithmDiag.h"
 #include "GreenFunction.h"
 
 typedef double FieldType;
 typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
-typedef Dmrg::ConcurrencySerial<FieldType> ConcurrencyType;
-typedef Spf::GeometrySquare<FieldType> GeometryType;
+typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
+typedef Spf::Geometry$geometry<FieldType> GeometryType;
 typedef Spf::Parameters$model<FieldType> ParametersModelType;
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
-typedef Spf::RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
+typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
 typedef Spf::GreenFunction<ParametersEngineType,AlgorithmType> GreenFunctionType;
 typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType,GreenFunctionType> EngineType;
@@ -78,7 +94,7 @@ int main(int argc,char *argv[])
 	ConcurrencyType concurrency(argc,argv);
 	ParametersEngineType engineParams;
 	ParametersModelType mp;
-	Dmrg::SimpleReader reader(argv[1]);
+	Spf::SimpleReader reader(argv[1]);
 	reader.load(engineParams);
 	reader.load(mp);
 	// print license

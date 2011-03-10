@@ -13,15 +13,15 @@
 #include "ProgressIndicator.h"
 
 namespace Spf {
-	template<typename EngineParametersType,typename ModelType,typename RandomNumberGeneratorType>
+	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmDiag {
 	public:	
 		typedef typename EngineParametersType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
-		typedef psimag::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
-			: engineParams_(engineParams),model_(model),rng_(),
+			: engineParams_(engineParams),model_(model),
 					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
 					hilbertSize_(model_.hilbertSize()),
 					matrixNew_(hilbertSize_,hilbertSize_),
@@ -123,7 +123,7 @@ namespace Spf {
 			X *=  exp(-beta*dsDirect);
 			X = X/(1.0+X);
 
-			FieldType r=rng_();
+			FieldType r=RngType::random();
 			//std::cerr<<"dsDirect="<<dsDirect<<" beta="<<beta<<" X = "<<X<<" r="<<r<<"\n";
 			if (X>r) return true;
 			else return false;
@@ -152,7 +152,6 @@ namespace Spf {
 		
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
-		RandomNumberGeneratorType rng_;
 		std::vector<FieldType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
@@ -166,7 +165,7 @@ namespace Spf {
 		
 		typedef typename EngineParametersType::FieldType FieldType;
 		std::vector<FieldType> eigNew(a.hilbertSize_);
-		psimag::Matrix<std::complex<FieldType> > matrix(a.hilbertSize_,a.hilbertSize_);
+		PsimagLite::Matrix<std::complex<FieldType> > matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";
 		os<<eigNew;
