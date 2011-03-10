@@ -1,14 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my ($choice)=@ARGV;
-my $model="UNDEFINED";
-
-if ($choice==0)  {
-	$model = "PhononsTwoOrbitals";
-} else {
-	$model = "PnictidesTwoOrbitals";
-}
+my ($model)=@ARGV;
 
 createMakefile();
 createDriver();
