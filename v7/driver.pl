@@ -22,9 +22,10 @@ EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../PartialPsimag   -IGeometries -IModels/$model -IEngine -IClassicalFields 
 CXX = g++ -Werror -Wall -g3 -pg
 
+all: \$(EXENAME)
+
 \$(EXENAME): clean main.o 
 	\$(CXX) -o \$(EXENAME) main.o \$(LDFLAGS) 
-
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt

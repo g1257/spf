@@ -74,7 +74,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file ParamsDmsMultiOrbital.h
+/*! \file ParametersDmsMultiOrbital.h
  *
  *   Parameters for the DmsMultiOrbital model
  *
@@ -86,7 +86,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 namespace Spf {
 	template<typename Field>
-	struct ParamsDmsMultiOrbital {
+	struct ParametersDmsMultiOrbital {
 		// total number of sites in the system
 		int linSize;
 		
@@ -108,14 +108,16 @@ namespace Spf {
 		// JAF n-n-n
 		Field jafNnn;
 
+		Field spinOrbitCoupling; // =0.34
+
 		// Modulus (FIXME: use less storage here it should be either 0 or 1)
 		std::vector<size_t> modulus;
-	}; // struct ParamsDmsMultiOrbital
+	}; // struct ParametersDmsMultiOrbital
 
 	//! Operator to read Model Parameters from inp file.
 	template<typename FieldType>
-	ParamsDmsMultiOrbital<FieldType>& operator<=(
-			ParamsDmsMultiOrbital<FieldType>& parameters,
+	ParametersDmsMultiOrbital<FieldType>& operator<=(
+			ParametersDmsMultiOrbital<FieldType>& parameters,
 			Dmrg::SimpleReader& reader)
 	{
 		reader.read(parameters.linSize);
@@ -127,11 +129,14 @@ namespace Spf {
 		reader.read(parameters.jafNn);
 		reader.read(parameters.jafNnn);
 		
+		reader.read(parameters.spinOrbitCoupling);
+
 		std::vector<size_t> tmp;
 		reader.read(tmp);
-		modulus.resize(parameters.linSize);
-		for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
-		for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+		parameters.modulus.resize(parameters.linSize);
+		for (size_t i=0;i<parameters.modulus.size();i++)
+			parameters.modulus[i] = 0;
+		for (size_t i=0;i<tmp.size();i++) parameters.modulus[tmp[i]] = 1;
 
 		return parameters;
 	}
@@ -140,7 +145,7 @@ namespace Spf {
 	template<typename FieldType>
 	std::ostream& operator<<(
 			std::ostream &os,
-			const ParamsDmsMultiOrbital<FieldType>& parameters)
+			const ParametersDmsMultiOrbital<FieldType>& parameters)
 	{
 		os<<"parameters.linSize="<<parameters.linSize<<"\n";
 		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
@@ -151,6 +156,7 @@ namespace Spf {
 		os<<parameters.potentialV;
 		os<<"parameters.hoppings\n";
 		os<<parameters.hoppings;
+		os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
 		os<<"modulus\n";
 		for (size_t i=0;i<parameters.modulus.size();i++)
 			if (parameters.modulus[i]!=0) os<<i<<" ";

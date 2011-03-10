@@ -19,13 +19,18 @@
 #include "ObservablesStored.h"
 
 namespace Spf {
-	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
-	class DmsMultiOrbital : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
+	template<
+		typename EngineParamsType,
+		typename ParametersModelType_,
+		typename GeometryType>
+	class DmsMultiOrbital : public ModelBase<Spin<
+		typename EngineParamsType::FieldType>,
+			EngineParamsType,ParametersModelType_,GeometryType> {
 		
-		typedef typename EngineParamsType::FieldType FieldType;
-		typedef std::complex<FieldType> ComplexType;
+		typedef typename EngineParamsType::FieldType RealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef psimag::Matrix<ComplexType> MatrixType;
-		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
+		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
@@ -33,9 +38,9 @@ namespace Spf {
 		
 		
 
-		public:
+	public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
+		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType> ObservablesStoredType;
@@ -64,7 +69,7 @@ namespace Spf {
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
-		FieldType deltaDirect(size_t i) const 
+		RealType deltaDirect(size_t i) const
 		{
 			//return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 			throw std::runtime_error("DeltaDirect\n");
@@ -83,7 +88,7 @@ namespace Spf {
 			std::string s = "iter=" + utils::ttos(iter); 
 			progress_.printline(s,fout);
 				
-			FieldType temp=greenFunction.calcNumber();
+			RealType temp=greenFunction.calcNumber();
 			s ="Number_Of_Electrons="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
@@ -93,7 +98,7 @@ namespace Spf {
 			s="Electronic Energy="+utils::ttos(temp);
 			progress_.printline(s,fout);
 			
-			FieldType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
+			RealType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
 			s="Superexchange="+utils::ttos(temp2);
 			progress_.printline(s,fout);
 			
@@ -136,7 +141,7 @@ namespace Spf {
 				createHamiltonian(dynVars,matrix);
 		}
 		
-		void adjustChemPot(const std::vector<FieldType>& eigs)
+		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -152,7 +157,7 @@ namespace Spf {
 			spinOperations_.accept(i);
 		}
 		
-		FieldType integrationMeasure(size_t i)
+		RealType integrationMeasure(size_t i)
 		{
 			return spinOperations_.sineUpdate(i);
 		}
@@ -168,10 +173,10 @@ namespace Spf {
 			typename GeometryType2>
 		friend std::ostream& operator<<(
 				std::ostream& os,
-				const PnictidesTwoOrbitals<EngineParamsType2,
+				const DmsMultiOrbital<EngineParamsType2,
 					ParametersModelType2,GeometryType2>& model);
 		
-		private:
+	private:
 		
 		void createHamiltonian(
 				const typename DynVarsType::SpinType& dynVars,
@@ -181,18 +186,21 @@ namespace Spf {
 			size_t norb = ORBITALS;
 			size_t dof = norb * 2; // the 2 comes because of the spin
 			std::vector<ComplexType> jmatrix(dof*dof);
+			std::vector<RealType> ymatrix(dof*dof);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 
 			for (size_t p = 0; p < volume; p++) {
+				RealType modulus = mp_.modulus[p];
+
 				auxCreateJmatrix(jmatrix,dynVars,p);
 				auxCreateYmatrix(ymatrix,dynVars,p);
 				for (size_t gamma1=0;gamma1<dof;gamma1++) {
 
 					matrix(p+gamma1*volume,p+gamma1*volume) =
-							real(jmatrix[spin1+2*spin1])*mp_.modulus[p] +
+							real(jmatrix[gamma1+dof*gamma1])*modulus +
 							mp_.potentialV[p] +
 							ymatrix[gamma1+dof*gamma1];
 
@@ -211,8 +219,7 @@ namespace Spf {
 
 					for (size_t gamma2=0;gamma2<dof;gamma2++) {
 						matrix(p+gamma1*volume,p + gamma2*volume) =
-							jmatrix[gamma11+dof*gamma2] *
-							mp_.modulus[p];
+							jmatrix[gamma1+dof*gamma2] * modulus;
 						matrix(p + gamma2*volume,p+gamma1*volume) =
 							conj(matrix(p+gamma1*volume,p + gamma2*volume));
 					}
@@ -249,7 +256,7 @@ namespace Spf {
 					sin(dynVars.theta[site])*
 					sin(dynVars.phi[site])/3.0);
 
-			jmatrix[9]=MatType(0.5*sin(dynVars.theta[site])*
+			jmatrix[9]=ComplexType(0.5*sin(dynVars.theta[site])*
 					cos(dynVars.phi[site])/sqrt(3.0),
 					-0.5*sin(dynVars.theta[site])*
 					sin(dynVars.phi[site])/sqrt(3.0));
@@ -337,7 +344,7 @@ namespace Spf {
 
 			jmatrix[35]= jmatrix[14];
 
-
+			size_t dof = ORBITALS*2;
 			for (size_t i=0;i<dof;i++) for (size_t j=i+1;j<dof;j++)
 					jmatrix[i+j*dof]=conj(jmatrix[j+i*dof]);
 
@@ -345,10 +352,22 @@ namespace Spf {
 
 		}
 
+		void auxCreateYmatrix(std::vector<RealType>& ymatrix,const
+				typename DynVarsType::SpinType& dynVars,size_t site) const
+		{
+			size_t dof = ORBITALS*2;
+			ymatrix[28]=mp_.spinOrbitCoupling;
+			ymatrix[35]=mp_.spinOrbitCoupling;
+
+			for (size_t i=0;i<dof;i++) for (size_t j=i+1;j<dof;j++)
+				ymatrix[i+j*dof]=conj(ymatrix[j+i*dof]);
+		}
+
+
 // 		template<typename GreenFunctionType>
-// 		FieldType calcNumber(GreenFunctionType& greenFunction) const
+// 		RealType calcNumber(GreenFunctionType& greenFunction) const
 // 		{
-// 			FieldType sum=0;
+// 			RealType sum=0;
 // 			for (size_t i=0;i<hilbertSize_;i++) {
 // 				sum += real(greenFunction(i,i));
 // 			}
@@ -357,13 +376,13 @@ namespace Spf {
 
 
 		
-		FieldType calcKinetic(const DynVarsType& dynVars,
-				      const std::vector<FieldType>& eigs) const
+		RealType calcKinetic(const DynVarsType& dynVars,
+				      const std::vector<RealType>& eigs) const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			//const psimag::Matrix<ComplexType>& matrix = matrix_;
 // 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-// 				FieldType tmp2=0.0;
+// 				RealType tmp2=0.0;
 // 				for (size_t i=0;i<geometry_.volume();i++) {
 // 					for (size_t k=0;k<geometry.z(1);k++) {
 // 						size_t j=geometry.neighbor(i,k).first;
