@@ -36,7 +36,7 @@ print FOUT<<EOF;
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields 
-CXX = g++ -Werror -Wall -g3 -pg
+CXX = g++ -Werror -Wall -O3 -pg
 
 all: \$(EXENAME)
 

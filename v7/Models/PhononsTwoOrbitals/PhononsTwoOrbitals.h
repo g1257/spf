@@ -11,7 +11,7 @@
 #define PHONONS_2ORB_H
 #include "Utils.h"
 #include "PhononsTwoOrbitalsFields.h"
-#include "RandomNumberGenerator.h"
+#include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
 #include "SpinOperations.h"
@@ -25,7 +25,7 @@ namespace Spf {
 
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
-		typedef psimag::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
@@ -48,7 +48,7 @@ namespace Spf {
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
-					spinOperations_(geometry_,engineParams_.mcWindow[0]),
+					spinOperations_(geometry_,engineParams_.mcWindow),
 					phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
 		{
 		}
@@ -118,7 +118,7 @@ namespace Spf {
 			//storedObservables_.doThem();
 		} // doMeasurements
 		
-		void createHamiltonian(psimag::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars) 
+		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
 			typedef typename DynVarsType::Type1 Type1;
 			DynVarsType newDynVars(spinOperations_.dynVars2(),
@@ -234,7 +234,7 @@ namespace Spf {
 				      const std::vector<FieldType>& eigs) const
 		{
 			FieldType sum = 0;
-			//const psimag::Matrix<ComplexType>& matrix = matrix_;
+			//constPsimagLite::Matrix<ComplexType>& matrix = matrix_;
 // 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 // 				FieldType tmp2=0.0;
 // 				for (size_t i=0;i<geometry_.volume();i++) {

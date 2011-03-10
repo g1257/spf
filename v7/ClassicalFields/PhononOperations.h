@@ -17,7 +17,7 @@ namespace Spf {
 	template<typename GeometryType,typename DynVarsType> // DynVarsType == PhononsType
 	class PhononOperations {
 		typedef typename DynVarsType::FieldType FieldType;
-		typedef PsimagLite::Vector<FieldType> PhononType;
+		typedef std::vector<FieldType> PhononType;
 		
 	public:
 		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
@@ -31,8 +31,8 @@ namespace Spf {
 		}
 
 		//! How to sweep the lattice
-		template<typename RandomNumberGeneratorType>
-		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
+		template<typename RngType>
+		size_t proposeSite(size_t i,RngType& rng) const
 		{
 			return i; //<-- zig-zag horizontal
 			// zig-zag vertical:
@@ -46,8 +46,8 @@ namespace Spf {
 		}
 		
 		
-		template<typename RandomNumberGeneratorType>
-		void proposeChange(size_t i,RandomNumberGeneratorType& rng)
+		template<typename RngType>
+		void proposeChange(size_t i,RngType& rng)
 		{
 			PhononType phononsOld = dynVars_->phonon[i];
 			
@@ -117,11 +117,14 @@ namespace Spf {
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
 		
-		template<typename RandomNumberGeneratorType>
-		void propose_(const PhononType& phononsOld,PhononType& phononsNew,RandomNumberGeneratorType& rng)
+		template<typename RngType>
+		void propose_(
+				const PhononType& phononsOld,
+				PhononType& phononsNew,
+				RngType& rng)
 		{
 			for (size_t i=0;i<phononsNew.size();i++) {
-				phononsNew[i]=phononsOld[i] + (rng()- 0.5)*mcwindow_;
+				phononsNew[i]=phononsOld[i] + (RngType::random()- 0.5)*mcwindow_;
 				//if (fabs(phononsNew[i]) > ether.maxPhonons) phononsNew[i]= 0.9*ether.maxPhonons;
 			}
 		}
