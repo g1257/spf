@@ -106,6 +106,7 @@ namespace Spf {
 		size_t histSteps; // histogram steps
 		std::string boundaryConditions; // boundary conditions
 		long int randomSeed;
+		size_t latticeLength;
 	};
 
 	//! Read Dmrg parameters from inp file
@@ -132,6 +133,7 @@ namespace Spf {
 		if (s == "TIME" || s == "time") 
 			parameters.randomSeed = -1;
 		else    parameters.randomSeed = atoi(s.c_str());
+		reader.read(parameters.latticeLength);
 		return parameters;
 	} 
 
@@ -158,6 +160,7 @@ namespace Spf {
 		std::string s = utils::ttos(parameters.randomSeed);
 		if (parameters.randomSeed<0) s="TIME";
 		os<<"parameters.randomSeed="<<s<<"\n";
+		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
 		return os;
 	}
 } // namespace Dmrg

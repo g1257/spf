@@ -71,8 +71,9 @@ namespace Spf {
 		
 		RealType deltaDirect(size_t i) const
 		{
+			// don't use line below, unless geometry has nnn:
 			//return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
-			throw std::runtime_error("DeltaDirect\n");
+			return 0.0;
 		}
 		
 		void set(typename DynVarsType::SpinType& dynVars)

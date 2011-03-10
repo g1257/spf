@@ -85,54 +85,65 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "SimpleReader.h"
 
 namespace Spf {
-	template<typename Field>
+	template<typename RealType>
 	struct ParametersDmsMultiOrbital {
-		// total number of sites in the system
-		int linSize;
-		
 		// packed as gamma1+gamma2*dof + dir*4
-		// where dir=0 is FIXME
+		// where dir goes from 0 to 11
 		// and dof = 2*orbitals
 		// and gamma1 = orb + spin*ORBITALS I think
 		// or is it spin + orb*2 ?
-		std::vector<Field> hoppings; 
+		typedef std::complex<RealType> ComplexType;
+		std::vector<ComplexType> hoppings;
 		// J value
-		Field J;
+		RealType J;
 		// Onsite potential values, one for each site
-		std::vector<Field> potentialV;
+		std::vector<RealType> potentialV;
 		
 		// JAF n-n
-		Field jafNn;
+		RealType jafNn;
 		
 		// JAF n-n-n
-		Field jafNnn;
+		RealType jafNnn;
 
-		Field spinOrbitCoupling; // =0.34
+		RealType spinOrbitCoupling; // =0.34
 
 		// Modulus (FIXME: use less storage here it should be either 0 or 1)
 		std::vector<size_t> modulus;
 	}; // struct ParametersDmsMultiOrbital
 
 	//! Operator to read Model Parameters from inp file.
-	template<typename FieldType>
-	ParametersDmsMultiOrbital<FieldType>& operator<=(
-			ParametersDmsMultiOrbital<FieldType>& parameters,
+	template<typename RealType>
+	ParametersDmsMultiOrbital<RealType>& operator<=(
+			ParametersDmsMultiOrbital<RealType>& parameters,
 			SimpleReader& reader)
 	{
-		reader.read(parameters.linSize);
-		reader.read(parameters.hoppings);
+		typedef typename ParametersDmsMultiOrbital<RealType>::ComplexType
+				ComplexType;
+		// legacy reading of pair of doubles to make a complex:
+		std::vector<RealType> tmpReal;
+		reader.read(tmpReal);
+		parameters.hoppings.resize(tmpReal.size()/2);
+		for (size_t i=0;i<parameters.hoppings.size();i++)
+			parameters.hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
 		
 		reader.read(parameters.J);
-		reader.read(parameters.potentialV);
 
-		reader.read(parameters.jafNn);
+		reader.read(parameters.potentialV);
+		size_t n = parameters.potentialV.size();
+		//parameters.potentialV.resize(parameters.linSize);
+		//for (size_t i=0;i<parameters.potentialV.size();i++)
+		//	parameters.potentialV[i] = 0;
+
+ 		reader.read(parameters.jafNn);
+
 		reader.read(parameters.jafNnn);
 		
 		reader.read(parameters.spinOrbitCoupling);
 
 		std::vector<size_t> tmp;
 		reader.read(tmp);
-		parameters.modulus.resize(parameters.linSize);
+
+		parameters.modulus.resize(n);
 		for (size_t i=0;i<parameters.modulus.size();i++)
 			parameters.modulus[i] = 0;
 		for (size_t i=0;i<tmp.size();i++) parameters.modulus[tmp[i]] = 1;
@@ -146,7 +157,6 @@ namespace Spf {
 			std::ostream &os,
 			const ParametersDmsMultiOrbital<FieldType>& parameters)
 	{
-		os<<"parameters.linSize="<<parameters.linSize<<"\n";
 		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";

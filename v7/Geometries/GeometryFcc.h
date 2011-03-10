@@ -30,7 +30,6 @@ namespace Spf {
  				cube_(l), volume_(cube_.volume()*BASIS_FOR_CUBIC)
 		{
 			buildNeighbors();
-			throw std::runtime_error("FCC DIRECTIONS OF NEIGHBORS!\n");
 		}
 		
 		size_t z(size_t distance=1) const
@@ -74,14 +73,21 @@ namespace Spf {
 		void neighborsAt1()
 		{
 			PsimagLite::Matrix<PairType> matrix(volume_,COORDINATION);
+			std::vector<RealType> tmpv(DIMENSION);
+			std::vector<RealType> rvector(DIMENSION);
+
 			for (size_t i=0;i<volume_;i++) {
 				//! find sites that are a distance min from i
 				//! and store them on tmpVec
 				std::vector<size_t> tmpVec;
 				findNn(tmpVec,i);
 				size_t counter = 0;
-				for (size_t j=0;j<tmpVec.size();j++)
-					matrix(i,counter++) = PairType(tmpVec[j],DIRX);
+				for (size_t j=0;j<tmpVec.size();j++) {
+					direction(rvector,i,tmpVec[j]);
+					scDirAux(tmpv,rvector);
+					size_t dir = size_t(tmpv[0]+2*tmpv[1]+4*tmpv[2]);
+					matrix(i,counter++) = PairType(tmpVec[j],dir);
+				}
 			}
 			neighbors_.push_back(matrix);
 		}
@@ -157,12 +163,7 @@ namespace Spf {
 				const std::vector<RealType>& r2) const
 		{
 			std::vector<RealType> r(r1.size());
-
-			for (size_t i=0;i<r1.size();i++) {
-				r[i]=r1[i]-r2[i];
-				while(r[i]<MIN_DISTANCE) r[i]+=l_;
-				while(r[i]>=l_-MIN_DISTANCE) r[i]-=l_;
-			}
+			modifiedDifference(r,r1,r2);
 			return r*r;
 		}
 
@@ -180,6 +181,57 @@ namespace Spf {
 
 			tmpVector[0]=0.5; tmpVector[1]=0.5; tmpVector[2]=0;
 			basisVector_.push_back(tmpVector);
+		}
+
+		void direction(
+				std::vector<RealType> &r,
+				size_t site1,
+				size_t site2) const
+		{
+			std::vector<RealType> r1,r2;
+
+			index2Coor(r1,site1);
+			index2Coor(r2,site2);
+
+			modifiedDifference(r,r1,r2);
+		}
+
+		void modifiedDifference(
+				std::vector<RealType>& r,
+				const std::vector<RealType>& r1,
+				const std::vector<RealType>& r2) const
+		{
+
+			for (size_t i=0;i<r1.size();i++) {
+				r[i]=r1[i]-r2[i];
+				while(r[i]<MIN_DISTANCE) r[i]+=l_;
+				while(r[i]>=l_-MIN_DISTANCE) r[i]-=l_;
+			}
+		}
+
+		void scDirAux(
+				std::vector<RealType>& v,
+				const std::vector<RealType>& r) const
+		{
+			if (r[0]==0) {
+				v[2]=0;
+				v[0]=r[1]+MIN_DISTANCE;
+				v[1]=r[2]+MIN_DISTANCE;
+			} else if (r[1]==0) {
+				v[2]=1;
+				v[0]=r[0]+MIN_DISTANCE;
+				v[1]=r[2]+MIN_DISTANCE;
+			} else if (r[2]==0) {
+				v[2]=2;
+				v[0]=r[0]+MIN_DISTANCE;
+				v[1]=r[1]+MIN_DISTANCE;
+			} else {
+				std::string s = "GeometryFcc:: vector r has no entry 0: ";
+				s = s + PsimagLite::typeToString(r[0]) + " "
+					+ PsimagLite::typeToString(r[1]) + " "
+					+ PsimagLite::typeToString(r[2]);
+				throw std::runtime_error(s.c_str());
+			}
 		}
 
 		size_t l_;

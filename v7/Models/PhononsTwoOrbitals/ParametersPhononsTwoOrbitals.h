@@ -88,8 +88,6 @@ namespace Spf {
 	//! Hubbard Model Parameters
 	template<typename Field>
 	struct ParametersPhononsTwoOrbitals {
-		// total number of sites in the system
-		int linSize;
 		
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
@@ -114,7 +112,6 @@ namespace Spf {
 			ParametersPhononsTwoOrbitals<FieldType>& parameters,
 			SimpleReader& reader)
 	{
-		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);
 		reader.read(parameters.potential);
 		
@@ -132,7 +129,6 @@ namespace Spf {
 			std::ostream &os,
 			const ParametersPhononsTwoOrbitals<FieldType>& parameters)
 	{
-		os<<"parameters.linSize="<<parameters.linSize<<"\n";
 		os<<"parameters.jaf="<<parameters.jaf<<"\n";
 		os<<"parameters.potential\n";
 		os<<parameters.potential;

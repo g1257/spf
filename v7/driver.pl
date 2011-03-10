@@ -117,7 +117,7 @@ int main(int argc,char *argv[])
 "// END LICENSE BLOCK\\n"
 ;
 	if (concurrency.root()) std::cerr<<license;
-	GeometryType geometry(mp.linSize);
+	GeometryType geometry(engineParams.latticeLength);
 	
 	ModelType model(engineParams,mp,geometry);
 	AlgorithmType algorithm(engineParams,model);

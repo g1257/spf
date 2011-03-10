@@ -88,9 +88,6 @@ namespace Spf {
 	//! Hubbard Model Parameters
 	template<typename Field>
 	struct ParametersPnictidesTwoOrbitals {
-		// total number of sites in the system
-		int linSize;
-		
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		std::vector<Field> hoppings; 
@@ -115,7 +112,6 @@ namespace Spf {
 			ParametersPnictidesTwoOrbitals<FieldType>& parameters,
 			SimpleReader& reader)
 	{
-		reader.read(parameters.linSize);
 		reader.read(parameters.hoppings);
 		
 		reader.read(parameters.J);
@@ -133,8 +129,6 @@ namespace Spf {
 			std::ostream &os,
 			const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
 	{
-		os<<"parameters.linSize="<<parameters.linSize<<"\n";
-		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
 		os<<"parameters.J="<<parameters.J<<"\n";
