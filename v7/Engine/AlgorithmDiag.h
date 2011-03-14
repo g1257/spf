@@ -61,16 +61,16 @@ namespace Spf {
 			eigOld_ = eigNew_;
 		}
 
-		ComplexType greenFunction(size_t lambda1,size_t lambda2)
+		const ComplexType& greenFunction(size_t lambda1,size_t lambda2) const
 		{
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += conj(matrixNew_(lambda1,lambda)) * matrixNew_(lambda2,lambda) *utils::fermi(-beta*(eigNew_[lambda]-mu));
-			//FieldType x = 0.0;
-			//if (lambda1==lambda2) x = 1.0;
+				sum += conj(matrixNew_(lambda1,lambda)) *
+					matrixNew_(lambda2,lambda) *
+						utils::fermi(-beta*(eigNew_[lambda]-mu));
 			return sum;
 		}
 
@@ -80,26 +80,33 @@ namespace Spf {
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 		}
 		
-		ComplexType matrix(size_t lambda1,size_t lambda2) const
+		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return matrixNew_(lambda1,lambda2);
 		}
 		
-		FieldType e(size_t i) const
+		const FieldType& e(size_t i) const
 		{
 			return eigNew_[i];
 		}
 
-		void diagonalize(MatrixType& matrix,std::vector<FieldType>& eigs,char jobz='N',size_t fields=ModelType::NEWFIELDS)
+		void diagonalize(
+				MatrixType& matrix,
+				std::vector<FieldType>& eigs,
+				char jobz='N',
+				size_t fields=ModelType::NEWFIELDS)
 		{
 			model_.createHamiltonian(matrix,fields);
 			utils::diag(matrix,eigs,jobz);
-			if (jobz!='V') sort(eigs.begin(), eigs.end(), std::less<FieldType>());
+			if (jobz!='V')
+				sort(eigs.begin(), eigs.end(), std::less<FieldType>());
 		}
 
-		template<typename EngineParametersType2,typename ModelType2,typename RandomNumberGeneratorType2>
+		template<typename EngineParametersType2,typename ModelType2,
+			typename RandomNumberGeneratorType2>
 		friend std::ostream& operator<<
-			(std::ostream& os,AlgorithmDiag<EngineParametersType2,ModelType2,RandomNumberGeneratorType2>& a);
+			(std::ostream& os,AlgorithmDiag<EngineParametersType2,
+					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
 		bool doMetropolis(FieldType dsDirect,FieldType integrationMeasure)
@@ -111,10 +118,12 @@ namespace Spf {
 			for (size_t i=0;i<eigNew_.size();i++) {
 				FieldType temp = 0;
 				if (eigNew_[i]>mu)
-					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/(1.0+exp(-beta*(eigOld_[i]-mu)));
+					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/
+						(1.0+exp(-beta*(eigOld_[i]-mu)));
 				else
 				temp =(1.0+exp(beta*(eigNew_[i]-mu)))/
-							(exp(beta*(eigNew_[i]-mu))+exp(-beta*(eigOld_[i]-eigNew_[i])));
+							(exp(beta*(eigNew_[i]-mu))+
+									exp(-beta*(eigOld_[i]-eigNew_[i])));
 			
 				X *= temp;
 			}
@@ -124,7 +133,6 @@ namespace Spf {
 			X = X/(1.0+X);
 
 			FieldType r=RngType::random();
-			//std::cerr<<"dsDirect="<<dsDirect<<" beta="<<beta<<" X = "<<X<<" r="<<r<<"\n";
 			if (X>r) return true;
 			else return false;
 		}
@@ -159,8 +167,10 @@ namespace Spf {
 		
 	}; // AlgorithmDiag
 	
-	template<typename EngineParametersType,typename ModelType,typename RandomNumberGeneratorType>
-	std::ostream& operator<<(std::ostream& os,AlgorithmDiag<EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
+	template<typename EngineParametersType,typename ModelType,
+		typename RandomNumberGeneratorType>
+	std::ostream& operator<<(std::ostream& os,AlgorithmDiag<
+			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
 		typedef typename EngineParametersType::FieldType FieldType;

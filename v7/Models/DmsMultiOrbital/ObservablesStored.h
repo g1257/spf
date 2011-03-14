@@ -38,6 +38,7 @@ namespace Spf {
 			spinOperations_(spinOperations),
 			geometry_(geometry),
 			dof_(dof),
+			arw_(geometry.volume(),HistogramType()),
 //			lc_(dof*geometry.volume(),0),
 //			chargeCor_(geometry.volume(),0),
 //			mc_(geometry.volume(),DIRECTIONS),
@@ -51,31 +52,37 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-//			greenFunction.localCharge(lc_);
-//			chargeCorrelation(chargeCor_,greenFunction);
-//			psimag::Matrix<FieldType> mi(spins.size,DIRECTIONS);
-//			calcMagSpins(mi,spins);
-//			psimag::Matrix<ComplexType> qi(spins.size,DIRECTIONS);
-//			calcMagElectrons(qi,greenFunction);
-//			mCorrelation(mi,qi,greenFunction);
-//			tCorrelation(greenFunction);
-//			correlation(cs_,mi,greenFunction);
-//			correlation(qs_,qi,greenFunction);
+
 			counter_++;
 		}
 		
 		void finalize(std::ostream& fout)
 		{
-//			divideAndPrint(fout,lc_,"#LocalCharge:");
-//			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
-//			divideAndPrint(fout,mc_,"#MCorrelations");
-//			divideAndPrint(fout,tc_,"#TCorrelations");
-//			divideAndPrint(fout,cs_,"#ClassicalSpinCorrelations");
-//			divideAndPrint(fout,qs_,"#ItinerantSpinCorrelations");
+			divideAndPrint(fout,arw_,"#Arw:");
+
 		}
 
 	private:
 
+		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma
+		void accAkw(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
+		{
+			size_t n = geometry.numberOfSites();
+
+			for (size_t r=0;r<geometry.numberOfSites();r++) {
+				for (size_t l=0;l<greenFunction.hilbertSize();l++) {
+					for (size_t gamma=0;gamma<dof;gamma++) {
+						ComplexType temp = 0.0;
+						for (size_t i=0;i<n;i++) {
+							size_t j=geometry.add(i,r);
+							temp += conj(greenFunction.matrix(i+gamma*n,lambda))*
+									greenFunction.matrix(j+gamma*n,lambda);
+							arw_[r+gamma*n].add(greenFunction.e(lambda),temp);
+						}
+					}
+				}
+			}
+		}
 		
 		void divideAndPrint(
 				std::ostream& fout,
@@ -103,12 +110,7 @@ namespace Spf {
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
 		size_t dof_;
-//		VectorType lc_;
-//		VectorType chargeCor_;
-//		MatrixType mc_;
-//		MatrixType tc_;
-//		MatrixType cs_;
-//		MatrixType qs_;
+		std::vector<HistogramType> arw_;
 		size_t counter_;
 
 	}; // ObservablesStored

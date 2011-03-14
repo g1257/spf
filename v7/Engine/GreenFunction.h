@@ -71,12 +71,12 @@ namespace Spf {
 			}
 		}
 
-		ComplexType matrix(size_t lambda1,size_t lambda2)
+		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return algorithm_.matrix(lambda1,lambda2);
 		}
 		
-		FieldType e(size_t i)
+		const FieldType& e(size_t i) const
 		{
 			return algorithm_.e(i);
 		}
