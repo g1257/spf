@@ -11,22 +11,23 @@
 #ifndef OBS_STORED_DMS_MULTI_ORB_H
 #define OBS_STORED_DMS_MULTI_ORB_H
 #include "Vector.h"
+#include "Histogram.h"
+#include "Utils.h"
 
 namespace Spf {
-	template<typename SpinOperationsType,typename ComplexType>
+	template<typename SpinOperationsType,typename ComplexType,
+		typename ParametersModelType,typename EngineParamsType>
 	class ObservablesStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
-		typedef typename DynVarsType::FieldType FieldType;
-		typedef PsimagLite::Vector<FieldType> VectorType;
+		typedef typename DynVarsType::FieldType RealType;
+//		typedef PsimagLite::Vector<FieldType> VectorType;
 		typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
-		typedef PsimagLite::Matrix<FieldType> MatrixType;
+		typedef PsimagLite::Matrix<RealType> MatrixType;
 
-		//enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
-		//enum {ORBITAL_XZ,ORBITAL_YZ};
-		//enum {SPIN_UP,SPIN_DOWN};
-		//static size_t const DIRECTIONS  = 3;
+		typedef Histogram<RealType,ComplexType> HistogramComplexType;
+		typedef Histogram<RealType,RealType> HistogramRealType;
 
 	public:
 		static size_t const ORBITALS = 3;
@@ -34,17 +35,17 @@ namespace Spf {
 		ObservablesStored(
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
-				size_t dof) :
+				const ParametersModelType& mp,
+				const EngineParamsType& pe) :
 			spinOperations_(spinOperations),
 			geometry_(geometry),
-			dof_(dof),
-			arw_(geometry.volume(),HistogramType()),
-//			lc_(dof*geometry.volume(),0),
-//			chargeCor_(geometry.volume(),0),
-//			mc_(geometry.volume(),DIRECTIONS),
-//			tc_(geometry.volume(),DIRECTIONS),
-//			cs_(geometry.volume(),DIRECTIONS),
-//			qs_(geometry.volume(),DIRECTIONS),
+			mp_(mp),
+			pe_(pe),
+			arw_(geometry.volume()*ORBITALS*2,
+				HistogramComplexType(mp.histogramParams[0],mp.histogramParams[1],
+						mp.histogramParams[2])),
+			optical_(mp.histogramParams[0],mp.histogramParams[1],
+						mp.histogramParams[2]),
 			counter_(0)
 		{}
 				
@@ -52,65 +53,159 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-
+			accAkw(greenFunction);
+			accOptical(greenFunction);
 			counter_++;
 		}
 		
 		void finalize(std::ostream& fout)
 		{
 			divideAndPrint(fout,arw_,"#Arw:");
-
+			divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma
-		void accAkw(Geometry const &geometry,DynVars const &dynVars, Parameters const &ether,Aux &aux)
+		template<typename GreenFunctionType>
+		void accAkw(const GreenFunctionType& gf)
 		{
-			size_t n = geometry.numberOfSites();
+			size_t n = geometry_.volume();
 
-			for (size_t r=0;r<geometry.numberOfSites();r++) {
-				for (size_t l=0;l<greenFunction.hilbertSize();l++) {
-					for (size_t gamma=0;gamma<dof;gamma++) {
+			for (size_t r=0;r<n;r++) {
+				for (size_t l=0;l<gf.hilbertSize();l++) {
+					for (size_t gamma=0;gamma<gf.hilbertSize();gamma++) {
 						ComplexType temp = 0.0;
 						for (size_t i=0;i<n;i++) {
-							size_t j=geometry.add(i,r);
-							temp += conj(greenFunction.matrix(i+gamma*n,lambda))*
-									greenFunction.matrix(j+gamma*n,lambda);
-							arw_[r+gamma*n].add(greenFunction.e(lambda),temp);
+							size_t j=geometry_.add(i,r);
+							temp += conj(gf.matrix(i+gamma*n,l))*
+									gf.matrix(j+gamma*n,l);
+							arw_[r+gamma*n].add(gf.e(l),temp);
 						}
 					}
 				}
 			}
 		}
 		
+		template<typename GreenFunctionType>
+		void accOptical(const GreenFunctionType& gf)
+		{
+			size_t n = geometry_.volume();
+			size_t dof  = 2*ORBITALS;
+			//int aindex = 0*(ether.linSize/4); //(0,0,0)
+			//int aindex = 1*(ether.linSize/4); //(0,a/2,a/2)
+			//int aindex = 2*(ether.linSize/4); //(a/2,0,a/2)
+			size_t aindex = 3*(n/4); //(a/2,a/2,0)
+
+
+			// some checking
+			if (geometry_.name()!="fcc" || n % 4!=0) {
+				std::string s = "accOptical: "+ std::string(__FILE__) +
+						" " + ttos(__LINE__) + "\n";
+				throw std::runtime_error(s.c_str());
+			}
+
+			size_t hilbertSize = gf.hilbertSize();
+			RealType beta = pe_.beta;
+
+			for (size_t l=0;l<hilbertSize;l++) {
+				RealType e1 = gf.e(l)-pe_.mu;
+				for (size_t l2=0;l2<hilbertSize;l2++) {
+					RealType e2 = gf.e(l2)-pe_.mu;
+					if (e1-e2<1e-3) continue;
+					ComplexType temp = 0.0;
+					for (size_t i=0;i<n;i++) {
+						size_t j = geometry_.add(i,aindex); // j = i+avector
+						size_t dir = geometry_.scalarDirection(i,j);
+						for (size_t gamma=0;gamma<dof;gamma++) {
+							for (size_t gamma2=0;gamma2<dof;gamma2++) {
+								ComplexType thop =
+									mp_.hoppings[gamma+gamma2*dof+dir*dof*dof];
+								temp += thop * conj(gf.matrix(i+gamma*n,l))*
+										gf.matrix(j+gamma2*n,l2);
+								temp -= thop * conj(gf.matrix(j+gamma*n,l))*
+										gf.matrix(i+gamma2*n,l2);
+							}
+						}
+					}
+					RealType temp2 = real(temp)*real(temp)+imag(temp)*imag(temp);
+
+					temp2 = temp2 *(utils::fermi(beta*e2)-
+							utils::fermi(beta*e1))/(e1-e2);
+					//temp = temp * fermi(beta*e2) * fermi(-beta*e1);
+					//temp = temp * (1.0 - exp(-beta*(e1-e2)))/(e1-e2);
+					optical_.add(e1-e2,temp2);
+				}
+			}
+		}
+
+//		void divideAndPrint(
+//				std::ostream& fout,
+//				VectorType& v,
+//				const std::string& label)
+//		{
+//			v /= counter_;
+//			fout<<label<<"\n";
+//			fout<<v;
+//		}
+
+//		void divideAndPrint(
+//				std::ostream& fout,
+//				MatrixType& m,
+//				const std::string& label)
+//		{
+//			VectorType v(m.n_row(),0);
+//			for (size_t dir=0;dir<m.n_col();dir++) {
+//				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
+//				std::string newlabel = label+utils::ttos(dir);
+//				divideAndPrint(fout,v,newlabel);
+//			}
+//		}
+
 		void divideAndPrint(
 				std::ostream& fout,
-				VectorType& v,
+				std::vector<HistogramComplexType>& h,
 				const std::string& label)
 		{
-			v /= counter_;
+			if (h.size()==0) return;
+
+			for (size_t i=0;i<h.size();i++) {
+				h[i].divide(counter_*h[i].xWidth());
+			}
 			fout<<label<<"\n";
-			fout<<v;
+			for (size_t i=0;i<h[0].size();i++)  {
+				fout<<h[0].x(i)<<" ";
+				for (size_t j=0;j<h.size();j++)
+					fout<<std::real(h[j].y(i))<<" ";
+				fout<<"\n";
+			}
+			fout<<"% Imaginary part below\n";
+			for (size_t i=0;i<h[0].size();i++)  {
+				fout<<h[0].x(i)<<" ";
+				for (size_t j=0;j<h.size();j++)
+					fout<<std::imag(h[j].y(i))<<" ";
+				fout<<"\n";
+			}
 		}
 
 		void divideAndPrint(
 				std::ostream& fout,
-				MatrixType& m,
+				HistogramRealType& h,
 				const std::string& label)
 		{
-			VectorType v(m.n_row(),0);
-			for (size_t dir=0;dir<m.n_col();dir++) {
-				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
-				std::string newlabel = label+utils::ttos(dir);
-				divideAndPrint(fout,v,newlabel);
-			}
+
+			h.divide(counter_*h.xWidth());
+			fout<<label<<"\n";
+			for (size_t i=0;i<h.size();i++)
+				fout<<h.x(i)<<" "<<h.y(i)<<"\n";
 		}
 
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
-		size_t dof_;
-		std::vector<HistogramType> arw_;
+		const ParametersModelType& mp_;
+		const EngineParamsType& pe_;
+		std::vector<HistogramComplexType> arw_;
+		HistogramRealType optical_;
 		size_t counter_;
 
 	}; // ObservablesStored

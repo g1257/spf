@@ -81,6 +81,8 @@ namespace Spf {
 			return algorithm_.e(i);
 		}
 		
+		size_t hilbertSize() const { return algorithm_.hilbertSize(); }
+
 	private:
 		
 		void checkUs() const

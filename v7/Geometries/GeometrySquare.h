@@ -54,6 +54,8 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
+		std::string name() const { return "square"; }
+
 		private:
 		
 		void buildNeighbors()

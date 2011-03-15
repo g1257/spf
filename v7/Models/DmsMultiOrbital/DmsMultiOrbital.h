@@ -43,7 +43,8 @@ namespace Spf {
 		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ObservablesStored<SpinOperationsType,ComplexType> ObservablesStoredType;
+		typedef ObservablesStored<SpinOperationsType,ComplexType,
+				ParametersModelType,EngineParamsType> ObservablesStoredType;
 		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -57,7 +58,7 @@ namespace Spf {
 			hilbertSize_(2*ORBITALS*geometry.volume()),
 			adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 			spinOperations_(geometry,engineParams.mcWindow),
-			observablesStored_(spinOperations_,geometry,2*ORBITALS)
+			observablesStored_(spinOperations_,geometry,mp_,engineParams_)
 		{
 		}
 		
@@ -82,7 +83,10 @@ namespace Spf {
 		}
 		
 		template<typename GreenFunctionType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
+		void doMeasurements(
+				GreenFunctionType& greenFunction,
+				size_t iter,
+				std::ostream& fout)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			

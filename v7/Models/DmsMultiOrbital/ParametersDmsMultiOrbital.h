@@ -109,6 +109,8 @@ namespace Spf {
 
 		// Modulus (FIXME: use less storage here it should be either 0 or 1)
 		std::vector<size_t> modulus;
+
+		std::vector<RealType> histogramParams;
 	}; // struct ParametersDmsMultiOrbital
 
 	//! Operator to read Model Parameters from inp file.
@@ -148,6 +150,8 @@ namespace Spf {
 			parameters.modulus[i] = 0;
 		for (size_t i=0;i<tmp.size();i++) parameters.modulus[tmp[i]] = 1;
 
+		reader.read(parameters.histogramParams);
+
 		return parameters;
 	}
 	
@@ -170,6 +174,8 @@ namespace Spf {
 		for (size_t i=0;i<parameters.modulus.size();i++)
 			if (parameters.modulus[i]!=0) os<<i<<" ";
 		os<<"\n";
+		os<<"histogramParams\n";
+		os<<parameters.histogramParams;
 		return os;
 	}
 } // namespace Spf

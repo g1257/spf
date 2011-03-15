@@ -15,11 +15,11 @@
 
 namespace Spf {
 
-	template<typename RealType,typename FieldTyp>
+	template<typename RealType,typename FieldType>
 	class Histogram {
 	public:	
 
-		void Histogram(
+		Histogram(
 				const RealType& minE,
 				const RealType& maxE,
 				size_t steps)
@@ -30,19 +30,18 @@ namespace Spf {
 
 			RealType deltaE = (maxE-minE)/steps;
 
-			for (size_t i=0;i<histE.size();i++) {
-				histE[i]=minE_+i*deltaE;
-				histDE[i]=0;
+			for (size_t i=0;i<histX_.size();i++) {
+				histX_[i]=minE_+i*deltaE;
+				histY_[i]=0.0;
 			}
 		}
 
-		void add(const RealType& x,const RealType& y)
+		void add(const RealType& x,const FieldType& y)
 		{
-			int n;
 			size_t n = size_t(steps_*(x-minE_));
-			n = size_t(n/(maxE-minE));
+			n = size_t(n/(maxE_-minE_));
 			// Don't remove this checking it's very important!
-			if (n>=steps || n<0) {
+			if (n>=steps_ || x<minE_) {
 				std::string s = "Histogram::add(" + ttos(x) + "," +
 						ttos(y) + ") out of range\n";
 				throw std::runtime_error(s.c_str());
@@ -51,31 +50,39 @@ namespace Spf {
 		}
 
 		//! divide all energies by a constant factor
+		RealType xWidth() const
+		{
+			return (maxE_-minE_)/steps_;
+		}
+
 		void divide(const RealType& div1)
 		{
-			RealType div2=(maxE_-minE_)/steps_;
-			divideInternal(div1*div2);
+			for (size_t i=0;i<histY_.size();i++)
+				histY_[i] /= div1;
 		}
+
+		const RealType& x(size_t i) const  { return histX_[i]; }
+
+		const FieldType& y(size_t i) const { return histY_[i]; }
+
+		size_t size() const { return steps_; }
 
 	private:
-
-		void divideInternal(const RealType& div1)
-		{
-			for (size_t i=0;i<histY.size();i++)
-				histDE[i] /= div1;
-		}
-
 
 		void checkBounds() const
 		{
 			if (steps_>0 && minE_<maxE_) return;
 
-			std::string s ="steps=" + ttos(steps) + " and minE=" +
-					ttos(minE) + " and maxE=" + maxE +"\n";
-			s += "Histogram: " + __FILE__ + ":" + __LINE__ + "\n";
+			std::string s ="steps=" + ttos(steps_) + " and minE=" +
+					ttos(minE_) + " and maxE=" + ttos(maxE_)+"\n";
+			s += "Histogram: " + std::string(__FILE__) + ":" +
+					ttos(__LINE__) + "\n";
 			throw std::runtime_error(s.c_str());
 		}
 
+		RealType minE_,maxE_,steps_;
+		std::vector<RealType> histX_;
+		std::vector<FieldType> histY_;
 	
 	}; // class Histogram
 

@@ -61,7 +61,7 @@ namespace Spf {
 			eigOld_ = eigNew_;
 		}
 
-		const ComplexType& greenFunction(size_t lambda1,size_t lambda2) const
+		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
 		{
 			ComplexType sum = 0;
 			FieldType beta = engineParams_.beta;

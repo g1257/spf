@@ -48,20 +48,32 @@ namespace Spf {
 		size_t add(size_t ind,size_t ind2) const
 		{
 			throw std::runtime_error("FCC ADD\n");
-			std::vector<int> x(2),y(2);
+			std::vector<RealType> x(2),y(2);
 			index2Coor(x,ind);
 			index2Coor(y,ind2);
-			for (size_t i=0;i<x.size();i++) {
-				x[i] += y[i];
-				g_pbc(x[i],l_);
+			std::vector<int> xx(2);
+			for (size_t i=0;i<xx.size();i++) {
+				xx[i] = x[i] + y[i];
+				g_pbc(xx[i],l_);
 			}
-			return g_index(x);
+			return g_index(xx);
 		}
 		
+		size_t scalarDirection(size_t site1,size_t site2) const
+		{
+			std::vector<RealType> r(3);
+			direction(r,site1,site2);
+			std::vector<RealType> r2(3);
+			scDirAux(r2,r);
+			return size_t(r2[0]+2*r2[1]+4*r2[2]);
+		}
+
 		size_t dim() const { return DIMENSION; }
 		
 		size_t length() const { return l_; }
 		
+		std::string name() const { return "fcc"; }
+
 	private:
 		
 		void buildNeighbors()

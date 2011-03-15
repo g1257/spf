@@ -64,6 +64,8 @@ namespace Spf {
 			v[0] = tmp % lx;
 		}
 
+		std::string name() const { return "cubic"; }
+
 	private:
 		
 		void buildNeighbors()
