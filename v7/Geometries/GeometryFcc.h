@@ -45,18 +45,36 @@ namespace Spf {
 		
 		size_t volume() const { return volume_; }
 		
+		//! coordinates are (x,y,z,b) where b is the basis
 		size_t add(size_t ind,size_t ind2) const
 		{
-			throw std::runtime_error("FCC ADD\n");
-			std::vector<RealType> x(2),y(2);
-			index2Coor(x,ind);
-			index2Coor(y,ind2);
-			std::vector<int> xx(2);
-			for (size_t i=0;i<xx.size();i++) {
-				xx[i] = x[i] + y[i];
-				g_pbc(xx[i],l_);
+			// transform ind --> rvector, bvector and ind2 --> r2vector, b2vector
+			size_t b1 = ind/volume_;
+			size_t indr = ind % volume_;
+			std::vector<size_t> rvector(3);
+			cube_.index2Coor(rvector,indr);
+
+			size_t b2 = ind2/volume_;
+			size_t ind2r = ind2 % volume_;
+			std::vector<size_t> r2vector(3);
+			cube_.index2Coor(r2vector,ind2r);
+
+			// sum these two and obtain rsumvector bsumvector
+			std::vector<RealType> rsumvector(3),bsumvector(3);
+			add(rsumvector,bsumvector,rvector,b1,r2vector,b2);
+
+			// transform rsumvector and bsumvector into an index that is returned
+			int b = utils::isInVector(basisVector_,bsumvector);
+			if (b<0) {
+				std::string s = "Fcc::add(...) INTERNAL ERROR.\n";
+				s += "Exiting at this point " + std::string(__FILE__) +
+				" "+ ttos(__LINE__) + "\n";
+				throw std::runtime_error(s.c_str());
 			}
-			return g_index(xx);
+			std::vector<size_t> r(3);
+			for (size_t i=0;i<rsumvector.size();i++) r[i] = rsumvector[i];
+			indr = cube_.coor2Index(r);
+			return indr + size_t(b)*cube_.volume();
 		}
 		
 		size_t scalarDirection(size_t site1,size_t site2) const
@@ -244,6 +262,56 @@ namespace Spf {
 					+ PsimagLite::typeToString(r[2]);
 				throw std::runtime_error(s.c_str());
 			}
+		}
+
+		//! output rsum + bsum = input r1 + b1 +r2 +b2
+		void add(
+				std::vector<RealType> &rsum,
+				std::vector<RealType> &bsum,
+				const std::vector<size_t>& r1,
+				size_t b1,
+				const std::vector<size_t>& r2,
+				size_t b2) const
+		{
+			std::vector<RealType> unityvector(3,1);
+
+			std::vector<RealType> b1Plusb2 =
+					basisVector_[b1] + basisVector_[b2];
+			size_t casetype=computeCase(b1Plusb2);
+
+			switch (casetype) {
+			case 0:  // b1+b2 == (a,a,0) or permutations
+				rsum =  b1Plusb2 + r1 + r2;
+				for (size_t i=0;i<bsum.size();i++) bsum[i] = 0;
+				break;
+			case 1: // b1 + b2 == (a/2,a/2,a) or permutations
+				bsum = unityvector - b1Plusb2;
+				rsum =  2.0*b1Plusb2-unityvector + r1 + r2;
+				break;
+			case 2: // b1 + b2 == (a/2,a/2,0) or permutations
+				for (size_t i=0;i<rsum.size();i++) rsum[i] =r1[i]+r2[i];
+				bsum = b1Plusb2;
+				break;
+			}
+
+		}
+
+		size_t computeCase(const std::vector<RealType>& b) const
+		{
+			size_t flaghalf=0;
+			size_t flagzero=0;
+
+			for (size_t i=0;i<b.size();i++) {
+				if (b[i]==0.5) flaghalf=1;
+				if (b[i]==0) flagzero=1;
+			}
+			if (flaghalf==0 && flagzero==1) return  0;
+			if (flaghalf==1 && flagzero==0) return 1;
+			if (flaghalf==1 && flagzero==1) return 2;
+			std::string s = "Geometry::computeCase(...) for add: Error\n";
+			s += "Exiting at this point " + std::string(__FILE__) + " "
+					+ ttos(__LINE__) + "\n";
+			throw std::runtime_error(s.c_str());
 		}
 
 		size_t l_;

@@ -64,6 +64,23 @@ namespace Spf {
 			v[0] = tmp % lx;
 		}
 
+		size_t coor2Index(const std::vector<size_t> &v) const
+		{
+			std::vector<size_t> length(3,l_);
+			int v0 = v[0];
+			g_pbc(v0,length[0]);
+			size_t pos=v0;
+			size_t temp=1;
+
+			for (size_t i=1;i<v.size();i++) {
+				int vi = v[i];
+				g_pbc(vi,length[i]);
+				temp *= length[i-1];
+				pos += vi*temp;
+			}
+			return pos;
+		}
+
 		std::string name() const { return "cubic"; }
 
 	private:
