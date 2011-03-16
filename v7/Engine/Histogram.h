@@ -44,7 +44,9 @@ namespace Spf {
 			if (n>=steps_ || x<minE_) {
 				std::string s = "Histogram::add(" + ttos(x) + "," +
 						ttos(y) + ") out of range\n";
-				throw std::runtime_error(s.c_str());
+				//throw std::runtime_error(s.c_str());
+				std::cerr<<s;
+				return;
 			}
 			histY_[n] += y;
 		}
@@ -80,7 +82,8 @@ namespace Spf {
 			throw std::runtime_error(s.c_str());
 		}
 
-		RealType minE_,maxE_,steps_;
+		RealType minE_,maxE_;
+		size_t steps_;
 		std::vector<RealType> histX_;
 		std::vector<FieldType> histY_;
 	

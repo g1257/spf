@@ -43,9 +43,9 @@ namespace Spf {
 			pe_(pe),
 			arw_(geometry.volume()*ORBITALS*2,
 				HistogramComplexType(mp.histogramParams[0],mp.histogramParams[1],
-						mp.histogramParams[2])),
+						size_t(mp.histogramParams[2]))),
 			optical_(mp.histogramParams[0],mp.histogramParams[1],
-						mp.histogramParams[2]),
+						size_t(mp.histogramParams[2])),
 			counter_(0)
 		{}
 				
