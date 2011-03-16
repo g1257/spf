@@ -54,8 +54,10 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-			accAkw(greenFunction);
-			accOptical(greenFunction);
+			if (pe_.options.find("akw")!=std::string::npos)
+				accAkw(greenFunction);
+			if (pe_.options.find("optical")!=std::string::npos)
+				accOptical(greenFunction);
 			counter_++;
 		}
 		

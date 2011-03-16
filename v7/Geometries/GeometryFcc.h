@@ -78,7 +78,8 @@ namespace Spf {
 
 			size_t b = it-basisVector_.begin();
 			std::vector<size_t> r(3);
-			for (size_t i=0;i<rsumvector.size();i++) r[i] = rsumvector[i];
+			for (size_t i=0;i<rsumvector.size();i++)
+				r[i] = size_t(rsumvector[i]);
 			indr = cube_.coor2Index(r);
 			return indr + size_t(b)*cube_.volume();
 		}
