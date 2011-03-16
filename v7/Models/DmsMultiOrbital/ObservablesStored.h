@@ -10,9 +10,10 @@
 
 #ifndef OBS_STORED_DMS_MULTI_ORB_H
 #define OBS_STORED_DMS_MULTI_ORB_H
-#include "Vector.h"
 #include "Histogram.h"
-#include "Utils.h"
+#include "Vector.h" // in PsimagLite
+#include "Matrix.h" // in PsimagLite
+#include "Fermi.h"  // in PsimagLite
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
@@ -130,8 +131,8 @@ namespace Spf {
 					}
 					RealType temp2 = real(temp)*real(temp)+imag(temp)*imag(temp);
 
-					temp2 = temp2 *(utils::fermi(beta*e2)-
-							utils::fermi(beta*e1))/(e1-e2);
+					temp2 = temp2 *(PsimagLite::fermi(beta*e2)-
+							PsimagLite::fermi(beta*e1))/(e1-e2);
 					//temp = temp * fermi(beta*e2) * fermi(-beta*e1);
 					//temp = temp * (1.0 - exp(-beta*(e1-e2)))/(e1-e2);
 					optical_.add(e1-e2,temp2);
@@ -157,7 +158,7 @@ namespace Spf {
 //			VectorType v(m.n_row(),0);
 //			for (size_t dir=0;dir<m.n_col();dir++) {
 //				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
-//				std::string newlabel = label+utils::ttos(dir);
+//				std::string newlabel = label+ttos(dir);
 //				divideAndPrint(fout,v,newlabel);
 //			}
 //		}

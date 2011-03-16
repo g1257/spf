@@ -9,7 +9,6 @@
  */
 #ifndef CLASSICAL_SPIN_OPS_H
 #define CLASSICAL_SPIN_OPS_H
-#include "Utils.h"
 #include "Vector.h"
 
 namespace Spf {

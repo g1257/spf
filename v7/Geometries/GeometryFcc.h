@@ -9,6 +9,7 @@
  */
 #ifndef GEOM_FCC_H
 #define GEOM_FCC_H
+#include <algorithm>
 #include "GeometryCubic.h"
 #include "Vector.h"
 #include "TypeToString.h"
@@ -25,6 +26,7 @@ namespace Spf {
 
  		typedef std::pair<size_t,size_t> PairType;
  		typedef GeometryCubic<RealType> GeometryCubicType;
+ 		typedef std::vector<std::vector<RealType> > VectorOfVectorsType;
 
  		GeometryFcc(size_t l) : MIN_DISTANCE(0.5) , l_(l),
  				cube_(l), volume_(cube_.volume()*BASIS_FOR_CUBIC)
@@ -64,13 +66,17 @@ namespace Spf {
 			add(rsumvector,bsumvector,rvector,b1,r2vector,b2);
 
 			// transform rsumvector and bsumvector into an index that is returned
-			int b = utils::isInVector(basisVector_,bsumvector);
-			if (b<0) {
+			typename VectorOfVectorsType::const_iterator it =
+				std::find(basisVector_.begin(),basisVector_.end(),bsumvector);
+
+			if (it==basisVector_.end()) {
 				std::string s = "Fcc::add(...) INTERNAL ERROR.\n";
 				s += "Exiting at this point " + std::string(__FILE__) +
 				" "+ ttos(__LINE__) + "\n";
 				throw std::runtime_error(s.c_str());
 			}
+
+			size_t b = it-basisVector_.begin();
 			std::vector<size_t> r(3);
 			for (size_t i=0;i<rsumvector.size();i++) r[i] = rsumvector[i];
 			indr = cube_.coor2Index(r);
@@ -317,7 +323,7 @@ namespace Spf {
 		size_t l_;
 		GeometryCubicType cube_;
 		size_t volume_;
-		std::vector<std::vector<RealType> > basisVector_;
+		VectorOfVectorsType basisVector_;
 		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
 	}; // class GeometryFcc
 	

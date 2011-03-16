@@ -9,7 +9,6 @@
  */
 #ifndef PNICTIDES_2ORB_H
 #define PNICTIDES_2ORB_H
-#include "Utils.h"
 #include "PnictidesTwoOrbitalsFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
@@ -72,33 +71,33 @@ namespace Spf {
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
-			std::string s = "iter=" + utils::ttos(iter); 
+			std::string s = "iter=" + ttos(iter); 
 			progress_.printline(s,fout);
 				
 			FieldType temp=greenFunction.calcNumber();
-			s ="Number_Of_Electrons="+utils::ttos(temp);
+			s ="Number_Of_Electrons="+ttos(temp);
 			progress_.printline(s,fout);
 			
 			//s = "rankGlobal=";
 			
 			temp=greenFunction.calcElectronicEnergy();
-			s="Electronic Energy="+utils::ttos(temp);
+			s="Electronic Energy="+ttos(temp);
 			progress_.printline(s,fout);
 			
 			FieldType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
-			s="Superexchange="+utils::ttos(temp2);
+			s="Superexchange="+ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
 				temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
-				s="Superexchange2="+utils::ttos(temp2);
+				s="Superexchange2="+ttos(temp2);
 				progress_.printline(s,fout);
 				temp += temp2;
 			}
 
 			// total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy="+utils::ttos(temp);
+			s="TotalEnergy="+ttos(temp);
 			progress_.printline(s,fout);
 				
 			//s="Action=";
@@ -108,12 +107,12 @@ namespace Spf {
 			adjustments_.print(fout);
 			
 			temp = spinOperations_.calcMag(dynVars);
-			s="Mag2="+utils::ttos(temp);
+			s="Mag2="+ttos(temp);
 			progress_.printline(s,fout);
 
 			
 // 			temp=calcKinetic(dynVars_,eigs);
-// 			s ="KineticEnergy="+utils::ttos(temp);
+// 			s ="KineticEnergy="+ttos(temp);
 // 			progress_.printline(s,fout);
 			
 			observablesStored_(dynVars,greenFunction);
@@ -263,7 +262,7 @@ namespace Spf {
 // 						}
 // 					}
 // 				}
-// 				sum += tmp2 * utils::fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
+// 				sum += tmp2 * fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
 // 			}
 			return sum;
 		}

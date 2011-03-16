@@ -81,8 +81,12 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef SIMPLE_READER_H
 #define SIMPLE_READER_H
-#include "Utils.h"
 
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include "Matrix.h" // in PsimagLite
 
 namespace Spf {
 	class SimpleReader {

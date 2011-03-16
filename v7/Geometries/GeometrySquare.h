@@ -9,7 +9,6 @@
  */
 #ifndef GEOM_SQUARE_H
 #define GEOM_SQUARE_H
-#include "Utils.h"
 
 namespace Spf {
 	template<typename FieldType_>

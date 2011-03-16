@@ -9,8 +9,8 @@
  */
 #ifndef SPF_ENGINE_H
 #define SPF_ENGINE_H
-#include "Utils.h"
-#include "ProgressIndicator.h"
+#include "ProgressIndicator.h" //in PsimagLite
+#include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"
 
 
@@ -51,7 +51,7 @@ namespace Spf {
 		{
 			std::vector<PairType> accepted(dynVars_.size());
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
-				utils::printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
+				printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
 				doMonteCarlo(accepted,dynVars_,iter);
 			}
 			std::cerr<<"\n";
@@ -62,8 +62,8 @@ namespace Spf {
 // 			progress_.printline(s,fout_);
 // 			for (size_t i=0;i<dynVars_.size();i++) {
 // 				size_t pp = 100*accepted[i]/params_.iterTherm;
-// 				s=  "Acceptance: " + dynVars_.name(i) + " " + utils::ttos(accepted[i]) +
-// 							" or " + utils::ttos(pp) + "%";
+// 				s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i]) +
+// 							" or " + ttos(pp) + "%";
 // 				progress_.printline(s,fout_);
 // 			}
 		}
@@ -72,7 +72,7 @@ namespace Spf {
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
 			for (size_t iter=0;iter<params_.iterEffective;iter++) {
-				utils::printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
+				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
@@ -139,12 +139,22 @@ namespace Spf {
 			for (size_t i=0;i<dynVars_.size();i++) {
 				if (accepted[i].second==0) continue;
 				size_t pp = 100*accepted[i].first/accepted[i].second;
-				std::string s=  "Acceptance: " + dynVars_.name(i) + " " + utils::ttos(accepted[i].first) +
-						" or " + utils::ttos(pp) + "%";
+				std::string s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i].first) +
+						" or " + ttos(pp) + "%";
 				progress_.printline(s,fout_);
 			}
 		}
 		
+		void printProgress(int i,int total,int nMarks,char mark,int option)
+		{
+			int every=total/nMarks;
+			if (every<=0 || i<=0) return;
+			if (i%every ==0) {
+				std::cerr<<mark;
+				std::cerr.flush();
+			}
+		}
+
 		const ParametersType& params_;
 		AlgorithmType& algorithm_;
 		ModelType& model_;

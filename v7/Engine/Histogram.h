@@ -9,7 +9,6 @@
  */
 #ifndef HISTOGRAM_H_
 #define HISTOGRAM_H_
-#include "Utils.h"
 #include "ProgressIndicator.h"
 #include "TypeToString.h"
 

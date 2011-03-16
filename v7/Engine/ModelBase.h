@@ -9,7 +9,6 @@
  */
 #ifndef MODEL_BASE_H
 #define MODEL_BASE_H
-#include "Utils.h"
 
 
 namespace Spf {

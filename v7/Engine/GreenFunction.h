@@ -9,7 +9,8 @@
  */
 #ifndef GREENFUNCTION_H
 #define GREENFUNCTION_H
-#include "Utils.h"
+#include "Matrix.h" // in PsimagLite
+#include "Fermi.h" // in PsimagLite
 
 namespace Spf {
 	template<typename EngineParametersType,typename AlgorithmType>
@@ -36,7 +37,8 @@ namespace Spf {
 		{
 			FieldType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
-				sum += utils::fermi((algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
+				sum += PsimagLite::fermi(
+					(algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
 			}
 			return sum;
 		}
@@ -45,7 +47,8 @@ namespace Spf {
 		{
 			FieldType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
-				sum +=algorithm_.e(i)*utils::fermi((algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
+				sum +=algorithm_.e(i)*PsimagLite::fermi(
+					(algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
 			}
 			return sum;
 				
@@ -59,7 +62,7 @@ namespace Spf {
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
-					FieldType s = real(tmp)*utils::fermi(engineParams_.beta*
+					FieldType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
 							(algorithm_.e(lambda)-engineParams_.mu));
 					//if (ether.isSet("savelcd")) {
 					//	lc[i+alpha*linSize] = s;

@@ -9,7 +9,6 @@
  */
 #ifndef SPIN_H
 #define SPIN_H
-#include "Utils.h"
 #include "IoSimple.h"
 
 namespace Spf {

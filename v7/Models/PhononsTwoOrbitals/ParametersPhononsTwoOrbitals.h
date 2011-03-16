@@ -81,7 +81,6 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSPHONONS_2ORB_H
 #define PARAMETERSPHONONS_2ORB_H
-#include "Utils.h"
 #include "SimpleReader.h"
 
 namespace Spf {

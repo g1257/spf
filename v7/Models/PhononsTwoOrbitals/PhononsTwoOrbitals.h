@@ -9,7 +9,6 @@
  */
 #ifndef PHONONS_2ORB_H
 #define PHONONS_2ORB_H
-#include "Utils.h"
 #include "PhononsTwoOrbitalsFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
@@ -78,27 +77,27 @@ namespace Spf {
 			const SpinType& spinPart = dynVars_.getField((Type0*)0);
 			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
 			
-			std::string s = "iter=" + utils::ttos(iter); 
+			std::string s = "iter=" + ttos(iter); 
 			progress_.printline(s,fout);
 				
 			FieldType temp=calcNumber(greenFunction);
-			s ="Number_Of_Electrons="+utils::ttos(temp);
+			s ="Number_Of_Electrons="+ttos(temp);
 			progress_.printline(s,fout);
 			
 			//s = "rankGlobal=";
 			
 			temp=calcElectronicEnergy(greenFunction);
-			s="Electronic Energy="+utils::ttos(temp);
+			s="Electronic Energy="+ttos(temp);
 			progress_.printline(s,fout);
 			
 			FieldType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
-			s="Superexchange="+utils::ttos(temp2);
+			s="Superexchange="+ttos(temp2);
 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			
 			// total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy-FIXME-ADD-PHONON-PART="+utils::ttos(temp);
+			s="TotalEnergy-FIXME-ADD-PHONON-PART="+ttos(temp);
 			progress_.printline(s,fout);
 				
 			//s="Action=";
@@ -108,11 +107,11 @@ namespace Spf {
 			adjustments_.print(fout);
 			
 			temp = spinOperations_.calcMag(spinPart);
-			s="Mag2="+utils::ttos(temp);
+			s="Mag2="+ttos(temp);
 			progress_.printline(s,fout);
 			
 // 			temp=calcKinetic(dynVars_,eigs);
-// 			s ="KineticEnergy="+utils::ttos(temp);
+// 			s ="KineticEnergy="+ttos(temp);
 // 			progress_.printline(s,fout);
 			
 			//storedObservables_.doThem();
@@ -246,7 +245,7 @@ namespace Spf {
 // 						}
 // 					}
 // 				}
-// 				sum += tmp2 * utils::fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
+// 				sum += tmp2 * fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
 // 			}
 			return sum;
 		}

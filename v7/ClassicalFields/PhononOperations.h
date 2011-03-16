@@ -10,7 +10,6 @@
 #ifndef PHONON_OPS_H_
 #define PHONON_OPS_H_
 
-#include "Utils.h"
 #include "Vector.h"
 
 namespace Spf {

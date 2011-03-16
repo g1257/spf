@@ -3,7 +3,7 @@
 Copyright (c) 2009 , UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[Spf, Version 7.0.0]
 [by G.A., Oak Ridge National Laboratory]
 
 UT Battelle Open Source Software License 11242008
@@ -81,7 +81,6 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMS_DMS_MULTIORBITA_H
 #define PARAMS_DMS_MULTIORBITA_H
-#include "Utils.h"
 #include "SimpleReader.h"
 
 namespace Spf {

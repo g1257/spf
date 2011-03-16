@@ -275,7 +275,7 @@ namespace Spf {
 			VectorType v(m.n_row(),0);
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
-				std::string newlabel = label+utils::ttos(dir);
+				std::string newlabel = label+ttos(dir);
 				divideAndPrint(fout,v,newlabel);
 			}
 		}

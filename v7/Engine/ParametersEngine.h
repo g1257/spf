@@ -83,8 +83,8 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
 
-#include "Utils.h"
 #include "SimpleReader.h"
+#include <cstdlib>
 
 namespace Spf {
 	
@@ -157,7 +157,7 @@ namespace Spf {
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";
 		os<<"parameters.boundaryConditions="<<parameters.boundaryConditions<<"\n";
-		std::string s = utils::ttos(parameters.randomSeed);
+		std::string s = ttos(parameters.randomSeed);
 		if (parameters.randomSeed<0) s="TIME";
 		os<<"parameters.randomSeed="<<s<<"\n";
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";

@@ -9,7 +9,6 @@
  */
 #ifndef PHONON_H
 #define PHONON_H
-#include "Utils.h"
 #include "IoSimple.h"
 #include "Vector.h"
 

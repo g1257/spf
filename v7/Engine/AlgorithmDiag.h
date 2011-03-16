@@ -9,8 +9,11 @@
  */
 #ifndef ALGORITHM_DIAG_H
 #define ALGORITHM_DIAG_H
-#include "Utils.h"
-#include "ProgressIndicator.h"
+#include <algorithm>
+#include "ProgressIndicator.h" // in PsimagLite
+#include "Matrix.h" // in PsimagLite
+#include "Fermi.h" // in PsimagLite
+#include "Complex.h" // in PsimagLite
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
@@ -32,7 +35,7 @@ namespace Spf {
 		void init()
 		{
 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
-			utils::diag(matrixOld_,eigOld_,'N');
+			diag(matrixOld_,eigOld_,'N');
 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
 		}
 
@@ -68,9 +71,9 @@ namespace Spf {
 			FieldType mu = engineParams_.mu;
 			
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += conj(matrixNew_(lambda1,lambda)) *
+				sum += std::conj(matrixNew_(lambda1,lambda)) *
 					matrixNew_(lambda2,lambda) *
-						utils::fermi(-beta*(eigNew_[lambda]-mu));
+						PsimagLite::fermi(-beta*(eigNew_[lambda]-mu));
 			return sum;
 		}
 
@@ -97,9 +100,9 @@ namespace Spf {
 				size_t fields=ModelType::NEWFIELDS)
 		{
 			model_.createHamiltonian(matrix,fields);
-			utils::diag(matrix,eigs,jobz);
+			diag(matrix,eigs,jobz);
 			if (jobz!='V')
-				sort(eigs.begin(), eigs.end(), std::less<FieldType>());
+				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
 		}
 
 		template<typename EngineParametersType2,typename ModelType2,

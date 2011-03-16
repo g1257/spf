@@ -9,8 +9,9 @@
  */
 #ifndef ADJUSTMENTS_H
 #define ADJUSTMENTS_H
-#include "Utils.h"
 #include "ProgressIndicator.h"
+#include "Matrix.h" // in PsimagLite
+#include "Fermi.h"// in PsimagLite
 
 /* ****************** ALIAGA'S ALGORITHM ****************************/
 // ADJUST CHEMICAL POTENTIAL FOR DIAGONALIZATION ****************/
@@ -70,7 +71,8 @@ namespace Spf {
 		FieldType nOfElectrons(FieldType mu,FieldType beta,const std::vector<FieldType>& eig) const
 		{
 			FieldType sum = 0;
-			for (size_t i=0;i<eig.size();i++) sum += utils::fermi((eig[i]-mu)*beta);
+			for (size_t i=0;i<eig.size();i++)
+				sum += PsimagLite::fermi((eig[i]-mu)*beta);
 			//for (size_t i=0;i<eig.size()-1;i++) {
 			       //if (eig[i]>eig[i+1]) throw std::runtime_error("problem sorting\n");
 			       //std::cerr<<i<<" "<<eig[i]<<"\n";
@@ -82,7 +84,8 @@ namespace Spf {
 		FieldType nOfElectPrime(FieldType mu,FieldType beta,const std::vector<FieldType>& eig) const
 		{
 			FieldType sum=0;
-			for (size_t i=0;i<eig.size();i++) sum -= utils::fermiPrime((eig[i]-mu)*beta)*beta;
+			for (size_t i=0;i<eig.size();i++)
+				sum -= PsimagLite::fermiPrime((eig[i]-mu)*beta)*beta;
 			return sum;
 		}
 		

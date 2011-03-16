@@ -9,7 +9,6 @@
  */
 #ifndef MONTE_CARLO_H
 #define MONTE_CARLO_H
-#include "Utils.h"
 #include "ProgressIndicator.h"
 
 namespace Spf {
