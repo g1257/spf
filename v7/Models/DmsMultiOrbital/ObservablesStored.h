@@ -74,10 +74,11 @@ namespace Spf {
 		void accAkw(const GreenFunctionType& gf)
 		{
 			size_t n = geometry_.volume();
+			size_t dof = 2*ORBITALS;
 
 			for (size_t r=0;r<n;r++) {
 				for (size_t l=0;l<gf.hilbertSize();l++) {
-					for (size_t gamma=0;gamma<gf.hilbertSize();gamma++) {
+					for (size_t gamma=0;gamma<dof;gamma++) {
 						ComplexType temp = 0.0;
 						for (size_t i=0;i<n;i++) {
 							size_t j=geometry_.add(i,r);
