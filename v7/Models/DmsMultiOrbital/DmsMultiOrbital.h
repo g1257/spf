@@ -124,7 +124,7 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = spinOperations_.calcMag(dynVars);
+			temp = spinOperations_.calcMag(dynVars,mp_.modulus);
 			s="Mag2="+ttos(temp);
 			progress_.printline(s,fout);
 

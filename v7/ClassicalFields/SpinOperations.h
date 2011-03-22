@@ -140,6 +140,23 @@ namespace Spf {
 			}
 			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
 		}
+
+		//! For diluted systems
+		FieldType calcMag(
+				const DynVarsType& dynVars,
+				const std::vector<size_t>& modulus) const
+		{
+			std::vector<FieldType> mag(3);
+
+			for (size_t i=0;i<geometry_.volume();i++) {
+				if (modulus[i]==0) continue;
+				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
+				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
+				mag[2] += cos(dynVars.theta[i]);
+			}
+			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
+		}
+
 		
 		void classicalCorrelations(VectorType &cc,
 				 //std::vector<FieldType> &weight,

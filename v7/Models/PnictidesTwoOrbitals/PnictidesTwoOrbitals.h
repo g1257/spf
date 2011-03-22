@@ -162,7 +162,7 @@ namespace Spf {
 			size_t volume = geometry_.volume();
 			size_t norb = ORBITALS;
 			size_t dof = norb * 2; // the 2 comes because of the spin
-			std::vector<ComplexType> jmatrix(dof*dof);
+			std::vector<ComplexType> jmatrix(2*2);
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
