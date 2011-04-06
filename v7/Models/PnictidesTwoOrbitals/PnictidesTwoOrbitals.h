@@ -41,6 +41,7 @@ namespace Spf {
 		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
+		enum {SPIN_UP,SPIN_DOWN};
 		
 		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
@@ -61,7 +62,9 @@ namespace Spf {
 		
 		FieldType deltaDirect(size_t i) const 
 		{
-			return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			FieldType x = spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			x += spinOperations_.deltaMagneticField(i,mp_.magneticField);
+			return x;
 		}
 		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
@@ -109,8 +112,24 @@ namespace Spf {
 			temp = spinOperations_.calcMag(dynVars);
 			s="Mag2="+ttos(temp);
 			progress_.printline(s,fout);
-
 			
+			temp = 0;
+			// \sum_i S_i^z
+			for (size_t i=0;i<dynVars.size;i++)
+				temp += cos(dynVars.theta[i]);
+			// + \sum_{i,\gamma} (n_{i\gamma up} - n_{i\gamma down)}
+			for (size_t i=0;i<dynVars.size;i++) {
+				for (size_t orb=0;orb<ORBITALS;orb++) {
+					size_t x = i+(orb+SPIN_UP*ORBITALS)*dynVars.size;
+					temp += (1.0 - std::real(greenFunction(x,x)));
+					size_t y = i+(orb+SPIN_DOWN*ORBITALS)*dynVars.size;
+					temp -= (1.0 - std::real(greenFunction(y,y)));
+				}
+			}
+			s="MagZcombined2="+ttos(temp);
+			progress_.printline(s,fout);
+
+
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+ttos(temp);
 // 			progress_.printline(s,fout);
@@ -175,8 +194,10 @@ namespace Spf {
 		
 					size_t spin1 = size_t(gamma1/2);
 					size_t orb1 = gamma1 % 2;
-					matrix(p+gamma1*volume,p+gamma1*volume) = real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
-						
+					//! Term B (n_iup - n_idown)
+					FieldType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
+					matrix(p+gamma1*volume,p+gamma1*volume) =
+						real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p] + magField;
 					for (size_t j = 0; j <  geometry_.z(1); j++) {	
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j);

@@ -103,6 +103,9 @@ namespace Spf {
 		
 		// JAF n-n-n
 		Field jafNnn;
+
+		// Magnetic Field B for Zeeman term
+		Field magneticField;
 	};
 
 	//! Operator to read Model Parameters from inp file.
@@ -118,7 +121,7 @@ namespace Spf {
 		//reader.read(parameters.nOfElectrons);
 		reader.read(parameters.jafNn);
 		reader.read(parameters.jafNnn);
-		
+		reader.read(parameters.magneticField);
 		return parameters;
 	}
 	
@@ -131,6 +134,7 @@ namespace Spf {
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
 		os<<"parameters.J="<<parameters.J<<"\n";
+		os<<"parameters.magneticField="<<parameters.magneticField<<"\n";
 		os<<"parameters.potentialV\n";
 		os<<parameters.potentialV;
 		os<<"parameters.hoppings\n";

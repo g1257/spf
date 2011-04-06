@@ -1,6 +1,6 @@
 OPTIONS none
 VERSION SPFv7
-FILENAME output0
+FILENAME output1
 CARRIERS 128 
 MU  -0.5 
 BETA 10
@@ -28,5 +28,5 @@ PARAMETERSJ 0.0
 POTENTIALV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
 JAFNN 0.0
 JAFNNN 0.0
-MagneticField 0.0
+MagneticField 0.1
 #EOF

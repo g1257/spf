@@ -70,6 +70,11 @@ namespace Spf {
 			return sum;
 		}
 		
+		FieldType deltaMagneticField(size_t i, const FieldType& B) const
+		{
+			FieldType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
+			return dx * B;
+		}
 				
 		FieldType sineUpdate(size_t i) const
 		{
