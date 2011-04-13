@@ -283,8 +283,10 @@ void setHilbertParams(Parameters &ether, Aux &aux,Geometry const &geometry)
 	ether.hilbertSize=2*n;
 	ether.nonzero= 4 * (2*d + 1) * n;
 	if (!ether.isSet("spectrumbounds")) {
-		ether.energy1= -2*d*maxElement(ether.bandHoppings)-maxElement(ether.potential);
-		ether.energy2= -ether.energy1;
+//		ether.energy1= -2*d*maxElement(ether.bandHoppings)-maxElement(ether.potential);
+//		ether.energy2= -ether.energy1;
+		ether.energy1= -100;
+		ether.energy2= 100;
 	}
 	aux.varTpem_a = 1; //0.5*(ether.energy2-ether.energy1);
 	aux.varTpem_b = 0; //0.5*(ether.energy2+ether.energy1);
