@@ -22,6 +22,8 @@ namespace Spf {
 	public:
 		enum {THERMALIZATION,MEASUREMENT};
 
+		WangLandau() : enabled_(false) { }
+
 		void set(
 				const RealType& minE,
 				const RealType& maxE,
@@ -33,6 +35,7 @@ namespace Spf {
 			h_.init(minE,maxE,steps);
 			lf_ = lf;
 			eachCountForF_ = eachCountForF;
+			enabled_ = true;
 		}
 
 		//! Do we accept or not
@@ -49,6 +52,7 @@ namespace Spf {
 
 		void changeF(size_t iter,size_t phase)
 		{
+			if (!enabled_) return;
 			if (phase == THERMALIZATION) return;
 			if (iter>0 && iter % eachCountForF_ == 0) {
 				lf_ *= 0.5;
@@ -78,6 +82,7 @@ namespace Spf {
 			return lg_.coorY(i);
 		}
 
+		bool enabled_;
 		Random48Type random_;
 		HistogramType lg_;
 		HistogramType h_;
