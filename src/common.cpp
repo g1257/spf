@@ -465,7 +465,34 @@ double Zeeman(DynVars const &dynVars,Geometry const &geometry,Parameters const &
 	return ret;
 }
 
+
+double fullSpinDirect(DynVars const &dynVars, Geometry const &geometry, Parameters const &ether)
+{
+	int j,k;
+	double dS=0;
+	double tmp,jaf;
+
+	if (!geometry.isCubicType()) return 0;
 	
+	for (size_t i=0;i<geometry.volume();i++) {
+		for (k = 0; k<geometry.z(i); k++){
+			j=geometry.neighbor(i,k);
+			tmp = sin(dynVars.theta[i])*cos(dynVars.phi[i])*sin(dynVars.theta[j])*cos(dynVars.phi[j])
+		    + sin(dynVars.theta[i])*sin(dynVars.phi[i])*sin(dynVars.theta[j])*sin(dynVars.phi[j])
+		    + cos(dynVars.theta[i])*cos(dynVars.theta[j]);
+			if (k==0 || k%2==0) jaf=ether.JafVector[i+k*ether.linSize/2];
+			else jaf=ether.JafVector[j+(k-1)*ether.linSize/2];
+			dS += jaf*tmp; // IS THERE A ONE HALF HERE????
+		}
+	}
+	if (ether.isSet("magneticfield")) tmp = Zeeman(dynVars,geometry,ether);
+	else tmp =0;
+
+	dS += tmp;
+
+	return dS;
+}
+
 double dSDirect(DynVars const &dynVars, DynVars const &dynVars2, int i, Geometry const &geometry, Parameters const &ether)
 {
 	int j,k;
@@ -519,7 +546,23 @@ double dPhonons(DynVars const &dynVars,DynVars const &dynVars2,int i,Geometry co
 		dE += square(dynVars2.phonons[i][j])-square(dynVars.phonons[i][j]);
 #endif
 	return dE;
-}	
+}
+
+double fullPhononDirect(DynVars const &dynVars,Geometry const &geometry,
+		Parameters const &ether,const Phonons<Parameters,Geometry>& phonons)
+{
+	double dE=0.0;
+
+	for (int i=0;i<geometry.volume();i++) {
+#ifdef MODEL_KONDO_INF_TWOBANDS
+		for (int alpha=0;alpha<dynVars.phonons[i].size();alpha++)
+			dE +=  ether.phononEd[alpha]*square(phonons.calcPhonon(i,dynVars,alpha));
+#else
+	throw std::runtime_error("ksdjfksdjflsdjf\n");
+#endif
+	}
+	return dE;
+}
 
 double directExchange2(DynVars const &dynVars, Geometry const &geometry, Parameters const &ether)
 {
@@ -1243,17 +1286,17 @@ bool doMetropolis(vector<double> const &eNew,vector<double> const &eOld,
 }
 
 bool wangLandau(vector<double> const &eNew,vector<double> const &eOld,
-	Parameters const &ether, Aux &aux,double dsDirect,double sineupdate,
+	Parameters const &ether, Aux &aux,double dsDirect,double fullDirectEnergy,
 	WangLandauType& wangLandau_)
 {
-	double eNewTotal = 0;
+	double eNewTotal = fullDirectEnergy + dsDirect;
 	for (size_t i=0;i<eNew.size();i++) {
 		if (eNew[i]>aux.varMu) continue;
 		eNewTotal += eNew[i];
 	}
 	// FIXME: add "direct" energy
 
-	double eOldTotal = 0;
+	double eOldTotal = fullDirectEnergy;
 	for (size_t i=0;i<eOld.size();i++) {
 		if (eOld[i]>aux.varMu) continue;
 		eOldTotal += eOld[i];
@@ -1379,6 +1422,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				dsDirect = dSDirect(dynVars,dynVars2,i,geometry,ether);
 				if (ether.isSet("tprime")) 
 					dsDirect += directExchange2(dynVars2,geometry,ether)-directExchange2(dynVars,geometry,ether);
+
 				break;
 			case 1:  // phonons
 				r_newPhonons(dynVars.phonons[i],phononsNew,ether);
@@ -1392,6 +1436,12 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				dsDirect = (calcBcsDeltaV2(dynVars2,ether)-calcBcsDeltaV2(dynVars,ether)); 
 				break;
 			}
+
+			double fullDirectEnergy = fullSpinDirect(dynVars,geometry,ether);
+//			if (ether.isSet("tprime"))
+//				fullDirectEnergy += directExchange2(dynVars,geometry,ether);
+			fullDirectEnergy += fullPhononDirect(dynVars,geometry,ether,phonons);
+
 			oldmu=aux.varMu;	
 			if (ether.tpem) {
 				aux.atmp=aux.varTpem_a;
@@ -1408,7 +1458,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 					sineupdate = 1.0;
 				}
 				if (ether.isSet("wangLandau")) {
-					flag=wangLandau(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,sineupdate,aux.wangLandau_);
+					flag=wangLandau(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,fullDirectEnergy,aux.wangLandau_);
 				} else {
 					flag=doMetropolis(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,sineupdate);
 				}
