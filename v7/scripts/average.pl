@@ -1,20 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-
+use Average;
 my ($label)=@ARGV;
 
-my ($sum,$counter)=(0,0);
+Average::average($label);
 
-# Read standard input, while's there's any
-while(<STDIN>) {
-	if (/^$label(.*$)/) {
-		my $value = $1;
-		print "$counter $value\n";
-		$sum += $value;
-		$counter++;
-	}
-}
-$_ = $sum/$counter; # average
-print "#$sum $counter $_\n";
-	

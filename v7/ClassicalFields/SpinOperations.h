@@ -162,6 +162,17 @@ namespace Spf {
 			return (mag[0]*mag[0]+mag[1]*mag[1]+mag[2]*mag[2]);
 		}
 
+		void calcMagVector(
+				std::vector<FieldType>& mag,
+				const DynVarsType& dynVars) const
+		{
+			for (size_t i=0;i<geometry_.volume();i++) {
+				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
+				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
+				mag[2] += cos(dynVars.theta[i]);
+			}
+		}
+
 		
 		void classicalCorrelations(VectorType &cc,
 				 //std::vector<FieldType> &weight,

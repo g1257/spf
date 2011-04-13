@@ -74,6 +74,42 @@ namespace Spf {
 			}
 		}
 
+		void electronSpin(std::vector<ComplexType>& es,
+				size_t orbitals,size_t n) const
+		{
+			enum {SPIN_UP,SPIN_DOWN};
+			// x-component
+			for (size_t i=0;i<n;i++) {
+				for (size_t orb=0;orb<orbitals;orb++) {
+					size_t x = i+(orb+SPIN_UP*orbitals)*n;
+					size_t y = i+(orb+SPIN_DOWN*orbitals)*n;
+					es[0] -= data_(x,y) + data_(y,x);
+				}
+			}
+
+			// y-component
+			for (size_t i=0;i<n;i++) {
+				for (size_t orb=0;orb<orbitals;orb++) {
+					size_t x = i+(orb+SPIN_UP*orbitals)*n;
+					size_t y = i+(orb+SPIN_DOWN*orbitals)*n;
+					es[1] += data_(x,y) - data_(y,x);
+				}
+			}
+			es[1] *= ComplexType(0,1);
+
+			// z-component
+			// + \sum_{i,\gamma} (n_{i\gamma up} - n_{i\gamma down)}
+			for (size_t i=0;i<n;i++) {
+				for (size_t orb=0;orb<orbitals;orb++) {
+					size_t x = i+(orb+SPIN_UP*orbitals)*n;
+					es[2] += (1.0 - data_(x,x));
+					size_t y = i+(orb+SPIN_DOWN*orbitals)*n;
+					es[2] -= (1.0 - data_(y,y));
+				}
+			}
+
+		}
+
 		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return algorithm_.matrix(lambda1,lambda2);

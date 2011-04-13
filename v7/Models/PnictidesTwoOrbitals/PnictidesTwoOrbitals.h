@@ -109,26 +109,22 @@ namespace Spf {
 			
 			adjustments_.print(fout);
 			
-			temp = spinOperations_.calcMag(dynVars);
-			s="Mag2="+ttos(temp);
-			progress_.printline(s,fout);
-			
-			temp = 0;
-			// \sum_i S_i^z
-			for (size_t i=0;i<dynVars.size;i++)
-				temp += cos(dynVars.theta[i]);
-			// + \sum_{i,\gamma} (n_{i\gamma up} - n_{i\gamma down)}
-			for (size_t i=0;i<dynVars.size;i++) {
-				for (size_t orb=0;orb<ORBITALS;orb++) {
-					size_t x = i+(orb+SPIN_UP*ORBITALS)*dynVars.size;
-					temp += (1.0 - std::real(greenFunction(x,x)));
-					size_t y = i+(orb+SPIN_DOWN*ORBITALS)*dynVars.size;
-					temp -= (1.0 - std::real(greenFunction(y,y)));
-				}
-			}
-			s="MagZcombined2="+ttos(temp);
+			std::vector<FieldType> magVector(3,0);
+			spinOperations_.calcMagVector(magVector,dynVars);
+			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
 			progress_.printline(s,fout);
 
+			std::vector<ComplexType> electronSpinVector(3,0);
+			greenFunction.electronSpin(electronSpinVector,ORBITALS,dynVars.size);
+			std::vector<ComplexType> combinedVector(3,0);
+			combinedVector =  electronSpinVector + magVector;
+			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
+			progress_.printline(s,fout);
+			
+			for (size_t i = 0;i<combinedVector.size();i++) {
+				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
+				progress_.printline(s,fout);
+			}
 
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+ttos(temp);
