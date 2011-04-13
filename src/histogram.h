@@ -112,7 +112,7 @@ public:
 	int dummy1() const { return 0; }
         
 	/** Same as constructor. */
-	void init(double minE_,double maxE_,int steps_);
+	void init(double minE_,double maxE_,int steps_,const double& initVal=0);
 	
 	/** Adds one to the step corresponding to energy Evalue */
 	int add(double EValue); 
@@ -123,7 +123,11 @@ public:
 	void print(ostream & strOut) const {
 		for (int n=0;n<steps;n++) strOut<<histE[n]<<" "<<histDE[n]<<endl;
 	}
-	 
+
+	int getSubInterval(const double& x) const;
+
+	int multiply(double xValue,double EValue);
+
 	/** Returns 1 if the histogram has been initalized with more than 0 steps or zero otherwise */
 	int enabled() const {
 		if (steps<=0) return 0;
@@ -131,7 +135,7 @@ public:
 	}	  
 	  
 	/** Returns the sum of all histogram values from energy e1 to energy e2 */
-	double integral(double e1,double e2) const;
+	double integral(double e1,double e2);
 		
 	/** Returns the sum all histogram values */
 	double integral() const;

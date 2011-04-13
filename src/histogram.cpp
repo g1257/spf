@@ -66,7 +66,7 @@ using namespace std;
 	}
 
 
-	void Histogram::init(double minE_,double maxE_,int steps_)
+	void Histogram::init(double minE_,double maxE_,int steps_,const double& initVal)
 	{
  		minE=minE_;
 		maxE=maxE_;
@@ -91,10 +91,16 @@ using namespace std;
          
 		for (int n=0;n<steps+1;n++) {
 			histE[n]=minE+n*deltaE;
-			histDE[n]=0;
+			histDE[n]=initVal;
 		} 
           
-	}     
+	}
+
+	int Histogram::getSubInterval(const double& x) const
+	{
+		int n = int(steps*(x-minE));
+		return int(n/(maxE-minE));
+	}
 
 	int Histogram::add(double EValue) {
 		int n;
@@ -115,11 +121,21 @@ using namespace std;
 		if (n>=steps || n<0) return 1;	    
 		histDE[n]+=EValue;
 	  	return 0;	  		  
+	}
+
+	int Histogram::multiply(double xValue,double EValue) {
+		int n;
+		n=int(steps*(xValue-minE));
+		n=int(n/(maxE-minE));
+		// Dont remove this checking it's very important!
+		if (n>=steps || n<0) return 1;
+		histDE[n]*=EValue;
+		return 0;
 	} 
 
 
 	// sum all histogram values from energy e1 to energy e2
-	double Histogram::integral(double e1,double e2)  const
+	double Histogram::integral(double e1,double e2)
 	{
 		int i;
 		double s=0;

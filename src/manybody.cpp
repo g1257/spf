@@ -976,6 +976,7 @@ FieldType calcCorrelation(size_t i,size_t j,bool doSpins,const DynVars& dynVars,
 	
 }
 
+#ifdef CALC_D_AND_D
 template<typename FieldType,typename PhononsType>
 void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 		std::vector<size_t>& d,Geometry const &geometry,DynVars const &dynVars, PhononsType const &phonons)
@@ -997,6 +998,7 @@ void calcCdAndD(size_t plaquetteIndex,std::vector<FieldType>& cd,
 		}
 	}
 }
+#endif // #ifdef CALC_D_AND_D
 
 //! Move elsewhere
 template<typename T>
@@ -1041,7 +1043,7 @@ void calcSq(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>&
 	}
 }
 
-
+#ifdef CALC_D_AND_D
 //! entry point for nanocluster (correlations)
 void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,
 		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether)
@@ -1061,5 +1063,5 @@ void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size
 		calcSq(sq,q,cd,d,kmesh,plaquetteIndex,geometry);
 	}
 }
-
+#endif // #ifdef CALC_D_AND_D
 

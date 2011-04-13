@@ -248,6 +248,9 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	}
 	
 	setupVariables(geometry,dynVars,ether,aux);
+
+	aux.wangLandau_.set(ether.energy1,ether.energy2,ether.histSteps,2.72);
+
 	tpemOptionsFill(tpemOptions,ether);
 	
 	io.initOutput(ether);
@@ -1236,6 +1239,27 @@ bool doMetropolis(vector<double> const &eNew,vector<double> const &eOld,
 	
 }
 
+bool wangLandau(vector<double> const &eNew,vector<double> const &eOld,
+	Parameters const &ether, Aux &aux,double dsDirect,double sineupdate,
+	WangLandauType& wangLandau_)
+{
+	double eNewTotal = 0;
+	for (size_t i=0;i<eNew.size();i++) {
+		if (eNew[i]>aux.varMu) continue;
+		eNewTotal += eNew[i];
+	}
+	// FIXME: add "direct" energy
+
+	double eOldTotal = 0;
+	for (size_t i=0;i<eOld.size();i++) {
+		if (eOld[i]>aux.varMu) continue;
+		eOldTotal += eOld[i];
+	}
+
+	// FIXME: add "direct" energy
+	return wangLandau_(eNewTotal,eOldTotal);
+
+}
 
 void r_newSpins(double thetaOld, double phiOld, double &thetaNew,double &phiNew, Parameters const &ether)
 {
@@ -1380,7 +1404,11 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				} else {
 					sineupdate = 1.0;
 				}
-				flag=doMetropolis(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,sineupdate);					
+				if (ether.isSet("wangLandau")) {
+					flag=wangLandau(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,sineupdate,aux.wangLandau_);
+				} else {
+					flag=doMetropolis(eigNewAllBands,aux.eigAllBands,ether,aux,dsDirect,sineupdate);
+				}
 			}
 		
 			if (flag && (ether.mcflag & 1)) { // Accepted
@@ -1888,7 +1916,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		if (ether.isSet("nanocluster")) {
 			psimag::Matrix<std::complex<double> > sq(ether.q.size(),ether.linSize);
 	//				ether.linSize);
-			calcLocalk(sq,ether.q,geometry,dynVars,ether);
+			//calcLocalk(sq,ether.q,geometry,dynVars,ether);
 			io.historyPrint("nanocluster",sq);
 		}
 	

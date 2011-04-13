@@ -42,6 +42,10 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include "tpemplusTypes.h"
 #include "histogram.h"
 #include "mymatrix.h"
+
+#include "WangLandau.h"
+typedef Spf::WangLandau<double> WangLandauType;
+
 /** \brief Auxiliary structures and parameters that change frequently. 
 
  * For parameters that don't usually change use the class Parameters.<br>
@@ -70,6 +74,7 @@ struct Aux {
 	vector<double> nac;
 	vector<double> bcsCorxx,bcsCorxy;
 	vector<double> orbitalAngles;
+	WangLandauType wangLandau_;
 	
 	/* Aux (Aux const &myObject) // copy constructor
 	{
