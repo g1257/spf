@@ -15,6 +15,7 @@ sub average
 	}
 	# Read standard input, while's there's any
 	while(<$fh>) {
+		last if (/^#/ and $counter>0);
 		if (/$label(.*$)/) {
 			my $value = $1;
 			$value=~s/,.*$//;

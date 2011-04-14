@@ -19,6 +19,7 @@ for (my $i=0;$i<3;$i++) {
 $_ = scalarProduct(\@m,\@m);
 
 print "<M>.<M>=".$_."\n";
+print "<M.M>-<M>.<M> = ".($mag2-$_)."\n";
 
 sub scalarProduct
 {
