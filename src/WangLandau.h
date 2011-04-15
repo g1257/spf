@@ -11,6 +11,7 @@
 #define WANG_LANDAU_H
 #include "Random48.h"
 #include "histogram.h" // lowercase!!!
+#include "IoSimple.h"
 
 namespace Spf {
 
@@ -24,18 +25,41 @@ namespace Spf {
 
 		WangLandau() : enabled_(false) { }
 
-		void set(
+		void init(
 				const RealType& minE,
 				const RealType& maxE,
 				size_t steps,
-				const RealType& lf,
-				size_t eachCountForF)
+				const RealType& lf)
+//				size_t eachCountForF)
 		{
 			lg_.init(minE,maxE,steps,1.0);
 			h_.init(minE,maxE,steps);
 			lf_ = lf;
-			eachCountForF_ = eachCountForF;
+//			eachCountForF_ = eachCountForF;
 			enabled_ = true;
+		}
+
+		void init(const std::string& file,size_t level)
+		{
+			std::string tmpString="#WangLandauGE";
+			lg_.read(file,tmpString,level);
+			tmpString="#WangLandauH";
+			h_.read(file,tmpString,level);
+			tmpString="#WangLandauf=";
+			PsimagLite::IoSimple::In io(file.c_str());
+			io.readline(lf_,"#WangLandauf=");
+			print(std::cerr);
+			if (lf_<0) throw std::runtime_error("WL: While reading lf\n");
+			enabled_ = true;
+		}
+
+		void print(std::ostream& of) const
+		{
+			std::string tmpString="#WangLandauGE";
+			lg_.print(of,tmpString);
+			tmpString="#WangLandauH";
+			h_.print(of,tmpString);
+			of<<"#WangLandauf="<<lf_<<"\n";
 		}
 
 		//! Do we accept or not
@@ -45,34 +69,22 @@ namespace Spf {
 			RealType m = exp(getG(eold))/exp(getG(enew));
 			int chk = lg_.add(eold,lf_);
 			if (chk==1) throw std::runtime_error("WangLandau: E out of range\n");
+			// if (chk==1) return false; // look the other way!!
 			h_.add(eold);
 			if (p<m) return true;
 			return false;
 		}
 
-		void changeF(size_t iter,size_t phase)
-		{
-			if (!enabled_) return;
-			if (phase == THERMALIZATION) return;
-			if (iter>0 && iter % eachCountForF_ == 0) {
-				lf_ *= 0.5;
-			}
-		}
+//		void changeF(size_t iter,size_t phase)
+//		{
+//			if (!enabled_) return;
+//			if (phase == THERMALIZATION) return;
+//			if (iter>0 && iter % eachCountForF_ == 0) {
+//				lf_ *= 0.5;
+//			}
+//		}
 
-		const RealType& f() const { return lf_; }
-
-		void print(std::ostream& os) const
-		{
-			os<<"#WangLandauGE\n";
-			for (size_t i=0;i<lg_.size();i++)  {
-				os<<lg_.coorX(i)<<" "<<lg_.coorY(i)<<"\n";
-			}
-			os<<"#WangLandauH\n";
-			for (size_t i=0;i<h_.size();i++)  {
-				os<<h_.coorX(i)<<" "<<h_.coorY(i)<<"\n";
-			}
-			os<<"#WangLandauf="<<lf_<<"\n";
-		}
+//		const RealType& f() const { return lf_; }
 
 	private:
 
@@ -87,7 +99,7 @@ namespace Spf {
 		HistogramType lg_;
 		HistogramType h_;
 		RealType lf_;
-		size_t eachCountForF_;
+//		size_t eachCountForF_;
 		
 	}; // WangLandau
 

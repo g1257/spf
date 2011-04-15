@@ -249,8 +249,6 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	
 	setupVariables(geometry,dynVars,ether,aux);
 
-	aux.wangLandau_.set(ether.energy1,ether.energy2,ether.histSteps,1.0,10);
-
 	tpemOptionsFill(tpemOptions,ether);
 	
 	io.initOutput(ether);
@@ -281,7 +279,6 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 
 		for (iter=0;iter<therm;iter++) {
 			ether.beta = (iter+1.0)*betaMax/therm;
-			aux.wangLandau_.changeF(iter,WangLandauType::THERMALIZATION);
 			doMonteCarlo(geometry,dynVars,ether,aux,tpemOptions);
 		}
 	}
@@ -289,7 +286,6 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 	  
 	for (iter=0;iter<ether.iterTherm;iter++) {
 		printProgress(iter,ether.iterTherm,10,'*',ether.mpiRank);
-		aux.wangLandau_.changeF(iter,WangLandauType::THERMALIZATION);
 		doMonteCarlo(geometry,dynVars,ether,aux,tpemOptions);
 	}
 	if (ether.mpiRank==0) {
@@ -303,7 +299,6 @@ int spf_entry(int argc,char *argv[],int mpiRank=0, int mpiSize=1)
 
 		
 		for (iter2=0;iter2<ether.iterUnmeasured;iter2++) {
-			aux.wangLandau_.changeF(iter,WangLandauType::MEASUREMENT);
 			doMonteCarlo(geometry,dynVars,ether,aux,tpemOptions);
 		}
 		doMeasurements(iter,dynVars,geometry,io,ether,aux,tpemOptions);
@@ -1080,6 +1075,8 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 	
 	tmpVector.insert(tmpVector.begin(),n,0.0);
 	
+	if (ether.isSet("wangLandau"))
+		aux.wangLandau_.init(ether.energy1,ether.energy2,ether.histSteps,1.0);
 	
 	if (ether.startType==4 || ether.startType==6) {
 		if (ether.isSet("customconfig")) {
@@ -1115,6 +1112,9 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 					
 		}
 #endif
+		if (ether.isSet("wangLandau"))
+			aux.wangLandau_.init(ether.dynVarsInputFile,ether.startLevel);
+
 	}
 	if (ether.startType==5) {
 		int L = geometry.length();

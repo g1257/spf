@@ -56,7 +56,10 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
-		 		 
+#include <vector>
+#include "basic.h"
+#include "IoSimple.h"
+
 using std::ostream;
 using std::cerr;
 using std::endl;
@@ -144,6 +147,39 @@ public:
 	void divide();
 	/** Sets all histogram heights to zero */
 	void reset();
+
+	void read(const std::string& file,const std::string& label,size_t level)
+	{
+		PsimagLite::IoSimple::In io(file);
+		std::vector<double> v1;
+		std::string s = label + "X";
+		io.read(v1,s);
+//		loadVector(v1,file,s,level);
+		//histE = new double[v1.size()];
+		for (size_t i=0;i<v1.size();i++) histE[i] = v1[i];
+		s = label + "Y";
+		v1.clear();
+		PsimagLite::IoSimple::In io2(file);
+		io2.read(v1,s);
+	//	loadVector(v1,file,s,level);
+		//histDE = new double[v1.size()];
+		for (size_t i=0;i<v1.size();i++) histDE[i] = v1[i];
+	}
+
+	void print(std::ostream& os,const std::string& label) const
+	{
+		os<<label<<"X\n";
+		os<<(steps+1)<<"\n";
+		for (size_t i=0;i<size();i++)  {
+			os<<histE[i]<<"\n";
+		}
+		os<<"## ## ##\n";
+		os<<label<<"Y\n";
+		os<<(steps+1)<<"\n";
+		for (size_t i=0;i<size();i++)  {
+			os<<histDE[i]<<"\n";
+		}
+	}
 		
 	friend ostream& operator<<(ostream& s, Histogram & y);
 	friend void CorrectSigma(Histogram &Sigma,double div_);        
@@ -156,7 +192,6 @@ private:
 	double deltaE, *histE,*histDE;
           
 };
-
 
 
 #endif

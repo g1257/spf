@@ -493,7 +493,7 @@ void Io<ConcurrencyIoType>::printAverages(Parameters &ether,Aux &aux)
 		vectorPrint(aux.oco_bb,"OrbitalCorrelation",file[6]);
 	}
 	if (ether.isSet("wangLandau")) {
-		aux.wangLandau_.print(file[0]);
+		aux.wangLandau_.print(file[2]);
 	}
 
 }
