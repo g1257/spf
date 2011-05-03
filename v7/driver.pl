@@ -65,7 +65,6 @@ print FOUT<<EOF;
  Platform: linux
  Model: $model
  */
-#include "SimpleReader.h"
 #include "ParametersEngine.h"
 #include "Engine.h"
 #include "ConcurrencySerial.h"
@@ -77,10 +76,11 @@ print FOUT<<EOF;
 #include "GreenFunction.h"
 
 typedef double FieldType;
-typedef Spf::ParametersEngine<FieldType> ParametersEngineType;
+typedef PsimagLite::IoSimple::In IoInType;
+typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
 typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
-typedef Spf::Parameters$model<FieldType> ParametersModelType;
+typedef Spf::Parameters$model<ParametersEngineType,IoInType> ParametersModelType;
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
@@ -92,13 +92,16 @@ typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType
 int main(int argc,char *argv[])
 {
 	ConcurrencyType concurrency(argc,argv);
-	ParametersEngineType engineParams;
-	ParametersModelType mp;
-	Spf::SimpleReader reader(argv[1]);
-	reader.load(engineParams);
-	reader.load(mp);
+	if (argc<2) {
+		std::string s = "Usage is: ./" + std::string(argv[0]) +
+		" input_file\\n";
+		throw std::runtime_error(s.c_str());
+	}
+	PsimagLite::IoSimple::In io(argv[1]);
+	ParametersEngineType engineParams(io);
+	ParametersModelType mp(io,engineParams);
 	// print license
-	std::string license = "Copyright (c) 2009 , UT-Battelle, LLC\\n"
+	std::string license = "Copyright (c) 2009-2011, UT-Battelle, LLC\\n"
 "All rights reserved\\n"
 "\\n"
 "[SPF, Version 7.0.0]\\n"

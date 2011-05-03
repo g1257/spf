@@ -81,55 +81,73 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSPNICTIDESTWOORBITALS_H
 #define PARAMETERSPNICTIDESTWOORBITALS_H
-#include "SimpleReader.h"
 
 namespace Spf {
-	//! Hubbard Model Parameters
-	template<typename Field>
+	//!Model Parameters, please don't add member functions, this is a struct
+	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersPnictidesTwoOrbitals {
+		typedef typename ParametersEngineType::FieldType RealType;
+
+		ParametersPnictidesTwoOrbitals(
+				IoInType& io,
+				const ParametersEngineType& engineParams)
+		{
+			io.read(hoppings,"Hoppings");
+
+			io.readline(J,"CouplingJ=");
+			io.read(potentialV,"PotentialV");
+			io.readline(jafNn,"JAFNN=");
+			io.readline(jafNnn,"JAFNNN=");
+			io.readline(magneticField,"MagneticField=");
+
+			modulus.resize(potentialV.size());
+			if (engineParams.options.find("hasModulus")==std::string::npos
+					&&
+					engineParams.options.find("hasmodulus")==std::string::npos) {
+				for (size_t i=0;i<modulus.size();i++)
+					modulus[i] = 1;
+				return;
+			}
+
+			for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
+
+			std::vector<size_t> tmp;
+			io.read(tmp,"Modulus");
+			for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+
+		}
+
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		std::vector<Field> hoppings; 
+		std::vector<RealType> hoppings;
 		// J value
-		Field J;
+		RealType J;
 		// Onsite potential values, one for each site
-		std::vector<Field> potentialV;
+		std::vector<RealType> potentialV;
 		
 		// target number of electrons  in the system
 		//int nOfElectrons;
 		
 		// JAF n-n
-		Field jafNn;
+		RealType jafNn;
 		
 		// JAF n-n-n
-		Field jafNnn;
+		RealType jafNnn;
 
 		// Magnetic Field B for Zeeman term
-		Field magneticField;
+		RealType magneticField;
+
+		// moduli of the classical spins (either 0 or 1)
+		std::vector<size_t> modulus;
 	};
 
-	//! Operator to read Model Parameters from inp file.
-	template<typename FieldType>
-	ParametersPnictidesTwoOrbitals<FieldType>& operator<=(
-			ParametersPnictidesTwoOrbitals<FieldType>& parameters,
-			SimpleReader& reader)
-	{
-		reader.read(parameters.hoppings);
-		
-		reader.read(parameters.J);
-		reader.read(parameters.potentialV);
-		//reader.read(parameters.nOfElectrons);
-		reader.read(parameters.jafNn);
-		reader.read(parameters.jafNnn);
-		reader.read(parameters.magneticField);
-		return parameters;
-	}
+
 	
 	//! Function that prints model parameters to stream os
-	template<typename FieldType>
+	template<typename RealType,typename IoInType>
 	std::ostream& operator<<(
-			std::ostream &os,
-			const ParametersPnictidesTwoOrbitals<FieldType>& parameters)
+		std::ostream &os,
+		const ParametersPnictidesTwoOrbitals<RealType,IoInType>& parameters)
 	{
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
@@ -139,6 +157,11 @@ namespace Spf {
 		os<<parameters.potentialV;
 		os<<"parameters.hoppings\n";
 		os<<parameters.hoppings;
+		os<<"parameters.modulus=";
+		for (size_t i=0;i<parameters.modulus.size();i++) {
+			if (parameters.modulus[i]) os<<i<<" ";
+		}
+		os<<"\n";
 		return os;
 	}
 } // namespace Spf

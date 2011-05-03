@@ -106,19 +106,20 @@ namespace Spf {
 	};
 
 	//! Operator to read Model Parameters from inp file.
-	template<typename FieldType>
-	ParametersPhononsTwoOrbitals<FieldType>& operator<=(
-			ParametersPhononsTwoOrbitals<FieldType>& parameters,
-			SimpleReader& reader)
+	template<typename RealType,typename ParametersEngineType>
+	void load(
+			ParametersPhononsTwoOrbitals<RealType>& parameters,
+			SimpleReader& reader,
+			const ParametersEngineType& engineParams)
 	{
 		reader.read(parameters.hoppings);
 		reader.read(parameters.potential);
-		
+
 		reader.read(parameters.jaf);
-		
+
 		reader.read(parameters.phononSpinCoupling);
 		reader.read(parameters.phononDamping);
-		
+
 		return parameters;
 	}
 	

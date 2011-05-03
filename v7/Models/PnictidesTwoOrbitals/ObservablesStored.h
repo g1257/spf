@@ -13,7 +13,8 @@
 #include "Vector.h"
 
 namespace Spf {
-	template<typename SpinOperationsType,typename ComplexType>
+	template<typename SpinOperationsType,typename ComplexType,
+	typename ParametersModelType>
 	class ObservablesStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
@@ -34,9 +35,11 @@ namespace Spf {
 		ObservablesStored(
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
+				const ParametersModelType& mp,
 				size_t dof) :
 			spinOperations_(spinOperations),
 			geometry_(geometry),
+			mp_(mp),
 			dof_(dof),
 			lc_(dof*geometry.volume(),0),
 			chargeCor_(geometry.volume(),0),
@@ -150,9 +153,10 @@ namespace Spf {
 			for (size_t i=0;i<volume;i++) {
 				FieldType theta = spins.theta[i];
 				FieldType phi = spins.phi[i];
-				ms(i,DIRECTION_X) = sin(theta) * cos(phi);
-				ms(i,DIRECTION_Y) = sin(theta) * sin(phi);
-				ms(i,DIRECTION_Z) = cos(theta);
+				FieldType m = (mp_.modulus[i]) ? 1.0 : 0.0;
+				ms(i,DIRECTION_X) = m*sin(theta) * cos(phi);
+				ms(i,DIRECTION_Y) = m*sin(theta) * sin(phi);
+				ms(i,DIRECTION_Z) = m*cos(theta);
 			}
 		}
 
@@ -282,6 +286,7 @@ namespace Spf {
 
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
+		const ParametersModelType& mp_;
 		size_t dof_;
 		VectorType lc_;
 		VectorType chargeCor_;

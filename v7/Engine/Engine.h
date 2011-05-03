@@ -9,6 +9,7 @@
  */
 #ifndef SPF_ENGINE_H
 #define SPF_ENGINE_H
+#include <fstream>
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"

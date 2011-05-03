@@ -82,17 +82,43 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
-
-#include "SimpleReader.h"
+#include <string>
+#include <vector>
+#include <iostream>
 #include <cstdlib>
 
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename FieldType_>
+	template<typename FieldType_,typename IoInType>
 	struct ParametersEngine {
 		typedef FieldType_ FieldType;
 		
+		//! Read Dmrg parameters from inp file
+		ParametersEngine(IoInType& io)
+		{
+			io.readline(options,"EngineOptions=");
+			io.readline(version,"Version=");
+			io.readline(filename,"OutputFilename=");
+			io.readline(carriers,"Carriers=");
+			io.readline(mu,"ChemicalPotential=");
+			io.readline(beta,"Beta=");
+			io.readline(iterTherm,"MonteCarloThermalizations=");
+			io.readline(iterEffective,"MonteCarloEffectiveIteractions=");
+			io.readline(iterUnmeasured,"MonteCarloUnmeasuredPlusOne=");
+			io.read(mcWindow,"MonteCarloWindows");
+			io.readline(dynvarsfile,"MonteCarloStartTypeOrFile=");
+			io.readline(dynvarslevel,"MonteCarloStartLevel=");
+			io.readline(histSteps,"HistogramSteps=");
+			io.readline(boundaryConditions,"BoundaryConditions=");
+			std::string s;
+			io.readline(s,"RandomSeed=");
+			if (s == "TIME" || s == "time")
+				randomSeed = -1;
+			else    randomSeed = atoi(s.c_str());
+			io.readline(latticeLength,"LatticeLength=");
+		}
+
 		std::string filename; // filename to save observables and continued fractions
 		std::string version;
 		std::string options; // options
@@ -109,37 +135,10 @@ namespace Spf {
 		size_t latticeLength;
 	};
 
-	//! Read Dmrg parameters from inp file
-	template<typename FieldType>
-	ParametersEngine<FieldType>&
-	operator <= (ParametersEngine<FieldType>& parameters, SimpleReader& reader)
-	{
-		reader.read(parameters.options); 
-		reader.read(parameters.version);
-		reader.read(parameters.filename);
-		reader.read(parameters.carriers);
-		reader.read(parameters.mu);
-		reader.read(parameters.beta);
-		reader.read(parameters.iterTherm);
-		reader.read(parameters.iterEffective);
-		reader.read(parameters.iterUnmeasured);
-		reader.read(parameters.mcWindow);
-		reader.read(parameters.dynvarsfile);
-		reader.read(parameters.dynvarslevel);
-		reader.read(parameters.histSteps);
-		reader.read(parameters.boundaryConditions);
-		std::string s;
-		reader.read(s);
-		if (s == "TIME" || s == "time") 
-			parameters.randomSeed = -1;
-		else    parameters.randomSeed = atoi(s.c_str());
-		reader.read(parameters.latticeLength);
-		return parameters;
-	} 
-
 	//! print dmrg parameters
-	template<typename FieldType>
-	std::ostream &operator<<(std::ostream &os,ParametersEngine<FieldType> const &parameters)
+	template<typename FieldType,typename IoInType>
+	std::ostream &operator<<(std::ostream &os,
+		ParametersEngine<FieldType,IoInType> const &parameters)
 	{
 		os<<"#This is SPF\n";
 		os<<"parameters.version="<<parameters.version<<"\n";

@@ -113,10 +113,11 @@ namespace Spf {
 	}; // struct ParametersDmsMultiOrbital
 
 	//! Operator to read Model Parameters from inp file.
-	template<typename RealType>
-	ParametersDmsMultiOrbital<RealType>& operator<=(
+	template<typename RealType,typename ParametersEngineType>
+	void load(
 			ParametersDmsMultiOrbital<RealType>& parameters,
-			SimpleReader& reader)
+			SimpleReader& reader,
+			const ParametersEngineType& engineParams)
 	{
 		typedef typename ParametersDmsMultiOrbital<RealType>::ComplexType
 				ComplexType;

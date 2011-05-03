@@ -37,7 +37,8 @@ namespace Spf {
 		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ObservablesStored<SpinOperationsType,ComplexType> ObservablesStoredType;
+		typedef ObservablesStored<SpinOperationsType,ComplexType,
+				ParametersModelType> ObservablesStoredType;
 		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -48,7 +49,7 @@ namespace Spf {
 				      hilbertSize_(2*ORBITALS*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
-					observablesStored_(spinOperations_,geometry,2*ORBITALS)
+					observablesStored_(spinOperations_,geometry,mp_,2*ORBITALS)
 		{
 		}
 		
@@ -235,6 +236,10 @@ namespace Spf {
 		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
 				typename DynVarsType::SpinType& dynVars,size_t site) const
 		{
+			if (!mp_.modulus[site]) {
+				for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] = 0;
+				return;
+			}
 			
 			jmatrix[0]=cos(dynVars.theta[site]);
 		
@@ -245,23 +250,8 @@ namespace Spf {
 		
 			jmatrix[3]= -cos(dynVars.theta[site]);
 		
-			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J; 
+			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
 		}
-		
-		
-
-// 		template<typename GreenFunctionType>
-// 		FieldType calcNumber(GreenFunctionType& greenFunction) const
-// 		{
-// 			FieldType sum=0;
-// 			for (size_t i=0;i<hilbertSize_;i++) {
-// 				sum += real(greenFunction(i,i));
-// 			}
-// 			return sum;
-// 		}
-
-		
-
 		
 		FieldType calcKinetic(const DynVarsType& dynVars,
 				      const std::vector<FieldType>& eigs) const
@@ -291,7 +281,6 @@ namespace Spf {
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
-		//RandomNumberGeneratorType& rng_;
 		SpinOperationsType spinOperations_;
 		ObservablesStoredType observablesStored_;
 	}; // PnictidesTwoOrbitals
