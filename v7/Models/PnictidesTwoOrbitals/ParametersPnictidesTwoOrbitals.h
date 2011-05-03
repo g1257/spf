@@ -144,10 +144,10 @@ namespace Spf {
 
 	
 	//! Function that prints model parameters to stream os
-	template<typename RealType,typename IoInType>
+	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(
 		std::ostream &os,
-		const ParametersPnictidesTwoOrbitals<RealType,IoInType>& parameters)
+		const ParametersPnictidesTwoOrbitals<ParametersEngineType,IoInType>& parameters)
 	{
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";

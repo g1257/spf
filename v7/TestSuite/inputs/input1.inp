@@ -1,20 +1,20 @@
-OPTIONS none
-VERSION SPFv7
-FILENAME output1
-CARRIERS 128 
-MU  -0.5 
-BETA 10
-MCTHERMALIZATIONS 0
-MCEFFECTIVE 10
-MCUNMEASURED 1
-MCWINDOW   2 0.5 0.5
-MCSTARTTYPE none 
-MCSTARTLEVEL 0
-HISTOGRAMSTEPS 1000
-BOUNDARYCONDITIONS periodic
-SEED 3043091
-LINSIZE 8
-hoppings
+EngineOptions=none
+Version=SPFv7
+OutputFilename=output1
+Carriers=128 
+ChemicalPotential=-0.5 
+Beta=10
+MonteCarloThermalizations=0
+MonteCarloEffectiveIteractions=10
+MonteCarloUnmeasuredPlusOne=1
+MonteCarloWindows   2 0.5 0.5
+MonteCarloStartTypeOrFile=none 
+MonteCarloStartLevel=0
+HistogramSteps=1000
+BoundaryConditions=periodic
+RandomSeed=3043091
+LatticeLength=8
+Hoppings
 16
 -0.058 0
 0 -0.2196
@@ -24,9 +24,9 @@ hoppings
 0.079 +0.20828
 0.20828 -0.079
 -0.079 +0.20828
-PARAMETERSJ 0.0
-POTENTIALV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
-JAFNN 0.0
-JAFNNN 0.0
-MagneticField 0.1
+CouplingJ=0.0
+PotentialV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+JAFNN=0.0
+JAFNNN=0.0
+MagneticField=0.1
 #EOF

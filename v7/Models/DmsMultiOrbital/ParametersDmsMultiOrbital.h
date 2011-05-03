@@ -81,17 +81,60 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMS_DMS_MULTIORBITA_H
 #define PARAMS_DMS_MULTIORBITA_H
-#include "SimpleReader.h"
+#include <complex>
+#include <iostream>
+#include <vector>
+#include <iostream>
 
 namespace Spf {
-	template<typename RealType>
+	// please don't add member functions, this is a struct!
+	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersDmsMultiOrbital {
+		typedef typename ParametersEngineType::FieldType RealType;
+		typedef std::complex<RealType> ComplexType;
+
+		//! ctor to read Model Parameters from inp file.
+		ParametersDmsMultiOrbital(
+				IoInType& io,
+				const ParametersEngineType& engineParams)
+		{
+			// legacy reading of pair of doubles to make a complex:
+			std::vector<RealType> tmpReal;
+			io.read(tmpReal,"Hoppings");
+			hoppings.resize(tmpReal.size()/2);
+			for (size_t i=0;i<hoppings.size();i++)
+				hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
+
+			io.readline(J,"CouplingJ=");
+
+			io.read(potentialV,"PotentialV");
+			size_t n = potentialV.size();
+			//parameters.potentialV.resize(parameters.linSize);
+			//for (size_t i=0;i<parameters.potentialV.size();i++)
+			//	parameters.potentialV[i] = 0;
+
+			io.readline(jafNn,"PARAMETERSJ_AF=");
+
+			io.readline(jafNnn,"PARAMETERSJ_AF_NN=");
+
+			io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
+
+			std::vector<size_t> tmp;
+			io.read(tmp,"MODULUS");
+
+			modulus.resize(n);
+			for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
+			for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+
+			io.read(histogramParams,"HISTOGRAM");
+		}
+
 		// packed as gamma1+gamma2*dof + dir*4
 		// where dir goes from 0 to 11
 		// and dof = 2*orbitals
 		// and gamma1 = orb + spin*ORBITALS I think
 		// or is it spin + orb*2 ?
-		typedef std::complex<RealType> ComplexType;
+
 		std::vector<ComplexType> hoppings;
 		// J value
 		RealType J;
@@ -111,55 +154,12 @@ namespace Spf {
 
 		std::vector<RealType> histogramParams;
 	}; // struct ParametersDmsMultiOrbital
-
-	//! Operator to read Model Parameters from inp file.
-	template<typename RealType,typename ParametersEngineType>
-	void load(
-			ParametersDmsMultiOrbital<RealType>& parameters,
-			SimpleReader& reader,
-			const ParametersEngineType& engineParams)
-	{
-		typedef typename ParametersDmsMultiOrbital<RealType>::ComplexType
-				ComplexType;
-		// legacy reading of pair of doubles to make a complex:
-		std::vector<RealType> tmpReal;
-		reader.read(tmpReal);
-		parameters.hoppings.resize(tmpReal.size()/2);
-		for (size_t i=0;i<parameters.hoppings.size();i++)
-			parameters.hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
-		
-		reader.read(parameters.J);
-
-		reader.read(parameters.potentialV);
-		size_t n = parameters.potentialV.size();
-		//parameters.potentialV.resize(parameters.linSize);
-		//for (size_t i=0;i<parameters.potentialV.size();i++)
-		//	parameters.potentialV[i] = 0;
-
- 		reader.read(parameters.jafNn);
-
-		reader.read(parameters.jafNnn);
-		
-		reader.read(parameters.spinOrbitCoupling);
-
-		std::vector<size_t> tmp;
-		reader.read(tmp);
-
-		parameters.modulus.resize(n);
-		for (size_t i=0;i<parameters.modulus.size();i++)
-			parameters.modulus[i] = 0;
-		for (size_t i=0;i<tmp.size();i++) parameters.modulus[tmp[i]] = 1;
-
-		reader.read(parameters.histogramParams);
-
-		return parameters;
-	}
 	
 	//! Function that prints model parameters to stream os
-	template<typename FieldType>
+	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(
-			std::ostream &os,
-			const ParametersDmsMultiOrbital<FieldType>& parameters)
+		std::ostream &os,
+		const ParametersDmsMultiOrbital<ParametersEngineType,IoInType>& parameters)
 	{
 		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";

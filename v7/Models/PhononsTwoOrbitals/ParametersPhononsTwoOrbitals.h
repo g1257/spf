@@ -81,53 +81,51 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSPHONONS_2ORB_H
 #define PARAMETERSPHONONS_2ORB_H
-#include "SimpleReader.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace Spf {
 	//! Hubbard Model Parameters
-	template<typename Field>
+	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersPhononsTwoOrbitals {
-		
+		typedef typename ParametersEngineType::FieldType RealType;
+		//! ctor to read Model Parameters from inp file.
+		ParametersPhononsTwoOrbitals(
+				IoInType& io,
+				const ParametersEngineType& engineParams)
+		{
+			io.read(hoppings,"Hoppings");
+			io.read(potential,"Potential");
+
+			io.readline(jaf,"JAF=");
+
+			io.read(phononSpinCoupling,"PhononSpinCoupling");
+			io.read(phononDamping,"PhononDamping");
+		}
+
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		std::vector<Field> hoppings; 
+		std::vector<RealType> hoppings;
 		
 		// Onsite potential values, one for each site
-		std::vector<Field> potential;
+		std::vector<RealType> potential;
 		
 		// JAF n-n
-		Field jaf;
+		RealType jaf;
 		
 		// Phonon couplings
-		std::vector<Field> phononSpinCoupling;
+		std::vector<RealType> phononSpinCoupling;
 		
 		// Phonon dampings
-		std::vector<Field> phononDamping;
+		std::vector<RealType> phononDamping;
 	};
-
-	//! Operator to read Model Parameters from inp file.
-	template<typename RealType,typename ParametersEngineType>
-	void load(
-			ParametersPhononsTwoOrbitals<RealType>& parameters,
-			SimpleReader& reader,
-			const ParametersEngineType& engineParams)
-	{
-		reader.read(parameters.hoppings);
-		reader.read(parameters.potential);
-
-		reader.read(parameters.jaf);
-
-		reader.read(parameters.phononSpinCoupling);
-		reader.read(parameters.phononDamping);
-
-		return parameters;
-	}
 	
 	//! Function that prints model parameters to stream os
-	template<typename FieldType>
+	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(
-			std::ostream &os,
-			const ParametersPhononsTwoOrbitals<FieldType>& parameters)
+		std::ostream &os,
+		const ParametersPhononsTwoOrbitals<ParametersEngineType,IoInType>& parameters)
 	{
 		os<<"parameters.jaf="<<parameters.jaf<<"\n";
 		os<<"parameters.potential\n";
