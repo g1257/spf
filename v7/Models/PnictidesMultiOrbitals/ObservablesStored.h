@@ -30,7 +30,6 @@ namespace Spf {
 		static size_t const DIRECTIONS  = 3;
 
 	public:
-		static size_t const ORBITALS = 2;
 		
 		ObservablesStored(
 				SpinOperationsType& spinOperations,
@@ -130,9 +129,9 @@ namespace Spf {
 			ComplexType sqrtOfMinus1 = ComplexType(0,1);
 			size_t volume = me.n_row();
 			for (size_t i=0;i<volume;i++) {
-				for (size_t orb=0;orb<ORBITALS;orb++) {
-					size_t x = i+(orb+SPIN_UP*ORBITALS)*volume;
-					size_t y = i+(orb+SPIN_DOWN*ORBITALS)*volume;
+				for (size_t orb=0;orb<mp_.numberOfOrbitals;orb++) {
+					size_t x = i+(orb+SPIN_UP*mp_.numberOfOrbitals)*volume;
+					size_t y = i+(orb+SPIN_DOWN*mp_.numberOfOrbitals)*volume;
 
 					me(i,DIRECTION_X) -= 0.5*(
 							greenFunction(x,y) + greenFunction(y,x));
@@ -168,8 +167,8 @@ namespace Spf {
 			size_t volume = ti.n_row();
 			for (size_t i=0;i<volume;i++) {
 				for (size_t spin=0;spin<2;spin++) {
-					size_t x = i+(ORBITAL_XZ+spin*ORBITALS)*volume;
-					size_t y = i+(ORBITAL_YZ+spin*ORBITALS)*volume;
+					size_t x = i+(ORBITAL_XZ+spin*mp_.numberOfOrbitals)*volume;
+					size_t y = i+(ORBITAL_YZ+spin*mp_.numberOfOrbitals)*volume;
 					ti(i,DIRECTION_X) += (-0.5)*(
 							greenFunction(x,y) + greenFunction(y,x));
 					ti(i,DIRECTION_Y) -= sqrtOfMinus1*0.5*(

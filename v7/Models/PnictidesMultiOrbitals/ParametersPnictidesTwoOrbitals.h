@@ -88,6 +88,8 @@ namespace Spf {
 	struct ParametersPnictidesTwoOrbitals {
 		typedef typename ParametersEngineType::FieldType RealType;
 
+		static size_t const numberOfOrbitals = 2;
+
 		ParametersPnictidesTwoOrbitals(
 				IoInType& io,
 				const ParametersEngineType& engineParams)

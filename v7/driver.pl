@@ -1,14 +1,28 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $model = "PnictidesTwoOrbitals";
+my $model = "PnictidesMultiOrbitals";
 print "What model do you want to compile?\n";
-print "Available: DmsMultiOrbital  PhononsTwoOrbitals  PnictidesTwoOrbitals\n";
-print "Default is: PnictidesTwoOrbitals (press ENTER): ";
+print "Available: DmsMultiOrbital  PhononsTwoOrbitals  PnictidesMultiOrbitals\n";
+print "Default is: PnictidesMultiOrbitals (press ENTER): ";
 $_=<STDIN>;
 s/ //g;
 chomp;
 $model = $_ unless ($_ eq "");
+
+my $modelFile = $model;
+if ($model eq "PnictidesMultiOrbitals") {
+	$modelFile = "PnictidesTwoOrbitals";
+	print "How many orbitals?\n";
+	print "Available: 2 or 3\n";
+	print "Default is: 2 (press ENTER): ";
+	$_=<STDIN>;
+	s/ //g;
+	chomp;
+	$modelFile=~s/Two/$_/ unless($_ eq "");
+	$modelFile=~s/2/Two/;
+	$modelFile=~s/3/Three/;
+}
 
 my $geometry = "Square";
 print "What geometry do you want to use?\n";
@@ -68,7 +82,7 @@ print FOUT<<EOF;
 #include "ParametersEngine.h"
 #include "Engine.h"
 #include "ConcurrencySerial.h"
-#include "Parameters$model.h"
+#include "Parameters$modelFile.h"
 #include "$model.h"
 #include "Geometry$geometry.h"
 #include "Random48.h"
@@ -80,7 +94,7 @@ typedef PsimagLite::IoSimple::In IoInType;
 typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
 typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
-typedef Spf::Parameters$model<ParametersEngineType,IoInType> ParametersModelType;
+typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModelType;
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;

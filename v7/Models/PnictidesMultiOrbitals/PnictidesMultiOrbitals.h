@@ -2,14 +2,14 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file PnictidesTwoOrbitals.h
+/*! \file PnictidesMultiOrbitals
  *
- *  PnictidesTwoOrbitals model
+ *  PnictidesMultiOrbitals model
  *
  */
-#ifndef PNICTIDES_2ORB_H
-#define PNICTIDES_2ORB_H
-#include "PnictidesTwoOrbitalsFields.h"
+#ifndef PNICTIDES_MULTI_ORBS_H
+#define PNICTIDES_MULTI_ORBS_H
+#include "PnictidesMultiOrbitalsFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
@@ -18,8 +18,11 @@
 #include "ObservablesStored.h"
 
 namespace Spf {
-	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
-	class PnictidesTwoOrbitals : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
+	template<
+		typename EngineParamsType,
+		typename ParametersModelType_,
+		typename GeometryType>
+	class PnictidesMultiOrbitals : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
 		
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
@@ -28,9 +31,6 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef PnictidesTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
-		
-		
 
 		public:
 		typedef ParametersModelType_ ParametersModelType;
@@ -39,17 +39,16 @@ namespace Spf {
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
 				ParametersModelType> ObservablesStoredType;
-		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		
-		PnictidesTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
+		PnictidesMultiOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(2*ORBITALS*geometry.volume()),
+				      hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
-					observablesStored_(spinOperations_,geometry,mp_,2*ORBITALS)
+					observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 		}
 		
@@ -116,7 +115,7 @@ namespace Spf {
 			progress_.printline(s,fout);
 
 			std::vector<ComplexType> electronSpinVector(3,0);
-			greenFunction.electronSpin(electronSpinVector,ORBITALS,dynVars.size);
+			greenFunction.electronSpin(electronSpinVector,mp_.numberOfOrbitals,dynVars.size);
 			std::vector<ComplexType> combinedVector(3,0);
 			combinedVector =  electronSpinVector + magVector;
 			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
@@ -169,14 +168,14 @@ namespace Spf {
 		
 		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
-				const PnictidesTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+				const PnictidesMultiOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
 		
 		private:
 		
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
-			size_t norb = ORBITALS;
+			size_t norb = mp_.numberOfOrbitals;
 			size_t dof = norb * 2; // the 2 comes because of the spin
 			std::vector<ComplexType> jmatrix(2*2);
 			
@@ -283,10 +282,10 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		SpinOperationsType spinOperations_;
 		ObservablesStoredType observablesStored_;
-	}; // PnictidesTwoOrbitals
+	}; // PnictidesMultiOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
+	std::ostream& operator<<(std::ostream& os,const PnictidesMultiOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;
@@ -295,4 +294,4 @@ namespace Spf {
 } // namespace Spf
 
 /*@}*/
-#endif // PNICTIDES_2ORB_H
+#endif // PNICTIDES_MULTI_ORBS_H
