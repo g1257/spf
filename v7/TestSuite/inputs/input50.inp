@@ -1,0 +1,39 @@
+EngineOptions=none
+Version=SPFv7
+OutputFilename=output50
+Carriers=128 
+ChemicalPotential=-0.5 
+Beta=10
+MonteCarloThermalizations=0
+MonteCarloEffectiveIteractions=1
+MonteCarloUnmeasuredPlusOne=1
+MonteCarloWindows 2 0.5 0.5
+MonteCarloStartTypeOrFile=none 
+MonteCarloStartLevel=0
+HistogramSteps=1000
+BoundaryConditions=periodic
+RandomSeed=3043091
+LatticeLength=8
+Hoppings
+36
+0.06 0 0
+0 0.02 0
+0 0 -0.2
+0.02 0 0
+0 0.06 0
+0 0 -0.2
+0.03 0.01 0
+0.01 0.03 0
+0 0 0.3
+0.03 -0.01 0
+-0.01 0.03 0
+0 0 0.3
+HoppingT7=-0.2
+HoppingT8=-0.1
+DeltaXY=0.4
+CouplingJ=0.0
+PotentialV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+JAFNN=0.0
+JAFNNN=0.0
+MagneticField=0.0
+#EOF
