@@ -34,11 +34,13 @@ namespace Spf {
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 
 		public:
+
 		typedef ParametersModelType_ ParametersModelType;
+		static const size_t norb_ = ParametersModelType::numberOfOrbitals;
 		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ThreeOrbitalTerms<MatrixType,ParametersModelType,
+		typedef ThreeOrbitalTerms<norb_,MatrixType,ParametersModelType,
 				GeometryType> ThreeOrbitalTermsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
 				ParametersModelType> ObservablesStoredType;
@@ -195,8 +197,8 @@ namespace Spf {
 				for (size_t gamma1=0;gamma1<dof;gamma1++) {		
 					
 		
-					size_t spin1 = size_t(gamma1/2);
-					size_t orb1 = gamma1 % 2;
+					size_t spin1 = size_t(gamma1/norb);
+					size_t orb1 = gamma1 % norb;
 					//! Term B (n_iup - n_idown)
 					FieldType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
 					matrix(p+gamma1*volume,p+gamma1*volume) =
@@ -237,7 +239,6 @@ namespace Spf {
 					}
 				}
 			}
-			if (mp_.numberOfOrbitals==2) return;
 			threeOrbitalTerms_(matrix);
 		}
 

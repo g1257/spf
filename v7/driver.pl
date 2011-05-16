@@ -54,12 +54,20 @@ CXX = g++ -Werror -Wall -O3 -pg
 
 all: \$(EXENAME)
 
-\$(EXENAME): clean main.o 
-	\$(CXX) -o \$(EXENAME) main.o \$(LDFLAGS) 
+\$(EXENAME):  main.o
+	\$(CXX) -o \$(EXENAME) main.o \$(LDFLAGS)  
+
+# dependencies brought about by Makefile.dep
+main.o:
+	\$(CXX) \$(CPPFLAGS) -c main.cpp
+
+Makefile.dep: main.cpp
+	\$(CXX) \$(CPPFLAGS) -MM main.cpp  > Makefile.dep
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt
 
+include Makefile.dep
 ######## End of $thisFile ########
 
 EOF

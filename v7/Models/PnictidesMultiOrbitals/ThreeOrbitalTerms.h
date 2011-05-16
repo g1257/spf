@@ -18,9 +18,19 @@
 #include "Vector.h"
 
 namespace Spf {
-	template<typename MatrixType,typename ParametersModelType,
+	template<int norb_,typename MatrixType,typename ParametersModelType,
 	typename GeometryType>
 	class ThreeOrbitalTerms {
+	public:
+		ThreeOrbitalTerms(
+			const ParametersModelType& mp,
+			const GeometryType& geometry) {}
+		void operator()(MatrixType& ham) const { }
+	}; // class ThreeOrbitalTerms
+
+	template<typename MatrixType,typename ParametersModelType,
+		typename GeometryType>
+	class ThreeOrbitalTerms<3,MatrixType,ParametersModelType,GeometryType> {
 		static const size_t SPINS = 2; // 2 spins
 		typedef typename MatrixType::value_type FieldType;
 		enum {
