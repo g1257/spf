@@ -15,6 +15,7 @@
 #include "Adjustments.h"
 #include "SpinOperations.h"
 #include "ModelBase.h"
+#include "ThreeOrbitalTerms.h"
 #include "ObservablesStored.h"
 
 namespace Spf {
@@ -37,17 +38,23 @@ namespace Spf {
 		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
+		typedef ThreeOrbitalTerms<MatrixType,ParametersModelType,
+				GeometryType> ThreeOrbitalTermsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
 				ParametersModelType> ObservablesStoredType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		
-		PnictidesMultiOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
+		PnictidesMultiOrbitals(
+				const EngineParamsType& engineParams,
+				const ParametersModelType& mp,
+				const GeometryType& geometry) :
 			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
 				      hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
 				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 					spinOperations_(geometry,engineParams.mcWindow),
+					threeOrbitalTerms_(mp,geometry),
 					observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 		}
@@ -133,7 +140,7 @@ namespace Spf {
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
 		
-		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
@@ -230,6 +237,8 @@ namespace Spf {
 					}
 				}
 			}
+			if (mp_.numberOfOrbitals==2) return;
+			threeOrbitalTerms_(matrix);
 		}
 
 		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
@@ -281,7 +290,9 @@ namespace Spf {
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		SpinOperationsType spinOperations_;
+		ThreeOrbitalTermsType threeOrbitalTerms_;
 		ObservablesStoredType observablesStored_;
+
 	}; // PnictidesMultiOrbitals
 
 	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>

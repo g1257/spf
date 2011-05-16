@@ -34,6 +34,17 @@ namespace Spf {
 		{
 			return neighbors_[distance-1](i,j);
 		}
+
+		PairType getNeighbour(size_t i,size_t dir) const
+		{
+			size_t j = dir*2;
+			size_t distance = 1;
+			if (j>=4) {
+				distance++;
+				j -= 4;
+			}
+			return neighbors_[distance-1](i,j);
+		}	
 		
 		size_t volume() const { return volume_; }
 		

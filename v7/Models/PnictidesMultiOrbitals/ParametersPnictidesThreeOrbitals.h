@@ -74,28 +74,31 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file ParametersPnictidesTwoOrbitals.h
+/*! \file ParametersPnictidesThreeOrbitals.h
  *
- *  Contains the parameters for thePnictidesTwoOrbitals model
+ *  Contains the parameters for the PnictidesThreeOrbitals model
  *
  */
-#ifndef PARAMETERSPNICTIDESTWOORBITALS_H
-#define PARAMETERSPNICTIDESTWOORBITALS_H
+#ifndef PARAMETERSPNICTIDES3ORBITALS_H
+#define PARAMETERSPNICTIDES3ORBITALS_H
 
 namespace Spf {
 	//!Model Parameters, please don't add member functions, this is a struct
 	template<typename ParametersEngineType,typename IoInType>
-	struct ParametersPnictidesTwoOrbitals {
+	struct ParametersPnictidesThreeOrbitals {
 		typedef typename ParametersEngineType::FieldType RealType;
 
-		static size_t const numberOfOrbitals = 2;
+		static size_t const numberOfOrbitals = 3;
 
-		ParametersPnictidesTwoOrbitals(
+		ParametersPnictidesThreeOrbitals(
 				IoInType& io,
 				const ParametersEngineType& engineParams)
 		{
 			io.read(hoppings,"Hoppings");
-
+			// add here deltax_y and t7 and t8
+			io.readline(t7,"HoppingT7=");
+			io.readline(t8,"HoppingT8=");
+			io.readline(deltaXY,"DeltaXY=");
 			io.readline(J,"CouplingJ=");
 			io.read(potentialV,"PotentialV");
 			io.readline(jafNn,"JAFNN=");
@@ -122,6 +125,10 @@ namespace Spf {
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		std::vector<RealType> hoppings;
+		// additional Hamiltonian params:
+		RealType t7,t8;
+		RealType deltaXY;
+
 		// J value
 		RealType J;
 		// Onsite potential values, one for each site
@@ -141,15 +148,13 @@ namespace Spf {
 
 		// moduli of the classical spins (either 0 or 1)
 		std::vector<size_t> modulus;
-	};
-
-
+	}; //struct ParametersPnictidesThreeOrbitals
 	
 	//! Function that prints model parameters to stream os
 	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(
 		std::ostream &os,
-		const ParametersPnictidesTwoOrbitals<ParametersEngineType,IoInType>& parameters)
+		const ParametersPnictidesThreeOrbitals<ParametersEngineType,IoInType>& parameters)
 	{
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
@@ -169,4 +174,4 @@ namespace Spf {
 } // namespace Spf
 
 /*@}*/
-#endif
+#endif // PARAMETERSPNICTIDES3ORBITALS_H
