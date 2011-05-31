@@ -301,3 +301,4 @@ namespace Spf {
 
 /*@}*/
 #endif // OBSERVABLES_STORED_H
+

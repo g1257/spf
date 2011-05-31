@@ -49,38 +49,24 @@ namespace Spf {
 		void operator()(MatrixType& ham) const
 		{
 			/*--------- hoppings t7 ~ t8 ------------*/
-			//std::cout<<"t7 "<<t7<<std::endl;
-			//std::cout<<"t8 "<<t8<<std::endl;
 			size_t volume = geometry_.volume();
 			for (size_t ispin=0;ispin<SPINS;ispin++)
 				for (size_t isite = 0; isite <volume; isite++) {
-					//FieldType t7=hoppings_[2];
-					//FieldType t8=hoppings_[20];
-					//fout_<<"Ham "<<ispin<<" "<<isite<<std::endl;
-					//fout_<<ham; //printHam(fout_);
+
 					// xz -> xy, +x
 					size_t iorb=0;
 					size_t iorb2=2;
 					size_t ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-//					size_t isite2=geometry_.getNeighbour(isite,0);
 					size_t isite2=geometry_.getNeighbour(isite,DIR_X).first;
 					size_t iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					FieldType hopping = signHop(isite)*mp_.t7;
-					//std::cout<<"hopping "<<hopping<<std::endl;
-					//std::cout<<"Old_ham("<<ix<<","<<iy<<") "<<ham(ix,iy)<<std::endl;
-					//std::cout<<"Old_ham("<<iy<<","<<ix<<") "<<ham(iy,ix)<<std::endl;
 					updateHamiltonian(ham,ix,iy,hopping);
-
-					//std::cout<<"New_ham("<<ix<<","<<iy<<") "<<ham(ix,iy)<<std::endl;
-					//std::cout<<"New_ham("<<iy<<","<<ix<<") "<<ham(iy,ix)<<std::endl;
 
 					// xy -> xz, +x
 					iorb=2; iorb2=0;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_X).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -89,19 +75,14 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_Y).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
-
-					//std::cout<<"Old_ham("<<ix<<","<<iy<<") "<<ham(ix,iy)<<std::endl;
-					//std::cout<<"Old_ham("<<iy<<","<<ix<<") "<<ham(iy,ix)<<std::endl;
 
 					// xy -> yz, +y
 					iorb=2; iorb2=1;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_Y).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -110,7 +91,6 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*mp_.t8;
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -119,7 +99,6 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*(-mp_.t8);
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -128,8 +107,7 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
-					hopping = signHop(isite)*mp_.t8;
+					hopping = signHop(isite)*(-mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
 
 					// xy -> xz, +x-y
@@ -137,8 +115,7 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
-					hopping = signHop(isite)*(-mp_.t8);
+					hopping = signHop(isite)*(mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
 
 					// yz -> xy, +x+y
@@ -146,7 +123,6 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*mp_.t8;
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -155,7 +131,6 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					//---signHop: sign of t_7 and t_8 (3-orbital Model)---//
 					hopping = signHop(isite)*(-mp_.t8);
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -164,8 +139,7 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					 //---signHop: sign of t_7 and t_8 (3-orbital Model)---//
-					hopping = signHop(isite)*(-mp_.t8);
+					hopping = signHop(isite)*(mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
 
 					// xy -> yz, +x-y
@@ -173,10 +147,7 @@ namespace Spf {
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
-					 //---signHop: sign of t_7 and t_8 (3-orbital Model)---//
-					hopping = signHop(isite)*mp_.t8;
-					//std::cout<<"isite: "<<isite<<" isite2: ";
-					//std::cout<<isite2<<" sign: "<<hopping<<std::endl;
+					hopping = signHop(isite)*(-mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
 				}
 
@@ -200,11 +171,23 @@ namespace Spf {
 			ham(iy,ix) += conj(hopping);
 		}
 
+		inline int signHop(size_t i_site) const
+		{
+			/*------------- sign of t_7 and t_8 ------------*/
+			std::vector<int> coor_site(2);
+			geometry_.index2Coor(coor_site,i_site);
+			int iSign = coor_site[0] + coor_site[1];
+			return (iSign & 1) ? -1 : 1;
+//			int sign=1;
+//			for(int pos_sign=0;pos_sign<iSign;pos_sign++) sign *= -1;
+//			return sign;
+		}
+/*
 		int signHop(size_t isite) const
 		{
 			return (isite & 1) ? -1 : 1;
 		}
-
+*/
 		const ParametersModelType& mp_;
 		const GeometryType& geometry_;
 

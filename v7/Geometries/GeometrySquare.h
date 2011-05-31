@@ -13,7 +13,7 @@
 namespace Spf {
 	template<typename FieldType_>
 	class GeometrySquare {
-		public:
+	public:
 		//typedef FieldType_ FieldType;
 		enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3};
 		
@@ -66,7 +66,14 @@ namespace Spf {
 		
 		std::string name() const { return "square"; }
 
-		private:
+		void index2Coor(std::vector<int> &v,size_t i) const
+		{
+			size_t lx = l_;
+			v[0] = i%lx;
+			v[1] = size_t(i/lx);
+		}
+		
+	private:
 		
 		void buildNeighbors()
 		{
@@ -171,12 +178,6 @@ namespace Spf {
 			return x+y*lx; //+z*L*L;
 		}
 
-		void index2Coor(std::vector<int> &v,size_t i) const
-		{
-			size_t lx = l_;
-			v[0] = i%lx;
-			v[1] = size_t(i/lx);
-		}
 		size_t l_;
 		size_t volume_;
 		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
