@@ -175,7 +175,7 @@ namespace Spf {
 		{
 			/*------------- sign of t_7 and t_8 ------------*/
 			std::vector<int> coor_site(2);
-			geometry_.index2Coor(coor_site,i_site);
+			geometry_.indexToCoor(coor_site,i_site);
 			int iSign = coor_site[0] + coor_site[1];
 			return (iSign & 1) ? -1 : 1;
 //			int sign=1;

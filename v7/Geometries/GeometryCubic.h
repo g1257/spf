@@ -41,8 +41,8 @@ namespace Spf {
 		size_t add(size_t ind,size_t ind2) const
 		{
 			std::vector<int> x(2),y(2);
-			index2Coor(x,ind);
-			index2Coor(y,ind2);
+			indexToCoor(x,ind);
+			indexToCoor(y,ind2);
 			for (size_t i=0;i<x.size();i++) {
 				x[i] += y[i];
 				g_pbc(x[i],l_);
@@ -54,7 +54,7 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
-		void index2Coor(std::vector<size_t> &v,size_t i) const
+		void indexToCoor(std::vector<size_t> &v,size_t i) const
 		{
 			size_t lx = l_, ly = l_;
 			v[2] = i/(lx*ly);
@@ -97,7 +97,7 @@ namespace Spf {
 			PsimagLite::Matrix<PairType> matrix(volume_,2*DIMENSION);
 			for (size_t i=0;i<volume_;i++) {
 				std::vector<size_t> v(DIMENSION);
-				index2Coor(v,i);
+				indexToCoor(v,i);
 				size_t x = v[0], y=v[1], z=v[2];
 
 				int zz = z;

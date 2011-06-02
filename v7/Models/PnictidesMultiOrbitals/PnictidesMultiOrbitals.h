@@ -138,7 +138,7 @@ namespace Spf {
 
 			PsimagLite::Matrix<FieldType> v
 				(greenFunction.hilbertSize(),greenFunction.hilbertSize());
-			calcVelocitySquared(v);
+			calcVelocitySquared(greenFunction,v);
 			typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
 			ConductanceType conductance(engineParams_,greenFunction);
 			s = "Conductance=" + ttos(conductance(v));
@@ -292,9 +292,45 @@ namespace Spf {
 			return sum;
 		}
 
-		void calcVelocitySquared(PsimagLite::Matrix<FieldType>& v) const
+		//! Assuming a constant hopping for all spin and orbitals
+		//! FIXME: Replace with actual velocity for this model
+		template<typename GreenFunctionType>
+		void calcVelocitySquared(const GreenFunctionType& gf,
+				PsimagLite::Matrix<FieldType>& v) const
 		{
+			size_t ly = geometry_.length();
+			size_t norb = mp_.numberOfOrbitals;
+			size_t volume = geometry_.volume();
+			size_t dof = 2 * norb; // 2 is for the spin
 
+			for (size_t a=0;a<v.n_row();a++) {
+				for (size_t b=0;b<v.n_col();b++) {
+					ComplexType sum = 0;
+					for (size_t y=0;y<ly;y++) {
+						for (size_t gamma=0;gamma<dof;gamma++) {
+							size_t i = geometry_.coorToIndex(0,y); // x=0;
+							size_t j = geometry_.coorToIndex(1,y); // x=1;
+							i += gamma*volume; // add spin and orb.
+							j += gamma*volume; // add spin and orb.
+							sum += velocity(gf,i,j,a,b);
+						}
+					}
+					v(a,b) = std::real(std::conj(sum)*sum);
+				}
+			}
+		}
+
+		//! Assuming a constant hopping for all spin and orbitals
+		//! FIXME: Replace with actual velocity for this model
+		template<typename GreenFunctionType>
+		ComplexType velocity(const GreenFunctionType& gf,
+				size_t i,
+				size_t j,
+				size_t a,
+				size_t b) const
+		{
+			return std::conj(gf.matrix(i,a)) * gf.matrix(j,b) -
+					std::conj(gf.matrix(j,a)) * gf.matrix(i,a);
 		}
 
 		const EngineParamsType& engineParams_;

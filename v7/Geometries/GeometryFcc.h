@@ -54,12 +54,12 @@ namespace Spf {
 			size_t b1 = ind/volume_;
 			size_t indr = ind % volume_;
 			std::vector<size_t> rvector(3);
-			cube_.index2Coor(rvector,indr);
+			cube_.indexToCoor(rvector,indr);
 
 			size_t b2 = ind2/volume_;
 			size_t ind2r = ind2 % volume_;
 			std::vector<size_t> r2vector(3);
-			cube_.index2Coor(r2vector,ind2r);
+			cube_.indexToCoor(r2vector,ind2r);
 
 			// sum these two and obtain rsumvector bsumvector
 			std::vector<RealType> rsumvector(3),bsumvector(3);
@@ -191,7 +191,7 @@ namespace Spf {
 			size_t b = site/cube_.volume();
 			size_t i = site % cube_.volume();
 			std::vector<size_t> rcube(DIMENSION);
-			cube_.index2Coor(rcube,i);
+			cube_.indexToCoor(rcube,i);
 			r = basisVector_[b] + rcube;
 		}
 

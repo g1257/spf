@@ -51,8 +51,8 @@ namespace Spf {
 		size_t add(size_t ind,size_t ind2) const
 		{
 			std::vector<int> x(2),y(2);
-			index2Coor(x,ind);
-			index2Coor(y,ind2);
+			indexToCoor(x,ind);
+			indexToCoor(y,ind2);
 			for (size_t i=0;i<x.size();i++) {
 				x[i] += y[i];
 				g_pbc(x[i],l_);
@@ -66,13 +66,19 @@ namespace Spf {
 		
 		std::string name() const { return "square"; }
 
-		void index2Coor(std::vector<int> &v,size_t i) const
+		void indexToCoor(std::vector<int> &v,size_t i) const
 		{
 			size_t lx = l_;
 			v[0] = i%lx;
 			v[1] = size_t(i/lx);
 		}
 		
+		size_t coorToIndex(size_t x,size_t y) const
+		{
+			size_t lx = l_;
+			return x + y*lx;
+		}
+
 	private:
 		
 		void buildNeighbors()
