@@ -15,17 +15,18 @@
 namespace Spf {
 	template<typename EngineParametersType,typename AlgorithmType>
 	class GreenFunction {
+
+	public:
 		typedef typename AlgorithmType::FieldType FieldType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
-	public:	
-		
+
 		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,size_t hilbertSize) :
 			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize),data_(hilbertSize,hilbertSize)
 		{
 			algorithm_.prepare();
 			size_t n = hilbertSize_;
 			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
-				data_(i,j) = algorithm_.greenFunction(i,j);
+				data_(i,j) = greenFunction(i,j);
 		}
 		
 		ComplexType operator()(size_t lambda1,size_t lambda2)
@@ -100,16 +101,29 @@ namespace Spf {
 		{
 			return algorithm_.matrix(lambda1,lambda2);
 		}
-		
+
 		const FieldType& e(size_t i) const
 		{
 			return algorithm_.e(i);
 		}
-		
+
 		size_t hilbertSize() const { return algorithm_.hilbertSize(); }
 
 	private:
 		
+		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
+		{
+			ComplexType sum = 0;
+			FieldType beta = engineParams_.beta;
+			FieldType mu = engineParams_.mu;
+
+			for (size_t lambda=0;lambda<hilbertSize_;lambda++)
+				sum += std::conj(algorithm_.matrix(lambda1,lambda)) *
+					algorithm_.matrix(lambda2,lambda) *
+				PsimagLite::fermi(-beta*(algorithm_.e(lambda)-mu));
+			return sum;
+		}
+
 		void checkUs() const
 		{
 			for (size_t i=0;i<hilbertSize_;i++) {

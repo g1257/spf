@@ -17,6 +17,7 @@
 #include "ModelBase.h"
 #include "ThreeOrbitalTerms.h"
 #include "ObservablesStored.h"
+#include "Conductance.h"
 
 namespace Spf {
 	template<
@@ -134,6 +135,14 @@ namespace Spf {
 				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
 				progress_.printline(s,fout);
 			}
+
+			PsimagLite::Matrix<FieldType> v
+				(greenFunction.hilbertSize(),greenFunction.hilbertSize());
+			calcVelocitySquared(v);
+			typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
+			ConductanceType conductance(engineParams_,greenFunction);
+			s = "Conductance=" + ttos(conductance(v));
+			progress_.printline(s,fout);
 
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+ttos(temp);
@@ -281,6 +290,11 @@ namespace Spf {
 // 				sum += tmp2 * fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
 // 			}
 			return sum;
+		}
+
+		void calcVelocitySquared(PsimagLite::Matrix<FieldType>& v) const
+		{
+
 		}
 
 		const EngineParamsType& engineParams_;

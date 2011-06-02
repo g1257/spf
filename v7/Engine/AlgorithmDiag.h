@@ -64,20 +64,6 @@ namespace Spf {
 			eigOld_ = eigNew_;
 		}
 
-		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
-		{
-			ComplexType sum = 0;
-			FieldType beta = engineParams_.beta;
-			FieldType mu = engineParams_.mu;
-			
-			for (size_t lambda=0;lambda<hilbertSize_;lambda++) 
-				sum += std::conj(matrixNew_(lambda1,lambda)) *
-					matrixNew_(lambda2,lambda) *
-						PsimagLite::fermi(-beta*(eigNew_[lambda]-mu));
-			return sum;
-		}
-
-
 		void prepare()
 		{
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
