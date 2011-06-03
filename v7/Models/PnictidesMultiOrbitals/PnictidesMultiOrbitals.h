@@ -301,18 +301,25 @@ namespace Spf {
 			size_t ly = geometry_.length();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t volume = geometry_.volume();
-			size_t dof = 2 * norb; // 2 is for the spin
 
 			for (size_t a=0;a<v.n_row();a++) {
 				for (size_t b=0;b<v.n_col();b++) {
 					ComplexType sum = 0;
 					for (size_t y=0;y<ly;y++) {
-						for (size_t gamma=0;gamma<dof;gamma++) {
-							size_t i = geometry_.coorToIndex(0,y); // x=0;
-							size_t j = geometry_.coorToIndex(1,y); // x=1;
-							i += gamma*volume; // add spin and orb.
-							j += gamma*volume; // add spin and orb.
-							sum += velocity(gf,i,j,a,b);
+						for (size_t spin=0;spin<2;spin++) {
+							for (size_t orb1=0;orb1<norb;orb1++) {
+								size_t gamma1 = orb1 + spin*norb;
+								for (size_t orb2=0;orb2<norb;orb2++) {
+									size_t i = geometry_.coorToIndex(0,y); // x=0;
+									size_t j = geometry_.coorToIndex(1,y); // x=1;
+									size_t gamma2 = orb2 + spin*norb;
+									i += gamma1*volume; // add spin and orb.
+									j += gamma2*volume; // add spin and orb.
+									size_t dir = GeometryType::DIRX;
+									sum += velocity(gf,i,j,a,b)*
+										mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
+								}
+							}
 						}
 					}
 					v(a,b) = std::real(std::conj(sum)*sum);
