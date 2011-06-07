@@ -109,13 +109,9 @@ namespace Spf {
 				temp += temp2;
 			}
 
-			// total energy = electronic energy + superexchange + phonon energy
+			//! total energy = electronic energy + superexchange + phonon energy
 			s="TotalEnergy="+ttos(temp);
 			progress_.printline(s,fout);
-				
-			//s="Action=";
-			
-			//s="Number_Of_Holes=";
 			
 			adjustments_.print(fout);
 			
@@ -135,18 +131,16 @@ namespace Spf {
 				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
 				progress_.printline(s,fout);
 			}
-
-			PsimagLite::Matrix<FieldType> v
-				(greenFunction.hilbertSize(),greenFunction.hilbertSize());
-			calcVelocitySquared(greenFunction,v);
-			typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
-			ConductanceType conductance(engineParams_,greenFunction);
-			s = "Conductance=" + ttos(conductance(v));
-			progress_.printline(s,fout);
-
-// 			temp=calcKinetic(dynVars_,eigs);
-// 			s ="KineticEnergy="+ttos(temp);
-// 			progress_.printline(s,fout);
+			
+			if (engineParams_.options.find("conductance")!=std::string::npos) {
+				PsimagLite::Matrix<FieldType> v
+					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
+				calcVelocitySquared(greenFunction,v);
+				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
+				ConductanceType conductance(engineParams_,greenFunction);
+				s = "Conductance=" + ttos(conductance(v));
+				progress_.printline(s,fout);
+			}
 			
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
@@ -301,30 +295,33 @@ namespace Spf {
 			size_t ly = geometry_.length();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t volume = geometry_.volume();
-
-			for (size_t a=0;a<v.n_row();a++) {
-				for (size_t b=0;b<v.n_col();b++) {
-					ComplexType sum = 0;
-					for (size_t y=0;y<ly;y++) {
-						for (size_t spin=0;spin<2;spin++) {
-							for (size_t orb1=0;orb1<norb;orb1++) {
-								size_t gamma1 = orb1 + spin*norb;
-								for (size_t orb2=0;orb2<norb;orb2++) {
-									size_t i = geometry_.coorToIndex(0,y); // x=0;
-									size_t j = geometry_.coorToIndex(1,y); // x=1;
-									size_t gamma2 = orb2 + spin*norb;
-									i += gamma1*volume; // add spin and orb.
-									j += gamma2*volume; // add spin and orb.
-									size_t dir = GeometryType::DIRX;
-									sum += velocity(gf,i,j,a,b)*
-										mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
+			size_t offset = norb*norb*GeometryType::DIRX;
+			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
+			
+			for (size_t y=0;y<ly;y++) {
+				for (size_t spin=0;spin<2;spin++) {
+					for (size_t orb1=0;orb1<norb;orb1++) {
+						size_t gamma1 = orb1 + spin*norb;
+						size_t i = geometry_.coorToIndex(0,y) + gamma1*volume; // x=0;
+						for (size_t orb2=0;orb2<norb;orb2++) {
+							size_t gamma2 = orb2 + spin*norb;
+							size_t j = geometry_.coorToIndex(1,y) + gamma2*volume; // x=1;
+							
+							size_t h = orb1+orb2*norb+offset;
+							for (size_t a=0;a<v.n_row();a++) {
+								for (size_t b=0;b<v.n_col();b++) {
+									ComplexType sum = velocity(gf,i,j,a,b)*
+									mp_.hoppings[h];
+									w(a,b) += sum;
 								}
 							}
 						}
 					}
-					v(a,b) = std::real(std::conj(sum)*sum);
 				}
 			}
+			for (size_t a=0;a<v.n_row();a++) for (size_t b=0;b<v.n_col();b++) 
+				v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
+			
 		}
 
 		//! Assuming a constant hopping for all spin and orbitals

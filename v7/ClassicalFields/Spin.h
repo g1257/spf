@@ -10,6 +10,7 @@
 #ifndef SPIN_H
 #define SPIN_H
 #include "IoSimple.h"
+#include "Random48.h"
 
 namespace Spf {
 	template<typename FieldType_>
@@ -21,6 +22,15 @@ namespace Spf {
 				size(vol),theta(vol),phi(vol),isFrozen(freeze),isVoid(makeVoid)
 		{
 			if (mcstarttype=="none") return;
+			if (mcstarttype=="random") {
+				PsimagLite::Random48<FieldType> random48;
+				random48.seed(3049901);
+				for (size_t i=0;i<theta.size();i++) {
+					theta[i] = random48.random()*M_PI;
+					phi[i] = random48.random()*2.*M_PI;
+				}
+				return;
+			}
 			IoSimpleIn ioin(mcstarttype);
 			(*this)<=ioin;
 			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
