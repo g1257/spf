@@ -135,10 +135,15 @@ namespace Spf {
 			if (engineParams_.options.find("conductance")!=std::string::npos) {
 				PsimagLite::Matrix<FieldType> v
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
-				calcVelocitySquared(greenFunction,v);
+				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
 				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
-				ConductanceType conductance(engineParams_,greenFunction);
-				s = "Conductance=" + ttos(conductance(v));
+				ConductanceType conductancex(engineParams_,greenFunction);
+				s = "ConductanceX=" + ttos(conductancex(v));
+				progress_.printline(s,fout);
+
+				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
+				ConductanceType conductancey(engineParams_,greenFunction);
+				s = "ConductanceY=" + ttos(conductancey(v));
 				progress_.printline(s,fout);
 			}
 			
@@ -264,38 +269,15 @@ namespace Spf {
 		
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
 		}
-		
-		FieldType calcKinetic(const DynVarsType& dynVars,
-				      const std::vector<FieldType>& eigs) const
-		{
-			FieldType sum = 0;
-			//const PsimagLite::Matrix<ComplexType>& matrix = matrix_;
-// 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-// 				FieldType tmp2=0.0;
-// 				for (size_t i=0;i<geometry_.volume();i++) {
-// 					for (size_t k=0;k<geometry.z(1);k++) {
-// 						size_t j=geometry.neighbor(i,k).first;
-// 						for (size_t spin=0;spin<2;spin++) {
-// 							ComplexType tmp = conj(matrix(i+spin*ether.linSize,lambda))*matrix(j+spin*ether.linSize,lambda);
-// 							tmp2 += mp_.hoppings[orb1+spin*nbands_+dir*nbands_*nbands_]*real(tmp);
-// 						}
-// 					}
-// 				}
-// 				sum += tmp2 * fermi(engineParams_.beta*(eigs[lambda]-engineParams_.mu));
-// 			}
-			return sum;
-		}
 
-		//! Assuming a constant hopping for all spin and orbitals
-		//! FIXME: Replace with actual velocity for this model
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
-				PsimagLite::Matrix<FieldType>& v) const
+				PsimagLite::Matrix<FieldType>& v,size_t dir) const
 		{
 			size_t ly = geometry_.length();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t volume = geometry_.volume();
-			size_t offset = norb*norb*GeometryType::DIRX;
+			size_t offset = norb*norb*dir;
 			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
 			
 			for (size_t y=0;y<ly;y++) {
@@ -324,8 +306,6 @@ namespace Spf {
 			
 		}
 
-		//! Assuming a constant hopping for all spin and orbitals
-		//! FIXME: Replace with actual velocity for this model
 		template<typename GreenFunctionType>
 		ComplexType velocity(const GreenFunctionType& gf,
 				size_t i,
