@@ -33,7 +33,7 @@ HoppingT8=-0.1
 DeltaXY=0.4
 CouplingJ=0.0
 PotentialV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
-JAFNN=0.0
+JAFNN=0.03
 JAFNNN=0.0
 MagneticField=0.0
 #EOF

@@ -101,7 +101,15 @@ namespace Spf {
 			io.readline(deltaXY,"DeltaXY=");
 			io.readline(J,"CouplingJ=");
 			io.read(potentialV,"PotentialV");
-			io.readline(jafNn,"JAFNN=");
+			try {
+				RealType x = 0;
+				io.readline(x,"JAFNN=");
+				jafNn.resize(2,x);
+			} catch (std::exception& e) {
+				// must rewind because exception consumed file:
+				io.rewind();
+				io.read(jafNn,"JAFNN");
+			}
 			io.readline(jafNnn,"JAFNNN=");
 			io.readline(magneticField,"MagneticField=");
 
@@ -138,7 +146,7 @@ namespace Spf {
 		//int nOfElectrons;
 		
 		// JAF n-n
-		RealType jafNn;
+		std::vector<RealType> jafNn;
 		
 		// JAF n-n-n
 		RealType jafNnn;
