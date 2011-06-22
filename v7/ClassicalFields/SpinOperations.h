@@ -131,7 +131,7 @@ namespace Spf {
 		{
 			size_t z = geometry_.z(1)/2;
 			std::vector<FieldType> coupling1v(z,coupling);
-			calcSuperExchange(dynVars,coupling1v);
+			return calcSuperExchange(dynVars,coupling1v);
 
 		}
 		
