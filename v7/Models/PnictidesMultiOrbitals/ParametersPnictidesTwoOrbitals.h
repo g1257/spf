@@ -98,7 +98,16 @@ namespace Spf {
 
 			io.readline(J,"CouplingJ=");
 			io.read(potentialV,"PotentialV");
-			io.readline(jafNn,"JAFNN=");
+			try {
+				RealType x = 0;
+				io.readline(x,"JAFNN=");
+				jafNn.resize(2,x);
+			} catch (std::exception& e) {
+				// must rewind because exception consumed file:
+				io.rewind();
+				io.read(jafNn,"JAFNN");
+			}
+
 			io.readline(jafNnn,"JAFNNN=");
 			io.readline(magneticField,"MagneticField=");
 
@@ -131,7 +140,7 @@ namespace Spf {
 		//int nOfElectrons;
 		
 		// JAF n-n
-		RealType jafNn;
+		std::vector<RealType> jafNn;
 		
 		// JAF n-n-n
 		RealType jafNnn;
@@ -151,7 +160,7 @@ namespace Spf {
 		std::ostream &os,
 		const ParametersPnictidesTwoOrbitals<ParametersEngineType,IoInType>& parameters)
 	{
-		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
+		os<<"parameters.jafNn="<<parameters.jafNn;
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
 		os<<"parameters.J="<<parameters.J<<"\n";
 		os<<"parameters.magneticField="<<parameters.magneticField<<"\n";

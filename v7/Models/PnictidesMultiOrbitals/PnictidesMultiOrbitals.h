@@ -137,13 +137,12 @@ namespace Spf {
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
 				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
-				ConductanceType conductancex(engineParams_,greenFunction);
-				s = "ConductanceX=" + ttos(conductancex(v));
+				ConductanceType conductance(engineParams_,greenFunction);
+				s = "ConductanceX=" + ttos(conductance(v));
 				progress_.printline(s,fout);
 
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
-				ConductanceType conductancey(engineParams_,greenFunction);
-				s = "ConductanceY=" + ttos(conductancey(v));
+				s = "ConductanceY=" + ttos(conductance(v));
 				progress_.printline(s,fout);
 			}
 			

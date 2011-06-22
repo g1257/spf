@@ -64,12 +64,21 @@ namespace Spf {
 		
 		FieldType deltaDirect(size_t i,FieldType coupling1,FieldType coupling2) const
 		{
-			FieldType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1);
-			sum += directExchange2(dynVars2_,coupling2)
-						-directExchange2(*dynVars_,coupling2);
-			return sum;
+			size_t z = geometry_.z(1)/2;
+			std::vector<FieldType> coupling1v(z,coupling1);
+			return deltaDirect(i,coupling1v,coupling2);
 		}
 		
+		FieldType deltaDirect(size_t i,
+		                       const std::vector<FieldType>& coupling1v,
+		                       FieldType coupling2) const
+		{
+			FieldType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1v);
+			sum += directExchange2(dynVars2_,coupling2)
+										-directExchange2(*dynVars_,coupling2);
+			return sum;
+		}
+
 		FieldType deltaMagneticField(size_t i, const FieldType& B) const
 		{
 			FieldType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
@@ -116,19 +125,32 @@ namespace Spf {
 			
 			return coupling*dS*0.5;
 		}
+		FieldType calcSuperExchange(const DynVarsType& dynVars,
+				                              const FieldType& coupling)
+					const
+		{
+			size_t z = geometry_.z(1)/2;
+			std::vector<FieldType> coupling1v(z,coupling);
+			calcSuperExchange(dynVars,coupling1v);
+
+		}
 		
-		FieldType calcSuperExchange(const DynVarsType& dynVars,FieldType coupling) const
+		FieldType calcSuperExchange(const DynVarsType& dynVars,
+		                              const std::vector<FieldType>& coupling)
+			const
 		{
 			FieldType sum = 0;
 			for (size_t i=0;i<geometry_.volume();i++) {
 				for (size_t k = 0; k<geometry_.z(1); k++){
 					size_t j=geometry_.neighbor(i,k).first;
+					size_t dir=geometry_.neighbor(i,k).second;
+
 					FieldType t1=dynVars.theta[i];
 					FieldType t2=dynVars.theta[j];
 					FieldType p1=dynVars.phi[i];
 					FieldType p2=dynVars.phi[j];
 					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
-					sum += coupling*tmp;
+					sum += coupling[dir]*tmp;
 				}
 			}
 			return sum*0.5;
@@ -246,18 +268,22 @@ namespace Spf {
 			//std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
 		}
 		
-		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,FieldType coupling) const
+		FieldType dSDirect(const DynVarsType& dynVars,
+		                    const DynVarsType& dynVars2,
+		                    size_t i,
+		                    std::vector<FieldType> coupling) const
 		{
 			FieldType dS = 0;
 				
 			for (size_t k = 0; k<geometry_.z(1); k++){
 				size_t j=geometry_.neighbor(i,k).first;
+				size_t dir = geometry_.neighbor(i,k).second;
 				FieldType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
 						(sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					sin(dynVars.phi[i]))*sin(dynVars.theta[j])*sin(dynVars.phi[j]) +
 					(cos(dynVars2.theta[i])-cos(dynVars.theta[i]))*cos(dynVars.theta[j]);
-				dS += coupling*tmp;
+				dS += coupling[dir]*tmp;
 			}
 			//if (ether.isSet("magneticfield")) tmp = Zeeman(dynVars2,geometry,ether)-Zeeman(dynVars,geometry,ether);
 			//else tmp =0;
