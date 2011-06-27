@@ -9,6 +9,10 @@
  */
 #ifndef GEOM_SQUARE_H
 #define GEOM_SQUARE_H
+#include <utility>
+#include <string>
+#include <vector>
+#include "Matrix.h" // in PsimagLite
 
 namespace Spf {
 	template<typename FieldType_>
