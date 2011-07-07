@@ -296,7 +296,7 @@ namespace Spf {
 						for (size_t y2=0;y2<ly;y2++) {
 							for (size_t orb2=0;orb2<norb;orb2++) {
 								size_t gamma2 = orb2 + spin*norb;
-								size_t j = getSiteAtLayer(y,1,dir) +
+								size_t j = getSiteAtLayer(y2,1,dir) +
 								                gamma2*volume; // x=1;
 								size_t dir2 = geometry_.getDirection(i,j);
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
