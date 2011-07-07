@@ -83,6 +83,27 @@ namespace Spf {
 			return x + y*lx;
 		}
 
+		// direction connecting i and j
+		// assume that i and j are n-neighbors or next n-neighbors
+		size_t getDirection(size_t ind,size_t jnd) const
+		{
+			std::vector<int> vi(2),vj(2);
+			indexToCoor(vi,ind);
+			indexToCoor(vj,jnd);
+			for (size_t i=0;i<vi.size();i++) {
+				vi[i] -= vj[i];
+				g_pbc(vi[i],l_);
+			}
+			if (vi[0] == 0) return DIRY;
+			if (vi[1] == 0) return DIRX;
+			if (vi[0] == vi[1]) return DIRXPY;
+			int x = l_ - 1 - vi[0];
+			if (x == vi[1]) return DIRXPY;
+			x = l_ - 1 - vi[1];
+			if (x == vi[0]) return DIRXPY;
+			return DIRXMY;
+		}
+
 	private:
 		
 		void buildNeighbors()

@@ -1,4 +1,4 @@
-EngineOptions=none
+EngineOptions=none,conductance
 Version=SPFv7
 OutputFilename=output50
 Carriers=128 
