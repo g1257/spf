@@ -231,6 +231,8 @@ namespace Spf {
 				FieldType &phiNew,
 				RngType& rng)
 		{
+			if (fabs(mcwindow_[0])<1e-8 && fabs(mcwindow_[1]<1e-8)) return;
+
 			if (isingSpins_) {
 				if (thetaOld==0) thetaNew=M_PI; 
 				else thetaNew=0;

@@ -133,6 +133,7 @@ namespace Spf {
 			}
 			
 			if (engineParams_.options.find("conductance")!=std::string::npos) {
+				//greenFunction.printMatrix(OLDFIELDS);
 				PsimagLite::Matrix<FieldType> v
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
@@ -140,14 +141,39 @@ namespace Spf {
 				ConductanceType conductance(engineParams_,greenFunction);
 				s = "ConductanceX=" + ttos(conductance(v));
 				progress_.printline(s,fout);
-
+				//PsimagLite::Matrix<FieldType> vv = v;
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
 				s = "ConductanceY=" + ttos(conductance(v));
+				//vv -= v;
+				//checkMatrix(vv,greenFunction);
 				progress_.printline(s,fout);
 			}
 			
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
+		
+// 		template<typename GreenFunctionType>
+// 		void checkMatrix(const MatrixType& matrix,GreenFunctionType& gf)
+// 		{
+// 			size_t volume = geometry_.volume();
+// 			size_t norb = mp_.numberOfOrbitals;
+// 			double eps = 1e-16;
+// 			for (size_t i=0;i<matrix.n_row();i++) {
+// 				for (size_t j=0;j<matrix.n_col();j++) {
+// 					if (fabs(gf.e(i) -gf.e(j))<eps && norm(matrix(i,j))>eps) {
+// 						size_t isite  = i % volume;
+// 						size_t tmp = i / volume;
+// 						size_t ispin = tmp/norb;
+// 						size_t iorb = tmp % norb;
+// 						size_t jsite = j % volume;
+// 						tmp = j / volume;
+// 						size_t jspin = tmp /norb;
+// 						size_t jorb = tmp  % norb;
+// 						std::cerr<<isite<<" "<<ispin<<" "<<iorb<<" *** "<<jsite<<" "<<jspin<<" "<<jorb<<" m="<<matrix(i,j)<<"\n";
+// 					}
+// 				}
+// 			}
+// 		}
 		
 		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
@@ -275,7 +301,7 @@ namespace Spf {
 				return geometry_.coorToIndex(layer,xOrY);
 			}
 			// y-dir, layer==0 is y=0, layer==1 is y=1
-			return geometry_.coorToIndex(xOrY,xOrY);
+			return geometry_.coorToIndex(xOrY,layer);
 		}
 
 		template<typename GreenFunctionType>
@@ -302,6 +328,7 @@ namespace Spf {
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
 								FieldType hopping = mp_.hoppings[h];
 								if (fabs(hopping)<1e-8) continue;
+								//std::cerr<<"dir="<<dir<<" isite="<<(i-gamma1*volume)<<" jsite="<<(j-gamma2*volume)<<" dir2="<<dir2<<" h="<<hopping<<"\n";
 								for (size_t a=0;a<v.n_row();a++) {
 									for (size_t b=0;b<v.n_col();b++) {
 										ComplexType sum = velocity(gf,i,j,a,b)*

@@ -108,6 +108,11 @@ namespace Spf {
 		}
 
 		size_t hilbertSize() const { return algorithm_.hilbertSize(); }
+		
+		void printMatrix(size_t mode) const
+		{
+			algorithm_.printMatrix(mode);
+		}
 
 	private:
 		

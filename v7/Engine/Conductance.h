@@ -33,14 +33,15 @@ namespace Spf {
 			FieldType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
-			FieldType eps = 1e-6;
+			FieldType eps = 1e-40;
 			for (size_t a=0;a<gf_.hilbertSize();a++) {
 				FieldType ea = PsimagLite::fermi(beta*(gf_.e(a)-mu));
 				FieldType eMa = PsimagLite::fermi(-beta*(gf_.e(a)-mu));
 				for (size_t b=0;b<gf_.hilbertSize();b++) {
-					FieldType eb = PsimagLite::fermi(beta*(gf_.e(b)-mu));
-					if (fabs(ea-eb)>eps) continue;
-					sum += velocitySquared(a,b)*beta*(1+eMa)*(1+ea);
+					if (fabs(gf_.e(a)-gf_.e(b))>eps) continue;
+					//FieldType eb = PsimagLite::fermi(beta*(gf_.e(b)-mu));
+// 					if (fabs(ea-eb)>eps) continue;
+					sum += velocitySquared(a,b)*beta*eMa*ea;
 				}
 			}
 			return sum;

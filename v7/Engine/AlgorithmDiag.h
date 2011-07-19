@@ -90,6 +90,18 @@ namespace Spf {
 			if (jobz!='V')
 				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
 		}
+		
+		void printMatrix(size_t mode) const
+		{
+			if (mode==ModelType::NEWFIELDS) {
+				std::cerr<<matrixNew_;
+				return;
+			}
+			MatrixType m(matrixNew_.n_row(),matrixNew_.n_col());
+			if (!isHermitian(m)) throw std::runtime_error("Problem\n");
+			model_.createHamiltonian(m,ModelType::OLDFIELDS);
+			std::cerr<<m;
+		}
 
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
