@@ -103,6 +103,10 @@ namespace Spf {
 			if (x == vi[0]) return DIRXPY;
 			return DIRXMY;
 		}
+		
+		template<typename T>
+		friend std::ostream& operator<<(std::ostream& os,
+		                                const GeometrySquare<T>& g);
 
 	private:
 		
@@ -214,6 +218,26 @@ namespace Spf {
 		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
 	};
 	
+	std::ostream& operator<<(std::ostream& os,const std::pair<size_t,size_t>& p)
+	{
+		os<<p.first<<" "<<p.second;
+		return os;
+	}
+
+	template<typename T>
+	std::ostream& operator<<(std::ostream& os,const GeometrySquare<T>& g)
+	{
+		for (size_t i=0;i<g.neighbors_.size();i++) {
+			os<<"#i="<<i<<"\n";
+			for (size_t k=0;k<g.neighbors_[i].n_row();k++) {
+				for (size_t l=0;l<g.neighbors_[i].n_col();l++) {
+					os<<g.neighbors_[i](k,l).first<<" ";
+				}
+				os<<"\n";
+			}
+		}
+		return os;
+	}
 } // namespace Spf
 
 

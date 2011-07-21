@@ -341,11 +341,19 @@ namespace Spf {
 					}
 				}
 			}
-			for (size_t a=0;a<v.n_row();a++) for (size_t b=0;b<v.n_col();b++) 
-				v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
+			
+			for (size_t a=0;a<v.n_row();a++)
+				for (size_t b=0;b<v.n_col();b++)  
+					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
+			
+			FieldType sum = 0;
+			for (size_t a=0;a<v.n_row();a++) sum += v(a,a);
+			
+			std::cerr<<"Trace for dir="<<dir<<" is "<<sum<<"\n";
 			
 		}
 
+		
 		template<typename GreenFunctionType>
 		ComplexType velocity(const GreenFunctionType& gf,
 				size_t i,
@@ -354,7 +362,8 @@ namespace Spf {
 				size_t b) const
 		{
 			return std::conj(gf.matrix(i,a)) * gf.matrix(j,b) -
-					std::conj(gf.matrix(j,a)) * gf.matrix(i,a);
+					std::conj(gf.matrix(j,b)) * gf.matrix(i,a);
+
 		}
 
 		const EngineParamsType& engineParams_;
