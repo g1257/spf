@@ -33,7 +33,7 @@ namespace Spf {
 			FieldType sum = 0;
 			FieldType beta = engineParams_.beta;
 			FieldType mu = engineParams_.mu;
-			FieldType eps = 1e-40;
+			FieldType eps = 0.001;
 			for (size_t a=0;a<gf_.hilbertSize();a++) {
 				FieldType ea = PsimagLite::fermi(beta*(gf_.e(a)-mu));
 				FieldType eMa = PsimagLite::fermi(-beta*(gf_.e(a)-mu));

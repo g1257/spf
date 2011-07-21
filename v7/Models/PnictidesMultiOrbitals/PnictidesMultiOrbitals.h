@@ -362,7 +362,7 @@ namespace Spf {
 				size_t b) const
 		{
 			return std::conj(gf.matrix(i,a)) * gf.matrix(j,b) -
-					std::conj(gf.matrix(j,b)) * gf.matrix(i,a);
+					std::conj(gf.matrix(j,a)) * gf.matrix(i,b);
 
 		}
 
