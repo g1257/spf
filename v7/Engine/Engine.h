@@ -10,6 +10,7 @@
 #ifndef SPF_ENGINE_H
 #define SPF_ENGINE_H
 #include <fstream>
+#include <iostream>
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"
@@ -28,10 +29,12 @@ namespace Spf {
 		
 		public:
 			
-		Engine(ParametersType& params,ModelType& model,AlgorithmType& algorithm,ConcurrencyType& concurrency) 
-			: params_(params),algorithm_(algorithm),model_(model),dynVars_(model.dynVars()),
-				  concurrency_(concurrency),fout_(params_.filename.c_str()),
-				  progress_("Engine",concurrency.rank())
+		Engine(ParametersType& params,ModelType& model,
+		       AlgorithmType& algorithm,
+		       ConcurrencyType& concurrency) 
+		: params_(params),algorithm_(algorithm),model_(model),
+		  dynVars_(model.dynVars()),concurrency_(concurrency),
+		  fout_(params_.filename.c_str()),progress_("Engine",concurrency.rank())
 		{
 			rng_.seed(params_.randomSeed);
 			writeHeader();
@@ -72,7 +75,9 @@ namespace Spf {
 		void measure()
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
-			for (size_t iter=0;iter<params_.iterEffective;iter++) {
+			size_t iter=0;
+			while(concurrency_.loop(iter)) {
+			//for (size_t iter=0;iter<params_.iterEffective;iter++) {
 				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);

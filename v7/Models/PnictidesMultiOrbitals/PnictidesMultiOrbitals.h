@@ -20,11 +20,15 @@
 #include "Conductance.h"
 
 namespace Spf {
-	template<
-		typename EngineParamsType,
-		typename ParametersModelType_,
-		typename GeometryType>
-	class PnictidesMultiOrbitals : public ModelBase<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
+	template<typename EngineParamsType,
+	           typename ParametersModelType_,
+	           typename GeometryType,
+	           typename ConcurrencyType>
+	class PnictidesMultiOrbitals : public ModelBase<Spin<
+	  typename EngineParamsType::FieldType>,
+	  EngineParamsType,ParametersModelType_,
+	  GeometryType,
+	  ConcurrencyType> {
 		
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
@@ -49,16 +53,20 @@ namespace Spf {
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		
-		PnictidesMultiOrbitals(
-				const EngineParamsType& engineParams,
-				const ParametersModelType& mp,
-				const GeometryType& geometry) :
-			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
-				      adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-					spinOperations_(geometry,engineParams.mcWindow),
-					threeOrbitalTerms_(mp,geometry),
-					observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
+		PnictidesMultiOrbitals(const EngineParamsType& engineParams,
+		                       const ParametersModelType& mp,
+		                       const GeometryType& geometry,
+		                       ConcurrencyType)
+		: engineParams_(engineParams),
+		  mp_(mp),
+		  geometry_(geometry),
+		  dynVars_(geometry.volume(),
+		  engineParams.dynvarsfile),
+		  hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
+		  adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+		  spinOperations_(geometry,engineParams.mcWindow),
+		  threeOrbitalTerms_(mp,geometry),
+		  observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 		}
 		
@@ -208,9 +216,15 @@ namespace Spf {
 			observablesStored_.finalize(fout);	
 		}
 		
-		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
+		template<typename EngineParamsType2,
+		         typename ParametersModelType2,
+		         typename GeometryType2,
+		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(std::ostream& os,
-				const PnictidesMultiOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+		  const PnictidesMultiOrbitals<EngineParamsType2,
+		                               ParametersModelType2,
+		                               GeometryType2,
+		                               ConcurrencyType2>& model);
 		
 		private:
 		
@@ -379,8 +393,16 @@ namespace Spf {
 
 	}; // PnictidesMultiOrbitals
 
-	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,const PnictidesMultiOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
+	template<typename EngineParamsType,
+	         typename ParametersModelType,
+	         typename GeometryType,
+	         typename ConcurrencyType>
+	std::ostream& operator<<(std::ostream& os,
+	                         const PnictidesMultiOrbitals<
+	                           EngineParamsType,
+	                           ParametersModelType,
+	                           GeometryType,
+	                           ConcurrencyType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

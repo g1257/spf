@@ -12,7 +12,11 @@
 
 
 namespace Spf {
-	template<typename DynVarsType,typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
+	template<typename DynVarsType,
+	         typename EngineParamsType,
+	         typename ParametersModelType_,
+	         typename GeometryType,
+	         typename ConcurrencyType>
 	class ModelBase {
 		typedef typename EngineParamsType::FieldType FieldType;
 		

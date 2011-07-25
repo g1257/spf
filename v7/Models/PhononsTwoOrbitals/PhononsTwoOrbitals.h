@@ -18,9 +18,15 @@
 #include "ModelBase.h"
 
 namespace Spf {
-	template<typename EngineParamsType,typename ParametersModelType_,typename GeometryType>
-	class PhononsTwoOrbitals : public ModelBase
-			<Spin<typename EngineParamsType::FieldType>,EngineParamsType,ParametersModelType_,GeometryType> {
+	template<typename EngineParamsType,
+	         typename ParametersModelType_,
+	         typename GeometryType,
+			 typename ConcurrencyType>
+	class PhononsTwoOrbitals : public ModelBase<
+	  Spin<typename EngineParamsType::FieldType>,
+	  EngineParamsType,ParametersModelType_,
+	  GeometryType,
+	  ConcurrencyType> {
 
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
@@ -28,7 +34,10 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef PhononsTwoOrbitals<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
+		typedef PhononsTwoOrbitals<EngineParamsType,
+		                           ParametersModelType_,
+		                           GeometryType,
+		                           ConcurrencyType> ThisType;
 		
 		static const size_t nbands_ = 2;
 		
@@ -43,12 +52,17 @@ namespace Spf {
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
-		PhononsTwoOrbitals(const EngineParamsType& engineParams,const ParametersModelType& mp,const GeometryType& geometry) :
-			engineParams_(engineParams),mp_(mp),geometry_(geometry),dynVars_(geometry.volume(),engineParams.dynvarsfile),
-				      hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
-				      adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
-					spinOperations_(geometry_,engineParams_.mcWindow),
-					phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
+		PhononsTwoOrbitals(const EngineParamsType& engineParams,
+		                   const ParametersModelType& mp,
+		                   const GeometryType& geometry,
+		                   ConcurrencyType& concurrency)
+		: engineParams_(engineParams),mp_(mp),
+		  geometry_(geometry),dynVars_(geometry.volume(),
+		  engineParams.dynvarsfile),
+		  hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
+		  adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
+		  spinOperations_(geometry_,engineParams_.mcWindow),
+		  phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
 		{
 		}
 		
@@ -154,9 +168,16 @@ namespace Spf {
 			
 		}
 		
-		template<typename EngineParamsType2,typename ParametersModelType2,typename GeometryType2>
+		template<typename EngineParamsType2,
+		         typename ParametersModelType2,
+		         typename GeometryType2,
+		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(std::ostream& os,
-				const PhononsTwoOrbitals<EngineParamsType2,ParametersModelType2,GeometryType2>& model);
+		  const PhononsTwoOrbitals<
+		           EngineParamsType2,
+		           ParametersModelType2,
+		           GeometryType2,
+		           ConcurrencyType2>& model);
 		
 		private:
 		
@@ -262,8 +283,16 @@ namespace Spf {
 		PhononOperationsType phononOperations_;
 	}; // PhononsTwoOrbitals
 
-	template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,const PhononsTwoOrbitals<EngineParamsType,ParametersModelType,GeometryType>& model)
+	template<typename EngineParamsType,
+	         typename ParametersModelType,
+	         typename GeometryType,
+	         typename ConcurrencyType>
+	std::ostream& operator<<(std::ostream& os,
+      const PhononsTwoOrbitals<
+                  EngineParamsType,
+                  ParametersModelType,
+                  GeometryType,
+                  ConcurrencyType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

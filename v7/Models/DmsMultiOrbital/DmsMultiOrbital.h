@@ -21,10 +21,11 @@ namespace Spf {
 	template<
 		typename EngineParamsType,
 		typename ParametersModelType_,
-		typename GeometryType>
+		typename GeometryType,
+		typename ConcurrencyType>
 	class DmsMultiOrbital : public ModelBase<Spin<
-		typename EngineParamsType::FieldType>,
-			EngineParamsType,ParametersModelType_,GeometryType> {
+	     typename EngineParamsType::FieldType>,
+		 EngineParamsType,ParametersModelType_,GeometryType,ConcurrencyType> {
 		
 		typedef typename EngineParamsType::FieldType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -33,9 +34,8 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef DmsMultiOrbital<EngineParamsType,ParametersModelType_,GeometryType> ThisType;
-		
-		
+		typedef DmsMultiOrbital<EngineParamsType,ParametersModelType_,
+		                        GeometryType,ConcurrencyType> ThisType;
 
 	public:
 		typedef ParametersModelType_ ParametersModelType;
@@ -43,21 +43,24 @@ namespace Spf {
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
-				ParametersModelType,EngineParamsType> ObservablesStoredType;
+		                          ParametersModelType,
+		                          EngineParamsType,
+		                          ConcurrencyType> ObservablesStoredType;
 		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
-		DmsMultiOrbital(
-				const EngineParamsType& engineParams,
-				const ParametersModelType& mp,
-				const GeometryType& geometry) :
-			engineParams_(engineParams),mp_(mp),geometry_(geometry),
-			dynVars_(geometry.volume(),engineParams.dynvarsfile),
-			hilbertSize_(2*ORBITALS*geometry.volume()),
-			adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-			spinOperations_(geometry,engineParams.mcWindow),
-			observablesStored_(spinOperations_,geometry,mp_,engineParams_)
+		DmsMultiOrbital(const EngineParamsType& engineParams,
+		                const ParametersModelType& mp,
+		                const GeometryType& geometry,
+		                ConcurrencyType& concurrency)
+		: engineParams_(engineParams),mp_(mp),
+		 geometry_(geometry),
+		 dynVars_(geometry.volume(),engineParams.dynvarsfile),
+		 hilbertSize_(2*ORBITALS*geometry.volume()),
+		 adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+		 spinOperations_(geometry,engineParams.mcWindow),
+		 observablesStored_(spinOperations_,geometry,mp_,engineParams_,concurrency)
 		{
 		}
 		
@@ -174,13 +177,14 @@ namespace Spf {
 		}
 		
 		template<
-			typename EngineParamsType2,
-			typename ParametersModelType2,
-			typename GeometryType2>
+		         typename EngineParamsType2,
+		         typename ParametersModelType2,
+		         typename GeometryType2,
+		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(
-				std::ostream& os,
-				const DmsMultiOrbital<EngineParamsType2,
-					ParametersModelType2,GeometryType2>& model);
+		           std::ostream& os,
+		           const DmsMultiOrbital<EngineParamsType2,
+		           ParametersModelType2,GeometryType2,ConcurrencyType2>& model);
 		
 	private:
 		
@@ -415,14 +419,13 @@ namespace Spf {
 		ObservablesStoredType observablesStored_;
 	}; // PnictidesTwoOrbitals
 
-	template<
-		typename EngineParamsType,
-		typename ParametersModelType,
-		typename GeometryType>
-	std::ostream& operator<<(
-			std::ostream& os,
-			const DmsMultiOrbital<EngineParamsType,
-				ParametersModelType,GeometryType>& model)
+	template<typename EngineParamsType,
+	         typename ParametersModelType,
+	         typename GeometryType,
+	         typename ConcurrencyType>
+	std::ostream& operator<<(std::ostream& os,
+	                         const DmsMultiOrbital<EngineParamsType,
+	                         ParametersModelType,GeometryType,ConcurrencyType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

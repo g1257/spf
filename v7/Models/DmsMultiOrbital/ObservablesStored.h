@@ -17,7 +17,8 @@
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
-		typename ParametersModelType,typename EngineParamsType>
+	         typename ParametersModelType,typename EngineParamsType,
+	         typename ConcurrencyType>
 	class ObservablesStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
@@ -37,19 +38,21 @@ namespace Spf {
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
-				const EngineParamsType& pe) :
-			spinOperations_(spinOperations),
-			geometry_(geometry),
-			mp_(mp),
-			pe_(pe),
-			arw_(geometry.volume()*ORBITALS*2,
-				HistogramComplexType(mp.histogramParams[0],mp.histogramParams[1],
-						size_t(mp.histogramParams[2]))),
-			optical_(mp.histogramParams[0],mp.histogramParams[1],
-						size_t(mp.histogramParams[2])),
-			counter_(0)
+				const EngineParamsType& pe,
+				ConcurrencyType& concurrency)
+ 		: spinOperations_(spinOperations),
+		 geometry_(geometry),
+		 mp_(mp),
+		 pe_(pe),
+		 concurrency_(concurrency),
+		 arw_(geometry.volume()*ORBITALS*2,HistogramComplexType(
+		       mp.histogramParams[0],mp.histogramParams[1],
+		       size_t(mp.histogramParams[2]))),
+		       optical_(mp.histogramParams[0],mp.histogramParams[1],
+		       size_t(mp.histogramParams[2])),
+		 counter_(0)
 		{}
-				
+
 		template<typename GreenFunctionType>
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
@@ -63,11 +66,18 @@ namespace Spf {
 		
 		void finalize(std::ostream& fout)
 		{
+			gather(arw_);
+			optical_.gather(concurrency_);
 			divideAndPrint(fout,arw_,"#Arw:");
 			divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
+
+		void gather(std::vector<HistogramComplexType>& h)
+		{
+			for (size_t i=0;i<h.size();i++) h[i].gather(concurrency_);
+		}
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma
 		template<typename GreenFunctionType>
@@ -143,29 +153,6 @@ namespace Spf {
 			}
 		}
 
-//		void divideAndPrint(
-//				std::ostream& fout,
-//				VectorType& v,
-//				const std::string& label)
-//		{
-//			v /= counter_;
-//			fout<<label<<"\n";
-//			fout<<v;
-//		}
-
-//		void divideAndPrint(
-//				std::ostream& fout,
-//				MatrixType& m,
-//				const std::string& label)
-//		{
-//			VectorType v(m.n_row(),0);
-//			for (size_t dir=0;dir<m.n_col();dir++) {
-//				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
-//				std::string newlabel = label+ttos(dir);
-//				divideAndPrint(fout,v,newlabel);
-//			}
-//		}
-
 		void divideAndPrint(
 				std::ostream& fout,
 				std::vector<HistogramComplexType>& h,
@@ -208,6 +195,7 @@ namespace Spf {
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
 		const EngineParamsType& pe_;
+		ConcurrencyType& concurrency_;
 		std::vector<HistogramComplexType> arw_;
 		HistogramRealType optical_;
 		size_t counter_;

@@ -61,6 +61,12 @@ namespace Spf {
 			for (size_t i=0;i<histY_.size();i++)
 				histY_[i] /= div1;
 		}
+		
+		template<typename SomeConcurrencyType>
+		void gather(SomeConcurrencyType& concurrency)
+		{
+			concurrency.gather(histY_);
+		}
 
 		const RealType& x(size_t i) const  { return histX_[i]; }
 

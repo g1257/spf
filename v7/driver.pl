@@ -103,7 +103,7 @@ typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
 typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
 typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModelType;
-typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType> ModelType;
+typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,ConcurrencyType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
 typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
@@ -144,7 +144,7 @@ int main(int argc,char *argv[])
 	if (concurrency.root()) std::cerr<<license;
 	GeometryType geometry(engineParams.latticeLength);
 	
-	ModelType model(engineParams,mp,geometry);
+	ModelType model(engineParams,mp,geometry,concurrency);
 	AlgorithmType algorithm(engineParams,model);
 	EngineType engine(engineParams,model,algorithm,concurrency);
 	
