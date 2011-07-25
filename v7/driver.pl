@@ -33,6 +33,18 @@ s/ //g;
 chomp;
 $geometry = $_ unless ($_ eq "");
 
+my $mpi = "n";
+print "Do you want to use MPI?\n";
+print "Available: y or n\n";
+print "Default is: n (press ENTER): ";
+$_=<STDIN>;
+s/ //g;
+chomp;
+$mpi = $_ unless ($_ eq "");
+
+my $compiler = "g++";
+$compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
+
 createMakefile();
 createDriver();
 
@@ -47,10 +59,11 @@ print FOUT<<EOF;
 # SPF v7 by G.A. and C.S.
 # Platform: linux
 # Model: $model
+# MPI: $mpi
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields 
-CXX = g++ -Werror -Wall -O3 -pg
+CXX = $compiler -Werror -Wall -O3 -pg
 
 all: \$(EXENAME)
 
@@ -87,9 +100,17 @@ print FOUT<<EOF;
  Platform: linux
  Model: $model
  */
+
+typedef double FieldType;
 #include "ParametersEngine.h"
 #include "Engine.h"
+#ifdef USE_MPI
 #include "ConcurrencySerial.h"
+typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
+#else
+#include "ConcurrencyMpi.h"
+typedef PsimagLite::ConcurrencyMpi<FieldType> ConcurrencyType;
+#endif
 #include "Parameters$modelFile.h"
 #include "$model.h"
 #include "Geometry$geometry.h"
@@ -97,10 +118,8 @@ print FOUT<<EOF;
 #include "AlgorithmDiag.h"
 #include "GreenFunction.h"
 
-typedef double FieldType;
 typedef PsimagLite::IoSimple::In IoInType;
 typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
-typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
 typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModelType;
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,ConcurrencyType> ModelType;

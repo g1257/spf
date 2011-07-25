@@ -75,6 +75,7 @@ namespace Spf {
 		void measure()
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
+			concurrency_.loopCreate(params_.iterEffective);
 			size_t iter=0;
 			while(concurrency_.loop(iter)) {
 			//for (size_t iter=0;iter<params_.iterEffective;iter++) {
