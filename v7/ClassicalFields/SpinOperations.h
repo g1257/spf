@@ -241,14 +241,14 @@ namespace Spf {
 			} 
 		
 			if (mcwindow_[0]<0) {
-				thetaNew = 2*RngType::random()-1;
-				phiNew = 2*M_PI*RngType::random();
+				thetaNew = 2*rng.random()-1;
+				phiNew = 2*M_PI*rng.random();
 				thetaNew = acos(thetaNew);
 			} else {
-				thetaNew=2*RngType::random()- 1;
+				thetaNew=2*rng.random()- 1;
 				if (thetaNew < -1) thetaNew= 0;
 				if (thetaNew > 1) thetaNew = 0;		
-				phiNew=phiOld+2*M_PI*(RngType::random()- 0.5)*mcwindow_[1];
+				phiNew=phiOld+2*M_PI*(rng.random()- 0.5)*mcwindow_[1];
 				thetaNew = acos(thetaNew);
 			}
 			/*if (ether.isSet("sineupdate")) {

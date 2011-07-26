@@ -34,7 +34,7 @@ namespace Spf {
 				size_t i = ops_.proposeSite(j,rng_);	
 				ops_.proposeChange(i,rng_);
 				//FieldType oldmu = engineParams_.mu;
-				bool flag= algorithm_.isAccepted(i);
+				bool flag= algorithm_.isAccepted(i,rng_);
 				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted

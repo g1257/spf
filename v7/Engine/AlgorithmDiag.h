@@ -41,7 +41,7 @@ namespace Spf {
 
 		size_t hilbertSize() const { return hilbertSize_; }
 
-		bool isAccepted(size_t i)
+		bool isAccepted(size_t i,RngType& rng)
 		{
 			FieldType dsDirect = model_.deltaDirect(i);
 				
@@ -55,7 +55,7 @@ namespace Spf {
 			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			FieldType integrationMeasure = model_.integrationMeasure(i);
 				
-			return doMetropolis(dsDirect,integrationMeasure);
+			return doMetropolis(dsDirect,integrationMeasure,rng);
 		}
 
 		void accept(size_t i)
@@ -110,7 +110,9 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool doMetropolis(FieldType dsDirect,FieldType integrationMeasure)
+		bool doMetropolis(FieldType dsDirect,
+		                  FieldType integrationMeasure,
+		                  RngType& rng)
 		{
 			FieldType mu=engineParams_.mu;
 			FieldType beta = engineParams_.beta;
@@ -133,7 +135,7 @@ namespace Spf {
 			X *=  exp(-beta*dsDirect);
 			X = X/(1.0+X);
 
-			FieldType r=RngType::random();
+			FieldType r=rng.random();
 			if (X>r) return true;
 			else return false;
 		}

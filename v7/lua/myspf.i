@@ -25,6 +25,25 @@ namespace PsimagLite {
 };// namespace Psimaglite
 
 
+namespace Dmrg {
+template<typename FieldType>
+class ConcurrencySerial 
+ 
+{
+	public:
+		
+	ConcurrencySerial(int argc,char *argv[]);
+		
+	int nprocs();
+		
+	int rank();
+
+	bool root();
+	};//Class ConcurrencySerial
+	
+%template(ConcurrencyT) ConcurrencySerial<double>;
+
+} // namespace Dmrg
 
 namespace Spf {
 
@@ -72,19 +91,22 @@ template<typename ParametersEngineType,typename IoInType>
 %template(ParametersModelT) ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>;
 
 
-template<typename EngineParamsType,typename ParametersModelType,typename GeometryType>
+template<typename EngineParamsType,typename ParametersModelType,typename GeometryType,typename ConcurrencyType>
 	class PnictidesMultiOrbitals { 
 		public:
  
 	PnictidesMultiOrbitals(const EngineParamsType& engineParams,
 				const ParametersModelType& mp,
-				const GeometryType& geometry);
+				const GeometryType& geometry,
+                                ConcurrencyType& concurrency);
 
 								};//Class PnictidesMultiOrbitals
 %template(ModelT) PnictidesMultiOrbitals<
 	ParametersEngine<double,IoSimpleIn>,
 	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >;
+	GeometrySquare<double>,
+	Dmrg::ConcurrencySerial<double>
+>;
 
 
 template<typename EngineParametersType,typename ModelType,typename RngType>
@@ -98,7 +120,7 @@ template<typename EngineParametersType,typename ModelType,typename RngType>
 PnictidesMultiOrbitals<
 	ParametersEngine<double,IoSimpleIn>,
 	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >,
+	GeometrySquare<double>,Dmrg::ConcurrencySerial<double> >,
 PsimagLite::Random48<double> >;
 
 
@@ -117,8 +139,8 @@ template<typename EngineParametersType,typename AlgorithmType>
 %template(GreenFunctionD) GreenFunction<ParametersEngine<double,IoSimpleIn>,
 AlgorithmDiag<ParametersEngine<double,IoSimpleIn>,
 	PnictidesMultiOrbitals<ParametersEngine<double,IoSimpleIn>,
-	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >,
+		ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
+	GeometrySquare<double>,Dmrg::ConcurrencySerial<double> >,
 	PsimagLite::Random48<double> > >;
 
 
@@ -144,47 +166,21 @@ AlgorithmDiag<ParametersEngine<double,IoSimpleIn>,
 	PnictidesMultiOrbitals<
 	ParametersEngine<double,IoSimpleIn>,
 	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >,
+	GeometrySquare<double>,Dmrg::ConcurrencySerial<double> >,
 	PsimagLite::Random48<double> >,
 PnictidesMultiOrbitals<
 	ParametersEngine<double,IoSimpleIn>,
 	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >,
+	GeometrySquare<double>,Dmrg::ConcurrencySerial<double> >,
 Dmrg::ConcurrencySerial<double>,
 PsimagLite::Random48<double>,
 GreenFunction<ParametersEngine<double,IoSimpleIn>,
 AlgorithmDiag<ParametersEngine<double,IoSimpleIn>,
 	PnictidesMultiOrbitals<ParametersEngine<double,IoSimpleIn>,
 	ParametersPnictidesThreeOrbitals<ParametersEngine<double,IoSimpleIn>,IoSimpleIn>,
-	GeometrySquare<double> >,
+	GeometrySquare<double>,Dmrg::ConcurrencySerial<double> >,
 	PsimagLite::Random48<double> > >
 >;
 
 }//namespace Spf
 
-
-
-namespace Dmrg {
-template<typename FieldType>
-class ConcurrencySerial 
- 
-{
-	public:
-		
-	ConcurrencySerial(int argc,char *argv[]);
-		
-	int nprocs();
-		
-	int rank();
-
-	bool root();
-	};//Class ConcurrencySerial
-	
-%template(ConcurrencyT) ConcurrencySerial<double>;
-
-} // namespace Dmrg
-
-
-
-
-		
