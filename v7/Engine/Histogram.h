@@ -65,7 +65,7 @@ namespace Spf {
 		template<typename SomeConcurrencyType>
 		void gather(SomeConcurrencyType& concurrency)
 		{
-			concurrency.gather(histY_);
+			concurrency.reduce(histY_);
 		}
 
 		const RealType& x(size_t i) const  { return histX_[i]; }

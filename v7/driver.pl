@@ -104,7 +104,7 @@ print FOUT<<EOF;
 typedef double FieldType;
 #include "ParametersEngine.h"
 #include "Engine.h"
-#ifdef USE_MPI
+#ifndef USE_MPI
 #include "ConcurrencySerial.h"
 typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
 #else
