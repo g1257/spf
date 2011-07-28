@@ -317,34 +317,58 @@ namespace Spf {
 			// y-dir, layer==0 is y=0, layer==1 is y=1
 			return geometry_.coorToIndex(xOrY,layer);
 		}
+		
+		template<typename GreenFunctionType>
+		void calcVelocitySquared(const GreenFunctionType& gf,
+		                     PsimagLite::Matrix<FieldType>& v,
+		                     size_t dir) const
+		{
+			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
+			size_t l = geometry_.length();
+			for (size_t layer=0;layer<l-1;layer++) {
+				calcVelocitySquared(gf,w,dir,layer);
+			}
+			
+			for (size_t a=0;a<v.n_row();a++)
+				for (size_t b=0;b<v.n_col();b++)  
+					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
+/*				
+			FieldType sum = 0;
+			for (size_t a=0;a<v.n_row();a++) sum += v(a,a);
+			
+			std::cerr<<"Trace for dir="<<dir<<" is "<<sum<<"\n";*/
+		}
 
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
-				PsimagLite::Matrix<FieldType>& v,size_t dir) const
+								 PsimagLite::Matrix<ComplexType>& w,
+		                         size_t dir,
+								 size_t startingLayer) const
 		{
 			size_t ly = geometry_.length();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t volume = geometry_.volume();
-			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
+			
 			
 			for (size_t y=0;y<ly;y++) {
 				for (size_t spin=0;spin<2;spin++) {
 					for (size_t orb1=0;orb1<norb;orb1++) {
 						size_t gamma1 = orb1 + spin*norb;
-						size_t i = getSiteAtLayer(y,0,dir) + gamma1*volume; // x=0;
+						size_t i = getSiteAtLayer(y,startingLayer,dir)
+						           + gamma1*volume; // x=0;
 
 						for (size_t y2=0;y2<ly;y2++) {
 							for (size_t orb2=0;orb2<norb;orb2++) {
 								size_t gamma2 = orb2 + spin*norb;
-								size_t j = getSiteAtLayer(y2,1,dir) +
-								                gamma2*volume; // x=1;
+								size_t j = getSiteAtLayer(y2,startingLayer+1,dir)
+								           + gamma2*volume; // x=1;
 								size_t dir2 = geometry_.getDirection(i,j);
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
 								FieldType hopping = mp_.hoppings[h];
 								if (fabs(hopping)<1e-8) continue;
 								//std::cerr<<"dir="<<dir<<" isite="<<(i-gamma1*volume)<<" jsite="<<(j-gamma2*volume)<<" dir2="<<dir2<<" h="<<hopping<<"\n";
-								for (size_t a=0;a<v.n_row();a++) {
-									for (size_t b=0;b<v.n_col();b++) {
+								for (size_t a=0;a<w.n_row();a++) {
+									for (size_t b=0;b<w.n_col();b++) {
 										ComplexType sum = velocity(gf,i,j,a,b)*
 										       hopping;
 										w(a,b) += sum;
@@ -355,16 +379,6 @@ namespace Spf {
 					}
 				}
 			}
-			
-			for (size_t a=0;a<v.n_row();a++)
-				for (size_t b=0;b<v.n_col();b++)  
-					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
-			
-			FieldType sum = 0;
-			for (size_t a=0;a<v.n_row();a++) sum += v(a,a);
-			
-			std::cerr<<"Trace for dir="<<dir<<" is "<<sum<<"\n";
-			
 		}
 
 		
