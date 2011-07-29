@@ -21,11 +21,17 @@ namespace Spf {
 	template<int norb_,typename MatrixType,typename ParametersModelType,
 	typename GeometryType>
 	class ThreeOrbitalTerms {
+		typedef typename ParametersModelType::RealType RealType;
 	public:
 		ThreeOrbitalTerms(
 			const ParametersModelType& mp,
 			const GeometryType& geometry) {}
-		void operator()(MatrixType& ham) const { }
+			void operator()(MatrixType& ham) const { }
+			
+			RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
+			{
+				return 0;
+			}
 	}; // class ThreeOrbitalTerms
 
 	template<typename MatrixType,typename ParametersModelType,
@@ -33,6 +39,7 @@ namespace Spf {
 	class ThreeOrbitalTerms<3,MatrixType,ParametersModelType,GeometryType> {
 		static const size_t SPINS = 2; // 2 spins
 		typedef typename MatrixType::value_type FieldType;
+		typedef typename ParametersModelType::RealType RealType;
 		enum {
 			DIR_X=GeometryType::DIRX,
 			DIR_Y=GeometryType::DIRY,
@@ -158,6 +165,29 @@ namespace Spf {
 					size_t ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					ham(ix,ix) += mp_.deltaXY;
 				}
+		}
+	
+		RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
+		{
+			switch (dir2) {
+				case DIR_X:
+					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t7;
+					if (iorb==2 && iorb2==0) return signHop(isite)*mp_.t7;
+					return 0;
+				case DIR_Y:
+					if (iorb==1 && iorb2==2) return signHop(isite)*mp_.t7;
+					if (iorb==2 && iorb2==1) return signHop(isite)*mp_.t7;
+					return 0;
+				case DIR_XPY:
+					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t8;
+					if (iorb==2 && iorb2==0) return -signHop(isite)*mp_.t8;
+					return 0;
+				case DIR_XMY:
+					if (iorb==0 && iorb2==2) return -signHop(isite)*mp_.t8;
+					if (iorb==2 && iorb2==0) return signHop(isite)*mp_.t8;
+					return 0;
+			}
+			return 0;
 		}
 
 	private:

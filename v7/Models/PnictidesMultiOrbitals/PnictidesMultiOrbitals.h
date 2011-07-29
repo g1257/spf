@@ -360,7 +360,8 @@ namespace Spf {
 								if (dir2<0) continue;
 								
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
-								FieldType hopping = mp_.hoppings[h];
+								FieldType hopping = mp_.hoppings[h] 
+								    + threeOrbitalTerms_.hopping(isite,dir2,orb1,orb2);
 								if (fabs(hopping)<1e-8) continue;
 								//std::cerr<<"dir="<<dir<<" isite="<<isite<<" jsite="<<jsite<<" dir2="<<dir2<<" h="<<hopping<<"\n";
 								for (size_t a=0;a<w.n_row();a++) {
