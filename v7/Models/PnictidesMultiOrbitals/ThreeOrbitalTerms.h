@@ -181,10 +181,14 @@ namespace Spf {
 				case DIR_XPY:
 					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t8;
 					if (iorb==2 && iorb2==0) return -signHop(isite)*mp_.t8;
+					if (iorb==1 && iorb2==2) return signHop(isite)*mp_.t8;
+					if (iorb==2 && iorb2==1) return -signHop(isite)*mp_.t8;
 					return 0;
 				case DIR_XMY:
 					if (iorb==0 && iorb2==2) return -signHop(isite)*mp_.t8;
 					if (iorb==2 && iorb2==0) return signHop(isite)*mp_.t8;
+					if (iorb==1 && iorb2==2) return -signHop(isite)*mp_.t8;
+					if (iorb==2 && iorb2==1) return signHop(isite)*mp_.t8;
 					return 0;
 			}
 			return 0;
@@ -201,7 +205,7 @@ namespace Spf {
 			ham(iy,ix) += conj(hopping);
 		}
 
-		inline int signHop(size_t i_site) const
+		int signHop(size_t i_site) const
 		{
 			/*------------- sign of t_7 and t_8 ------------*/
 			std::vector<int> coor_site(2);
