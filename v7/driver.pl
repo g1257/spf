@@ -74,6 +74,9 @@ all: \$(EXENAME)
 main.o:
 	\$(CXX) \$(CPPFLAGS) -c main.cpp
 
+main.cpp: driver.pl
+	perl driver.pl
+
 Makefile.dep: main.cpp
 	\$(CXX) \$(CPPFLAGS) -MM main.cpp  > Makefile.dep
 

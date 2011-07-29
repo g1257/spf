@@ -23,7 +23,7 @@ len1 = engineParams.latticeLength
 print(len1)
 geometry = myspf.GeometryT(len1);
 
-model = myspf.ModelT(engineParams,mp,geometry)
+model = myspf.ModelT(engineParams,mp,geometry,concurrency)
 algorithm = myspf.AlgorithmT(engineParams,model);
 engine= myspf.EngineT(engineParams,model,algorithm,concurrency);
 
