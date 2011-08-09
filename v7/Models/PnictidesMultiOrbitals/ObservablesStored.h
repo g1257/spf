@@ -14,7 +14,7 @@
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
-	typename ParametersModelType>
+	typename ParametersModelType,typename ConcurrencyType>
 	class ObservablesStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
@@ -35,11 +35,13 @@ namespace Spf {
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
-				size_t dof) :
+				size_t dof,
+				ConcurrencyType& concurrency) :
 			spinOperations_(spinOperations),
 			geometry_(geometry),
 			mp_(mp),
 			dof_(dof),
+			concurrency_(concurrency),
 			lc_(dof*geometry.volume(),0),
 			chargeCor_(geometry.volume(),0),
 			mc_(geometry.volume(),DIRECTIONS),
@@ -265,6 +267,8 @@ namespace Spf {
 				VectorType& v,
 				const std::string& label)
 		{
+			concurrency_.reduce(v);
+			if (!concurrency_.root()) return;
 			v /= counter_;
 			fout<<label<<"\n";
 			fout<<v;
@@ -275,6 +279,8 @@ namespace Spf {
 				MatrixType& m,
 				const std::string& label)
 		{
+			concurrency_.reduce(m);
+			if (!concurrency_.root()) return;
 			VectorType v(m.n_row(),0);
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
@@ -287,6 +293,7 @@ namespace Spf {
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
 		size_t dof_;
+		ConcurrencyType& concurrency_;
 		VectorType lc_;
 		VectorType chargeCor_;
 		MatrixType mc_;

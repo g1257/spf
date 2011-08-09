@@ -66,17 +66,18 @@ namespace Spf {
 		
 		void finalize(std::ostream& fout)
 		{
-			gather(arw_);
-			optical_.gather(concurrency_);
+			reduce(arw_);
+			optical_.reduce(concurrency_);
+			if (!concurrency_.root()) return;
 			divideAndPrint(fout,arw_,"#Arw:");
 			divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
 
-		void gather(std::vector<HistogramComplexType>& h)
+		void reduce(std::vector<HistogramComplexType>& h)
 		{
-			for (size_t i=0;i<h.size();i++) h[i].gather(concurrency_);
+			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_);
 		}
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma

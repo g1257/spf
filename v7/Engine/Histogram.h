@@ -63,7 +63,7 @@ namespace Spf {
 		}
 		
 		template<typename SomeConcurrencyType>
-		void gather(SomeConcurrencyType& concurrency)
+		void reduce(SomeConcurrencyType& concurrency)
 		{
 			concurrency.reduce(histY_);
 		}

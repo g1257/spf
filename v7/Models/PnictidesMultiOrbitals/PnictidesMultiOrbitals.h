@@ -48,7 +48,7 @@ namespace Spf {
 		typedef ThreeOrbitalTerms<norb_,MatrixType,ParametersModelType,
 				GeometryType> ThreeOrbitalTermsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
-				ParametersModelType> ObservablesStoredType;
+				ParametersModelType,ConcurrencyType> ObservablesStoredType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
@@ -56,7 +56,7 @@ namespace Spf {
 		PnictidesMultiOrbitals(const EngineParamsType& engineParams,
 		                       const ParametersModelType& mp,
 		                       const GeometryType& geometry,
-		                       ConcurrencyType)
+		                       ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
 		  mp_(mp),
 		  geometry_(geometry),
@@ -66,7 +66,7 @@ namespace Spf {
 		  adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
 		  spinOperations_(geometry,engineParams.mcWindow),
 		  threeOrbitalTerms_(mp,geometry),
-		  observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
+		  observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
 		{
 		}
 		
@@ -325,9 +325,14 @@ namespace Spf {
 				calcVelocitySquared(gf,w,dir,layer);
 			}
 			
-			for (size_t a=0;a<v.n_row();a++)
-				for (size_t b=0;b<v.n_col();b++)  
+			for (size_t a=0;a<v.n_row();a++) {
+				for (size_t b=0;b<v.n_col();b++) {
 					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
+					//if (fabs(v(a,b))>1e-12 && dir==1) std::cout<<"   "<<(a+1)<<"  "<<(b+1)<<"  "<<v(a,b)<<"\n";
+				}
+			}
+			//std::cout<<"----------------------\n";
+			
 		}
 
 		template<typename GreenFunctionType>
