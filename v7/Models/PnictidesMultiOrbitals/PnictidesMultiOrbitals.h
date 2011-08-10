@@ -18,6 +18,7 @@
 #include "ThreeOrbitalTerms.h"
 #include "ObservablesStored.h"
 #include "Conductance.h"
+#include "Packer.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
@@ -35,7 +36,7 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
-		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
+		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 
 		public:
@@ -60,6 +61,7 @@ namespace Spf {
 		: engineParams_(engineParams),
 		  mp_(mp),
 		  geometry_(geometry),
+		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),
 		  engineParams.dynvarsfile),
 		  hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
@@ -92,52 +94,59 @@ namespace Spf {
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
-			std::string s = "iter=" + ttos(iter); 
-			progress_.printline(s,fout);
+// 			std::string s = "iter=" + ttos(iter);
+			Packer<FieldType,ConcurrencyType> packer(iter,fout,concurrency_);
 				
 			FieldType temp=greenFunction.calcNumber();
-			s ="Number_Of_Electrons="+ttos(temp);
-			progress_.printline(s,fout);
+// 			s ="Number_Of_Electrons="+ttos(temp);
+			packer.pack("Number_Of_Electrons=",temp);
 			
 			//s = "rankGlobal=";
 			
 			temp=greenFunction.calcElectronicEnergy();
-			s="Electronic Energy="+ttos(temp);
-			progress_.printline(s,fout);
+// 			s="Electronic Energy="+ttos(temp);
+			packer.pack("Electronic Energy=",temp);
 			
 			FieldType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
-			s="Superexchange="+ttos(temp2);
-			progress_.printline(s,fout);
+// 			s="Superexchange="+ttos(temp2);
+			packer.pack("Superexchange=",temp2);
+// 			progress_.printline(s,fout);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
 				temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
-				s="Superexchange2="+ttos(temp2);
-				progress_.printline(s,fout);
+// 				s="Superexchange2="+ttos(temp2);
+				packer.pack("Superexchange2=",temp2);
+// 				progress_.printline(s,fout);
 				temp += temp2;
 			}
 
 			//! total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy="+ttos(temp);
-			progress_.printline(s,fout);
+// 			s="TotalEnergy="+ttos(temp);
+			packer.pack("TotalEnergy=",temp);
+// 			progress_.printline(s,fout);
 			
 			adjustments_.print(fout);
 			
 			std::vector<FieldType> magVector(3,0);
 			spinOperations_.calcMagVector(magVector,dynVars);
-			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
-			progress_.printline(s,fout);
+// 			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
+			packer.pack("ClassicalMagnetizationSquared=",magVector*magVector);
+// 			progress_.printline(s,fout);
 
 			std::vector<ComplexType> electronSpinVector(3,0);
 			greenFunction.electronSpin(electronSpinVector,mp_.numberOfOrbitals,dynVars.size);
 			std::vector<ComplexType> combinedVector(3,0);
 			combinedVector =  electronSpinVector + magVector;
-			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
-			progress_.printline(s,fout);
-			
+// 			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
+// 			progress_.printline(s,fout);
+			packer.pack("CombinedMagnetizationSquared=",
+						std::real(combinedVector*combinedVector));
+
 			for (size_t i = 0;i<combinedVector.size();i++) {
-				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
-				progress_.printline(s,fout);
+// 				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
+				packer.pack("CombinedMagnetization"+ttos(i)+"=",combinedVector[i]);
+// 				progress_.printline(s,fout);
 			}
 			
 			if (engineParams_.options.find("conductance")!=std::string::npos) {
@@ -147,14 +156,14 @@ namespace Spf {
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
 				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
 				ConductanceType conductance(engineParams_,greenFunction);
-				s = "ConductanceX=" + ttos(conductance(v));
-				progress_.printline(s,fout);
+// 				s = "ConductanceX=" + ttos(conductance(v));
+				packer.pack("ConductanceX=" ,conductance(v));
+// 				progress_.printline(s,fout);
 				//PsimagLite::Matrix<FieldType> vv = v;
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
-				s = "ConductanceY=" + ttos(conductance(v));
-				//vv -= v;
-				//checkMatrix(vv,greenFunction);
-				progress_.printline(s,fout);
+// 				s = "ConductanceY=" + ttos(conductance(v));
+				packer.pack("ConductanceY=" ,conductance(v));
+// 				progress_.printline(s,fout);
 			}
 			
 			observablesStored_(dynVars,greenFunction);
@@ -399,6 +408,7 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		const ParametersModelType& mp_;
 		const GeometryType& geometry_;
+		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;

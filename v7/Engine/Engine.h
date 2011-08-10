@@ -24,7 +24,7 @@ namespace Spf {
 		
 		typedef typename ParametersType::FieldType FieldType;
 		typedef typename ModelType::DynVarsType DynVarsType;
-		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
+		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
 		
 		public:

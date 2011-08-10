@@ -279,8 +279,8 @@ namespace Spf {
 				MatrixType& m,
 				const std::string& label)
 		{
-			concurrency_.reduce(m);
-			if (!concurrency_.root()) return;
+			//concurrency_.reduce(m);
+			//if (!concurrency_.root()) return;
 			VectorType v(m.n_row(),0);
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
