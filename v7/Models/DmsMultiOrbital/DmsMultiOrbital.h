@@ -32,7 +32,7 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
-		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
+		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef DmsMultiOrbital<EngineParamsType,ParametersModelType_,
 		                        GeometryType,ConcurrencyType> ThisType;
@@ -84,11 +84,11 @@ namespace Spf {
 			spinOperations_.set(dynVars);
 		}
 		
-		template<typename GreenFunctionType>
+		template<typename GreenFunctionType,typename SomeOutputType>
 		void doMeasurements(
 				GreenFunctionType& greenFunction,
 				size_t iter,
-				std::ostream& fout)
+				SomeOutputType& fout)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
@@ -171,7 +171,8 @@ namespace Spf {
 			return spinOperations_.sineUpdate(i);
 		}
 		
-		void finalize(std::ostream& fout)
+		template<typename SomeOutputType>
+		void finalize(SomeOutputType& fout)
 		{
 			observablesStored_.finalize(fout);	
 		}

@@ -64,7 +64,8 @@ namespace Spf {
 			counter_++;
 		}
 		
-		void finalize(std::ostream& fout)
+		template<typename SomeOutputType>
+		void finalize(SomeOutputType& fout)
 		{
 			reduce(arw_);
 			optical_.reduce(concurrency_);
@@ -154,10 +155,10 @@ namespace Spf {
 			}
 		}
 
-		void divideAndPrint(
-				std::ostream& fout,
-				std::vector<HistogramComplexType>& h,
-				const std::string& label)
+		template<typename SomeOutputType>
+		void divideAndPrint(SomeOutputType& fout,
+		                    std::vector<HistogramComplexType>& h,
+		                    const std::string& label)
 		{
 			if (h.size()==0) return;
 
@@ -179,11 +180,11 @@ namespace Spf {
 				fout<<"\n";
 			}
 		}
-
-		void divideAndPrint(
-				std::ostream& fout,
-				HistogramRealType& h,
-				const std::string& label)
+		
+		template<typename SomeOutputType>
+		void divideAndPrint(SomeOutputType& fout,
+		                    HistogramRealType& h,
+		                    const std::string& label)
 		{
 
 			h.divide(counter_*h.xWidth());

@@ -69,7 +69,8 @@ namespace Spf {
 			counter_++;
 		}
 		
-		void finalize(std::ostream& fout)
+		template<typename SomeOutputType>
+		void finalize(SomeOutputType& fout)
 		{
 			divideAndPrint(fout,lc_,"#LocalCharge:");
 			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
@@ -262,10 +263,10 @@ namespace Spf {
 			return tmp;
 		}
 		
-		void divideAndPrint(
-				std::ostream& fout,
-				VectorType& v,
-				const std::string& label)
+		template<typename SomeOutputType>
+		void divideAndPrint(SomeOutputType& fout,
+		                    VectorType& v,
+		                    const std::string& label)
 		{
 			concurrency_.reduce(v);
 			if (!concurrency_.root()) return;
@@ -274,10 +275,10 @@ namespace Spf {
 			fout<<v;
 		}
 
-		void divideAndPrint(
-				std::ostream& fout,
-				MatrixType& m,
-				const std::string& label)
+		template<typename SomeOutputType>
+		void divideAndPrint(SomeOutputType& fout,
+		                    MatrixType& m,
+		                    const std::string& label)
 		{
 			//concurrency_.reduce(m);
 			//if (!concurrency_.root()) return;

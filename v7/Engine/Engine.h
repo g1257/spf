@@ -11,6 +11,7 @@
 #define SPF_ENGINE_H
 #include <fstream>
 #include <iostream>
+#include "IoSimple.h"
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"
@@ -34,7 +35,7 @@ namespace Spf {
 		       ConcurrencyType& concurrency) 
 		: params_(params),algorithm_(algorithm),model_(model),
 		  dynVars_(model.dynVars()),concurrency_(concurrency),
-		  fout_(params_.filename.c_str()),progress_("Engine",concurrency.rank())
+		  ioOut_(params_.filename,concurrency_.rank()),progress_("Engine",concurrency.rank())
 		{
 			rng_.seed(params_.randomSeed);
 			writeHeader();
@@ -63,12 +64,12 @@ namespace Spf {
 			
 // 			if (params_.iterTherm ==0) return;
 // 			std::string s = "Thermalization finished. ";
-// 			progress_.printline(s,fout_);
+// 			progress_.printline(s,ioOut_);
 // 			for (size_t i=0;i<dynVars_.size();i++) {
 // 				size_t pp = 100*accepted[i]/params_.iterTherm;
 // 				s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i]) +
 // 							" or " + ttos(pp) + "%";
-// 				progress_.printline(s,fout_);
+// 				progress_.printline(s,ioOut_);
 // 			}
 		}
 		
@@ -84,7 +85,7 @@ namespace Spf {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
 				GreenFunctionType greenFunction(params_,algorithm_,model_.hilbertSize());
-				model_.doMeasurements(greenFunction,iter,fout_);
+				model_.doMeasurements(greenFunction,iter,ioOut_);
 				printProgress(accepted);
 			}
 			std::cerr<<"\n";
@@ -92,24 +93,26 @@ namespace Spf {
 		
 		void writeHeader()
 		{
-			fout_<<"#This is SPF v7\n";
+			ioOut_<<"#This is SPF v7\n";
 			time_t t = time(0);
-			fout_<<ctime(&t);
-			fout_<<params_;
-			fout_<<model_;
+			std::string s(ctime(&t));
+			ioOut_<<s;
+			ioOut_<<params_;
+			ioOut_<<model_;
 		
 		}
 		
 		void finalize()
 		{
-			model_.finalize(fout_);
-			fout_<<"#FinalClassicalFieldConfiguration:\n";
-			fout_<<dynVars_;
-			fout_<<"#AlgorithmRelated:\n";
-			fout_<<algorithm_;
+			model_.finalize(ioOut_);
+			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
+			ioOut_<<dynVars_;
+			ioOut_<<"#AlgorithmRelated:\n";
+			ioOut_<<algorithm_;
 			time_t t = time(0);
-			fout_<<ctime(&t);
-			fout_<<"#EOF\n";
+			std::string s(ctime(&t));
+			ioOut_<<s;
+			ioOut_<<"#EOF\n";
 		}
 		
 		
@@ -148,7 +151,7 @@ namespace Spf {
 				size_t pp = 100*accepted[i].first/accepted[i].second;
 				std::string s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i].first) +
 						" or " + ttos(pp) + "%";
-				progress_.printline(s,fout_);
+				progress_.printline(s,ioOut_);
 			}
 		}
 		
@@ -167,7 +170,7 @@ namespace Spf {
 		ModelType& model_;
 		DynVarsType& dynVars_;
 		ConcurrencyType& concurrency_;
-		std::ofstream fout_;
+		PsimagLite::IoSimple::Out ioOut_;
 		ProgressIndicatorType progress_;
 		RandomNumberGeneratorType rng_;
 	}; // Engine

@@ -32,7 +32,7 @@ namespace Spf {
 		typedef std::complex<FieldType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef typename GeometryType::PairType PairType;
-		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
+		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef PhononsTwoOrbitals<EngineParamsType,
 		                           ParametersModelType_,
@@ -84,8 +84,8 @@ namespace Spf {
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
 				
-		template<typename GreenFunctionType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
+		template<typename GreenFunctionType,typename SomeOutputType>
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomeOutputType& fout)
 		{
 			typedef typename DynVarsType::Type0 Type0;
 			const SpinType& spinPart = dynVars_.getField((Type0*)0);
@@ -163,7 +163,8 @@ namespace Spf {
 			return spinOperations_.sineUpdate(i);
 		}
 		
-		void finalize(std::ostream& fout)
+		template<typename SomeOutputType>
+		void finalize(SomeOutputType& fout)
 		{
 			
 		}

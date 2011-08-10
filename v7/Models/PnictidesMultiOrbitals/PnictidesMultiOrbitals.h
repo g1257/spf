@@ -89,13 +89,14 @@ namespace Spf {
 		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
-		template<typename GreenFunctionType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,std::ostream& fout)
+		template<typename GreenFunctionType,typename SomeOutputType>
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomeOutputType& fout)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
 // 			std::string s = "iter=" + ttos(iter);
-			Packer<FieldType,ConcurrencyType> packer(iter,fout,concurrency_);
+			Packer<FieldType,PsimagLite::IoSimple::Out,ConcurrencyType>
+				packer(iter,fout,concurrency_);
 				
 			FieldType temp=greenFunction.calcNumber();
 // 			s ="Number_Of_Electrons="+ttos(temp);
@@ -220,7 +221,8 @@ namespace Spf {
 			return spinOperations_.sineUpdate(i);
 		}
 		
-		void finalize(std::ostream& fout)
+		template<typename SomeOutputType>
+		void finalize(SomeOutputType& fout)
 		{
 			observablesStored_.finalize(fout);	
 		}

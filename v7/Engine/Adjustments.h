@@ -43,7 +43,8 @@ namespace Spf {
 			return mu;
 		}
 		
-		void print(std::ostream& os) const
+		template<typename SomeOutputType>
+		void print(SomeOutputType& os) const
 		{
 			os<<"Adjustments: mu="<<engineParams_.mu<<"\n";
 		}
