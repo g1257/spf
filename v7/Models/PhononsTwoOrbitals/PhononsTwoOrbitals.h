@@ -84,45 +84,38 @@ namespace Spf {
 		template<typename RandomNumberGeneratorType>
 		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
 				
-		template<typename GreenFunctionType,typename SomeOutputType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomeOutputType& fout)
+		template<typename GreenFunctionType,typename SomePackerType>
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
 			typedef typename DynVarsType::Type0 Type0;
 			const SpinType& spinPart = dynVars_.getField((Type0*)0);
 			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
 			
-			std::string s = "iter=" + ttos(iter); 
-			progress_.printline(s,fout);
+			packer.pack("iter=",iter);
 				
 			FieldType temp=calcNumber(greenFunction);
-			s ="Number_Of_Electrons="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Number_Of_Electrons=",temp);
 			
 			//s = "rankGlobal=";
 			
 			temp=calcElectronicEnergy(greenFunction);
-			s="Electronic Energy="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Electronic Energy=",temp);
 			
 			FieldType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
-			s="Superexchange="+ttos(temp2);
-			progress_.printline(s,fout);
+			packer.pack("Superexchange=",temp2);
 			
 			temp += temp2;
 			
 			// total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy-FIXME-ADD-PHONON-PART="+ttos(temp);
-			progress_.printline(s,fout);
-				
+			packer.pack("TotalEnergy-FIXME-ADD-PHONON-PART=",temp);	
 			//s="Action=";
 			
 			//s="Number_Of_Holes=";
 			
-			adjustments_.print(fout);
+			packer.pack("Adjustments: mu=",engineParams_.mu);
 			
 			temp = spinOperations_.calcMag(spinPart);
-			s="Mag2="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Mag2=",temp);
 			
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+ttos(temp);

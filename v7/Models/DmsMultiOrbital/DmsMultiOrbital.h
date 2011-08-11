@@ -84,52 +84,45 @@ namespace Spf {
 			spinOperations_.set(dynVars);
 		}
 		
-		template<typename GreenFunctionType,typename SomeOutputType>
+		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(
 				GreenFunctionType& greenFunction,
 				size_t iter,
-				SomeOutputType& fout)
+				SomePackerType& packer)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
-			std::string s = "iter=" + ttos(iter); 
-			progress_.printline(s,fout);
-				
+			packer.pack("iter=",iter);
+
 			RealType temp=greenFunction.calcNumber();
-			s ="Number_Of_Electrons="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Number_Of_Electrons=",temp);
 			
 			//s = "rankGlobal=";
 			
 			temp=greenFunction.calcElectronicEnergy();
-			s="Electronic Energy="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Electronic Energy=",temp);
 			
 			RealType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
-			s="Superexchange="+ttos(temp2);
-			progress_.printline(s,fout);
+			packer.pack("Superexchange=",temp2);
 			
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
 				temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
-				s="Superexchange2="+ttos(temp2);
-				progress_.printline(s,fout);
+				packer.pack("Superexchange2=",temp2);
 				temp += temp2;
 			}
 
 			// total energy = electronic energy + superexchange + phonon energy
-			s="TotalEnergy="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("TotalEnergy=",temp);
 				
 			//s="Action=";
 			
 			//s="Number_Of_Holes=";
 			
-			adjustments_.print(fout);
+			packer.pack("Adjustments: mu=",engineParams_.mu);
 			
 			temp = spinOperations_.calcMag(dynVars,mp_.modulus);
-			s="Mag2="+ttos(temp);
-			progress_.printline(s,fout);
+			packer.pack("Mag2=",temp);
 
 			
 // 			temp=calcKinetic(dynVars_,eigs);

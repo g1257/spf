@@ -43,11 +43,11 @@ namespace Spf {
 			return mu;
 		}
 		
-		template<typename SomeOutputType>
+		/* template<typename SomeOutputType>
 		void print(SomeOutputType& os) const
 		{
 			os<<"Adjustments: mu="<<engineParams_.mu<<"\n";
-		}
+		}*/
 		
 	private:
 		

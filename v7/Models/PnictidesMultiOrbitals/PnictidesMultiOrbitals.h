@@ -18,7 +18,6 @@
 #include "ThreeOrbitalTerms.h"
 #include "ObservablesStored.h"
 #include "Conductance.h"
-#include "Packer.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
@@ -89,15 +88,13 @@ namespace Spf {
 		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
-		template<typename GreenFunctionType,typename SomeOutputType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomeOutputType& fout)
+		template<typename GreenFunctionType,typename SomePackerType>
+		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
 			
-// 			std::string s = "iter=" + ttos(iter);
-			Packer<FieldType,PsimagLite::IoSimple::Out,ConcurrencyType>
-				packer(iter,fout,concurrency_);
-				
+			packer.pack("iter=",iter);
+
 			FieldType temp=greenFunction.calcNumber();
 // 			s ="Number_Of_Electrons="+ttos(temp);
 			packer.pack("Number_Of_Electrons=",temp);
@@ -127,8 +124,8 @@ namespace Spf {
 			packer.pack("TotalEnergy=",temp);
 // 			progress_.printline(s,fout);
 			
-			adjustments_.print(fout);
-			
+			packer.pack("Adjustments: mu=",engineParams_.mu);
+	
 			std::vector<FieldType> magVector(3,0);
 			spinOperations_.calcMagVector(magVector,dynVars);
 // 			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);

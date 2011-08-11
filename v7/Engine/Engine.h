@@ -15,7 +15,7 @@
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"
-
+#include "Packer.h"
 
 namespace Spf {
 	
@@ -27,17 +27,23 @@ namespace Spf {
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
-		
-		public:
+		typedef Packer<FieldType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
+	public:
 			
 		Engine(ParametersType& params,ModelType& model,
 		       AlgorithmType& algorithm,
 		       ConcurrencyType& concurrency) 
 		: params_(params),algorithm_(algorithm),model_(model),
 		  dynVars_(model.dynVars()),concurrency_(concurrency),
-		  ioOut_(params_.filename,concurrency_.rank()),progress_("Engine",concurrency.rank())
+		  ioOut_(params_.filename,concurrency_.rank()),progress_("Engine",concurrency.rank()),
+		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs())
 		{
-			rng_.seed(params_.randomSeed);
+			size_t nprocs = concurrency_.nprocs();
+			size_t temp = params_.iterEffective/nprocs;
+			if (temp * nprocs != params_.iterEffective) {
+				std::string s = "numberOfProcessors must be a divisor of params.iterEffective\n";
+				std::runtime_error(s.c_str());
+			}
 			writeHeader();
 		}
 				
@@ -50,7 +56,7 @@ namespace Spf {
 			finalize();
 		}
 		
-		private:
+	private:
 		
 		void thermalize()
 		{
@@ -61,16 +67,6 @@ namespace Spf {
 			}
 			std::cerr<<"\n";
 			printProgress(accepted);
-			
-// 			if (params_.iterTherm ==0) return;
-// 			std::string s = "Thermalization finished. ";
-// 			progress_.printline(s,ioOut_);
-// 			for (size_t i=0;i<dynVars_.size();i++) {
-// 				size_t pp = 100*accepted[i]/params_.iterTherm;
-// 				s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i]) +
-// 							" or " + ttos(pp) + "%";
-// 				progress_.printline(s,ioOut_);
-// 			}
 		}
 		
 		void measure()
@@ -79,14 +75,14 @@ namespace Spf {
 			concurrency_.loopCreate(params_.iterEffective);
 			size_t iter=0;
 			while(concurrency_.loop(iter)) {
-			//for (size_t iter=0;iter<params_.iterEffective;iter++) {
 				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
 				GreenFunctionType greenFunction(params_,algorithm_,model_.hilbertSize());
-				model_.doMeasurements(greenFunction,iter,ioOut_);
-				printProgress(accepted);
+                                PackerType packer(ioOut_,concurrency_);
+				model_.doMeasurements(greenFunction,iter,packer);
+				printProgress(accepted,&packer);
 			}
 			std::cerr<<"\n";
 		}
@@ -144,14 +140,21 @@ namespace Spf {
 			
 		}
 		
-		void printProgress(const std::vector<PairType>& accepted)
+		void printProgress(const std::vector<PairType>& accepted,PackerType* packer = 0)
 		{
 			for (size_t i=0;i<dynVars_.size();i++) {
 				if (accepted[i].second==0) continue;
+				std::string s1=  "Acceptance " + dynVars_.name(i) + "=";
 				size_t pp = 100*accepted[i].first/accepted[i].second;
-				std::string s=  "Acceptance: " + dynVars_.name(i) + " " + ttos(accepted[i].first) +
-						" or " + ttos(pp) + "%";
-				progress_.printline(s,ioOut_);
+				std::string s2=  "AcceptancePercentage " + dynVars_.name(i) + "=%";
+				
+				if (packer) {
+					packer->pack(s1,accepted[i].first);
+					packer->pack(s2,pp);
+				} else {
+					progress_.printline(s1+ttos(accepted[i].first),ioOut_);
+					progress_.printline(s2+ttos(pp),ioOut_);
+				}
 			}
 		}
 		

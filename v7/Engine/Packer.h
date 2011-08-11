@@ -27,11 +27,11 @@ Please see full open source license included in file LICENSE.
 namespace Spf {
 	template<typename RealType,typename IoOutputType,typename ConcurrencyType>
 	class  Packer {
-		enum {TYPE_REAL,TYPE_COMPLEX};
+		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T};
 	public:
 		
-		Packer(size_t iter,IoOutputType& fout,ConcurrencyType& concurrency)
-		: iter_(iter),fout_(fout),concurrency_(concurrency),progress_("Packer",0)
+		Packer(IoOutputType& fout,ConcurrencyType& concurrency)
+		: fout_(fout),concurrency_(concurrency),progress_("Packer",0)
 		{}
 		
 		~Packer()
@@ -48,25 +48,29 @@ namespace Spf {
 			
 			if (!concurrency_.root()) return;
 			
-			std::string s = "iter=" + ttos(iter_);
-			progress_.printline(s,fout_);
 			bool flag = false;
 			RealType prev = 0;
-			for (size_t i=0;i<labels_.size();i++) {
-				s = labels_[i] + ttos(values[i*nprocs]);
-				if (types_[i] == TYPE_COMPLEX) {
-					if (!flag) {
-						flag = true;
-						prev = values[i*nprocs];
-						continue;
-					} else {
-						flag = false;
-						std::complex<RealType> temp(prev,values[i*nprocs]);
+			for (size_t r=0;r<nprocs;r++) {
+				for (size_t i=0;i<labels_.size();i++) {
+					RealType val = values[r+i*nprocs];
+					std::string s = labels_[i] + ttos(val);
+					if (types_[i] == TYPE_COMPLEX) {
+						if (!flag) {
+							flag = true;
+							prev = val;
+							continue;
+						} else {
+							flag = false;
+							std::complex<RealType> temp(prev,val);
+							s = labels_[i] + ttos(temp);
+							prev = 0;
+						}
+					} else if (types_[i] == TYPE_SIZE_T) {
+						size_t temp = size_t(val);
 						s = labels_[i] + ttos(temp);
-						prev = 0;
 					}
+					progress_.printline(s,fout_);
 				}
-				progress_.printline(s,fout_);
 			}
 		}
 		
@@ -76,7 +80,15 @@ namespace Spf {
 			values_.push_back(value);
 			types_.push_back(TYPE_REAL);
 		}
-		
+
+		void pack(const std::string& label,const size_t& value)
+		{
+			labels_.push_back(label);
+			RealType v = value;
+			values_.push_back(v);
+			types_.push_back(TYPE_SIZE_T);
+		}
+
 		void pack(const std::string& label,const std::complex<RealType>& value)
 		{
 			labels_.push_back(label);
