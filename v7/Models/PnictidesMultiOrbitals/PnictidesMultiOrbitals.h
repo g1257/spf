@@ -29,7 +29,7 @@ namespace Spf {
 	  EngineParamsType,ParametersModelType_,
 	  GeometryType,
 	  ConcurrencyType> {
-		
+
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
@@ -49,7 +49,7 @@ namespace Spf {
 				GeometryType> ThreeOrbitalTermsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
 				ParametersModelType,ConcurrencyType> ObservablesStoredType;
-		
+
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		

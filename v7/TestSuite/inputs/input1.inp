@@ -14,6 +14,7 @@ HistogramSteps=1000
 BoundaryConditions=periodic
 RandomSeed=3043091
 LatticeLength=8
+SaveEach=5
 Hoppings
 16
 -0.058 0

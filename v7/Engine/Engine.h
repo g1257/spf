@@ -16,6 +16,7 @@
 #include "TypeToString.h" // in PsimagLite
 #include "MonteCarlo.h"
 #include "Packer.h"
+#include "SaveConfigs.h"
 
 namespace Spf {
 	
@@ -28,6 +29,7 @@ namespace Spf {
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
 		typedef Packer<FieldType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
+		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 	public:
 			
 		Engine(ParametersType& params,ModelType& model,
@@ -36,7 +38,7 @@ namespace Spf {
 		: params_(params),algorithm_(algorithm),model_(model),
 		  dynVars_(model.dynVars()),concurrency_(concurrency),
 		  ioOut_(params_.filename,concurrency_.rank()),progress_("Engine",concurrency.rank()),
-		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs())
+		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs()),saveConfigs_(params_,dynVars_,concurrency.rank())
 		{
 			size_t nprocs = concurrency_.nprocs();
 			size_t temp = params_.iterEffective/nprocs;
@@ -80,8 +82,9 @@ namespace Spf {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
 				GreenFunctionType greenFunction(params_,algorithm_,model_.hilbertSize());
-                                PackerType packer(ioOut_,concurrency_);
+				PackerType packer(ioOut_,concurrency_);
 				model_.doMeasurements(greenFunction,iter,packer);
+				saveConfigs_(iter); 
 				printProgress(accepted,&packer);
 			}
 			std::cerr<<"\n";
@@ -176,6 +179,7 @@ namespace Spf {
 		PsimagLite::IoSimple::Out ioOut_;
 		ProgressIndicatorType progress_;
 		RandomNumberGeneratorType rng_;
+		SaveConfigsType saveConfigs_;
 	}; // Engine
 } // namespace Spf
 

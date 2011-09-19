@@ -110,7 +110,7 @@ namespace Spf {
 		}
 		
 		template<typename FieldType2,typename GeometryType2>
-		friend std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType2,GeometryType2>& f);
+		friend std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
 		static const std::string name_;
@@ -119,7 +119,7 @@ namespace Spf {
 	}; // PnictidesTwoOrbitalsFields
 	
 	template<typename FieldType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,PnictidesTwoOrbitalsFields<FieldType,GeometryType>& f)
+	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitalsFields<FieldType,GeometryType>& f)
 	{
 		os<<f.spin_;
 		return os;

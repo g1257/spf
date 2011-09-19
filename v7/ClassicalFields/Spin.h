@@ -46,7 +46,7 @@ namespace Spf {
 	}; // Spin
 	
 	template<typename FieldType>
-	std::ostream& operator<<(std::ostream& os,Spin<FieldType>& dynVars)
+	std::ostream& operator<<(std::ostream& os,const Spin<FieldType>& dynVars)
 	{
 		os<<"Theta\n";
 		os<<dynVars.theta;

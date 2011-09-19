@@ -38,7 +38,7 @@ namespace Spf {
 	}; // Spin
 	
 	template<typename FieldType>
-	std::ostream& operator<<(std::ostream& os,Phonon<FieldType>& dynVars)
+	std::ostream& operator<<(std::ostream& os,const Phonon<FieldType>& dynVars)
 	{
 		os<<"Phonon\n";
 		os<<dynVars.phonon;

@@ -117,6 +117,7 @@ namespace Spf {
 				randomSeed = -1;
 			else    randomSeed = atoi(s.c_str());
 			io.readline(latticeLength,"LatticeLength=");
+			io.readline(saveEach,"SaveEach=");
 		}
 
 		std::string filename; // filename to save observables and continued fractions
@@ -133,6 +134,7 @@ namespace Spf {
 		std::string boundaryConditions; // boundary conditions
 		long int randomSeed;
 		size_t latticeLength;
+		size_t saveEach;
 	};
 
 	//! print dmrg parameters

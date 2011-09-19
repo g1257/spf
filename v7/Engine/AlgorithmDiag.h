@@ -83,7 +83,7 @@ namespace Spf {
 				MatrixType& matrix,
 				std::vector<FieldType>& eigs,
 				char jobz='N',
-				size_t fields=ModelType::NEWFIELDS)
+				size_t fields=ModelType::NEWFIELDS) const
 		{
 			model_.createHamiltonian(matrix,fields);
 			diag(matrix,eigs,jobz);
@@ -106,7 +106,7 @@ namespace Spf {
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
 		friend std::ostream& operator<<
-			(std::ostream& os,AlgorithmDiag<EngineParametersType2,
+			(std::ostream& os,const AlgorithmDiag<EngineParametersType2,
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
@@ -172,7 +172,7 @@ namespace Spf {
 	
 	template<typename EngineParametersType,typename ModelType,
 		typename RandomNumberGeneratorType>
-	std::ostream& operator<<(std::ostream& os,AlgorithmDiag<
+	std::ostream& operator<<(std::ostream& os,const AlgorithmDiag<
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		

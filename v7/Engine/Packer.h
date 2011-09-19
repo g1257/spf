@@ -98,16 +98,15 @@ namespace Spf {
 			values_.push_back(std::imag(value));
 			types_.push_back(TYPE_COMPLEX);
 		}
-		
+
 	private:
-		size_t iter_;
+
 		IoOutputType& fout_;
 		ConcurrencyType& concurrency_;
 		PsimagLite::ProgressIndicator progress_;
 		std::vector<std::string> labels_;
 		std::vector<RealType> values_;
 		std::vector<size_t> types_;
-		
 	}; // Packer
 } // namespace PsimagLite
 
