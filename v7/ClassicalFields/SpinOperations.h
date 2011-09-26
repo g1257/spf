@@ -24,8 +24,9 @@ namespace Spf {
 		typedef GeometryType_ GeometryType;
 		typedef DynVarsType_ DynVarsType;
 		
-		ClassicalSpinOperations(const GeometryType& geometry,const std::vector<FieldType>& mcwindow) 
-			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
+		template<typename SomeParamsType>
+		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params) 
+		: geometry_(geometry),mcwindow_(params.mcWindow),dynVars2_(0,params)
 		{
 		}
 		

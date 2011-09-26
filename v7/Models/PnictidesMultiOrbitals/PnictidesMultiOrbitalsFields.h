@@ -95,8 +95,9 @@ namespace Spf {
 		typedef SpinOperationsType OperationsType0;
 		typedef SpinOperationsType OperationsType1; // bogus
 		
-		PnictidesTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
-				spin_(vol,mcstarttype)
+		template<typename SomeParamsType>
+		PnictidesTwoOrbitalsFields(size_t vol,const SomeParamsType& params)
+		: spin_(vol,params)
 		{}
 		
 		size_t size() const { return 1; } // only spin for this model needs MC simulation

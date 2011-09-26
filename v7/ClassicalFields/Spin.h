@@ -17,20 +17,21 @@ namespace Spf {
 	struct Spin { // Do not add functions here, this is a struct!!
 		typedef typename PsimagLite::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
-		
-		Spin(size_t vol,const std::string& mcstarttype,bool freeze=false,bool makeVoid=false) : 
+
+		template<typename SomeParamsType>
+		Spin(size_t vol,const SomeParamsType& params,bool freeze=false,bool makeVoid=false) : 
 				size(vol),theta(vol),phi(vol),isFrozen(freeze),isVoid(makeVoid)
 		{
-			if (mcstarttype=="none") return;
-			if (mcstarttype=="random") {
-				PsimagLite::Random48<FieldType> random48(3049901);
+			if (params.dynvarsfile=="none") return;
+			if (params.dynvarsfile=="random") {
+				PsimagLite::Random48<FieldType> random48(params.randomSeed);
 				for (size_t i=0;i<theta.size();i++) {
 					theta[i] = random48.random()*M_PI;
 					phi[i] = random48.random()*2.*M_PI;
 				}
 				return;
 			}
-			IoSimpleIn ioin(mcstarttype);
+			IoSimpleIn ioin(params.dynvarsfile);
 			(*this)<=ioin;
 			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
 		}

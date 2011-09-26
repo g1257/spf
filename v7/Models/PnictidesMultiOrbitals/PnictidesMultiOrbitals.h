@@ -61,11 +61,10 @@ namespace Spf {
 		  mp_(mp),
 		  geometry_(geometry),
 		  concurrency_(concurrency),
-		  dynVars_(geometry.volume(),
-		  engineParams.dynvarsfile),
+		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
 		  adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-		  spinOperations_(geometry,engineParams.mcWindow),
+		  spinOperations_(geometry,engineParams),
 		  threeOrbitalTerms_(mp,geometry),
 		  observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
 		{
