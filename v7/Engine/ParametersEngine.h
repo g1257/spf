@@ -117,7 +117,12 @@ namespace Spf {
 				randomSeed = -1;
 			else    randomSeed = atoi(s.c_str());
 			io.readline(latticeLength,"LatticeLength=");
-			io.readline(saveEach,"SaveEach=");
+			saveEach=0;
+			try {
+				io.readline(saveEach,"SaveEach=");
+			} catch (std::exception& e) {
+				io.rewind();
+			}
 		}
 
 		std::string filename; // filename to save observables and continued fractions
