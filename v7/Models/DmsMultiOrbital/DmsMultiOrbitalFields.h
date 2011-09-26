@@ -95,8 +95,9 @@ namespace Spf {
 		typedef SpinOperationsType OperationsType0;
 		typedef SpinOperationsType OperationsType1; // bogus
 		
-		DmsMultiOrbitalFields(size_t vol,const std::string& mcstarttype) :
-				spin_(vol,mcstarttype)
+		template<typename SomeParamsType>
+		DmsMultiOrbitalFields(size_t vol,const SomeParamsType& params)
+		: spin_(vol,params)
 		{}
 		
 		//! only spin for this model needs MC simulation

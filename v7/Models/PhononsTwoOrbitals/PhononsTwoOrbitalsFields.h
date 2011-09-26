@@ -99,8 +99,9 @@ namespace Spf {
 		typedef SpinOperationsType OperationsType0;
 		typedef PhononOperationsType OperationsType1;
 		
-		PhononsTwoOrbitalsFields(size_t vol,const std::string& mcstarttype) :
-				spin_(vol,mcstarttype),phonon_(vol,mcstarttype)
+		template<typename SomeParamsType>
+		PhononsTwoOrbitalsFields(size_t vol,const SomeParamsType& params) :
+				spin_(vol,params),phonon_(vol,params.dynvarsfile)
 		{}
 		
 		PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) : 

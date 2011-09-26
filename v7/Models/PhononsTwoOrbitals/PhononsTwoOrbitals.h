@@ -57,11 +57,11 @@ namespace Spf {
 		                   const GeometryType& geometry,
 		                   ConcurrencyType& concurrency)
 		: engineParams_(engineParams),mp_(mp),
-		  geometry_(geometry),dynVars_(geometry.volume(),
-		  engineParams.dynvarsfile),
+		  geometry_(geometry),dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
-		  adjustments_(engineParams),progress_("PhononsTwoOrbitals",0),
-		  spinOperations_(geometry_,engineParams_.mcWindow),
+		  adjustments_(engineParams),
+		  progress_("PhononsTwoOrbitals",0),
+		  spinOperations_(geometry_,engineParams_),
 		  phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
 		{
 		}

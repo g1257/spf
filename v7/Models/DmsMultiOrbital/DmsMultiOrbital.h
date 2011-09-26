@@ -56,10 +56,11 @@ namespace Spf {
 		                ConcurrencyType& concurrency)
 		: engineParams_(engineParams),mp_(mp),
 		 geometry_(geometry),
-		 dynVars_(geometry.volume(),engineParams.dynvarsfile),
+		 dynVars_(geometry.volume(),engineParams),
 		 hilbertSize_(2*ORBITALS*geometry.volume()),
-		 adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
-		 spinOperations_(geometry,engineParams.mcWindow),
+		 adjustments_(engineParams),
+		 progress_("PnictidesTwoOrbitals",0),
+		 spinOperations_(geometry,engineParams),
 		 observablesStored_(spinOperations_,geometry,mp_,engineParams_,concurrency)
 		{
 		}
