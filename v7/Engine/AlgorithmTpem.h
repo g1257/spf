@@ -14,23 +14,31 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
+#include "tpemplus.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmTpem {
 	public:	
-		typedef typename EngineParametersType::FieldType FieldType;
-		typedef std::complex<FieldType> ComplexType;
+		typedef typename EngineParametersType::FieldType RealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef std::vector<RealType> VectorType;
+		typedef tpem_sparse TpemSparseType;
+		typedef TpemOptions TpemOptionsType;
+
+		enum {TMPVALUES_SET,TMPVALUE_RETRIEVE};
 
 		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),model_(model),
 		  hilbertSize_(model_.hilbertSize()),
 		  actionCoeffs_(cutoff_),
+		  tpemOptions_(),
 		  moment0_(cutoff_),
 		  moment1_(cutoff_)
 		{
-			tmpValues(a,b,mu,beta,0);
+			throw std::runtime_error("Need to set cutoff_, a_, b_, mu_, beta_\n");
+			//tmpValues(a,b,mu,beta,TMPVALUES_SET);
 			tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_); 
 		}
 
@@ -38,30 +46,30 @@ namespace Spf {
 		{
 // 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
 // 			diag(matrixOld_,eigOld_,'N');
-// 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
+// 			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
 		}
 
 		size_t hilbertSize() const { return hilbertSize_; }
 
 		bool isAccepted(size_t i,RngType& rng)
 		{
-			FieldType dsDirect = model_.deltaDirect(i);
+			RealType dsDirect = model_.deltaDirect(i);
 							
 			model_.createHsparse(matrixNew_,ModelType::NEWFIELDS);
-			if (ether.isSet("adjusttpembounds")) {
-				if (tpemAdjustBounds(aux.sparseTmp[0],ether,aux)!=0) {
+			if (engineParams_.isSet("adjusttpembounds")) {
+				if (tpemAdjustBounds(aux.sparseTmp[0],et)!=0) {
 					cerr<<"Cannot adjust bounds for tpem spectrum\n";
 					exit(1);
 				}
 			}
-			dS += calcDeltaAction(moment,aux.sparseMatrix[0], aux.sparseTmp[0],
-								support,ether,aux,tpemOptions);
+			RealType dS = calcDeltaAction(moment_,aux.sparseMatrix[0], aux.sparseTmp[0],
+			                 support);
 			
-			dS -= ether.beta*dsDirect;
+			dS -= engineParams_.beta*dsDirect;
 
 			
 			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
-			//FieldType integrationMeasure = model_.integrationMeasure(i);
+			//RealType integrationMeasure = model_.integrationMeasure(i);
 				
 			return metropolisOrGlauber(dsDirect,rng);
 		}
@@ -70,7 +78,7 @@ namespace Spf {
 		{
 			model_.accept(i);
 			// update current moments
-			for (j=0;j<ether.tpem_cutoff;j++) aux.curMoments[j] -= moment[j];
+			for (size_t j=0;j<cutoff_;j++) curMoments_[j] -= moment[j];
 		}
 
 		void prepare()
@@ -83,21 +91,21 @@ namespace Spf {
 // 			return matrixNew_(lambda1,lambda2);
 // 		}
 // 		
-// 		const FieldType& e(size_t i) const
+// 		const RealType& e(size_t i) const
 // 		{
 // 			return eigNew_[i];
 // 		}
 // 
 // 		void diagonalize(
 // 				MatrixType& matrix,
-// 				std::vector<FieldType>& eigs,
+// 				std::vector<RealType>& eigs,
 // 				char jobz='N',
 // 				size_t fields=ModelType::NEWFIELDS) const
 // 		{
 // 			model_.createHamiltonian(matrix,fields);
 // 			diag(matrix,eigs,jobz);
 // 			if (jobz!='V')
-// 				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
+// 				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
 // 		}
 // 		
 // 		void printMatrix(size_t mode) const
@@ -120,24 +128,25 @@ namespace Spf {
 
 	private:
 		
-		double calcDeltaAction(vector<double> &moment,tpem_sparse *matrix1, tpem_sparse *matrix, 
-							 vector<unsigned int> const &support,Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
+		double calcDeltaAction(const VectorType &moment,
+		                       const TpemSparseType* matrix1,
+		                       const TpemSparseType* matrix, 
+		                       const std::vector<size_t>& support)
 		{
 			
-			FieldType e1=aux.varTpem_b-aux.varTpem_a;
-			FieldType e2=aux.varTpem_a+aux.varTpem_b;
-			FieldType e11=aux.btmp-aux.atmp;
-			FieldType e21=aux.atmp+aux.btmp;
-			
+			RealType e1=aux.varTpem_b-aux.varTpem_a;
+			RealType e2=aux.varTpem_a+aux.varTpem_b;
+			RealType e11=aux.btmp-aux.atmp;
+			RealType e21=aux.atmp+aux.btmp;
+
 			if (e1 > e11) e1 = e11;
 			if (e2 < e21) e2 = e21;
-			
-			
-			if (ether.carriers>0) {
+
+			if (engineParams_.carriers>0) {
 				tmpValues(a,b,mu,beta,0);
 				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
 			} 
-			if (ether.isSet("adjusttpembounds")) {
+			if (engineParams_.isSet("adjusttpembounds")) {
 				a=0.5*(e2-e1);
 				b=0.5*(e2+e1);
 				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
@@ -145,29 +154,26 @@ namespace Spf {
 		
 			tmpValues(a,b,mu,beta,0);
 			
-			tpem_sparse *mod_matrix1, *mod_matrix;
-			
-			if (ether.isSet("adjusttpembounds")) {
+			TpemSparseType* mod_matrix1 = matrix1;
+			TpemSparseType* mod_matrix = matrix;
+
+			if (engineParams_.isSet("adjusttpembounds")) {
 					// full copy/allocation
-					mod_matrix1 = new_tpem_sparse(ether.hilbertSize,matrix1->rowptr[ether.hilbertSize]);
+					mod_matrix1 = new_tpem_sparse(engineParams_.hilbertSize,matrix1->rowptr[engineParams_.hilbertSize]);
 					tpem_sparse_copy (matrix1, mod_matrix1);
-					mod_matrix = new_tpem_sparse(ether.hilbertSize,matrix->rowptr[ether.hilbertSize]);
+					mod_matrix = new_tpem_sparse(engineParams_.hilbertSize,matrix->rowptr[engineParams_.hilbertSize]);
 					tpem_sparse_copy (matrix, mod_matrix);
 					
 					tpem_sparse_scale(mod_matrix1,a/aux.atmp,(b-aux.btmp)*aux.atmp/(a*a));
 					tpem_sparse_scale(mod_matrix,a/aux.varTpem_a,(b-aux.varTpem_b)*aux.varTpem_a/(a*a));
 					
-			} else {		
-				// just pointers
-				mod_matrix1 = matrix1;
-				mod_matrix = matrix;
 			}
-			
-			tpem_calculate_moment_diff (mod_matrix1, mod_matrix,moment,support, tpemOptions);
-			
-			dS = -tpem_expansion (coeffs, moment);
-			
-			if (ether.isSet("adjusttpembounds")) {
+
+			tpem_calculate_moment_diff (mod_matrix1, mod_matrix,moment_,support, tpemOptions_);
+
+			dS = -tpem_expansion (coeffs, moment_);
+
+			if (engineParams_.isSet("adjusttpembounds")) {
 				tpem_sparse_free(mod_matrix);
 				tpem_sparse_free(mod_matrix1);
 			}
@@ -187,10 +193,32 @@ namespace Spf {
 			// METROPOLIS PROPER 
 			return (dS > 0.0 || myRandom () < exp (dS));
 		}
+		
+		void tmpValues(RealType &a,RealType &b,RealType &mu,RealType &beta,size_t option)
+		{
+			if (option==TMPVALUES_SET) { // set static members
+				a_ = a;
+				b_ = b;
+				mu_ = mu;
+				beta_ = beta;
+				return;
+			}
+			//else retrieve static members
+			a = a_;
+			b = b_;
+			mu = mu_;
+			beta = beta_;
+		}
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		size_t hilbertSize_;
+		size_t cutoff_;
+		RealType a_,b_,mu_,beta_;
+		TpemOptionsType tpemOptions_;
+		VectorType actionCoeffs_;
+		VectorType moment0_;
+		VectorType moment1_;
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,
@@ -199,9 +227,9 @@ namespace Spf {
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
-		typedef typename EngineParametersType::FieldType FieldType;
-		std::vector<FieldType> eigNew(a.hilbertSize_);
-		PsimagLite::Matrix<std::complex<FieldType> > matrix(a.hilbertSize_,a.hilbertSize_);
+		typedef typename EngineParametersType::RealType RealType;
+		std::vector<RealType> eigNew(a.hilbertSize_);
+		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";
 		os<<eigNew;
