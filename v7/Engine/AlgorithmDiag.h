@@ -18,6 +18,8 @@
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmDiag {
+		static const bool DO_GLAUBER = true;
+
 	public:	
 		typedef typename EngineParametersType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
@@ -32,12 +34,12 @@ namespace Spf {
 		{
 		}
 
-// 		void init()
-// 		{
-// 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
-// 			diag(matrixOld_,eigOld_,'N');
-// 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
-// 		}
+		void init()
+		{
+			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
+			diag(matrixOld_,eigOld_,'N');
+			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
+		}
 
 		ModelType& model() { return model_; } // should be const
 
@@ -57,8 +59,8 @@ namespace Spf {
 			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			FieldType integrationMeasure = model_.integrationMeasure(i);
 				
-			RealType dS = doMetropolis(dsDirect,integrationMeasure,rng);
-			return metropolisOrGlauber(dS);
+			FieldType dS = computeDeltaAction(dsDirect,integrationMeasure);
+			return metropolisOrGlauber(dS,rng);
 		}
 
 		void accept(size_t i)
@@ -113,9 +115,8 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool doMetropolis(FieldType dsDirect,
-		                  FieldType integrationMeasure,
-		                  RngType& rng)
+		bool computeDeltaAction(FieldType dsDirect,
+		                  FieldType integrationMeasure) const
 		{
 			FieldType mu=engineParams_.mu;
 			FieldType beta = engineParams_.beta;
@@ -138,18 +139,19 @@ namespace Spf {
 			return log(X)-beta*dsDirect;
 		}
 		
-		void metropolisOrGlauber(const RealType& dS) const
+		bool metropolisOrGlauber(const FieldType& dS2,RngType& rng) const
 		{
+			FieldType dS = dS2;
 			if (DO_GLAUBER) {
 				if (dS<0) {
 					dS=exp(dS)/(1.0+exp(dS));
 				} else {
 					dS=1.0/(1.0+exp(-dS));
 				}
-				return (dS>myRandom());
+				return (dS>rng());
 			}
 			// METROPOLIS PROPER 
-			return (dS > 0.0 || myRandom () < exp (dS));
+			return (dS > 0.0 || rng() < exp (dS));
 		}
 		
 		void testEigs() const
@@ -172,14 +174,12 @@ namespace Spf {
 			}
 			throw std::runtime_error("Matrix are equal!!\n");
 		}
-		
+
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		std::vector<FieldType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
-		
-		
 	}; // AlgorithmDiag
 	
 	template<typename EngineParametersType,typename ModelType,

@@ -68,42 +68,42 @@ namespace Spf {
 
 		void prepare()
 		{
-			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
+// 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 		}
 		
-		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
-		{
-			return matrixNew_(lambda1,lambda2);
-		}
-		
-		const FieldType& e(size_t i) const
-		{
-			return eigNew_[i];
-		}
-
-		void diagonalize(
-				MatrixType& matrix,
-				std::vector<FieldType>& eigs,
-				char jobz='N',
-				size_t fields=ModelType::NEWFIELDS) const
-		{
-			model_.createHamiltonian(matrix,fields);
-			diag(matrix,eigs,jobz);
-			if (jobz!='V')
-				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
-		}
-		
-		void printMatrix(size_t mode) const
-		{
-			if (mode==ModelType::NEWFIELDS) {
-				std::cerr<<matrixNew_;
-				return;
-			}
-			MatrixType m(matrixNew_.n_row(),matrixNew_.n_col());
-			if (!isHermitian(m)) throw std::runtime_error("Problem\n");
-			model_.createHamiltonian(m,ModelType::OLDFIELDS);
-			std::cerr<<m;
-		}
+// 		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
+// 		{
+// 			return matrixNew_(lambda1,lambda2);
+// 		}
+// 		
+// 		const FieldType& e(size_t i) const
+// 		{
+// 			return eigNew_[i];
+// 		}
+// 
+// 		void diagonalize(
+// 				MatrixType& matrix,
+// 				std::vector<FieldType>& eigs,
+// 				char jobz='N',
+// 				size_t fields=ModelType::NEWFIELDS) const
+// 		{
+// 			model_.createHamiltonian(matrix,fields);
+// 			diag(matrix,eigs,jobz);
+// 			if (jobz!='V')
+// 				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
+// 		}
+// 		
+// 		void printMatrix(size_t mode) const
+// 		{
+// 			if (mode==ModelType::NEWFIELDS) {
+// 				std::cerr<<matrixNew_;
+// 				return;
+// 			}
+// 			MatrixType m(matrixNew_.n_row(),matrixNew_.n_col());
+// 			if (!isHermitian(m)) throw std::runtime_error("Problem\n");
+// 			model_.createHamiltonian(m,ModelType::OLDFIELDS);
+// 			std::cerr<<m;
+// 		}
 
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
