@@ -24,19 +24,15 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 
 		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
-			: engineParams_(engineParams),model_(model),
-					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
-					hilbertSize_(model_.hilbertSize()),
-					matrixNew_(hilbertSize_,hilbertSize_),
-					matrixOld_(hilbertSize_,hilbertSize_)
-		{
-		}
+		: engineParams_(engineParams),model_(model),
+		  hilbertSize_(model_.hilbertSize()),
+		{}
 
 		void init()
 		{
-			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
-			diag(matrixOld_,eigOld_,'N');
-			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
+// 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
+// 			diag(matrixOld_,eigOld_,'N');
+// 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
 		}
 
 		size_t hilbertSize() const { return hilbertSize_; }
@@ -44,16 +40,22 @@ namespace Spf {
 		bool isAccepted(size_t i,RngType& rng)
 		{
 			FieldType dsDirect = model_.deltaDirect(i);
-				
-			//FieldType oldmu=engineParams_.mu;
+							
+			model_.createHsparse(matrixNew_,ModelType::NEWFIELDS);
+			if (ether.isSet("adjusttpembounds")) {
+				if (tpemAdjustBounds(aux.sparseTmp[0],ether,aux)!=0) {
+					cerr<<"Cannot adjust bounds for tpem spectrum\n";
+					exit(1);
+				}
+			}
+			dS += calculate_dS (moment,aux.sparseMatrix[0], aux.sparseTmp[0],
+								support,ether,aux,tpemOptions);
 			
-			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
-			diagonalize(matrixNew_,eigNew_,'N');
-			//testMatrix();
-			//testEigs();
+			dS -= ether.beta*dsDirect;
+
 			
-			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
-			FieldType integrationMeasure = model_.integrationMeasure(i);
+			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
+			//FieldType integrationMeasure = model_.integrationMeasure(i);
 				
 			return doMetropolis(dsDirect,integrationMeasure,rng);
 		}
@@ -138,6 +140,20 @@ namespace Spf {
 			FieldType r=rng.random();
 			if (X>r) return true;
 			else return false;
+		}
+		
+		void metropolisOrGlauber(const RealType& dS) const
+		{
+			if (DO_GLAUBER) {
+				if (dS<0) {
+					dS=exp(dS)/(1.0+exp(dS));
+				} else {
+					dS=1.0/(1.0+exp(-dS));
+				}
+				return (dS>myRandom());
+			}
+			// METROPOLIS PROPER 
+			return (dS > 0.0 || myRandom () < exp (dS));
 		}
 		
 		void testEigs() const

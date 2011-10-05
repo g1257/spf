@@ -32,12 +32,12 @@ namespace Spf {
 		{
 		}
 
-		void init()
-		{
-			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
-			diag(matrixOld_,eigOld_,'N');
-			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
-		}
+// 		void init()
+// 		{
+// 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
+// 			diag(matrixOld_,eigOld_,'N');
+// 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
+// 		}
 
 		ModelType& model() { return model_; } // should be const
 
@@ -57,7 +57,8 @@ namespace Spf {
 			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			FieldType integrationMeasure = model_.integrationMeasure(i);
 				
-			return doMetropolis(dsDirect,integrationMeasure,rng);
+			RealType dS = doMetropolis(dsDirect,integrationMeasure,rng);
+			return metropolisOrGlauber(dS);
 		}
 
 		void accept(size_t i)
@@ -134,12 +135,21 @@ namespace Spf {
 			}
 			//std::cerr<<"Xbefore="<<X<<" ";
 			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
-			X *=  exp(-beta*dsDirect);
-			X = X/(1.0+X);
-
-			FieldType r=rng.random();
-			if (X>r) return true;
-			else return false;
+			return log(X)-beta*dsDirect;
+		}
+		
+		void metropolisOrGlauber(const RealType& dS) const
+		{
+			if (DO_GLAUBER) {
+				if (dS<0) {
+					dS=exp(dS)/(1.0+exp(dS));
+				} else {
+					dS=1.0/(1.0+exp(-dS));
+				}
+				return (dS>myRandom());
+			}
+			// METROPOLIS PROPER 
+			return (dS > 0.0 || myRandom () < exp (dS));
 		}
 		
 		void testEigs() const
