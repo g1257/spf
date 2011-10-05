@@ -43,17 +43,17 @@ namespace Spf {
 			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
 				data_(i,j) = greenFunction(i,j);
 		}
-		
+
 		AlgorithmType& algorithm() { return algorithm_; }
-		
+
 		ModelType& model() { return algorithm_.model(); } // should be const
-		
+
 		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
 		{
 			throw std::runtime_error("gf is unimplemented for TPEM\n");
 // 			return data_(lambda1,lambda2);
 		}
-		
+
 		FieldType calcNumber() const
 		{
 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
@@ -62,7 +62,7 @@ namespace Spf {
 			
 			return tpem_expansion (moment, numberCoeffs_);
 		}
-		
+
 		FieldType calcElectronicEnergy() const
 		{
 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
@@ -71,7 +71,7 @@ namespace Spf {
 			
 			return tpem_expansion (moment, energyCoeffs_);
 		}
-		
+
 		void localCharge(std::vector<FieldType>& lc)
 		{
 			throw std::runtime_error("local charge is unimplemented for TPEM\n");

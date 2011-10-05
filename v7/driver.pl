@@ -42,6 +42,20 @@ s/ //g;
 chomp;
 $mpi = $_ unless ($_ eq "");
 
+my $tpem = "n";
+if ($mpi eq "n") {
+	print "Do you want to use TPEM?\n";
+	print "Available: y or n\n";
+	print "Default is: n (press ENTER): ";
+	$_=<STDIN>;
+	s/ //g;
+	chomp;
+	$tpem = $_ unless ($_ eq "");
+}
+
+$tpem = "Diag" if ($tpem eq "n");
+$tpem = "Tpem" if ($tpem eq "y");
+
 my $compiler = "g++";
 $compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
 
@@ -118,7 +132,7 @@ typedef PsimagLite::ConcurrencyMpi<FieldType> ConcurrencyType;
 #include "$model.h"
 #include "Geometry$geometry.h"
 #include "Random48.h"
-#include "GreenFunctionDiag.h"
+#include "GreenFunction$tpem.h"
 
 typedef PsimagLite::IoSimple::In IoInType;
 typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;

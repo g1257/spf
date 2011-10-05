@@ -26,7 +26,13 @@ namespace Spf {
 		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),model_(model),
 		  hilbertSize_(model_.hilbertSize()),
-		{}
+		  actionCoeffs_(cutoff_),
+		  moment0_(cutoff_),
+		  moment1_(cutoff_)
+		{
+			tmpValues(a,b,mu,beta,0);
+			tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_); 
+		}
 
 		void init()
 		{
@@ -48,7 +54,7 @@ namespace Spf {
 					exit(1);
 				}
 			}
-			dS += calculate_dS (moment,aux.sparseMatrix[0], aux.sparseTmp[0],
+			dS += calcDeltaAction(moment,aux.sparseMatrix[0], aux.sparseTmp[0],
 								support,ether,aux,tpemOptions);
 			
 			dS -= ether.beta*dsDirect;
@@ -57,13 +63,14 @@ namespace Spf {
 			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			//FieldType integrationMeasure = model_.integrationMeasure(i);
 				
-			return doMetropolis(dsDirect,integrationMeasure,rng);
+			return metropolisOrGlauber(dsDirect,rng);
 		}
 
 		void accept(size_t i)
 		{
 			model_.accept(i);
-			eigOld_ = eigNew_;
+			// update current moments
+			for (j=0;j<ether.tpem_cutoff;j++) aux.curMoments[j] -= moment[j];
 		}
 
 		void prepare()
@@ -112,36 +119,61 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool doMetropolis(FieldType dsDirect,
-		                  FieldType integrationMeasure,
-		                  RngType& rng)
-		{
-			FieldType mu=engineParams_.mu;
-			FieldType beta = engineParams_.beta;
-			FieldType X =1.0;
-			
-			for (size_t i=0;i<eigNew_.size();i++) {
-				FieldType temp = 0;
-				if (eigNew_[i]>mu)
-					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/
-						(1.0+exp(-beta*(eigOld_[i]-mu)));
-				else
-				temp =(1.0+exp(beta*(eigNew_[i]-mu)))/
-							(exp(beta*(eigNew_[i]-mu))+
-									exp(-beta*(eigOld_[i]-eigNew_[i])));
-			
-				X *= temp;
-			}
-			//std::cerr<<"Xbefore="<<X<<" ";
-			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
-			X *=  exp(-beta*dsDirect);
-			X = X/(1.0+X);
-
-			FieldType r=rng.random();
-			if (X>r) return true;
-			else return false;
-		}
 		
+		double calcDeltaAction(vector<double> &moment,tpem_sparse *matrix1, tpem_sparse *matrix, 
+							 vector<unsigned int> const &support,Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions)
+		{
+			
+			FieldType e1=aux.varTpem_b-aux.varTpem_a;
+			FieldType e2=aux.varTpem_a+aux.varTpem_b;
+			FieldType e11=aux.btmp-aux.atmp;
+			FieldType e21=aux.atmp+aux.btmp;
+			
+			if (e1 > e11) e1 = e11;
+			if (e2 < e21) e2 = e21;
+			
+			
+			if (ether.carriers>0) {
+				tmpValues(a,b,mu,beta,0);
+				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
+			} 
+			if (ether.isSet("adjusttpembounds")) {
+				a=0.5*(e2-e1);
+				b=0.5*(e2+e1);
+				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
+			}
+		
+			tmpValues(a,b,mu,beta,0);
+			
+			tpem_sparse *mod_matrix1, *mod_matrix;
+			
+			if (ether.isSet("adjusttpembounds")) {
+					// full copy/allocation
+					mod_matrix1 = new_tpem_sparse(ether.hilbertSize,matrix1->rowptr[ether.hilbertSize]);
+					tpem_sparse_copy (matrix1, mod_matrix1);
+					mod_matrix = new_tpem_sparse(ether.hilbertSize,matrix->rowptr[ether.hilbertSize]);
+					tpem_sparse_copy (matrix, mod_matrix);
+					
+					tpem_sparse_scale(mod_matrix1,a/aux.atmp,(b-aux.btmp)*aux.atmp/(a*a));
+					tpem_sparse_scale(mod_matrix,a/aux.varTpem_a,(b-aux.varTpem_b)*aux.varTpem_a/(a*a));
+					
+			} else {		
+				// just pointers
+				mod_matrix1 = matrix1;
+				mod_matrix = matrix;
+			}
+			
+			tpem_calculate_moment_diff (mod_matrix1, mod_matrix,moment,support, tpemOptions);
+			
+			dS = -tpem_expansion (coeffs, moment);
+			
+			if (ether.isSet("adjusttpembounds")) {
+				tpem_sparse_free(mod_matrix);
+				tpem_sparse_free(mod_matrix1);
+			}
+			return dS;
+		}
+
 		void metropolisOrGlauber(const RealType& dS) const
 		{
 			if (DO_GLAUBER) {
@@ -155,35 +187,10 @@ namespace Spf {
 			// METROPOLIS PROPER 
 			return (dS > 0.0 || myRandom () < exp (dS));
 		}
-		
-		void testEigs() const
-		{
-			FieldType eps = 1e-6;
-			for (size_t i=0;i<eigOld_.size();i++) {
-				if (fabs(eigOld_[i]-eigNew_[i])>eps) return;
-			}
-			throw std::runtime_error("Eigs are equal!!\n");
-		}
-		
-		void testMatrix() const
-		{
-			FieldType eps = 1e-6;
-			for (size_t i=0;i<matrixOld_.n_row();i++) {
-				for (size_t j=0;j<matrixOld_.n_col();j++) {
-					if (fabs(real(matrixOld_(i,j)-matrixNew_(i,j)))>eps &&
-					fabs(imag(matrixOld_(i,j)-matrixNew_(i,j)))>eps) return;
-				}
-			}
-			throw std::runtime_error("Matrix are equal!!\n");
-		}
-		
+
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
-		std::vector<FieldType> eigNew_,eigOld_;
 		size_t hilbertSize_;
-		MatrixType matrixNew_,matrixOld_;
-		
-		
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,
