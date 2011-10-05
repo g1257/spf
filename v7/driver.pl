@@ -118,8 +118,7 @@ typedef PsimagLite::ConcurrencyMpi<FieldType> ConcurrencyType;
 #include "$model.h"
 #include "Geometry$geometry.h"
 #include "Random48.h"
-#include "AlgorithmDiag.h"
-#include "GreenFunction.h"
+#include "GreenFunctionDiag.h"
 
 typedef PsimagLite::IoSimple::In IoInType;
 typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
@@ -128,9 +127,8 @@ typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModel
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,ConcurrencyType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
-typedef Spf::AlgorithmDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> AlgorithmType;
-typedef Spf::GreenFunction<ParametersEngineType,AlgorithmType> GreenFunctionType;
-typedef Spf::Engine<ParametersEngineType,AlgorithmType,ModelType,ConcurrencyType,RandomNumberGeneratorType,GreenFunctionType> EngineType;
+typedef Spf::GreenFunctionDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> GreenFunctionType;
+typedef Spf::Engine<ParametersEngineType,GreenFunctionType,ConcurrencyType> EngineType;
 
  
 int main(int argc,char *argv[])
@@ -167,8 +165,8 @@ int main(int argc,char *argv[])
 	GeometryType geometry(engineParams.latticeLength);
 	
 	ModelType model(engineParams,mp,geometry,concurrency);
-	AlgorithmType algorithm(engineParams,model);
-	EngineType engine(engineParams,model,algorithm,concurrency);
+	GreenFunctionType gf(engineParams,model);
+	EngineType engine(engineParams,gf,concurrency);
 	
 	engine.main();
 }

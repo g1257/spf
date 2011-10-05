@@ -2,13 +2,13 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file AlgorithmDiag.h
+/*! \file AlgorithmTpem.h
  *
  *  Diagonalization method for SPF
  *
  */
-#ifndef ALGORITHM_DIAG_H
-#define ALGORITHM_DIAG_H
+#ifndef ALGORITHM_TPEM_H
+#define ALGORITHM_TPEM_H
 #include <algorithm>
 #include "ProgressIndicator.h" // in PsimagLite
 #include "Matrix.h" // in PsimagLite
@@ -17,13 +17,13 @@
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
-	class AlgorithmDiag {
+	class AlgorithmTpem {
 	public:	
 		typedef typename EngineParametersType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 
-		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
+		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
 			: engineParams_(engineParams),model_(model),
 					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
 					hilbertSize_(model_.hilbertSize()),
@@ -38,8 +38,6 @@ namespace Spf {
 			diag(matrixOld_,eigOld_,'N');
 			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
 		}
-
-		ModelType& model() { return model_; } // should be const
 
 		size_t hilbertSize() const { return hilbertSize_; }
 
@@ -108,7 +106,7 @@ namespace Spf {
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
 		friend std::ostream& operator<<
-			(std::ostream& os,const AlgorithmDiag<EngineParametersType2,
+			(std::ostream& os,const AlgorithmTpem<EngineParametersType2,
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
@@ -170,11 +168,11 @@ namespace Spf {
 		MatrixType matrixNew_,matrixOld_;
 		
 		
-	}; // AlgorithmDiag
+	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,
 		typename RandomNumberGeneratorType>
-	std::ostream& operator<<(std::ostream& os,const AlgorithmDiag<
+	std::ostream& operator<<(std::ostream& os,const AlgorithmTpem<
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
@@ -189,4 +187,4 @@ namespace Spf {
 } // namespace Spf
 
 /*@}*/
-#endif // ALGORITHM_DIAG_H
+#endif // ALGORITHM_TPEM_H

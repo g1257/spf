@@ -20,11 +20,13 @@
 
 namespace Spf {
 	
-	template<typename ParametersType,typename AlgorithmType,typename ModelType,
- 		typename ConcurrencyType,typename RandomNumberGeneratorType,typename GreenFunctionType>
+	template<typename ParametersType,typename GreenFunctionType,typename ConcurrencyType>
 	class Engine {
 		
 		typedef typename ParametersType::FieldType FieldType;
+		typedef typename GreenFunctionType::ModelType ModelType;
+		typedef typename GreenFunctionType::RandomNumberGeneratorType RandomNumberGeneratorType;
+		typedef typename GreenFunctionType::AlgorithmType AlgorithmType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
@@ -32,13 +34,17 @@ namespace Spf {
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 	public:
 			
-		Engine(ParametersType& params,ModelType& model,
-		       AlgorithmType& algorithm,
-		       ConcurrencyType& concurrency) 
-		: params_(params),algorithm_(algorithm),model_(model),
-		  dynVars_(model.dynVars()),concurrency_(concurrency),
-		  ioOut_(params_.filename,concurrency_.rank()),progress_("Engine",concurrency.rank()),
-		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs()),saveConfigs_(params_,dynVars_,concurrency.rank())
+		Engine(ParametersType& params,GreenFunctionType& gf,ConcurrencyType& concurrency) 
+		: params_(params),
+		  gf_(gf),
+		  model_(gf.model()),
+		  dynVars_(model_.dynVars()),
+		  concurrency_(concurrency),
+		  ioOut_(params_.filename,
+		  concurrency_.rank()),
+		  progress_("Engine",concurrency.rank()),
+		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs()),
+		  saveConfigs_(params_,dynVars_,concurrency.rank())
 		{
 			size_t nprocs = concurrency_.nprocs();
 			size_t temp = params_.iterEffective/nprocs;
@@ -81,9 +87,9 @@ namespace Spf {
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
-				GreenFunctionType greenFunction(params_,algorithm_,model_.hilbertSize());
+				gf_.measure();
 				PackerType packer(ioOut_,concurrency_);
-				model_.doMeasurements(greenFunction,iter,packer);
+				model_.doMeasurements(gf_,iter,packer);
 				saveConfigs_(iter); 
 				printProgress(accepted,&packer);
 			}
@@ -107,7 +113,7 @@ namespace Spf {
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
 			ioOut_<<"#AlgorithmRelated:\n";
-			ioOut_<<algorithm_;
+			ioOut_<<gf_;
 			time_t t = time(0);
 			std::string s(ctime(&t));
 			ioOut_<<s;
@@ -119,10 +125,11 @@ namespace Spf {
 		{
 			typedef typename DynVarsType::OperationsType0 OperationsType0;
 			typedef typename DynVarsType::Type0 Type0;
-			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmType,RandomNumberGeneratorType,
-					Type0> MonteCarloType0;
+			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmType,
+			                   RandomNumberGeneratorType,Type0> MonteCarloType0;
+			AlgorithmType& algorithm = gf_.algorithm();
 
-			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm_,rng_);
+			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm,rng_);
 			Type0& spinPart = dynVars.getField((Type0*)0);
 			PairType res= monteCarlo0(spinPart,iter); // (accepted, totalflips)
 			accepted[0].first += res.first;
@@ -135,7 +142,7 @@ namespace Spf {
 			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmType,RandomNumberGeneratorType,
    				Type1> MonteCarloType1;
 			
-			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm_,rng_);
+			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm,rng_);
 			Type1& phononPart = dynVars.getField((Type1*)0);
 			res= monteCarlo1(phononPart,iter); // (accepted, totalflips)
 			accepted[1].first += res.first;
@@ -172,7 +179,7 @@ namespace Spf {
 		}
 
 		const ParametersType& params_;
-		AlgorithmType& algorithm_;
+		GreenFunctionType& gf_;
 		ModelType& model_;
 		DynVarsType& dynVars_;
 		ConcurrencyType& concurrency_;
