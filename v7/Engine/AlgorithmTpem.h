@@ -14,7 +14,7 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
-#include "tpemplus.h"
+#include "Tpem.h"
 #include "TpemFunctors.h"
 #include "MetropolisOrGlauber.h"
 
@@ -29,9 +29,10 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
-		// includes from tpemplus.h:
-		typedef tpem_sparse TpemSparseType;
-		typedef TpemOptions TpemOptionsType;
+		// includes from Tpem.h
+		typedef BaseFunctor<RealType> BaseFunctorType;
+		typedef Tpem<BaseFunctorType> TpemType;
+		typedef typename TpemType::TpemSparseType TpemSparseType;
 		//
 		typedef ActionFunctor<RealType> ActionFunctorType;
 		
@@ -41,15 +42,15 @@ namespace Spf {
 		: engineParams_(engineParams),model_(model),
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
-		  tpemOptions_(),
 		  adjustTpemBounds_(false),
+		  tpem_(),
 		  actionCoeffs_(cutoff_),
 		  moment0_(cutoff_),
 		  moment1_(cutoff_)
 		{
 			throw std::runtime_error("Need to set cutoff_, a_, b_, mu_, beta_\n");
 			//tmpValues(a,b,mu,beta,TMPVALUES_SET);
-			tpem_calculate_coeffs(actionCoeffs_,actionFunc_,tpemOptions_); 
+			tpem_.calcCoeffs(actionCoeffs_,actionFunc_); 
 		}
 
 		void init()
@@ -97,45 +98,11 @@ namespace Spf {
 		
 		const VectorType& moment() const { return moment_; }
 		
-		const TpemOptions& tpemOptions() const { return tpemOptions_; }
-		
 		const size_t cutoff() const { return cutoff_; }
 
 		ModelType& model() { return model_; }
-
-// 		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
-// 		{
-// 			return matrixNew_(lambda1,lambda2);
-// 		}
-// 		
-// 		const RealType& e(size_t i) const
-// 		{
-// 			return eigNew_[i];
-// 		}
-// 
-// 		void diagonalize(
-// 				MatrixType& matrix,
-// 				std::vector<RealType>& eigs,
-// 				char jobz='N',
-// 				size_t fields=ModelType::NEWFIELDS) const
-// 		{
-// 			model_.createHamiltonian(matrix,fields);
-// 			diag(matrix,eigs,jobz);
-// 			if (jobz!='V')
-// 				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
-// 		}
-// 		
-// 		void printMatrix(size_t mode) const
-// 		{
-// 			if (mode==ModelType::NEWFIELDS) {
-// 				std::cerr<<matrixNew_;
-// 				return;
-// 			}
-// 			MatrixType m(matrixNew_.n_row(),matrixNew_.n_col());
-// 			if (!isHermitian(m)) throw std::runtime_error("Problem\n");
-// 			model_.createHamiltonian(m,ModelType::OLDFIELDS);
-// 			std::cerr<<m;
-// 		}
+		
+		TpemType& tpem() { return tpem_; }
 
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
@@ -169,12 +136,12 @@ namespace Spf {
 
 			if (engineParams_.carriers>0) {
 				tmpValues(a,b,mu,beta,TMPVALUES_SET);
-				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
+				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
 			} 
 			if (adjustTpemBounds_) {
 				a=0.5*(e2-e1);
 				b=0.5*(e2+e1);
-				tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_);
+				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
 			}
 		
 			tmpValues(a,b,mu,beta,TMPVALUES_SET);
@@ -197,9 +164,9 @@ namespace Spf {
 					
 			}
 
-			tpem_calculate_moment_diff (mod_matrix1, mod_matrix,moment_,support_, tpemOptions_);
+			tpem_.calcMomentsDiff(mod_matrix1, mod_matrix,moment_);
 
-			RealType dS = -tpem_expansion (actionCoeffs_, moment_);
+			RealType dS = -tpem_.expand(actionCoeffs_, moment_);
 
 			if (adjustTpemBounds_) {
 				tpem_sparse_free(mod_matrix);
@@ -230,9 +197,8 @@ namespace Spf {
 		MetropolisOrGlauberType metropolisOrGlauber_;
 		size_t cutoff_;
 		RealType a_,b_,mu_,beta_;
-		TpemOptionsType tpemOptions_;
-		std::vector<size_t> support_;
 		bool adjustTpemBounds_;
+		TpemType tpem_;
 		ActionFunctorType actionFunc_;
 		TpemSparseType* matrixOld_;
 		TpemSparseType* matrixNew_;

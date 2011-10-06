@@ -11,9 +11,15 @@
 #define TPEM_FUNCTORS_H
 
 namespace Spf {
-
+	template<typename RealType_>
+	class BaseFunctor {
+	public:
+		typedef RealType_ RealType;
+		virtual RealType operator()(RealType x) const = 0;
+	};
+	
 	template<typename RealType>
-	class ActionFunctor {
+	class ActionFunctor : public BaseFunctor<RealType> {
 	public:
 		ActionFunctor(const RealType& a,
 					  const RealType& b,
@@ -22,7 +28,7 @@ namespace Spf {
 		: a_(a),b_(b),mu_(mu),beta_(beta)
 		{}
 
-		RealType operator()(RealType x)
+		virtual RealType operator()(RealType x) const
 		{
 // 			tmpValues(a,b,mu,beta,1);
 			return (a_ * x + b_ >= mu_) ?
@@ -39,7 +45,7 @@ namespace Spf {
 	}; // class ActionFunctor
 	
 	template<typename RealType>
-	class EnergyFunctor  {
+	class EnergyFunctor  : public BaseFunctor<RealType> {
 	public:
 		EnergyFunctor(const RealType& a,
 		               const RealType& b,
@@ -48,7 +54,7 @@ namespace Spf {
 		: a_(a),b_(b),mu_(mu),beta_(beta)
 		{}
 
-		RealType operator()(RealType x)
+		virtual RealType operator()(RealType x) const
 		{
 // 			tmpValues(a,b,mu,beta,1);
 			return (a_ * x + b_) * 0.5 * 
@@ -63,7 +69,7 @@ namespace Spf {
 	}; // class EnergyFunctor
 	
 	template<typename RealType>
-	class NumberFunctor {
+	class NumberFunctor : public BaseFunctor<RealType> {
 	public:
 		NumberFunctor(const RealType& a,
 					  const RealType& b,
@@ -72,7 +78,7 @@ namespace Spf {
 		: a_(a),b_(b),mu_(mu),beta_(beta)
 		{}
 
-		RealType operator()(RealType x)
+		virtual RealType operator()(RealType x) const
 		{
 // 			tmpValues(a,b,mu,beta,1);
 			return 0.5 * (1.0 - tanh (0.5 * beta_ * (a_ * x + b_ - mu_)));

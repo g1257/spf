@@ -22,6 +22,7 @@ namespace Spf {
 		AlgorithmType;
 		typedef typename AlgorithmType::RealType RealType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
+		typedef typename AlgorithmType::TpemType TpemType;
 		typedef RngType RandomNumberGeneratorType;
 		typedef std::vector<RealType> VectorType;
 		typedef EnergyFunctor<RealType> EnergyFunctorType;
@@ -31,7 +32,7 @@ namespace Spf {
 		: engineParams_(engineParams),
 		  algorithm_(engineParams,model),
 		  hilbertSize_(model.hilbertSize()),
-		  tpemOptions_(algorithm_.tpemOptions()),
+		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),
 		  energyCoeffs_(algorithm_.cutoff()),
 		  numberCoeffs_(algorithm_.cutoff())
@@ -66,7 +67,7 @@ namespace Spf {
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (numberCoeffs_,numberFunctor_,tpemOptions_);
 			
-			return tpem_expansion (algorithm_.moment(), numberCoeffs_);
+			return tpem_.expand(algorithm_.moment(), numberCoeffs_);
 		}
 
 		RealType calcElectronicEnergy() const
@@ -75,7 +76,7 @@ namespace Spf {
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
 			
-			return tpem_expansion (algorithm_.moment(), energyCoeffs_);
+			return tpem_.expand(algorithm_.moment(), energyCoeffs_);
 		}
 
 		ComplexType matrix(size_t lambda1,size_t lambda2) const
@@ -144,7 +145,7 @@ namespace Spf {
 		                   ObservableFunctorType& obsFunc)
 		{
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
-			tpem_calculate_coeffs (coeffs, obsFunc,tpemOptions_);
+			tpem_.calcCoeffs(coeffs, obsFunc);
 		}
 		
 // 		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
@@ -164,7 +165,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;		
 		AlgorithmType algorithm_;
 		size_t hilbertSize_;
-		const TpemOptions& tpemOptions_; // we are not the owner
+		TpemType& tpem_;
 		PsimagLite::Matrix<ComplexType> data_;
 		VectorType energyCoeffs_;
 		VectorType numberCoeffs_;
