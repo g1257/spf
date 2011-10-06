@@ -32,8 +32,8 @@ namespace Spf {
 		// includes from tpemplus.h:
 		typedef tpem_sparse TpemSparseType;
 		typedef TpemOptions TpemOptionsType;
-		// 
-		typedef ObservableFunctor ObservableFunctorType;
+		//
+		typedef ActionFunctor<RealType> ActionFunctorType;
 		
 		enum {TMPVALUES_SET,TMPVALUE_RETRIEVE};
 
@@ -49,7 +49,7 @@ namespace Spf {
 		{
 			throw std::runtime_error("Need to set cutoff_, a_, b_, mu_, beta_\n");
 			//tmpValues(a,b,mu,beta,TMPVALUES_SET);
-			tpem_calculate_coeffs (actionCoeffs_,actionFunc_,tpemOptions_); 
+			tpem_calculate_coeffs(actionCoeffs_,actionFunc_,tpemOptions_); 
 		}
 
 		void init()
@@ -152,8 +152,8 @@ namespace Spf {
 		}
 		
 		double calcDeltaAction(const VectorType &moment,
-		                       const TpemSparseType* matrix1,
-		                       const TpemSparseType* matrix)
+		                       TpemSparseType* matrix1,
+		                       TpemSparseType* matrix)
 		{
 			RealType a = a_;
 			RealType b = b_;
@@ -184,7 +184,7 @@ namespace Spf {
 
 			if (adjustTpemBounds_) {
 				std::string s(__FILE__);
-				s += " " + __FUNCTION__ + " adjusttpembounds, not sure how to proceed\n";
+				s += std::string(" ") + __FUNCTION__ + " adjusttpembounds, not sure how to proceed\n";
 				throw std::runtime_error(s.c_str());
 					// full copy/allocation
 // 					mod_matrix1 = new_tpem_sparse(engineParams_.hilbertSize,matrix1->rowptr[engineParams_.hilbertSize]);
@@ -233,7 +233,7 @@ namespace Spf {
 		TpemOptionsType tpemOptions_;
 		std::vector<size_t> support_;
 		bool adjustTpemBounds_;
-		ObservableFunctor actionFunc_;
+		ActionFunctorType actionFunc_;
 		TpemSparseType* matrixOld_;
 		TpemSparseType* matrixNew_;
 		VectorType actionCoeffs_;

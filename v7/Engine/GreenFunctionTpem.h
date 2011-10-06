@@ -24,7 +24,8 @@ namespace Spf {
 		typedef typename AlgorithmType::ComplexType ComplexType;
 		typedef RngType RandomNumberGeneratorType;
 		typedef std::vector<RealType> VectorType;
-		typedef typename AlgorithmType::ObservableFunctorType ObservableFunctorType;
+		typedef EnergyFunctor<RealType> EnergyFunctorType;
+		typedef NumberFunctor<RealType> NumberFunctorType;
 		
 		GreenFunctionTpem(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),
@@ -138,8 +139,9 @@ namespace Spf {
 
 	private:
 		
+		template<typename ObservableFunctorType>
 		void computeCoeffs(std::vector<RealType>& coeffs,
-		                   const ObservableFunctorType& obsFunc)
+		                   ObservableFunctorType& obsFunc)
 		{
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 			tpem_calculate_coeffs (coeffs, obsFunc,tpemOptions_);
@@ -166,8 +168,8 @@ namespace Spf {
 		PsimagLite::Matrix<ComplexType> data_;
 		VectorType energyCoeffs_;
 		VectorType numberCoeffs_;
-		ObservableFunctorType energyFunctor_;
-		ObservableFunctorType numberFunctor_;
+		EnergyFunctorType energyFunctor_;
+		NumberFunctorType numberFunctor_;
 		
 	}; // class GreenFunctionTpem
 	
