@@ -16,6 +16,7 @@
 #include "Complex.h" // in PsimagLite
 #include "tpemplus.h"
 #include "TpemFunctors.h"
+#include "MetropolisOrGlauber.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
@@ -27,15 +28,19 @@ namespace Spf {
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef std::vector<RealType> VectorType;
+		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
+		// includes from tpemplus.h:
 		typedef tpem_sparse TpemSparseType;
 		typedef TpemOptions TpemOptionsType;
+		// 
 		typedef ObservableFunctor ObservableFunctorType;
-
+		
 		enum {TMPVALUES_SET,TMPVALUE_RETRIEVE};
 
 		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),model_(model),
 		  hilbertSize_(model_.hilbertSize()),
+		  metropolisOrGlauber_(),
 		  tpemOptions_(),
 		  adjustTpemBounds_(false),
 		  actionCoeffs_(cutoff_),
@@ -74,8 +79,8 @@ namespace Spf {
 			
 			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			//RealType integrationMeasure = model_.integrationMeasure(i);
-				
-			return metropolisOrGlauber(dsDirect,rng);
+			RealType X = exp(dS);
+			return metropolisOrGlauber_(X,rng);
 		}
 
 		void accept(size_t i)
@@ -202,21 +207,6 @@ namespace Spf {
 			}
 			return dS;
 		}
-
-		bool metropolisOrGlauber(const RealType& dS2,RngType& rng) const
-		{
-			RealType dS = dS2;
-			if (DO_GLAUBER) {
-				if (dS<0) {
-					dS=exp(dS)/(1.0+exp(dS));
-				} else {
-					dS=1.0/(1.0+exp(-dS));
-				}
-				return (dS>rng());
-			}
-			// METROPOLIS PROPER 
-			return (dS > 0.0 || rng() < exp (dS));
-		}
 		
 		void tmpValues(RealType &a,RealType &b,RealType &mu,RealType &beta,size_t option)
 		{
@@ -237,6 +227,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		size_t hilbertSize_;
+		MetropolisOrGlauberType metropolisOrGlauber_;
 		size_t cutoff_;
 		RealType a_,b_,mu_,beta_;
 		TpemOptionsType tpemOptions_;

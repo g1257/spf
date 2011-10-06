@@ -14,23 +14,27 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
+#include "MetropolisOrGlauber.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmDiag {
-		static const bool DO_GLAUBER = true;
 
 	public:	
 		typedef typename EngineParametersType::FieldType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
-
+		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
+		
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
-			: engineParams_(engineParams),model_(model),
-					eigNew_(model.hilbertSize()),eigOld_(model.hilbertSize()),
-					hilbertSize_(model_.hilbertSize()),
-					matrixNew_(hilbertSize_,hilbertSize_),
-					matrixOld_(hilbertSize_,hilbertSize_)
+		: engineParams_(engineParams),
+		  model_(model),
+		  metropolisOrGlauber_(),
+		  eigNew_(model.hilbertSize()),
+		  eigOld_(model.hilbertSize()),
+		  hilbertSize_(model_.hilbertSize()),
+		  matrixNew_(hilbertSize_,hilbertSize_),
+		  matrixOld_(hilbertSize_,hilbertSize_)
 		{
 		}
 
@@ -47,10 +51,6 @@ namespace Spf {
 
 		bool isAccepted(size_t i,RngType& rng)
 		{
-			RealType dsDirect = model_.deltaDirect(i);
-				
-			//RealType oldmu=engineParams_.mu;
-			
 			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
 			diagonalize(matrixNew_,eigNew_,'N');
 			//testMatrix();
@@ -59,8 +59,9 @@ namespace Spf {
 			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			RealType integrationMeasure = model_.integrationMeasure(i);
 				
-			RealType dS = computeDeltaAction(dsDirect,integrationMeasure);
-			return metropolisOrGlauber(dS,rng);
+			RealType X = computeDeltaAction(integrationMeasure);
+			X *= exp(-engineParams_.beta*model_.deltaDirect(i));
+			return metropolisOrGlauber_(X,rng);
 		}
 
 		void accept(size_t i)
@@ -115,8 +116,7 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool computeDeltaAction(RealType dsDirect,
-		                  RealType integrationMeasure) const
+		bool computeDeltaAction(RealType integrationMeasure) const
 		{
 			RealType mu=engineParams_.mu;
 			RealType beta = engineParams_.beta;
@@ -136,22 +136,7 @@ namespace Spf {
 			}
 			//std::cerr<<"Xbefore="<<X<<" ";
 			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
-			return log(X)-beta*dsDirect;
-		}
-		
-		bool metropolisOrGlauber(const RealType& dS2,RngType& rng) const
-		{
-			RealType dS = dS2;
-			if (DO_GLAUBER) {
-				if (dS<0) {
-					dS=exp(dS)/(1.0+exp(dS));
-				} else {
-					dS=1.0/(1.0+exp(-dS));
-				}
-				return (dS>rng());
-			}
-			// METROPOLIS PROPER 
-			return (dS > 0.0 || rng() < exp (dS));
+			return X;
 		}
 		
 		void testEigs() const
@@ -177,6 +162,7 @@ namespace Spf {
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
+		MetropolisOrGlauberType metropolisOrGlauber_;
 		std::vector<RealType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
