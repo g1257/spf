@@ -11,6 +11,7 @@
 #define TPEM_H
 #include <gsl/gsl_integration.h>
 #include "CrsMatrix.h"
+#include <cassert>
 
 namespace Spf {
 
@@ -62,18 +63,60 @@ namespace Spf {
 			gsl_integration_workspace_free (workspace);
 		}
 		
-		double tpem_expansion (vector<double> const & moments, vector<double> const &coeffs) 
-		{
-			unsigned int	i,n=moments.size();
-			double	ret = 0.0;
-			
-			if (n!=coeffs.size()) {
-				cerr<<"tpem_expansion: coeffs and moments of different size\n";
+		void calcMomentsDiff(std::vector<RealType> &moments,
+		                     const TpemSparseType& matrix0,
+		                     const TpemSparseType& matrix1) const
+		{	
+			TpemSubspace info(matrix0.rank());
+			if (tpemOptions.algorithm==TPEM) {
+				info.fill(matrix0, matrix1, moment0, moment1);
+			} else {
+				info.fill();
 			}
+			
+			size_t n=moments.size();
+			std::vector<RealType>  moment0(n), moment1(n);
+			
+			moment0[0] = moment1[0] = (RealType) matrix0->rank;
+			
+			size_t total = info.top-info->stack;
+
+			for (size_t k=0;k<total;k++) {
+				size_t p= info.stack +k;
+				if (p>=info.top) {
+					moment0[0]=moment1[0]=0.0;
+					break;
+				}
+				diagonalElement(matrix0, moment0, *p);
+				diagonalElement(matrix1, moment1, *p);
+			}
+
+			for (i = 2; i < n; i += 2) {
+				moment0[i] = 2.0 * moment0[i] - moment0[0];
+				moment1[i] = 2.0 * moment1[i] - moment1[0];
+			}
+
+			for (i = 3; i < n - 1; i += 2) {
+				moment0[i] = 2.0 * moment0[i] - moment0[1];
+				moment1[i] = 2.0 * moment1[i] - moment1[1];
+			}
+
 			for (i = 0; i < n; i++)
+				moment[i] = moment0[i] - moment1[i];
+
+		}
+
+		RealType expand(const std::vector<RealType>& moments,
+		                const std::vector<RealType>& coeffs) const
+		{
+			assert(moments.size()==coeffs.size());
+
+			RealType ret = 0.0;
+			for (size_t i = 0; i < moments.size(); ++i)
 				ret += moments[i] * coeffs[i];
 			return ret;
 		}
+
 	private:
 		
 		static RealType myFunction (RealType x, void * p) 
@@ -102,7 +145,7 @@ namespace Spf {
 			}
 			else {
 				p=(m-1)/2;
-				return (2*tpem_chebyshev(p,x)*tpem_chebyshev(p+1,x)-x);
+				return (2*chebyshev(p,x)*chebyshev(p+1,x)-x);
 			}
 		}
 	}; // class Tpem
