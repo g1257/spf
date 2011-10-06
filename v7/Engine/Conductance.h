@@ -14,9 +14,9 @@
 namespace Spf {
 	template<typename EngineParametersType,typename GreenFunctionType>
 	class Conductance {
-		typedef typename GreenFunctionType::FieldType FieldType;
+		typedef typename GreenFunctionType::RealType RealType;
 		typedef typename GreenFunctionType::ComplexType ComplexType;
-		typedef PsimagLite::Matrix<FieldType> MatrixType;
+		typedef PsimagLite::Matrix<RealType> MatrixType;
 
 	public:	
 
@@ -28,18 +28,18 @@ namespace Spf {
 		}
 
 		// needs e^2 \pi
-		FieldType operator()(const MatrixType& velocitySquared) const
+		RealType operator()(const MatrixType& velocitySquared) const
 		{
-			FieldType sum = 0;
-			FieldType beta = engineParams_.beta;
-			FieldType mu = engineParams_.mu;
-			FieldType eps = 0.001;
+			RealType sum = 0;
+			RealType beta = engineParams_.beta;
+			RealType mu = engineParams_.mu;
+			RealType eps = 0.001;
 			for (size_t a=0;a<gf_.hilbertSize();a++) {
-				FieldType ea = PsimagLite::fermi(beta*(gf_.e(a)-mu));
-				FieldType eMa = PsimagLite::fermi(-beta*(gf_.e(a)-mu));
+				RealType ea = PsimagLite::fermi(beta*(gf_.e(a)-mu));
+				RealType eMa = PsimagLite::fermi(-beta*(gf_.e(a)-mu));
 				for (size_t b=0;b<gf_.hilbertSize();b++) {
 					if (fabs(gf_.e(a)-gf_.e(b))>eps) continue;
-					//FieldType eb = PsimagLite::fermi(beta*(gf_.e(b)-mu));
+					//RealType eb = PsimagLite::fermi(beta*(gf_.e(b)-mu));
 // 					if (fabs(ea-eb)>eps) continue;
 					sum += velocitySquared(a,b)*beta*eMa*ea;
 				}

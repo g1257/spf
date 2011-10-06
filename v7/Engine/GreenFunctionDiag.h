@@ -20,7 +20,7 @@ namespace Spf {
 		typedef ModelType_ ModelType;
 		typedef AlgorithmDiag<EngineParametersType,ModelType_,RngType>
 		AlgorithmType;
-		typedef typename AlgorithmType::FieldType FieldType;
+		typedef typename AlgorithmType::RealType RealType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
 		typedef RngType RandomNumberGeneratorType;
 
@@ -48,9 +48,9 @@ namespace Spf {
 			return data_(lambda1,lambda2);
 		}
 		
-		FieldType calcNumber() const
+		RealType calcNumber() const
 		{
-			FieldType sum=0;
+			RealType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
 				sum += PsimagLite::fermi(
 					(algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
@@ -58,9 +58,9 @@ namespace Spf {
 			return sum;
 		}
 		
-		FieldType calcElectronicEnergy() const
+		RealType calcElectronicEnergy() const
 		{
-			FieldType sum=0;
+			RealType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
 				sum +=algorithm_.e(i)*PsimagLite::fermi(
 					(algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
@@ -69,7 +69,7 @@ namespace Spf {
 				
 		}
 		
-		void localCharge(std::vector<FieldType>& lc)
+		void localCharge(std::vector<RealType>& lc)
 		{
 			//checkUs();
 			//checkLevels();
@@ -77,7 +77,7 @@ namespace Spf {
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
-					FieldType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
+					RealType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
 							(algorithm_.e(lambda)-engineParams_.mu));
 					//if (ether.isSet("savelcd")) {
 					//	lc[i+alpha*linSize] = s;
@@ -116,7 +116,7 @@ namespace Spf {
 			return algorithm_.matrix(lambda1,lambda2);
 		}
 
-		const FieldType& e(size_t i) const
+		const RealType& e(size_t i) const
 		{
 			return algorithm_.e(i);
 		}
@@ -137,8 +137,8 @@ namespace Spf {
 		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
 		{
 			ComplexType sum = 0;
-			FieldType beta = engineParams_.beta;
-			FieldType mu = engineParams_.mu;
+			RealType beta = engineParams_.beta;
+			RealType mu = engineParams_.mu;
 
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++)
 				sum += std::conj(algorithm_.matrix(lambda1,lambda)) *
@@ -161,7 +161,7 @@ namespace Spf {
 
 		void checkLevels() const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 				if (algorithm_.e(lambda)>=engineParams_.mu) continue;
 				sum++;

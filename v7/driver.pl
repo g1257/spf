@@ -55,6 +55,8 @@ if ($mpi eq "n") {
 
 $tpem = "Diag" if ($tpem eq "n");
 $tpem = "Tpem" if ($tpem eq "y");
+my $tpemInclude = " ";
+$tpemInclude = " -ITpemPlus " if ($tpem eq "Tpem");
 
 my $compiler = "g++";
 $compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
@@ -76,7 +78,7 @@ print FOUT<<EOF;
 # MPI: $mpi
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
-CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields 
+CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
 CXX = $compiler -Werror -Wall -O3 -pg
 
 all: \$(EXENAME)
@@ -141,7 +143,7 @@ typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModel
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,ConcurrencyType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
-typedef Spf::GreenFunctionDiag<ParametersEngineType,ModelType,RandomNumberGeneratorType> GreenFunctionType;
+typedef Spf::GreenFunction$tpem<ParametersEngineType,ModelType,RandomNumberGeneratorType> GreenFunctionType;
 typedef Spf::Engine<ParametersEngineType,GreenFunctionType,ConcurrencyType> EngineType;
 
  

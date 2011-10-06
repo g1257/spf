@@ -21,8 +21,8 @@ namespace Spf {
 		static const bool DO_GLAUBER = true;
 
 	public:	
-		typedef typename EngineParametersType::FieldType FieldType;
-		typedef std::complex<FieldType> ComplexType;
+		typedef typename EngineParametersType::FieldType RealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
@@ -38,7 +38,7 @@ namespace Spf {
 		{
 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
 			diag(matrixOld_,eigOld_,'N');
-			sort(eigOld_.begin(), eigOld_.end(), std::less<FieldType>());
+			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
 		}
 
 		ModelType& model() { return model_; } // should be const
@@ -47,9 +47,9 @@ namespace Spf {
 
 		bool isAccepted(size_t i,RngType& rng)
 		{
-			FieldType dsDirect = model_.deltaDirect(i);
+			RealType dsDirect = model_.deltaDirect(i);
 				
-			//FieldType oldmu=engineParams_.mu;
+			//RealType oldmu=engineParams_.mu;
 			
 			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
 			diagonalize(matrixNew_,eigNew_,'N');
@@ -57,9 +57,9 @@ namespace Spf {
 			//testEigs();
 			
 			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
-			FieldType integrationMeasure = model_.integrationMeasure(i);
+			RealType integrationMeasure = model_.integrationMeasure(i);
 				
-			FieldType dS = computeDeltaAction(dsDirect,integrationMeasure);
+			RealType dS = computeDeltaAction(dsDirect,integrationMeasure);
 			return metropolisOrGlauber(dS,rng);
 		}
 
@@ -79,21 +79,21 @@ namespace Spf {
 			return matrixNew_(lambda1,lambda2);
 		}
 		
-		const FieldType& e(size_t i) const
+		const RealType& e(size_t i) const
 		{
 			return eigNew_[i];
 		}
 
 		void diagonalize(
 				MatrixType& matrix,
-				std::vector<FieldType>& eigs,
+				std::vector<RealType>& eigs,
 				char jobz='N',
 				size_t fields=ModelType::NEWFIELDS) const
 		{
 			model_.createHamiltonian(matrix,fields);
 			diag(matrix,eigs,jobz);
 			if (jobz!='V')
-				std::sort(eigs.begin(), eigs.end(), std::less<FieldType>());
+				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
 		}
 		
 		void printMatrix(size_t mode) const
@@ -115,15 +115,15 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool computeDeltaAction(FieldType dsDirect,
-		                  FieldType integrationMeasure) const
+		bool computeDeltaAction(RealType dsDirect,
+		                  RealType integrationMeasure) const
 		{
-			FieldType mu=engineParams_.mu;
-			FieldType beta = engineParams_.beta;
-			FieldType X =1.0;
+			RealType mu=engineParams_.mu;
+			RealType beta = engineParams_.beta;
+			RealType X =1.0;
 			
 			for (size_t i=0;i<eigNew_.size();i++) {
-				FieldType temp = 0;
+				RealType temp = 0;
 				if (eigNew_[i]>mu)
 					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/
 						(1.0+exp(-beta*(eigOld_[i]-mu)));
@@ -139,9 +139,9 @@ namespace Spf {
 			return log(X)-beta*dsDirect;
 		}
 		
-		bool metropolisOrGlauber(const FieldType& dS2,RngType& rng) const
+		bool metropolisOrGlauber(const RealType& dS2,RngType& rng) const
 		{
-			FieldType dS = dS2;
+			RealType dS = dS2;
 			if (DO_GLAUBER) {
 				if (dS<0) {
 					dS=exp(dS)/(1.0+exp(dS));
@@ -156,7 +156,7 @@ namespace Spf {
 		
 		void testEigs() const
 		{
-			FieldType eps = 1e-6;
+			RealType eps = 1e-6;
 			for (size_t i=0;i<eigOld_.size();i++) {
 				if (fabs(eigOld_[i]-eigNew_[i])>eps) return;
 			}
@@ -165,7 +165,7 @@ namespace Spf {
 		
 		void testMatrix() const
 		{
-			FieldType eps = 1e-6;
+			RealType eps = 1e-6;
 			for (size_t i=0;i<matrixOld_.n_row();i++) {
 				for (size_t j=0;j<matrixOld_.n_col();j++) {
 					if (fabs(real(matrixOld_(i,j)-matrixNew_(i,j)))>eps &&
@@ -177,7 +177,7 @@ namespace Spf {
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
-		std::vector<FieldType> eigNew_,eigOld_;
+		std::vector<RealType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
 	}; // AlgorithmDiag
@@ -188,9 +188,9 @@ namespace Spf {
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
-		typedef typename EngineParametersType::FieldType FieldType;
-		std::vector<FieldType> eigNew(a.hilbertSize_);
-		PsimagLite::Matrix<std::complex<FieldType> > matrix(a.hilbertSize_,a.hilbertSize_);
+		typedef typename EngineParametersType::FieldType RealType;
+		std::vector<RealType> eigNew(a.hilbertSize_);
+		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";
 		os<<eigNew;

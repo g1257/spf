@@ -20,33 +20,38 @@ namespace Spf {
 		typedef ModelType_ ModelType;
 		typedef AlgorithmTpem<EngineParametersType,ModelType_,RngType>
 		AlgorithmType;
-		typedef typename AlgorithmType::FieldType FieldType;
+		typedef typename AlgorithmType::RealType RealType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
 		typedef RngType RandomNumberGeneratorType;
-
+		typedef std::vector<RealType> VectorType;
+		typedef typename AlgorithmType::ObservableFunctorType ObservableFunctorType;
+		
 		GreenFunctionTpem(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),
 		  algorithm_(engineParams,model),
 		  hilbertSize_(model.hilbertSize()),
+		  tpemOptions_(algorithm_.tpemOptions()),
 		  data_(hilbertSize_,hilbertSize_),
 		  energyCoeffs_(algorithm_.cutoff()),
 		  numberCoeffs_(algorithm_.cutoff())
 		{
-			computeCoeffs(energyCoeffs_,energyFunctor);
-			computeCoeffs(numberCoeffs_,numberFunctor);
+			computeCoeffs(energyCoeffs_,energyFunctor_);
+			computeCoeffs(numberCoeffs_,numberFunctor_);
 		}
 		
 		void measure()
 		{
 			algorithm_.prepare();
-			size_t n = hilbertSize_;
-			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
-				data_(i,j) = greenFunction(i,j);
+// 			size_t n = hilbertSize_;
+// 			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
+// 				data_(i,j) = greenFunction(i,j);
 		}
 
 		AlgorithmType& algorithm() { return algorithm_; }
 
 		ModelType& model() { return algorithm_.model(); } // should be const
+
+		size_t hilbertSize() const { return hilbertSize_; }
 
 		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
 		{
@@ -54,25 +59,35 @@ namespace Spf {
 // 			return data_(lambda1,lambda2);
 		}
 
-		FieldType calcNumber() const
+		RealType calcNumber() const
 		{
-			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
-			if (ether.isSet("adjusttpembounds"))
-				tpem_calculate_coeffs (numberCoeffs_,numberFunctor,tpemOptions_);
+// 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
+// 			if (ether.isSet("adjusttpembounds"))
+// 				tpem_calculate_coeffs (numberCoeffs_,numberFunctor_,tpemOptions_);
 			
-			return tpem_expansion (moment, numberCoeffs_);
+			return tpem_expansion (algorithm_.moment(), numberCoeffs_);
 		}
 
-		FieldType calcElectronicEnergy() const
+		RealType calcElectronicEnergy() const
 		{
-			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
-			if (ether.isSet("adjusttpembounds"))
-				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
+// 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
+// 			if (ether.isSet("adjusttpembounds"))
+// 				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
 			
-			return tpem_expansion (moment, energyCoeffs_);
+			return tpem_expansion (algorithm_.moment(), energyCoeffs_);
 		}
 
-		void localCharge(std::vector<FieldType>& lc)
+		ComplexType matrix(size_t lambda1,size_t lambda2) const
+		{
+			return ComplexType(0,0);
+		}
+
+		FieldType e(size_t i) const
+		{
+			return 0;
+		}
+
+		void localCharge(std::vector<RealType>& lc)
 		{
 			throw std::runtime_error("local charge is unimplemented for TPEM\n");
 // 			//checkUs();
@@ -81,7 +96,7 @@ namespace Spf {
 // 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 // 					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 // 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
-// 					FieldType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
+// 					RealType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
 // 							(algorithm_.e(lambda)-engineParams_.mu));
 // 					//if (ether.isSet("savelcd")) {
 // 					//	lc[i+alpha*linSize] = s;
@@ -123,17 +138,18 @@ namespace Spf {
 
 	private:
 		
-		void computeCoeffs(std::vector<FieldType>& coeffs,ObservableFunctorType obsFunc)
+		void computeCoeffs(std::vector<RealType>& coeffs,
+		                   const ObservableFunctorType& obsFunc)
 		{
-			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
-			tpem_calculate_coeffs (coeffs, obsFunc,tpemOptions);
+// 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
+			tpem_calculate_coeffs (coeffs, obsFunc,tpemOptions_);
 		}
 		
 // 		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
 // 		{
 // 			ComplexType sum = 0;
-// 			FieldType beta = engineParams_.beta;
-// 			FieldType mu = engineParams_.mu;
+// 			RealType beta = engineParams_.beta;
+// 			RealType mu = engineParams_.mu;
 // 
 // 			for (size_t lambda=0;lambda<hilbertSize_;lambda++)
 // 				sum += std::conj(algorithm_.matrix(lambda1,lambda)) *
@@ -146,7 +162,12 @@ namespace Spf {
 		const EngineParametersType& engineParams_;		
 		AlgorithmType algorithm_;
 		size_t hilbertSize_;
+		const TpemOptions& tpemOptions_; // we are not the owner
 		PsimagLite::Matrix<ComplexType> data_;
+		VectorType energyCoeffs_;
+		VectorType numberCoeffs_;
+		ObservableFunctorType energyFunctor_;
+		ObservableFunctorType numberFunctor_;
 		
 	}; // class GreenFunctionTpem
 	
