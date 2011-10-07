@@ -257,29 +257,47 @@ void accAkw(Geometry const &geometry,DynVars const &dynVars, Parameters const &e
 #endif
 }
 
+double calcLcd(size_t i,Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,Aux &aux)
+{
+	double s = 0;
+	int int_dof=ether.hilbertSize/ether.linSize;
+	for (int lambda=0;lambda<ether.hilbertSize;lambda++) {
+		for (int alpha=0;alpha<int_dof;alpha++) {
+			MatType tmp = conj(aux.matrix(i+alpha*ether.linSize,lambda))*
+			              aux.matrix(i+alpha*ether.linSize,lambda);
+			s+= real(tmp)*fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
+		}
+	}
+	return s;
+}
 
-		
 void accLcd(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,Aux &aux)
 {
-	int i,lambda,alpha,int_dof=ether.hilbertSize/ether.linSize;
-	MatType tmp;
-	double s;
-	
-
-	for (i=0;i<ether.linSize;i++) {
-		s=0.0;
-		for (lambda=0;lambda<ether.hilbertSize;lambda++) {
-			for (alpha=0;alpha<int_dof;alpha++) {
-				tmp = conj(aux.matrix(i+alpha*ether.linSize,lambda))*aux.matrix(i+alpha*ether.linSize,lambda);
-				s+= real(tmp)*fermi(ether.beta*(aux.eigOneBand[lambda]-aux.varMu));
-			}
-		}
+	for (int i=0;i<ether.linSize;i++) {
+		double s=calcLcd(i,geometry,dynVars,ether,aux);
+		
 		if (ether.isSet("savelcd")) {
 			aux.lcd[i]=s;
 		} else {
 			//aux.lcd[i] += s;
 		}
 	}	
+}
+
+double calcCoulomb(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,Aux &aux)
+{
+	if (fabs(ether.coulombV)<1e-6) return 0.0;
+
+	double s = 0;
+	for (int i=0;i<ether.linSize;i++) {
+		for (int k=0;k<geometry.z(i);k++) {
+			int j=geometry.neighbor(i,k);
+			double ni = calcLcd(i,geometry,dynVars,ether,aux);
+			double nj = calcLcd(j,geometry,dynVars,ether,aux);
+			s += ni*nj;
+		}
+	}
+	return s * ether.coulombV;
 }
 
 double calcKinetic(DynVars const &dynVars,Geometry const &geometry,Parameters const &ether,Aux &aux)

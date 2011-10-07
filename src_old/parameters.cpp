@@ -131,15 +131,17 @@ void Parameters::print(ostream &s,char prefix)
 	if (j>8 && !isSet("verbose")) j=8;
 	for (i=0;i<j;i++) s<<potential[i]<<" ";
 	s<<endl;
-		
-	
-	
+
+	if (isSet("havecoulomb")) {
+		s<<prefix<<"CoulombV="<<coulombV<<"\n";
+	}
+
 	if (isSet("magneticfield")) {
 		s<<prefix<<"Magnetic Field=";
 		for (i=0;i<3;i++) s<<magnetic[i]<<" ";
 		s<<endl;
 	}
-	
+
 	if (isSet("tprime")) {
 		s<<prefix<<"TPRIME="<<tprime<<endl;
 		s<<prefix<<"JAFPRIME="<<jafprime<<endl;

@@ -113,6 +113,7 @@ void accOrbitalCorrelation(size_t g1,size_t g2,Geometry const &geometry,DynVars 
 void calcLocalk(psimag::Matrix<std::complex<double> >& sq,const std::vector<size_t>& q,
 		Geometry const &geometry,DynVars const &dynVars, Parameters const &ether);
 #endif // #ifdef CALC_D_AND_D
+double calcCoulomb(Geometry const &geometry,DynVars const &dynVars,Parameters const &ether,Aux &aux);
 
 #endif
 

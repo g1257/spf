@@ -634,6 +634,7 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	* - \b akw Calculate A(r,omega). With TPEM it needs postprocessing with mom2arw.pl. 
 	* - \b optical Calculate sigma(omega). With TPEM it needs postprocessing. 
 	* - \b havepotential Read (and use) a potential as a vector of N doubles.
+	* - \b havecoulomb  Read (and use) a Coulomb potential as a double
 	* - \b tprime Read (and use) a next-nearest neighbor hopping (only for square lattices).
 	* - \b magneticfield Read (and use) a magnetic field (adds a Zeeman term to the Hamiltonian).
 	* - \b groundstate Calculates the ground state and exits.
@@ -851,6 +852,13 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 		fin>>ether.muDelta;
 		fin>>ether.muSeparate;
 		ether.potential.resize(ether.linSize);
+	}
+	
+	/*! \b COULOMBV: Coulomb potential V * n_i * n_j 
+	 */
+	ether.coulombV = 0;
+	if (ether.isSet("havecoulomb")) {
+		fin>>ether.coulombV;
 	}
 	
 	/*! \b NANOCLUSTER_PARAMETERS: All integers.

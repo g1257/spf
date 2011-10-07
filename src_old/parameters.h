@@ -77,6 +77,7 @@ struct Parameters {
 	size_t jafSeparate;
 	size_t numberOfJafConfigs;
 	vector<double> potential;
+	double coulombV;
 	std::string potentialFile; //< the filename from where to load the potential
 	std::string jafFile; //< the filename from where to load the jaf vector
 	size_t numberOfMuConfigs;
