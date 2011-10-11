@@ -1396,8 +1396,8 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 	
 	for (k=0; k<ether.classFieldList.size();k++) nac[k] = 0;
 	
-	double coulombOld = 0;
-	double coulombNew = 0;
+	double coulombOld = calcCoulomb(geometry,dynVars,ether,aux);
+	
 	for (i=0;i<n;i++) {
 		if (ether.modulus[i]==0) continue;
 		
@@ -1416,6 +1416,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				dynVars2.bcsDelta=dynVars.bcsDelta;
 				dynVars2.bcsPhi=dynVars.bcsPhi;
 			}
+			double coulombNew = 0;
 			switch (dof) {	
 			case 0:    // spin dof
 				r_newSpins(dynVars.theta[i],dynVars.phi[i],thetaNew,phiNew,ether);
@@ -1424,14 +1425,14 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				dsDirect = dSDirect(dynVars,dynVars2,i,geometry,ether);
 				if (ether.isSet("tprime")) 
 					dsDirect += directExchange2(dynVars2,geometry,ether)-directExchange2(dynVars,geometry,ether);
-				coulombNew = calcCoulomb(geometry,dynVars,ether,aux);
+				coulombNew = calcCoulomb(geometry,dynVars2,ether,aux);
 				dsDirect +=  (coulombNew - coulombOld);
 				break;
 			case 1:  // phonons
 				r_newPhonons(dynVars.phonons[i],phononsNew,ether);
 				dynVars2.phonons[i]=phononsNew;
 				dsDirect= dPhonons(dynVars,dynVars2,i,geometry,ether,phonons);
-				coulombNew = calcCoulomb(geometry,dynVars,ether,aux);
+				coulombNew = calcCoulomb(geometry,dynVars2,ether,aux);
 				dsDirect +=  (coulombNew - coulombOld);
 				break;
 			case 2: // bcs delta/phi
