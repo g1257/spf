@@ -86,13 +86,14 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include "TypeToString.h"
 
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename FieldType_,typename IoInType_>
+	template<typename RealType_,typename IoInType_>
 	struct ParametersEngine {
-		typedef FieldType_ FieldType;
+		typedef RealType_ RealType;
 		typedef IoInType_ IoInType;
 		//! Read Dmrg parameters from inp file
 		ParametersEngine(IoInType& io)
@@ -129,10 +130,10 @@ namespace Spf {
 		std::string version;
 		std::string options; // options
 		size_t carriers;
-		mutable FieldType mu; // chemical potential 
-		FieldType beta; // inverse temperature
+		mutable RealType mu; // chemical potential 
+		RealType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
-		std::vector<FieldType> mcWindow; // monte carlo window of change
+		std::vector<RealType> mcWindow; // monte carlo window of change
 		std::string dynvarsfile; // file with fields to start from or none
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
@@ -143,9 +144,9 @@ namespace Spf {
 	};
 
 	//! print dmrg parameters
-	template<typename FieldType,typename IoInType>
+	template<typename RealType,typename IoInType>
 	std::ostream &operator<<(std::ostream &os,
-		ParametersEngine<FieldType,IoInType> const &parameters)
+		ParametersEngine<RealType,IoInType> const &parameters)
 	{
 		os<<"#This is SPF\n";
 		os<<"parameters.version="<<parameters.version<<"\n";

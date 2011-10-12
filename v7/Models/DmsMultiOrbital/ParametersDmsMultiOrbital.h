@@ -90,7 +90,7 @@ namespace Spf {
 	// please don't add member functions, this is a struct!
 	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersDmsMultiOrbital {
-		typedef typename ParametersEngineType::FieldType RealType;
+		typedef typename ParametersEngineType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 
 		//! ctor to read Model Parameters from inp file.

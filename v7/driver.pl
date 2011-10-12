@@ -183,7 +183,7 @@ int main(int argc,char *argv[])
 	GeometryType geometry(engineParams.latticeLength);
 	
 	ModelType model(engineParams,mp,geometry,concurrency);
-	GreenFunctionType gf(engineParams,model);
+	GreenFunctionType gf(engineParams,model,io);
 	EngineType engine(engineParams,gf,concurrency);
 	
 	engine.main();

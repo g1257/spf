@@ -21,7 +21,7 @@ namespace Spf {
 	class AlgorithmDiag {
 
 	public:	
-		typedef typename EngineParametersType::FieldType RealType;
+		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
@@ -174,7 +174,7 @@ namespace Spf {
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
-		typedef typename EngineParametersType::FieldType RealType;
+		typedef typename EngineParametersType::RealType RealType;
 		std::vector<RealType> eigNew(a.hilbertSize_);
 		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);

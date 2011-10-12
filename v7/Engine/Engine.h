@@ -23,14 +23,14 @@ namespace Spf {
 	template<typename ParametersType,typename GreenFunctionType,typename ConcurrencyType>
 	class Engine {
 		
-		typedef typename ParametersType::FieldType FieldType;
+		typedef typename ParametersType::RealType RealType;
 		typedef typename GreenFunctionType::ModelType ModelType;
 		typedef typename GreenFunctionType::RandomNumberGeneratorType RandomNumberGeneratorType;
 		typedef typename GreenFunctionType::AlgorithmType AlgorithmType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
-		typedef Packer<FieldType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
+		typedef Packer<RealType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 	public:
 			

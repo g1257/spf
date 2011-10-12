@@ -19,24 +19,24 @@
 namespace Spf {
 	template<typename EngineParamsType>
 	class Adjustments {
-		typedef typename EngineParamsType::FieldType FieldType;
+		typedef typename EngineParamsType::RealType RealType;
 		typedef DensityFunction<EngineParamsType> DensityFunctionType;
 		// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
 		typedef RootFindingBisection<DensityFunctionType> RootFindingType;
 	public:
 		Adjustments(const EngineParamsType& engineParams,
 		            size_t maxIter=100,
-		            FieldType tolerance=1.0e-3)
+		            RealType tolerance=1.0e-3)
 		: engineParams_(engineParams),maxIter_(maxIter),tolerance_(tolerance)
 		{
 		}
 		
-		FieldType adjChemPot(const std::vector<FieldType>& eigs) const
+		RealType adjChemPot(const std::vector<RealType>& eigs) const
 		{
 			DensityFunctionType densityFunction(engineParams_,eigs);
 			RootFindingType  rootFinding(densityFunction);
 			
-			FieldType mu=engineParams_.mu;
+			RealType mu=engineParams_.mu;
 			//std::cerr<<"Old mu="<<mu<<" ";
 			rootFinding(mu);
 			//std::cerr<<" new mu = "<<mu<<"\n";
@@ -53,7 +53,7 @@ namespace Spf {
 		
 		const EngineParamsType& engineParams_;
 		size_t maxIter_;
-		FieldType tolerance_;
+		RealType tolerance_;
 	}; // Adjustments
 } // namespace Spf
 

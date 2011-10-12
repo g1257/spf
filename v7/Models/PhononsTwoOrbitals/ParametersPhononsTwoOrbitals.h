@@ -89,7 +89,7 @@ namespace Spf {
 	//! Hubbard Model Parameters
 	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersPhononsTwoOrbitals {
-		typedef typename ParametersEngineType::FieldType RealType;
+		typedef typename ParametersEngineType::RealType RealType;
 		//! ctor to read Model Parameters from inp file.
 		ParametersPhononsTwoOrbitals(
 				IoInType& io,

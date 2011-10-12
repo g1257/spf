@@ -26,25 +26,24 @@ namespace Spf {
 	           typename GeometryType,
 	           typename ConcurrencyType>
 	class PnictidesMultiOrbitals : public ModelBase<Spin<
-	  typename EngineParamsType::FieldType>,
+	  typename EngineParamsType::RealType>,
 	  EngineParamsType,ParametersModelType_,
 	  GeometryType,
 	  ConcurrencyType> {
 
-		typedef typename EngineParamsType::FieldType FieldType;
-		typedef std::complex<FieldType> ComplexType;
-		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef typename EngineParamsType::RealType RealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
-		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
+		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 
-		public:
-
+	public:
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ParametersModelType_ ParametersModelType;
 		static const size_t norb_ = ParametersModelType::numberOfOrbitals;
-		typedef PnictidesTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
+		typedef PnictidesTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef ThreeOrbitalTerms<norb_,MatrixType,ParametersModelType,
@@ -80,9 +79,9 @@ namespace Spf {
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
-		FieldType deltaDirect(size_t i) const 
+		RealType deltaDirect(size_t i) const 
 		{
-			FieldType x = spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			RealType x = spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 			x += spinOperations_.deltaMagneticField(i,mp_.magneticField);
 			return x;
 		}
@@ -96,7 +95,7 @@ namespace Spf {
 			
 			packer.pack("iter=",iter);
 
-			FieldType temp=greenFunction.calcNumber();
+			RealType temp=greenFunction.calcNumber();
 // 			s ="Number_Of_Electrons="+ttos(temp);
 			packer.pack("Number_Of_Electrons=",temp);
 			
@@ -106,7 +105,7 @@ namespace Spf {
 // 			s="Electronic Energy="+ttos(temp);
 			packer.pack("Electronic Energy=",temp);
 			
-			FieldType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
+			RealType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
 // 			s="Superexchange="+ttos(temp2);
 			packer.pack("Superexchange=",temp2);
 // 			progress_.printline(s,fout);
@@ -127,7 +126,7 @@ namespace Spf {
 			
 			packer.pack("Adjustments: mu=",engineParams_.mu);
 	
-			std::vector<FieldType> magVector(3,0);
+			std::vector<RealType> magVector(3,0);
 			spinOperations_.calcMagVector(magVector,dynVars);
 // 			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
 			packer.pack("ClassicalMagnetizationSquared=",magVector*magVector);
@@ -150,7 +149,7 @@ namespace Spf {
 			
 			if (engineParams_.options.find("conductance")!=std::string::npos) {
 				//greenFunction.printMatrix(OLDFIELDS);
-				PsimagLite::Matrix<FieldType> v
+				PsimagLite::Matrix<RealType> v
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
 				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
@@ -158,7 +157,7 @@ namespace Spf {
 // 				s = "ConductanceX=" + ttos(conductance(v));
 				packer.pack("ConductanceX=" ,conductance(v));
 // 				progress_.printline(s,fout);
-				//PsimagLite::Matrix<FieldType> vv = v;
+				//PsimagLite::Matrix<RealType> vv = v;
 				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
 // 				s = "ConductanceY=" + ttos(conductance(v));
 				packer.pack("ConductanceY=" ,conductance(v));
@@ -209,7 +208,7 @@ namespace Spf {
 		}
 		
 		
-		void adjustChemPot(const std::vector<FieldType>& eigs)
+		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -225,7 +224,7 @@ namespace Spf {
 			spinOperations_.accept(i);
 		}
 		
-		FieldType integrationMeasure(size_t i)
+		RealType integrationMeasure(size_t i)
 		{
 			return spinOperations_.sineUpdate(i);
 		}
@@ -246,7 +245,7 @@ namespace Spf {
 		                               GeometryType2,
 		                               ConcurrencyType2>& model);
 		
-		private:
+	private:
 		
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,MatrixType& matrix) const
 		{
@@ -267,7 +266,7 @@ namespace Spf {
 					size_t spin1 = size_t(gamma1/norb);
 					size_t orb1 = gamma1 % norb;
 					//! Term B (n_iup - n_idown)
-					FieldType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
+					RealType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
 					matrix(p+gamma1*volume,p+gamma1*volume) =
 						real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p] + magField;
 					for (size_t j = 0; j <  geometry_.z(1); j++) {	
@@ -336,7 +335,7 @@ namespace Spf {
 		
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
-		                     PsimagLite::Matrix<FieldType>& v,
+		                     PsimagLite::Matrix<RealType>& v,
 		                     size_t dir) const
 		{
 			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
@@ -385,7 +384,7 @@ namespace Spf {
 								if (dir2<0) continue;
 								
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
-								FieldType hopping = mp_.hoppings[h] 
+								RealType hopping = mp_.hoppings[h] 
 								    + threeOrbitalTerms_.hopping(isite,dir2,orb1,orb2);
 								if (fabs(hopping)<1e-8) continue;
 								//std::cerr<<"dir="<<dir<<" isite="<<isite<<" jsite="<<jsite<<" dir2="<<dir2<<" h="<<hopping<<"\n";

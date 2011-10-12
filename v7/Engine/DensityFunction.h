@@ -20,34 +20,34 @@ namespace Spf {
 	template<typename EngineParamsType>
 	class DensityFunction {
 	public:
-		typedef typename EngineParamsType::FieldType FieldType;
+		typedef typename EngineParamsType::RealType RealType;
 		
 		DensityFunction(const EngineParamsType& engineParams,
-						const std::vector<FieldType>& eig)
+						const std::vector<RealType>& eig)
 		: engineParams_(engineParams),eig_(eig)
 		{
 		}
 		
-		FieldType operator()(const FieldType& mu) const
+		RealType operator()(const RealType& mu) const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			for (size_t i=0;i<eig_.size();i++)
 				sum += PsimagLite::fermi((eig_[i]-mu)*engineParams_.beta);
 			return sum - engineParams_.carriers;
 		}
 
 		// Derivative of n(mu) with respect to mu
-		FieldType derivative(const FieldType& mu) const
+		RealType derivative(const RealType& mu) const
 		{
-			FieldType sum=0;
-			const FieldType& beta = engineParams_.beta;
+			RealType sum=0;
+			const RealType& beta = engineParams_.beta;
 			for (size_t i=0;i<eig_.size();i++)
 				sum -= PsimagLite::fermiPrime((eig_[i]-mu)*beta)*beta;
 			return sum;
 		}
 		
 		const EngineParamsType& engineParams_;
-		const std::vector<FieldType>& eig_;
+		const std::vector<RealType>& eig_;
 	}; // DensityFunction
 } // namespace Spf
 

@@ -16,18 +16,18 @@
 namespace Spf {
 	template<typename FunctionType>
 	class RootFindingBisection {
-		typedef typename FunctionType::FieldType FieldType;
+		typedef typename FunctionType::RealType RealType;
 		
 	public:
 		RootFindingBisection(const FunctionType& function,
 		                  size_t maxIter=100,
-		                  FieldType tolerance=1.0e-3)
+		                  RealType tolerance=1.0e-3)
 		: function_(function),maxIter_(maxIter),tolerance_(tolerance),
 		  a_(-100),b_(100)
 		{
 		}
 		
-		void operator()(FieldType& mu)
+		void operator()(RealType& mu)
 		{
 			// INPUT: Function f, endpoint values a, b, tolerance TOL, 
 			//                maximum iterations NMAX
@@ -37,7 +37,7 @@ namespace Spf {
 		
 			size_t n = 0;
 			while(n<maxIter_) {
-				FieldType c = (a_ + b_)/2; // new midpoint
+				RealType c = (a_ + b_)/2; // new midpoint
 				
 				if (function_(c) == 0 || (b_ - a_)/2 < tolerance_) { //solution found
 					mu = c;
@@ -54,15 +54,15 @@ namespace Spf {
 		
 	private:
 		
-		int sign(const FieldType& x) const
+		int sign(const RealType& x) const
 		{
 			return (x>=0) ?  1  : -1;
 		}
 		
 		const FunctionType& function_;
 		size_t maxIter_;
-		FieldType tolerance_;
-		FieldType a_,b_;
+		RealType tolerance_;
+		RealType a_,b_;
 	}; // RootFindingBisection
 } // namespace Spf
 

@@ -24,7 +24,7 @@ namespace Spf {
 		typedef typename TpemParametersType::RealType RealType;
 		typedef BaseFunctor<TpemParametersType> BaseFunctorType;
 		typedef PsimagLite::CrsMatrix<RealOrComplexType> TpemSparseType;
-		typedef TpemSubspace TpemSubspaceType;
+		typedef TpemSubspace<RealType,TpemSparseType> TpemSubspaceType;
 		typedef ActionFunctor<TpemParametersType> ActionFunctorType;
 		typedef EnergyFunctor<TpemParametersType> EnergyFunctorType;
 		typedef NumberFunctor<TpemParametersType> NumberFunctorType;
@@ -59,7 +59,7 @@ namespace Spf {
 			RealType result = 0,abserr = 0;
 			
 			gsl_function f;
-			f.function= &Tpem<BaseFunctorType>::myFunction;
+			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			
@@ -75,7 +75,7 @@ namespace Spf {
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
 		{	
-			TpemSubspaceType info(matrix0.rank());
+			TpemSubspaceType info(matrix0.rank(),tpemParameters_.eps);
 			size_t n=moments.size();
 			std::vector<RealType>  moment0(n), moment1(n);
 
@@ -86,15 +86,10 @@ namespace Spf {
 			}
 
 			moment0[0] = moment1[0] =  matrix0.rank();
-			
-			size_t total = info.size();
 
-			for (size_t k=0;k<total;k++) {
-				size_t p= k;
-				if (p>=info.top()) {
-					moment0[0]=moment1[0]=0.0;
-					break;
-				}
+			for (size_t k=0;k<info.size();k++) {
+				size_t p= info(k);
+// 				
 				diagonalElement(matrix0, moment0, p);
 				diagonalElement(matrix1, moment1, p);
 			}
@@ -160,7 +155,7 @@ namespace Spf {
 		                     std::vector<RealType> &moment,
 		                     size_t ket) const
 		{
-			TpemSubspaceType work(matrix.rank());
+			TpemSubspaceType work(matrix.rank(),tpemParameters_.eps);
 			if (tpemParameters_.algorithm == TpemParametersType::TPEM) {
 				diagonalElementTpem(matrix,moment,ket,work);
 			} else if (tpemParameters_.algorithm == TpemParametersType::PEM) {
@@ -189,7 +184,7 @@ namespace Spf {
 		void diagonalElementTpem(const TpemSparseType& matrix,
 		                         std::vector<RealType> &moment,
 		                         size_t ket,
-		                         TpemSparseType& info) const
+		                         TpemSubspaceType& info) const
 		{
 			std::vector<RealOrComplexType> tmp(matrix.rank(),0.0);
 			std::vector<RealOrComplexType> jm0(matrix.rank(),0.0);
@@ -197,7 +192,7 @@ namespace Spf {
 
 			jm0[ket] = 1.0;/* set |j,0> */
 
-			info.reset();
+			info.clear();
 			info.push(ket);
 
 			/* calculate |j,1> = X|j,0> */
@@ -207,7 +202,7 @@ namespace Spf {
 			moment[1] += std::real(sum1);
 			
 			RealOrComplexType sum2 = 0.0;
-			for (size_t p = 0; p < info.top(); p++)
+			for (size_t p = 0; p < info.size(); p++)
 				sum2 += std::conj(jm1[info(p)]) * jm1[info(p)];
 			moment[2] += std::real (sum2);
 			
@@ -253,14 +248,14 @@ namespace Spf {
 			jm0[ket] = 1.0;	/* set |j,0> */
 
 			/* calculate |j,1> = X|j,0> */
-			sparseProductPem(matrix, jm1, jm0);
+			TpemSubspaceType::sparseProductPem(matrix, jm1, jm0);
 			
 			RealOrComplexType sum1 = std::conj(jm0[ket]) * jm1[ket];
 			moment[1] += std::real (sum1);
 			
 			RealOrComplexType sum2 =  0.0;
 			for (size_t j=0;j<matrix.rank();j++)
-				sum2 = += std::conj(jm1[j]) * jm1[j];
+				sum2 += std::conj(jm1[j]) * jm1[j];
 			moment[2] += std::real (sum2);
 			
 			/* calculate |j,m> = 2X|j,m-1> - |j,m-2>
@@ -274,7 +269,7 @@ namespace Spf {
 			size_t n=moment.size();
 			for (size_t m = 2; m < n / 2; m++) {
 				/* calculate |tmp> = X|jm1> */
-				sparseProductPem(matrix, tmp, jm1);
+				TpemSubspaceType::sparseProductPem(matrix, tmp, jm1);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
 				for (size_t i=0;i<matrix.rank();i++) {
@@ -282,7 +277,7 @@ namespace Spf {
 					/* for moment[2 * m    ] */
 					sum1 +=  std::conj(keep) * keep;
 					/* for moment[2 * m - 1] */
-					sum2 += std::conj(keep) jm1[i];
+					sum2 += std::conj(keep) * jm1[i];
 					/* set |j,m-1> and |j,m-2> for next iteration */
 					jm0[i] = jm1[i];
 					jm1[i] = keep;
@@ -298,15 +293,16 @@ namespace Spf {
 		                      std::vector<RealType>& moment0,
 		                      std::vector<RealType>& moment1) const
 		{
-			info.reset();
+			const std::vector<size_t>& support = tpemParameters_.support;
+			info.clear();
 
-			TpemSubspaceType work(matrix0.rank());
-			for (size_t i = 0; i < support_.size(); i++) {
-				size_t j = support_[i];
+			TpemSubspaceType work(matrix0.rank(),tpemParameters_.eps);
+			for (size_t i = 0; i < support.size(); i++) {
+				size_t j = support[i];
 				diagonalElement(matrix0, moment0, j,work);
-				for (size_t p = 0; p < work.top(); p++) info.push(p);
+				for (size_t p = 0; p < work.size(); p++) info.push(work(p));
 				diagonalElement (matrix1, moment1, j,work);
-				for (size_t p = 0; p < work.top(); p++) info.push(p);
+				for (size_t p = 0; p < work.size(); p++) info.push(work(p));
 			}
 		}
 

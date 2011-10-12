@@ -24,10 +24,10 @@ namespace Spf {
 		typename GeometryType,
 		typename ConcurrencyType>
 	class DmsMultiOrbital : public ModelBase<Spin<
-	     typename EngineParamsType::FieldType>,
+	     typename EngineParamsType::RealType>,
 		 EngineParamsType,ParametersModelType_,GeometryType,ConcurrencyType> {
 		
-		typedef typename EngineParamsType::FieldType RealType;
+		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;

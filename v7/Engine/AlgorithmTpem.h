@@ -24,13 +24,13 @@ namespace Spf {
 		static const bool DO_GLAUBER = true;
 
 	public:	
-		typedef typename EngineParametersType::FieldType RealType;
+		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 		typedef typename EngineParametersType::IoInType IoInType;
-		typedef TpemParameters<IoInType,RealType> TpemParametersType;
+		typedef TpemParameters<IoInType,EngineParametersType> TpemParametersType;
 		// includes from Tpem.h
 		typedef Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
@@ -47,7 +47,7 @@ namespace Spf {
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
 		  adjustTpemBounds_(false),
-		  tpemParameters_(io),
+		  tpemParameters_(io,engineParams),
 		  tpem_(tpemParameters_),
 		  actionFunc_(tpemParameters_),
 		  actionCoeffs_(cutoff_),

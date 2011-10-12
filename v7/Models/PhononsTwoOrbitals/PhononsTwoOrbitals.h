@@ -23,13 +23,13 @@ namespace Spf {
 	         typename GeometryType,
 			 typename ConcurrencyType>
 	class PhononsTwoOrbitals : public ModelBase<
-	  Spin<typename EngineParamsType::FieldType>,
+	  Spin<typename EngineParamsType::RealType>,
 	  EngineParamsType,ParametersModelType_,
 	  GeometryType,
 	  ConcurrencyType> {
 
-		typedef typename EngineParamsType::FieldType FieldType;
-		typedef std::complex<FieldType> ComplexType;
+		typedef typename EngineParamsType::RealType RealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
@@ -43,7 +43,7 @@ namespace Spf {
 		
 		public:
 		typedef ParametersModelType_ ParametersModelType;
-		typedef PhononsTwoOrbitalsFields<FieldType,GeometryType> DynVarsType;
+		typedef PhononsTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::PhononType PhononType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
@@ -76,7 +76,7 @@ namespace Spf {
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
-		FieldType deltaDirect(size_t i) const 
+		RealType deltaDirect(size_t i) const 
 		{
 			return spinOperations_.deltaDirect(i,mp_.jaf,0);
 		}
@@ -93,7 +93,7 @@ namespace Spf {
 			
 			packer.pack("iter=",iter);
 				
-			FieldType temp=calcNumber(greenFunction);
+			RealType temp=calcNumber(greenFunction);
 			packer.pack("Number_Of_Electrons=",temp);
 			
 			//s = "rankGlobal=";
@@ -101,7 +101,7 @@ namespace Spf {
 			temp=calcElectronicEnergy(greenFunction);
 			packer.pack("Electronic Energy=",temp);
 			
-			FieldType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
+			RealType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
 			packer.pack("Superexchange=",temp2);
 			
 			temp += temp2;
@@ -135,7 +135,7 @@ namespace Spf {
 			 else createHamiltonian(dynVars_,matrix);
 		}
 		
-		void adjustChemPot(const std::vector<FieldType>& eigs)
+		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -151,7 +151,7 @@ namespace Spf {
 			return spinOperations_.accept(i);
 		}
 		
-		FieldType integrationMeasure(size_t i)
+		RealType integrationMeasure(size_t i)
 		{
 			return spinOperations_.sineUpdate(i);
 		}
@@ -186,9 +186,9 @@ namespace Spf {
 					matrix(gamma1,p)=0;
 
 			for (size_t p = 0; p < volume; p++) {
-				FieldType phonon_q1=phononOperations_.calcPhonon(p,phononPart,0);
-				FieldType phonon_q2=phononOperations_.calcPhonon(p,phononPart,1);
-				FieldType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);	
+				RealType phonon_q1=phononOperations_.calcPhonon(p,phononPart,0);
+				RealType phonon_q2=phononOperations_.calcPhonon(p,phononPart,1);
+				RealType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);	
 				matrix(p,p) = mp_.phononSpinCoupling[0]*phonon_q1+
 						mp_.phononSpinCoupling[2]*phonon_q3+
 						mp_.potential[p];
@@ -202,8 +202,8 @@ namespace Spf {
 					size_t col = tmpPair.first;
 					size_t dir = tmpPair.second; // int(j/2);
 					
-					FieldType tmp=cos(0.5*spinPart.theta[p])*cos(0.5*spinPart.theta[col]);
-					FieldType tmp2=sin(0.5*spinPart.theta[p])*sin(0.5*spinPart.theta[col]);
+					RealType tmp=cos(0.5*spinPart.theta[p])*cos(0.5*spinPart.theta[col]);
+					RealType tmp2=sin(0.5*spinPart.theta[p])*sin(0.5*spinPart.theta[col]);
 					ComplexType S_ij=ComplexType(tmp+tmp2*cos(spinPart.phi[p]-spinPart.phi[col]),
 						-tmp2*sin(spinPart.phi[p]-spinPart.phi[col]));
 					
@@ -223,9 +223,9 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		FieldType calcNumber(GreenFunctionType& greenFunction) const
+		RealType calcNumber(GreenFunctionType& greenFunction) const
 		{
-			FieldType sum=0;
+			RealType sum=0;
 			for (size_t i=0;i<hilbertSize_;i++) {
 				sum += real(greenFunction(i,i));
 			}
@@ -233,24 +233,24 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		FieldType calcElectronicEnergy(GreenFunctionType& greenFunction) const
+		RealType calcElectronicEnergy(GreenFunctionType& greenFunction) const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			for (size_t i=0;i<hilbertSize_;i++) {
-				FieldType g = real(greenFunction(i,i));
+				RealType g = real(greenFunction(i,i));
 				sum += g*(engineParams_.mu+log(1./g-1.)/engineParams_.beta);
 			}
 			return sum;
 				
 		}
 		
-		FieldType calcKinetic(const DynVarsType& dynVars,
-				      const std::vector<FieldType>& eigs) const
+		RealType calcKinetic(const DynVarsType& dynVars,
+				      const std::vector<RealType>& eigs) const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			//constPsimagLite::Matrix<ComplexType>& matrix = matrix_;
 // 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-// 				FieldType tmp2=0.0;
+// 				RealType tmp2=0.0;
 // 				for (size_t i=0;i<geometry_.volume();i++) {
 // 					for (size_t k=0;k<geometry.z(1);k++) {
 // 						size_t j=geometry.neighbor(i,k).first;

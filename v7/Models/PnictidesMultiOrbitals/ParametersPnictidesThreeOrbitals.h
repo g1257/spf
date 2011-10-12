@@ -86,7 +86,7 @@ namespace Spf {
 	//!Model Parameters, please don't add member functions, this is a struct
 	template<typename ParametersEngineType,typename IoInType>
 	struct ParametersPnictidesThreeOrbitals {
-		typedef typename ParametersEngineType::FieldType RealType;
+		typedef typename ParametersEngineType::RealType RealType;
 
 		static size_t const numberOfOrbitals = 3;
 

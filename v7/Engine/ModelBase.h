@@ -18,7 +18,7 @@ namespace Spf {
 	         typename GeometryType,
 	         typename ConcurrencyType>
 	class ModelBase {
-		typedef typename EngineParamsType::FieldType FieldType;
+		typedef typename EngineParamsType::RealType RealType;
 		
 		public:
 		
@@ -26,7 +26,7 @@ namespace Spf {
 		
 		size_t hilbertSize() const;
 		
-		FieldType deltaDirect(size_t i) const;
+		RealType deltaDirect(size_t i) const;
 	
 		void set(DynVarsType& dynVars);
 		
@@ -35,15 +35,15 @@ namespace Spf {
 				
 		void doMeasurements(DynVarsType& dynVars, size_t iter,std::ostream& fout);
 		
-		void fillAndDiag(std::vector<FieldType> &eig);
+		void fillAndDiag(std::vector<RealType> &eig);
 		
-		void fillAndDiag(std::vector<FieldType> &eig,const DynVarsType& dynVars,char jobz='N');
+		void fillAndDiag(std::vector<RealType> &eig,const DynVarsType& dynVars,char jobz='N');
 		
-		void adjustChemPot(const std::vector<FieldType>& eigs);
+		void adjustChemPot(const std::vector<RealType>& eigs);
 		
 		void accept(size_t i);
 		
-		FieldType integrationMeasure(size_t i);
+		RealType integrationMeasure(size_t i);
 	}; // ModelBase
 } // namespace Spf
 

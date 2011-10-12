@@ -14,23 +14,30 @@
 #include <cassert>
 
 namespace Spf {
-	template<typename IoInType,typename RealType_>
+	template<typename IoInType,typename EngineParametersType>
 	struct TpemParameters {
-		typedef RealType_ RealType;
+		typedef typename EngineParametersType::RealType RealType;
 		enum {TPEM,PEM};
 
-		TpemParameters(IoInType& io)
+		TpemParameters(IoInType& io,const EngineParametersType& engineParams)
+		: mu(engineParams.mu),beta(engineParams.beta)
 		{
 			io.readline(algorithm,"TpemAlgorithm=");
 			io.readline(cutoff,"TpemCutoff=");
+			io.readline(eps,"TpemEps=");
 			io.readline(a,"TpemA=");
 			io.readline(b,"TpemB=");
+			io.read(support,"TpemSupport");
 		}
 
+		const RealType& mu;
+		const RealType& beta;
 		size_t cutoff;
 		size_t algorithm;
+		RealType eps;
 		RealType a;
 		RealType b;
+		std::vector<size_t> support;
 	}; // struct TpemParameters
 } // namespace Spf
 

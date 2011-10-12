@@ -23,8 +23,11 @@ namespace Spf {
 		typedef typename AlgorithmType::RealType RealType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
 		typedef RngType RandomNumberGeneratorType;
+		typedef typename EngineParametersType::IoInType IoInType;
 
-		GreenFunctionDiag(const EngineParametersType& engineParams,ModelType& model)
+		GreenFunctionDiag(const EngineParametersType& engineParams,
+		                  ModelType& model,
+		                  IoInType& io)
 		: engineParams_(engineParams),
 		  algorithm_(engineParams,model),
 		  hilbertSize_(model.hilbertSize()),

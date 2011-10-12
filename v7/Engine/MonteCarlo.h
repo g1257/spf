@@ -18,7 +18,7 @@ namespace Spf {
 		typedef std::pair<size_t,size_t> PairType;
 		
 	public:
-		typedef typename EngineParamsType::FieldType FieldType;
+		typedef typename EngineParamsType::RealType RealType;
 		
 		MonteCarlo(const EngineParamsType& engineParams,OperationsType& ops,AlgorithmType& algorithm,
 			   RandomNumberGeneratorType& rng) 
@@ -33,7 +33,7 @@ namespace Spf {
 			for (size_t j=0;j<dynVars.size;j++) {
 				size_t i = ops_.proposeSite(j,rng_);	
 				ops_.proposeChange(i,rng_);
-				//FieldType oldmu = engineParams_.mu;
+				//RealType oldmu = engineParams_.mu;
 				bool flag= algorithm_.isAccepted(i,rng_);
 				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
