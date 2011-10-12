@@ -12,7 +12,8 @@ void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 	size_t rank = t.rank();
 
 	RealType range = 2.0*range2 / scale;
-	for (size_t i = 0, j = 0; i < rank; i++) {
+	size_t j = 0;
+	for (size_t i = 0; i < rank; i++) {
 		t.setRow(i,j);
 		t.pushCol(i);
 		
@@ -26,6 +27,8 @@ void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 		t.pushValue(hopping);
 		j++;
 	}
+	t.setRow(rank,j);
+	isHermitian(t,true);
 }
 
 template<typename TpemType>
@@ -77,10 +80,7 @@ typename FunctorType::RealType tpemApplyDiff(
 	size_t cutoff=tpem.tpemParameters().cutoff;
 	std::vector<RealType> coeffs(cutoff);
 	std::vector<RealType> moment(cutoff);
-/*	std::vector<size_t> support(2);
 
-	support[0] = 0;
-	support[1] = matrix0.rank() / 2 - 1;*/
 	tpem.calcCoeffs(coeffs, functor);
 
 	tpem.calcMomentsDiff(moment,matrix0,matrix1);
@@ -117,7 +117,7 @@ int main (int argc,char *argv[])
 	SparseMatrixType matrix1(400,400);
 	fillRandomMatrix(matrix1,10.0,rng);
 
-	MuBetaStructType muBeta(-1.0,3.0);
+	MuBetaStructType muBeta(0.0,5.0);
 	TpemParametersType tpemParameters(io,muBeta);
 	TpemType tpem(tpemParameters);
 
@@ -140,9 +140,12 @@ int main (int argc,char *argv[])
 	std::cout<<"\n";
 	std::cout<<"\n";
 	
+	tpemParameters.support[0] = 0;
+	tpemParameters.support[1] = matrix0.rank() / 2 - 1;
+	
 	matrix0 = matrix1;
-	matrix1.setValues(0, 2.4 * (rng() - 0.5));
-	matrix1.setValues(matrix1.getRowPtr(matrix1.rank() / 2 - 1), 2.4 * (rng() - 0.5));
+	matrix1.setValues(tpemParameters.support[0], 2.4 * (rng() - 0.5));
+	matrix1.setValues(matrix1.getRowPtr(tpemParameters.support[1]), 2.4 * (rng() - 0.5));
 
 	std::cout<<"-------------------------------------------------------------\n";
 	std::cout<<"TEST 1: MEAN VALUE FOR THE FUNCTION:                         \n";

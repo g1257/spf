@@ -10,6 +10,7 @@
 #ifndef TPEM_H
 #define TPEM_H
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_errno.h>
 #include "CrsMatrix.h"
 #include "TpemSubspace.h"
 #include "TpemFunctors.h"
@@ -29,6 +30,9 @@ namespace Tpem {
 		typedef EnergyFunctor<TpemParametersType> EnergyFunctorType;
 		typedef NumberFunctor<TpemParametersType> NumberFunctorType;
 		
+		enum {NO_VERBOSE,YES_VERBOSE};
+		static const size_t verbose_ = NO_VERBOSE;
+		
 		struct MyFunctionParams {
 			MyFunctionParams(const BaseFunctorType& functor1)
 			: functor(functor1) { }
@@ -41,7 +45,9 @@ namespace Tpem {
 
 		Tpem(const TpemParametersType& tpemParameters)
 		: tpemParameters_(tpemParameters)
-		{}
+		{
+			gsl_set_error_handler(&my_handler);
+		}
 
 		void calcCoeffs(std::vector<RealType> &vobs,
 		                const BaseFunctorType& obsFunc) const
@@ -49,11 +55,11 @@ namespace Tpem {
 			std::vector<RealType> pts(2);
 			pts[0]= -1.0;
 			pts[1] = 1.0;
-			int npts = pts.size();
-			RealType epsabs=1e-9;
-			RealType epsrel=1e-9;
+			//size_t npts = pts.size();
+			RealType epsabs=1e-3;
+			RealType epsrel=1e-3;
 			
-			int limit = 1e6;
+			size_t limit = 1e5;
 			gsl_integration_workspace *workspace= gsl_integration_workspace_alloc(limit+2);
 			
 			RealType result = 0,abserr = 0;
@@ -62,10 +68,12 @@ namespace Tpem {
 			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
-			
+			//int key = GSL_INTEG_GAUSS61;
 			for (size_t m=0;m<tpemParameters_.cutoff;m++) {
 				params.m = m;
-				gsl_integration_qagp(&f,&(pts[0]),npts,epsabs,epsrel,limit,workspace,&result,&abserr);
+				gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
+				//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
+				//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
 				vobs[m] = result;
 			}
 			gsl_integration_workspace_free (workspace);
@@ -153,23 +161,30 @@ namespace Tpem {
 			tmp = params->functor(x) *  tmp2 * factorAlpha * chebyshev(m,x)/sqrt(1.0-x*x);
 			return tmp;
 		}
+		
+		static void my_handler (const char * reason, const char * file, int line, int gsl_errno)
+		{
+			if (verbose_==NO_VERBOSE) return;
+			std::string s("GSL error handler called with reason=");
+			s += std::string(reason) + std::string(" gsl_errno=")+ttos(gsl_errno);
+			std::cerr<<s<<"\n";
+		}
 
 	private:
-		static RealType chebyshev(int m,RealType x) {
-			RealType tmp;
-			int p;
+		static RealType chebyshev(int m,RealType x)
+		{
 			if (m==0) return 1;
+
 			if (m==1) return x;
 			
-			if ((m%2)==0) {
-				p=m/2;
-				tmp=chebyshev(p,x);
-				return (2*tmp*tmp-1);
-			}
-			else {
-				p=(m-1)/2;
+			if (m&1) {
+				int p=(m-1)/2;
 				return (2*chebyshev(p,x)*chebyshev(p+1,x)-x);
 			}
+			
+			int pp = m/2;
+			RealType tmp=chebyshev(pp,x);
+			return (2*tmp*tmp-1);
 		}
 		
 		void diagonalElement(const TpemSparseType& matrix,
@@ -254,7 +269,7 @@ namespace Tpem {
 				}
 				moment[m + m    ] += std::real (sum1);
 				moment[m + m - 1] += std::real (sum2);
-				assert(fabs(imag(sum2))<1e-6);
+				assert(fabs(std::imag(sum2))<1e-6);
 			}
 		}
 

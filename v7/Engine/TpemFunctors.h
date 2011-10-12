@@ -40,7 +40,7 @@ namespace Tpem {
 	private:
 		const TpemParametersType& tpemParameters_;
 	}; // class ActionFunctor
-	
+
 	template<typename TpemParametersType>
 	class EnergyFunctor  : public BaseFunctor<TpemParametersType> {
 	public:

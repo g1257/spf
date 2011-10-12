@@ -80,8 +80,8 @@ print FOUT<<EOF;
 # MPI: $mpi
 LDFLAGS =  -llapack -lblas -lm $gslLib
 EXENAME = spf
-CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
-CXX = $compiler -Werror -Wall -O3 
+CPPFLAGS =  -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
+CXX = $compiler -DNDEBUG -Werror -Wall -O3 
 #comment out this one for debugging
 #CXX = $compiler -Werror -Wall -g3
 
@@ -100,8 +100,9 @@ tpemSample: tpemSample.o
 spf.cpp: driver.pl
 	perl driver.pl
 
-Makefile.dep: spf.cpp Makefile
+Makefile.dep: spf.cpp tpemSample.cpp Makefile
 	\$(CXX) \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
+	\$(CXX) \$(CPPFLAGS) -MM tpemSample.cpp  > Makefile.dep
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt

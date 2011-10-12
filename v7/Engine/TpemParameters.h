@@ -22,7 +22,16 @@ namespace Tpem {
 		TpemParameters(IoInType& io,const MuBetaStructType& engineParams)
 		: mu(engineParams.mu),beta(engineParams.beta)
 		{
-			io.readline(algorithm,"TpemAlgorithm=");
+			std::string s;
+			io.readline(s,"TpemAlgorithm=");
+			if (s=="TPEM" or s=="tpem" or s=="Tpem") {
+				algorithm=TPEM;
+			} else if (s=="PEM" or s=="pem" or s=="Pem") {
+				algorithm=PEM;
+			} else {
+				s = std::string("Expected tpem or pem but found ") + s;
+				throw std::runtime_error(s.c_str());
+			}
 			io.readline(cutoff,"TpemCutoff=");
 			io.readline(eps,"TpemEps=");
 			io.readline(a,"TpemA=");
