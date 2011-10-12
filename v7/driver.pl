@@ -57,6 +57,8 @@ $tpem = "Diag" if ($tpem eq "n");
 $tpem = "Tpem" if ($tpem eq "y");
 my $tpemInclude = " ";
 $tpemInclude = " -ITpemPlus " if ($tpem eq "Tpem");
+my $gslLib = "  ";
+$gslLib = " -lgsl " if ($tpem eq "Tpem");
 
 my $compiler = "g++";
 $compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
@@ -76,7 +78,7 @@ print FOUT<<EOF;
 # Platform: linux
 # Model: $model
 # MPI: $mpi
-LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
+LDFLAGS =  -llapack -lblas -lm $gslLib
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
 CXX = $compiler -Werror -Wall -O3 
@@ -85,18 +87,18 @@ CXX = $compiler -Werror -Wall -g3
 
 all: \$(EXENAME)
 
-\$(EXENAME):  main.o
-	\$(CXX) -o \$(EXENAME) main.o \$(LDFLAGS)  
+\$(EXENAME):  spf.o
+	\$(CXX) -o \$(EXENAME) spf.o \$(LDFLAGS)  
 
 # dependencies brought about by Makefile.dep
-main.o:
-	\$(CXX) \$(CPPFLAGS) -c main.cpp
+spf.o:
+	\$(CXX) \$(CPPFLAGS) -c spf.cpp
 
-main.cpp: driver.pl
+spf.cpp: driver.pl
 	perl driver.pl
 
-Makefile.dep: main.cpp
-	\$(CXX) \$(CPPFLAGS) -MM main.cpp  > Makefile.dep
+Makefile.dep: spf.cpp Makefile
+	\$(CXX) \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt
@@ -111,7 +113,7 @@ EOF
 
 sub createDriver
 {
-	my $thisFile = "main.cpp";
+	my $thisFile = "spf.cpp";
 	system("mv $thisFile $thisFile.bak") if (-r "$thisFile");
 	open(FOUT,">$thisFile") or die "Cannot open $thisFile for writing: $!\n";
 print FOUT<<EOF;
