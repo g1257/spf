@@ -11,6 +11,9 @@
 #define TPEM_H
 #include <gsl/gsl_integration.h>
 #include "CrsMatrix.h"
+#include "TpemParameters.h"
+#include "TpemSubspace.h"
+#include "TypeToString.h"
 #include <cassert>
 
 namespace Spf {
@@ -21,6 +24,8 @@ namespace Spf {
 	public:
 		
 		typedef PsimagLite::CrsMatrix<RealType> TpemSparseType;
+		typedef TpemParameters TpemParametersType;
+		typedef TpemSubspace TpemSubspaceType;
 
 		struct MyFunctionParams {
 			MyFunctionParams(const BaseFunctorType& functor1)
@@ -32,7 +37,8 @@ namespace Spf {
 
 		typedef MyFunctionParams MyFunctionParamsType;
 
-		Tpem()
+		Tpem(const TpemParametersType& tpemParameters)
+		: tpemParameters_(tpemParameters)
 		{}
 
 		void calcCoeffs(std::vector<RealType> &vobs,
@@ -55,7 +61,7 @@ namespace Spf {
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			
-			for (size_t m=0;m<cutoff_;m++) {
+			for (size_t m=0;m<tpemParameters_.cutoff;m++) {
 				params.m = m;
 				gsl_integration_qagp(&f,&(pts[0]),npts,epsabs,epsrel,limit,workspace,&result,&abserr);
 				vobs[m] = result;
@@ -67,42 +73,42 @@ namespace Spf {
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
 		{	
-			TpemSubspace info(matrix0.rank());
-			if (tpemOptions.algorithm==TPEM) {
+			TpemSubspaceType info(matrix0.rank());
+			size_t n=moments.size();
+			std::vector<RealType>  moment0(n), moment1(n);
+
+			if (tpemParameters_.algorithm==TpemParametersType::TPEM) {
 				info.fill(matrix0, matrix1, moment0, moment1);
 			} else {
 				info.fill();
 			}
-			
-			size_t n=moments.size();
-			std::vector<RealType>  moment0(n), moment1(n);
-			
+
 			moment0[0] = moment1[0] = (RealType) matrix0->rank;
 			
-			size_t total = info.top-info->stack;
+			size_t total = info.size();
 
 			for (size_t k=0;k<total;k++) {
-				size_t p= info.stack +k;
-				if (p>=info.top) {
+				size_t p= k;
+				if (p>=info.top()) {
 					moment0[0]=moment1[0]=0.0;
 					break;
 				}
-				diagonalElement(matrix0, moment0, *p);
-				diagonalElement(matrix1, moment1, *p);
+				diagonalElement(matrix0, moment0, p);
+				diagonalElement(matrix1, moment1, p);
 			}
 
-			for (i = 2; i < n; i += 2) {
+			for (size_t i = 2; i < n; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[0];
 				moment1[i] = 2.0 * moment1[i] - moment1[0];
 			}
 
-			for (i = 3; i < n - 1; i += 2) {
+			for (size_t i = 3; i < n - 1; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[1];
 				moment1[i] = 2.0 * moment1[i] - moment1[1];
 			}
 
-			for (i = 0; i < n; i++)
-				moment[i] = moment0[i] - moment1[i];
+			for (size_t i = 0; i < n; i++)
+				moments[i] = moment0[i] - moment1[i];
 
 		}
 
@@ -148,6 +154,25 @@ namespace Spf {
 				return (2*chebyshev(p,x)*chebyshev(p+1,x)-x);
 			}
 		}
+		
+		void diagonalElement(TpemSparseType& matrix,
+		                     std::vector<RealType> &moment,
+		                     size_t ket)
+		{
+			TpemSubspaceType work(matrix.rank());
+			if (tpemParameters_.algorithm == TpemParametersType::TPEM) {
+				diagonalElementTpem(matrix,moment,ket,work);
+			} else if (tpemParameters_.algorithm == TpemParametersType::PEM) {
+				diagonalElementPem(matrix,moment,ket);
+			} else {
+				std::string s("tpem_diagonal_element: Unknown type: ");
+				s += ttos(tpemParameters_.algorithm) + "\n";
+				throw std::runtime_error(s.c_str());
+			}
+		}
+		
+		const TpemParametersType& tpemParameters_;
+		TpemSubspaceType subspace_;
 	}; // class Tpem
 } // namespace Spf
 

@@ -11,21 +11,18 @@
 #define TPEM_FUNCTORS_H
 
 namespace Spf {
-	template<typename RealType_>
+	template<typename TpemParametersType>
 	class BaseFunctor {
 	public:
-		typedef RealType_ RealType;
+		typedef TpemParametersType::RealType RealType;
 		virtual RealType operator()(RealType x) const = 0;
 	};
 	
-	template<typename RealType>
+	template<typename TpemParametersType>
 	class ActionFunctor : public BaseFunctor<RealType> {
 	public:
-		ActionFunctor(const RealType& a,
-					  const RealType& b,
-				const RealType& mu,
-				const RealType& beta)
-		: a_(a),b_(b),mu_(mu),beta_(beta)
+		ActionFunctor(const TpemParametersType& tpemParameters)
+		: tpemParameters_(tpemParameters)
 		{}
 
 		virtual RealType operator()(RealType x) const
@@ -38,20 +35,14 @@ namespace Spf {
 		}
 
 	private:
-		const RealType& a_;
-		const RealType& b_;
-		const RealType& mu_;
-		const RealType& beta_;
+		const TpemParametersType& tpemParameters_;
 	}; // class ActionFunctor
 	
 	template<typename RealType>
 	class EnergyFunctor  : public BaseFunctor<RealType> {
 	public:
-		EnergyFunctor(const RealType& a,
-		               const RealType& b,
-		               const RealType& mu,
-		               const RealType& beta)
-		: a_(a),b_(b),mu_(mu),beta_(beta)
+		EnergyFunctor(const TpemParametersType& tpemParameters)
+		: tpemParameters_(tpemParameters)
 		{}
 
 		virtual RealType operator()(RealType x) const
@@ -62,20 +53,14 @@ namespace Spf {
 		}
 
 	private:
-		const RealType& a_;
-		const RealType& b_;
-		const RealType& mu_;
-		const RealType& beta_;
+		const TpemParametersType& tpemParameters_;
 	}; // class EnergyFunctor
 	
 	template<typename RealType>
 	class NumberFunctor : public BaseFunctor<RealType> {
 	public:
-		NumberFunctor(const RealType& a,
-					  const RealType& b,
-				const RealType& mu,
-				const RealType& beta)
-		: a_(a),b_(b),mu_(mu),beta_(beta)
+		NumberFunctor(const TpemParametersType& tpemParameters)
+		: tpemParameters_(tpemParameters)
 		{}
 
 		virtual RealType operator()(RealType x) const
@@ -85,10 +70,7 @@ namespace Spf {
 		}
 		
 	private:
-		const RealType& a_;
-		const RealType& b_;
-		const RealType& mu_;
-		const RealType& beta_;
+		const TpemParametersType& tpemParameters_;
 	}; // class NumberFunctor
 } // namespace Spf
 
