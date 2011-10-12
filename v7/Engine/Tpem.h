@@ -120,6 +120,8 @@ namespace Spf {
 			return ret;
 		}
 		
+		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
+		
 		static RealType myFunction (RealType x, void * p) 
 		{
 			MyFunctionParamsType* params = (MyFunctionParamsType*)p;

@@ -203,8 +203,7 @@ namespace Spf {
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
 			MatrixType matrix;
 			createHamiltonian(matrix,oldOrNewDynVars);
-			SparseMatrixType tmp(matrix);
-			sparseMatrix = tmp; 
+			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 		
 		

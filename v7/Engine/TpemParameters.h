@@ -14,12 +14,12 @@
 #include <cassert>
 
 namespace Spf {
-	template<typename IoInType,typename EngineParametersType>
+	template<typename IoInType,typename MuBetaStructType>
 	struct TpemParameters {
-		typedef typename EngineParametersType::RealType RealType;
+		typedef typename MuBetaStructType::RealType RealType;
 		enum {TPEM,PEM};
 
-		TpemParameters(IoInType& io,const EngineParametersType& engineParams)
+		TpemParameters(IoInType& io,const MuBetaStructType& engineParams)
 		: mu(engineParams.mu),beta(engineParams.beta)
 		{
 			io.readline(algorithm,"TpemAlgorithm=");

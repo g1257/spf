@@ -58,7 +58,7 @@ $tpem = "Tpem" if ($tpem eq "y");
 my $tpemInclude = " ";
 $tpemInclude = " -ITpemPlus " if ($tpem eq "Tpem");
 my $gslLib = "  ";
-$gslLib = " -lgsl " if ($tpem eq "Tpem");
+$gslLib = " -lgsl -lgslcblas " if ($tpem eq "Tpem");
 
 my $compiler = "g++";
 $compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
