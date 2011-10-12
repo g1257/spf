@@ -18,6 +18,7 @@
 #include "ThreeOrbitalTerms.h"
 #include "ObservablesStored.h"
 #include "Conductance.h"
+#include "CrsMatrix.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
@@ -33,6 +34,7 @@ namespace Spf {
 		typedef typename EngineParamsType::FieldType FieldType;
 		typedef std::complex<FieldType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 		//typedef RandomNumberGenerator<FieldType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
@@ -195,6 +197,17 @@ namespace Spf {
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
 			else createHamiltonian(dynVars,matrix);
 		}
+		
+		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		{
+			// ALL THIS IS VERY INEFFICIENT
+			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
+			MatrixType matrix;
+			createHamiltonian(matrix,oldOrNewDynVars);
+			SparseMatrixType tmp(matrix);
+			sparseMatrix = tmp; 
+		}
+		
 		
 		void adjustChemPot(const std::vector<FieldType>& eigs)
 		{

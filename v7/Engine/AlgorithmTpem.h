@@ -15,8 +15,8 @@
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
 #include "Tpem.h"
-#include "TpemFunctors.h"
 #include "MetropolisOrGlauber.h"
+#include "TpemParameters.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
@@ -29,21 +29,27 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
+		typedef typename EngineParametersType::IoInType IoInType;
+		typedef TpemParameters<IoInType,RealType> TpemParametersType;
 		// includes from Tpem.h
-		typedef BaseFunctor<RealType> BaseFunctorType;
-		typedef Tpem<BaseFunctorType> TpemType;
+		typedef Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
 		//
-		typedef ActionFunctor<RealType> ActionFunctorType;
+		typedef typename TpemType::ActionFunctorType ActionFunctorType;
 		
-		enum {TMPVALUES_SET,TMPVALUE_RETRIEVE};
+		
+		enum {TMPVALUES_SET,TMPVALUES_RETRIEVE};
 
-		AlgorithmTpem(const EngineParametersType& engineParams,ModelType& model)
+		AlgorithmTpem(const EngineParametersType& engineParams,
+		              ModelType& model,
+		              IoInType& io)
 		: engineParams_(engineParams),model_(model),
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
 		  adjustTpemBounds_(false),
-		  tpem_(),
+		  tpemParameters_(io),
+		  tpem_(tpemParameters_),
+		  actionFunc_(tpemParameters_),
 		  actionCoeffs_(cutoff_),
 		  moment0_(cutoff_),
 		  moment1_(cutoff_)
@@ -104,6 +110,8 @@ namespace Spf {
 		
 		TpemType& tpem() { return tpem_; }
 
+		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
+
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
 		friend std::ostream& operator<<
@@ -112,15 +120,15 @@ namespace Spf {
 
 	private:
 		
-		int tpemAdjustBounds(const TpemSparseType* matrix) const
+		int tpemAdjustBounds(const TpemSparseType& matrix) const
 		{
 			// unimplemented for now
 			return 0;
 		}
 		
 		double calcDeltaAction(const VectorType &moment,
-		                       TpemSparseType* matrix1,
-		                       TpemSparseType* matrix)
+		                       TpemSparseType& matrix1,
+		                       TpemSparseType& matrix)
 		{
 			RealType a = a_;
 			RealType b = b_;
@@ -128,8 +136,8 @@ namespace Spf {
 			RealType beta = beta_;
 			RealType e1=b_-a_;
 			RealType e2=b_+a_;
-			RealType e11=engineParams_.b - engineParams_.b;
-			RealType e21=engineParams_.b + engineParams_.b;
+			RealType e11=tpemParameters_.b - tpemParameters_.a;
+			RealType e21=tpemParameters_.b + tpemParameters_.a;
 
 			if (e1 > e11) e1 = e11;
 			if (e2 < e21) e2 = e21;
@@ -146,8 +154,8 @@ namespace Spf {
 		
 			tmpValues(a,b,mu,beta,TMPVALUES_SET);
 			
-			TpemSparseType* mod_matrix1 = matrix1;
-			TpemSparseType* mod_matrix = matrix;
+			TpemSparseType& mod_matrix1 = matrix1;
+			TpemSparseType& mod_matrix = matrix;
 
 			if (adjustTpemBounds_) {
 				std::string s(__FILE__);
@@ -164,14 +172,14 @@ namespace Spf {
 					
 			}
 
-			tpem_.calcMomentsDiff(mod_matrix1, mod_matrix,moment_);
+			tpem_.calcMomentsDiff(moment_,mod_matrix1, mod_matrix);
 
 			RealType dS = -tpem_.expand(actionCoeffs_, moment_);
 
-			if (adjustTpemBounds_) {
-				tpem_sparse_free(mod_matrix);
-				tpem_sparse_free(mod_matrix1);
-			}
+// 			if (adjustTpemBounds_) {
+// 				tpem_sparse_free(mod_matrix);
+// 				tpem_sparse_free(mod_matrix1);
+// 			}
 			return dS;
 		}
 		
@@ -198,10 +206,11 @@ namespace Spf {
 		size_t cutoff_;
 		RealType a_,b_,mu_,beta_;
 		bool adjustTpemBounds_;
+		TpemParametersType tpemParameters_;
 		TpemType tpem_;
 		ActionFunctorType actionFunc_;
-		TpemSparseType* matrixOld_;
-		TpemSparseType* matrixNew_;
+		TpemSparseType matrixOld_;
+		TpemSparseType matrixNew_;
 		VectorType actionCoeffs_;
 		VectorType curMoments_;
 		VectorType moment_;

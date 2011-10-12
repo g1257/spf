@@ -79,7 +79,9 @@ print FOUT<<EOF;
 LDFLAGS = -L.   -llapack -lblas -lm -L../lib 
 EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
-CXX = $compiler -Werror -Wall -O3 -pg
+CXX = $compiler -Werror -Wall -O3 
+#comment out this one for debugging
+CXX = $compiler -Werror -Wall -g3
 
 all: \$(EXENAME)
 

@@ -25,17 +25,22 @@ namespace Spf {
 		typedef typename AlgorithmType::TpemType TpemType;
 		typedef RngType RandomNumberGeneratorType;
 		typedef std::vector<RealType> VectorType;
-		typedef EnergyFunctor<RealType> EnergyFunctorType;
-		typedef NumberFunctor<RealType> NumberFunctorType;
-		
-		GreenFunctionTpem(const EngineParametersType& engineParams,ModelType& model)
+		typedef typename TpemType::EnergyFunctorType EnergyFunctorType;
+		typedef typename TpemType::NumberFunctorType NumberFunctorType;
+		typedef typename EngineParametersType::IoInType IoInType;
+
+		GreenFunctionTpem(const EngineParametersType& engineParams,
+		                  ModelType& model,
+						  IoInType& io)
 		: engineParams_(engineParams),
-		  algorithm_(engineParams,model),
+		  algorithm_(engineParams,model,io),
 		  hilbertSize_(model.hilbertSize()),
 		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),
 		  energyCoeffs_(algorithm_.cutoff()),
-		  numberCoeffs_(algorithm_.cutoff())
+		  numberCoeffs_(algorithm_.cutoff()),
+		  energyFunctor_(algorithm_.tpemParameters()),
+		  numberFunctor_(algorithm_.tpemParameters())
 		{
 			computeCoeffs(energyCoeffs_,energyFunctor_);
 			computeCoeffs(numberCoeffs_,numberFunctor_);
@@ -165,7 +170,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;		
 		AlgorithmType algorithm_;
 		size_t hilbertSize_;
-		TpemType& tpem_;
+		TpemType& tpem_; // we don't own it, FIXME: must be const
 		PsimagLite::Matrix<ComplexType> data_;
 		VectorType energyCoeffs_;
 		VectorType numberCoeffs_;

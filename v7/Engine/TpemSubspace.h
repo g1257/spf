@@ -16,21 +16,23 @@
 namespace Spf {
 
 	class TpemSubspace {
-		
+	public:
 		TpemSubspace(size_t size)
 		: flags_(size,0)
 		{
 			//reset();
 		}
 
-// 		void reset()
-// 		{
-// 			t->top = t->stack;
-// 		}
+		void clear()
+		{
+			stack_.clear();
+		}
 
 		size_t size() const { return stack_.size(); }
 
-		size_t top() const { return stack_.top(); }
+// 		size_t top() const { return stack_.top(); }
+
+		const size_t& operator()(size_t x) const { return stack_[x]; }
 
 		void fill()
 		{
@@ -41,12 +43,12 @@ namespace Spf {
 		{
 			if (flags_[state] != 0) return;
 			flags_[state] = 1;
-			stack_.push(state);
+			stack_.push_back(state);
 		}
 	private:
 		
 		std::vector<size_t> flags_;
-		std::stack<size_t> stack_;
+		std::vector<size_t> stack_;
 	}; // class TpemSupspace
 } // namespace Spf
 

@@ -90,10 +90,10 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename FieldType_,typename IoInType>
+	template<typename FieldType_,typename IoInType_>
 	struct ParametersEngine {
 		typedef FieldType_ FieldType;
-		
+		typedef IoInType_ IoInType;
 		//! Read Dmrg parameters from inp file
 		ParametersEngine(IoInType& io)
 		{
