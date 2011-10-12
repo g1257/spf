@@ -1,5 +1,5 @@
 
-/** \ingroup SPF */
+/** \ingroup TPEM */
 /*@{*/
 
 /*! \file TpemSupspace.h
@@ -13,7 +13,7 @@
 #include <stack>
 #include <iostream>
 
-namespace Spf {
+namespace Tpem {
 
 	template<typename RealType,typename SparseMatrixType>
 	class TpemSubspace {
@@ -95,7 +95,7 @@ namespace Spf {
 		std::vector<size_t> flags_;
 		std::vector<size_t> stack_;
 	}; // class TpemSupspace
-} // namespace Spf
+} // namespace Tpem
 
 /*@}*/
 #endif // TPEM_SUBSPACE_H

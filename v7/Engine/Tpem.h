@@ -1,5 +1,5 @@
 
-/** \ingroup SPF */
+/** \ingroup TPEM */
 /*@{*/
 
 /*! \file Tpem.h
@@ -16,7 +16,7 @@
 #include "TypeToString.h"
 #include <cassert>
 
-namespace Spf {
+namespace Tpem {
 
 	template<typename TpemParametersType,typename RealOrComplexType>
 	class Tpem {
@@ -44,7 +44,7 @@ namespace Spf {
 		{}
 
 		void calcCoeffs(std::vector<RealType> &vobs,
-		                const BaseFunctorType& obsFunc)
+		                const BaseFunctorType& obsFunc) const
 		{
 			std::vector<RealType> pts(2);
 			pts[0]= -1.0;
@@ -69,6 +69,25 @@ namespace Spf {
 				vobs[m] = result;
 			}
 			gsl_integration_workspace_free (workspace);
+		}
+		
+		void calcMoments(TpemSparseType& matrix,
+		                 std::vector<RealType>& moment) const
+		{	
+			size_t n=moment.size();
+			std::vector<RealType> buf(n,0);
+
+			for (size_t i = 0; i < n; i++) moment[i] = 0.0;
+			moment[0] = matrix.rank();
+			
+			for (size_t i=0;i<matrix.rank();i++)
+				diagonalElement(matrix, moment, i);
+
+			for (size_t i = 2; i < n; i += 2)
+				moment[i] = 2.0 * moment[i] - moment[0];
+				
+			for (size_t i = 3; i < n - 1; i += 2)
+				moment[i] = 2.0 * moment[i] - moment[1];
 		}
 		
 		void calcMomentsDiff(std::vector<RealType> &moments,
@@ -310,7 +329,7 @@ namespace Spf {
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
 	}; // class Tpem
-} // namespace Spf
+} // namespace Tpem
 
 /*@}*/
 #endif // TPEM_H

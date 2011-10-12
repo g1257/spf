@@ -83,16 +83,19 @@ EXENAME = spf
 CPPFLAGS = -DNDEBUG -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
 CXX = $compiler -Werror -Wall -O3 
 #comment out this one for debugging
-CXX = $compiler -Werror -Wall -g3
+#CXX = $compiler -Werror -Wall -g3
 
 all: \$(EXENAME)
 
 \$(EXENAME):  spf.o
 	\$(CXX) -o \$(EXENAME) spf.o \$(LDFLAGS)  
 
+tpemSample: tpemSample.o
+	\$(CXX) -o tpemSample tpemSample.o \$(LDFLAGS) 
+
 # dependencies brought about by Makefile.dep
-spf.o:
-	\$(CXX) \$(CPPFLAGS) -c spf.cpp
+%.o: %.cpp Makefile
+	\$(CXX) \$(CPPFLAGS) -c \$<
 
 spf.cpp: driver.pl
 	perl driver.pl

@@ -30,9 +30,9 @@ namespace Spf {
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 		typedef typename EngineParametersType::IoInType IoInType;
-		typedef TpemParameters<IoInType,EngineParametersType> TpemParametersType;
+		typedef Tpem::TpemParameters<IoInType,EngineParametersType> TpemParametersType;
 		// includes from Tpem.h
-		typedef Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
+		typedef Tpem::Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
 		//
 		typedef typename TpemType::ActionFunctorType ActionFunctorType;

@@ -1,5 +1,5 @@
 
-/** \ingroup SPF */
+/** \ingroup TPEM */
 /*@{*/
 
 /*! \file TpemFunctors.h
@@ -11,7 +11,7 @@
 #define TPEM_FUNCTORS_H
 #include <cmath>
 
-namespace Spf {
+namespace Tpem {
 	template<typename TpemParametersType>
 	class BaseFunctor {
 	public:
@@ -80,7 +80,7 @@ namespace Spf {
 	private:
 		const TpemParametersType& tpemParameters_;
 	}; // class NumberFunctor
-} // namespace Spf
+} // namespace Tpem
 
 /*@}*/
 #endif // TPEM_FUNCTORS_H

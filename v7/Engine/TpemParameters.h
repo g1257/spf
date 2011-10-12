@@ -1,5 +1,5 @@
 
-/** \ingroup SPF */
+/** \ingroup TPEM */
 /*@{*/
 
 /*! \file TpemParameters.h
@@ -13,7 +13,7 @@
 #include "CrsMatrix.h"
 #include <cassert>
 
-namespace Spf {
+namespace Tpem {
 	template<typename IoInType,typename MuBetaStructType>
 	struct TpemParameters {
 		typedef typename MuBetaStructType::RealType RealType;
@@ -39,7 +39,7 @@ namespace Spf {
 		RealType b;
 		std::vector<size_t> support;
 	}; // struct TpemParameters
-} // namespace Spf
+} // namespace Tpem
 
 /*@}*/
 #endif // TPEM_PARAMETERS_H
