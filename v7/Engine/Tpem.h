@@ -102,9 +102,9 @@ namespace Tpem {
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
 		{	
-			TpemSubspaceType info(matrix0.rank(),tpemParameters_.eps);
+			TpemSubspaceType info(matrix0.rank());
 			size_t n=moments.size();
-			std::vector<RealType>  moment0(n), moment1(n);
+			std::vector<RealType>  moment0(n,0.0), moment1(n,0.0);
 
 			if (tpemParameters_.algorithm==TpemParametersType::TPEM) {
 				subspaceForTrace(info,matrix0, matrix1, moment0, moment1);
@@ -116,7 +116,6 @@ namespace Tpem {
 
 			for (size_t k=0;k<info.size();k++) {
 				size_t p= info(k);
-// 				
 				diagonalElement(matrix0, moment0, p);
 				diagonalElement(matrix1, moment1, p);
 			}
@@ -191,9 +190,9 @@ namespace Tpem {
 		                     std::vector<RealType> &moment,
 		                     size_t ket) const
 		{
-			TpemSubspaceType work(matrix.rank(),tpemParameters_.eps);
+			TpemSubspaceType work(matrix.rank());
 			if (tpemParameters_.algorithm == TpemParametersType::TPEM) {
-				diagonalElementTpem(matrix,moment,ket,work);
+				diagonalElementTpem(matrix,moment,ket,work,tpemParameters_.epsForProduct);
 			} else if (tpemParameters_.algorithm == TpemParametersType::PEM) {
 				diagonalElementPem(matrix,moment,ket);
 			} else {
@@ -214,13 +213,14 @@ namespace Tpem {
 				s += ttos(tpemParameters_.algorithm) + "\n";
 				throw std::runtime_error(s.c_str());
 			}
-			diagonalElementTpem(matrix,moment,ket,info);
+			diagonalElementTpem(matrix,moment,ket,info,tpemParameters_.epsForTrace);
 		}
 
 		void diagonalElementTpem(const TpemSparseType& matrix,
 		                         std::vector<RealType> &moment,
 		                         size_t ket,
-		                         TpemSubspaceType& info) const
+		                         TpemSubspaceType& info,
+		                         const RealType& eps) const
 		{
 			std::vector<RealOrComplexType> tmp(matrix.rank(),0.0);
 			std::vector<RealOrComplexType> jm0(matrix.rank(),0.0);
@@ -232,7 +232,7 @@ namespace Tpem {
 			info.push(ket);
 
 			/* calculate |j,1> = X|j,0> */
-			info.sparseProduct(matrix, jm1, jm0);
+			info.sparseProduct(matrix, jm1, jm0,eps);
 			
 			RealOrComplexType sum1 = std::conj(jm0[ket]) *  jm1[ket];
 			moment[1] += std::real(sum1);
@@ -253,7 +253,7 @@ namespace Tpem {
 			size_t n=moment.size();
 			for (size_t m = 2; m < n / 2; m++) {
 				/* calculate |tmp> = X|jm1> */
-				info.sparseProduct(matrix,tmp, jm1);
+				info.sparseProduct(matrix,tmp, jm1,eps);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
 				for (size_t p = 0; p < info.size(); p++) {
@@ -332,7 +332,7 @@ namespace Tpem {
 			const std::vector<size_t>& support = tpemParameters_.support;
 			info.clear();
 
-			TpemSubspaceType work(matrix0.rank(),tpemParameters_.eps);
+			TpemSubspaceType work(matrix0.rank());
 			for (size_t i = 0; i < support.size(); i++) {
 				size_t j = support[i];
 				diagonalElement(matrix0, moment0, j,work);

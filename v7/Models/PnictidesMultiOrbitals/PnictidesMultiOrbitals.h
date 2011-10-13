@@ -196,7 +196,7 @@ namespace Spf {
 			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
 			else createHamiltonian(dynVars,matrix);
 		}
-		
+
 		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
 		{
 			// ALL THIS IS VERY INEFFICIENT
@@ -205,8 +205,7 @@ namespace Spf {
 			createHamiltonian(matrix,oldOrNewDynVars);
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
-		
-		
+
 		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;

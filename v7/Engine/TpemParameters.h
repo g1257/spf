@@ -33,7 +33,8 @@ namespace Tpem {
 				throw std::runtime_error(s.c_str());
 			}
 			io.readline(cutoff,"TpemCutoff=");
-			io.readline(eps,"TpemEps=");
+			io.readline(epsForProduct,"TpemEpsForProduct=");
+			io.readline(epsForTrace,"TpemEpsForTrace=");
 			io.readline(a,"TpemA=");
 			io.readline(b,"TpemB=");
 			io.read(support,"TpemSupport");
@@ -43,7 +44,8 @@ namespace Tpem {
 		const RealType& beta;
 		size_t cutoff;
 		size_t algorithm;
-		RealType eps;
+		RealType epsForProduct;
+		RealType epsForTrace;
 		RealType a;
 		RealType b;
 		std::vector<size_t> support;
