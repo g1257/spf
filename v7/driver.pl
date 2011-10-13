@@ -56,7 +56,7 @@ if ($mpi eq "n") {
 $tpem = "Diag" if ($tpem eq "n");
 $tpem = "Tpem" if ($tpem eq "y");
 my $tpemInclude = " ";
-$tpemInclude = " -ITpemPlus " if ($tpem eq "Tpem");
+$tpemInclude = " -I../Tpem " if ($tpem eq "Tpem");
 my $gslLib = "  ";
 $gslLib = " -lgsl -lgslcblas " if ($tpem eq "Tpem");
 

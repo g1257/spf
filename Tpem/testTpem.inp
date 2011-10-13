@@ -1,0 +1,9 @@
+Mu=0
+Beta=10
+TpemAlgorithm=tpem
+TpemCutoff=20
+TpemEpsForProduct=1e-5
+TpemEpsForTrace=1e-7
+TpemA=1
+TpemB=0
+TpemSupport 2 0 0
