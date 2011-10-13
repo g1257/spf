@@ -33,7 +33,7 @@ namespace Tpem {
 // 			tmpValues(a,b,mu,beta,1);
 			RealType tmp = tpemParameters_.a * x + tpemParameters_.b - tpemParameters_.mu;
 			const RealType& beta = tpemParameters_.beta;
-			return (tmp>=0) ? log (1.0 + exp (beta*tmp)) 
+			return (tmp>=0) ? log (1.0 + exp (-beta*tmp)) 
 			                : -beta * tmp + log (1.0 + exp (beta * tmp));
 		}
 

@@ -108,13 +108,15 @@ namespace Tpem {
 
 			if (tpemParameters_.algorithm==TpemParametersType::TPEM) {
 				subspaceForTrace(info,matrix0, matrix1, moment0, moment1);
+				// reset all moments to zero because the subspace for trace changes them
+				for (size_t i = 0; i < n; i++) moment0[i] = moment1[i] = 0.0;
 			} else {
 				info.fill();
 			}
-
+			
 			moment0[0] = moment1[0] =  matrix0.rank();
 
-			for (size_t k=0;k<info.size();k++) {
+			for (size_t k=0;k<info.top();k++) {
 				size_t p= info(k);
 				diagonalElement(matrix0, moment0, p);
 				diagonalElement(matrix1, moment1, p);
@@ -145,13 +147,13 @@ namespace Tpem {
 				ret += moments[i] * coeffs[i];
 			return ret;
 		}
-		
+
 		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
-		
+
 		static RealType myFunction (RealType x, void * p) 
 		{
 			MyFunctionParamsType* params = (MyFunctionParamsType*)p;
-			
+
 			/* return  params->funk(params->m,x);*/
 			RealType tmp;
 			RealType tmp2= (RealType)1.0/M_PI;
@@ -233,15 +235,15 @@ namespace Tpem {
 
 			/* calculate |j,1> = X|j,0> */
 			info.sparseProduct(matrix, jm1, jm0,eps);
-			
+
 			RealOrComplexType sum1 = std::conj(jm0[ket]) *  jm1[ket];
 			moment[1] += std::real(sum1);
-			
+
 			RealOrComplexType sum2 = 0.0;
-			for (size_t p = 0; p < info.size(); p++)
+			for (size_t p = 0; p < info.top(); p++)
 				sum2 += std::conj(jm1[info(p)]) * jm1[info(p)];
 			moment[2] += std::real (sum2);
-			
+
 			/* calculate |j,m> = 2X|j,m-1> - |j,m-2>
 			* 
 			* begin (m=2) pass	jm0 = |j,0>	jm1 = |j,1>
@@ -256,7 +258,7 @@ namespace Tpem {
 				info.sparseProduct(matrix,tmp, jm1,eps);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
-				for (size_t p = 0; p < info.size(); p++) {
+				for (size_t p = 0; p < info.top(); p++) {
 					size_t i = info(p);
 					RealOrComplexType keep = tmp[i] + tmp[i]  - jm0[i];
 					/* for moment[2 * m    ] */
@@ -276,7 +278,7 @@ namespace Tpem {
 		void  diagonalElementPem(const TpemSparseType& matrix,
 		                         std::vector<RealType> &moment,
 		                         size_t ket) const
-		{	
+		{
 			std::vector<RealOrComplexType> tmp(matrix.rank(),0.0);
 			std::vector<RealOrComplexType> jm0(matrix.rank(),0.0);
 			std::vector<RealOrComplexType> jm1(matrix.rank(),0.0);
@@ -285,15 +287,15 @@ namespace Tpem {
 
 			/* calculate |j,1> = X|j,0> */
 			TpemSubspaceType::sparseProductPem(matrix, jm1, jm0);
-			
+
 			RealOrComplexType sum1 = std::conj(jm0[ket]) * jm1[ket];
 			moment[1] += std::real (sum1);
-			
+
 			RealOrComplexType sum2 =  0.0;
 			for (size_t j=0;j<matrix.rank();j++)
 				sum2 += std::conj(jm1[j]) * jm1[j];
 			moment[2] += std::real (sum2);
-			
+
 			/* calculate |j,m> = 2X|j,m-1> - |j,m-2>
 			* 
 			* begin (m=2) pass	jm0 = |j,0>	jm1 = |j,1>
@@ -336,9 +338,9 @@ namespace Tpem {
 			for (size_t i = 0; i < support.size(); i++) {
 				size_t j = support[i];
 				diagonalElement(matrix0, moment0, j,work);
-				for (size_t p = 0; p < work.size(); p++) info.push(work(p));
+				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
 				diagonalElement (matrix1, moment1, j,work);
-				for (size_t p = 0; p < work.size(); p++) info.push(work(p));
+				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
 			}
 		}
 

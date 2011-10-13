@@ -20,18 +20,18 @@ namespace Tpem {
 		typedef typename SparseMatrixType::value_type RealOrComplexType;
 		
 	public:
-		TpemSubspace(size_t size) : flags_(size,0)
+		TpemSubspace(size_t size) : flags_(size,0),stack_(size,0),top_(0)
 		{}
 
 		void clear()
 		{
-			stack_.clear();
+			top_=0;
 			for (size_t i=0;i<flags_.size();i++) flags_[i] = 0;
 		}
 
-		size_t size() const { return stack_.size(); }
+// 		size_t size() const { return stack_.size(); }
 
-// 		size_t top() const { return stack_.top(); }
+ 		const size_t& top() const { return top_; }
 
 		const size_t& operator()(size_t x) const { return stack_[x]; }
 
@@ -44,7 +44,8 @@ namespace Tpem {
 		{
 			if (flags_[state] != 0) return;
 			flags_[state] = 1;
-			stack_.push_back(state);
+			stack_[top_] = state;
+			top_++;
 		}
 
 		void sparseProduct(const SparseMatrixType& matrix,
@@ -54,7 +55,7 @@ namespace Tpem {
 		{
 			for (size_t i = 0; i < matrix.rank(); i++) dest[i] = 0.0;
 			
-			size_t oldtop = size();
+			size_t oldtop = top_;
 			
 			/* loop over states that have been used so far */
 			for (size_t p = 0; p <oldtop; p++) {
@@ -89,9 +90,9 @@ namespace Tpem {
 		}
 
 	private:
-
 		std::vector<size_t> flags_;
 		std::vector<size_t> stack_;
+		size_t top_;
 	}; // class TpemSupspace
 } // namespace Tpem
 

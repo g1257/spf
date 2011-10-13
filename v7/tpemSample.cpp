@@ -1,7 +1,7 @@
 
 #include "TpemParameters.h"
 #include "Tpem.h"
-#include "Random48.h"
+#include "RandomForTests.h"
 #include "IoSimple.h"
 
 template<typename SparseMatrixType,typename RealType,typename RngType>
@@ -34,7 +34,7 @@ void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 template<typename TpemType>
 typename TpemType::RealType tpemApply(
                    typename TpemType::TpemSparseType& matrix,
-                   typename TpemType::BaseFunctorType& funcptr,
+                   const typename TpemType::BaseFunctorType& funcptr,
                    const TpemType& tpem)
 {
 	typedef typename TpemType::RealType RealType;
@@ -52,7 +52,7 @@ typename TpemType::RealType tpemApply(
     for the model given by the Hamiltonian matrix *matrix */
 template<typename SparseMatrixType,typename FunctorType>
 typename FunctorType::RealType diagApply(const SparseMatrixType& matrix,
-                                         FunctorType& functor)
+                                         const FunctorType& functor)
 {
 	typedef typename SparseMatrixType::value_type RealOrComplexType;
 	typedef typename FunctorType::RealType RealType;
@@ -73,7 +73,7 @@ template<typename TpemType,typename FunctorType>
 typename FunctorType::RealType tpemApplyDiff(
                      const typename TpemType::TpemSparseType& matrix0,
                      const typename TpemType::TpemSparseType& matrix1,
-                     FunctorType& functor,
+                     const FunctorType& functor,
                      TpemType& tpem)
 {
 	typedef typename TpemType::RealType RealType;
@@ -87,10 +87,18 @@ typename FunctorType::RealType tpemApplyDiff(
 	return tpem.expand(moment, coeffs);
 }
 
-template<typename RealType_>
+template<typename IoInType,typename RealType_>
 struct MuBetaStruct {
 	typedef RealType_ RealType;
-
+	
+	MuBetaStruct(IoInType& io)
+	{
+		io.rewind();
+		io.readline(mu,"Mu=");
+		io.readline(beta,"Beta=");
+		io.rewind();
+	}
+	
 	MuBetaStruct(const RealType& mu1,const RealType& beta1)
 	: mu(mu1),beta(beta1)
 	{}
@@ -103,22 +111,26 @@ int main (int argc,char *argv[])
 	typedef double RealType;
 	typedef double RealOrComplexType;
 	typedef PsimagLite::IoSimple::In IoInType;
-	typedef MuBetaStruct<RealType> MuBetaStructType;
+	typedef MuBetaStruct<IoInType,RealType> MuBetaStructType;
 	typedef Tpem::TpemParameters<IoInType,MuBetaStructType> TpemParametersType;
 	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType> TpemType;
 	typedef PsimagLite::CrsMatrix<RealOrComplexType> SparseMatrixType;
 	
 	IoInType io(argv[1]);
 	
-	PsimagLite::Random48<RealType> rng(348991);
+	PsimagLite::RandomForTests<RealType> rng; //348991);
 	SparseMatrixType matrix0(400,400);
 	fillRandomMatrix(matrix0,10.0,rng);
 	
 	SparseMatrixType matrix1(400,400);
 	fillRandomMatrix(matrix1,10.0,rng);
 
-	MuBetaStructType muBeta(0.0,5.0);
+	MuBetaStructType muBeta(io);
 	TpemParametersType tpemParameters(io,muBeta);
+	tpemParameters.support.resize(2,0);
+	tpemParameters.support[0] = 0;
+	tpemParameters.support[1] = matrix0.rank() / 2 - 1;
+	
 	TpemType tpem(tpemParameters);
 
 // 	tpemOptions.epsProd=1e-5;
@@ -140,10 +152,7 @@ int main (int argc,char *argv[])
 	std::cout<<"\n";
 	std::cout<<"\n";
 	
-	tpemParameters.support[0] = 0;
-	tpemParameters.support[1] = matrix0.rank() / 2 - 1;
-	
-	matrix0 = matrix1;
+	matrix1 = matrix0;
 	matrix1.setValues(tpemParameters.support[0], 2.4 * (rng() - 0.5));
 	matrix1.setValues(matrix1.getRowPtr(tpemParameters.support[1]), 2.4 * (rng() - 0.5));
 
