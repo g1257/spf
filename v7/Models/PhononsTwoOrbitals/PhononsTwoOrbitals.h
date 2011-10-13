@@ -21,27 +21,30 @@ namespace Spf {
 	template<typename EngineParamsType,
 	         typename ParametersModelType_,
 	         typename GeometryType,
-			 typename ConcurrencyType>
+			 typename ConcurrencyType_>
 	class PhononsTwoOrbitals : public ModelBase<
 	  Spin<typename EngineParamsType::RealType>,
 	  EngineParamsType,ParametersModelType_,
 	  GeometryType,
-	  ConcurrencyType> {
+	  ConcurrencyType_> {
 
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
-		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef PhononsTwoOrbitals<EngineParamsType,
 		                           ParametersModelType_,
 		                           GeometryType,
-		                           ConcurrencyType> ThisType;
-		
+		                           ConcurrencyType_> ThisType;
+
 		static const size_t nbands_ = 2;
-		
-		public:
+
+	public:
+
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef ConcurrencyType_ ConcurrencyType;
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PhononsTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
@@ -123,7 +126,7 @@ namespace Spf {
 			
 			//storedObservables_.doThem();
 		} // doMeasurements
-		
+
 		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
 			typedef typename DynVarsType::Type1 Type1;
@@ -134,7 +137,16 @@ namespace Spf {
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
 			 else createHamiltonian(dynVars_,matrix);
 		}
-		
+
+		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		{
+			// ALL THIS IS VERY INEFFICIENT
+			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
+			MatrixType matrix;
+			createHamiltonian(matrix,oldOrNewDynVars);
+			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+		}
+
 		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;

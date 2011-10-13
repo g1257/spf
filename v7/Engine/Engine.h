@@ -17,35 +17,54 @@
 #include "MonteCarlo.h"
 #include "Packer.h"
 #include "SaveConfigs.h"
+#include "AlgorithmFactory.h"
+#include "GreenFunctionTpem.h"
+#include "GreenFunctionDiag.h"
+#include <time.h>
 
 namespace Spf {
 	
-	template<typename ParametersType,typename GreenFunctionType,typename ConcurrencyType>
+	template<typename ParametersType,typename ModelType,typename IoInType,typename RngType>
 	class Engine {
 		
 		typedef typename ParametersType::RealType RealType;
-		typedef typename GreenFunctionType::ModelType ModelType;
-		typedef typename GreenFunctionType::RandomNumberGeneratorType RandomNumberGeneratorType;
-		typedef typename GreenFunctionType::AlgorithmType AlgorithmType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
+		typedef typename ModelType::ConcurrencyType ConcurrencyType;
 		typedef Packer<RealType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
+		typedef Spf::GreenFunctionTpem<ParametersType,ModelType,RngType> GreenFunctionTpemType;
+		typedef Spf::GreenFunctionDiag<ParametersType,ModelType,RngType> GreenFunctionDiagType;
+		typedef AlgorithmFactory<GreenFunctionDiagType,GreenFunctionTpemType> AlgorithmFactoryType;
+
+		static const std::string license_;
+
 	public:
-			
-		Engine(ParametersType& params,GreenFunctionType& gf,ConcurrencyType& concurrency) 
+
+		Engine(ParametersType& params,
+		       ModelType& model,
+		       IoInType& io,
+		       ConcurrencyType& concurrency) 
 		: params_(params),
-		  gf_(gf),
-		  model_(gf.model()),
-		  dynVars_(model_.dynVars()),
+		  model_(model),
 		  concurrency_(concurrency),
+		  gfTpem_(0),
+		  gfDiag_(0),
+		  dynVars_(model_.dynVars()),
 		  ioOut_(params_.filename,
 		  concurrency_.rank()),
 		  progress_("Engine",concurrency.rank()),
 		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs()),
 		  saveConfigs_(params_,dynVars_,concurrency.rank())
 		{
+			const std::string opts = params.options;
+			bool tpem = (opts.find("tpem")!=std::string::npos);
+			if (tpem) {
+				gfTpem_ = new GreenFunctionTpemType(params,model,io);
+			} else {
+				gfDiag_ = new GreenFunctionDiagType(params,model,io);
+			}
 			size_t nprocs = concurrency_.nprocs();
 			size_t temp = params_.iterEffective/nprocs;
 			if (temp * nprocs != params_.iterEffective) {
@@ -54,7 +73,13 @@ namespace Spf {
 			}
 			writeHeader();
 		}
-				
+
+		~Engine()
+		{
+			if (gfTpem_) delete gfTpem_;
+			if (gfDiag_) delete gfDiag_;
+		}
+
 		void main()
 		{
 			thermalize();
@@ -64,6 +89,11 @@ namespace Spf {
 			finalize();
 		}
 		
+		static const std::string& license()
+		{
+			return license_;
+		}
+
 	private:
 		
 		void thermalize()
@@ -87,9 +117,14 @@ namespace Spf {
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
-				gf_.measure();
 				PackerType packer(ioOut_,concurrency_);
-				model_.doMeasurements(gf_,iter,packer);
+				if (gfDiag_) {
+					gfDiag_->measure();
+					model_.doMeasurements(*gfDiag_,iter,packer);
+				} else {
+					gfTpem_->measure();
+					model_.doMeasurements(*gfTpem_,iter,packer);
+				}
 				saveConfigs_(iter); 
 				printProgress(accepted,&packer);
 			}
@@ -113,7 +148,11 @@ namespace Spf {
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
 			ioOut_<<"#AlgorithmRelated:\n";
-			ioOut_<<gf_;
+			if (gfDiag_) {
+				ioOut_<<(*gfDiag_);
+			} else {
+				ioOut_<<(*gfTpem_);
+			}
 			time_t t = time(0);
 			std::string s(ctime(&t));
 			ioOut_<<s;
@@ -125,9 +164,9 @@ namespace Spf {
 		{
 			typedef typename DynVarsType::OperationsType0 OperationsType0;
 			typedef typename DynVarsType::Type0 Type0;
-			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmType,
-			                   RandomNumberGeneratorType,Type0> MonteCarloType0;
-			AlgorithmType& algorithm = gf_.algorithm();
+			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmFactoryType,
+			                   RngType,Type0> MonteCarloType0;
+			AlgorithmFactoryType algorithm(gfDiag_,gfTpem_);
 
 			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm,rng_);
 			Type0& spinPart = dynVars.getField((Type0*)0);
@@ -139,7 +178,7 @@ namespace Spf {
 			
 			typedef typename DynVarsType::OperationsType1 OperationsType1;
 			typedef typename DynVarsType::Type1 Type1;
-			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmType,RandomNumberGeneratorType,
+			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmFactoryType,RngType,
    				Type1> MonteCarloType1;
 			
 			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm,rng_);
@@ -179,15 +218,35 @@ namespace Spf {
 		}
 
 		const ParametersType& params_;
-		GreenFunctionType& gf_;
 		ModelType& model_;
-		DynVarsType& dynVars_;
 		ConcurrencyType& concurrency_;
+		GreenFunctionTpemType* gfTpem_; // we own it, we new it, and we delete it
+		GreenFunctionDiagType* gfDiag_; // we own it, we new it, and we delete it
+		DynVarsType& dynVars_;
 		PsimagLite::IoSimple::Out ioOut_;
 		ProgressIndicatorType progress_;
-		RandomNumberGeneratorType rng_;
+		RngType rng_;
 		SaveConfigsType saveConfigs_;
 	}; // Engine
+	
+template<typename ParametersType,typename ModelType,typename IoInType,typename RngType>
+const std::string Engine<ParametersType,ModelType,IoInType,RngType>::license_=
+"Copyright (c) 2009-2011, UT-Battelle, LLC\n"
+"All rights reserved\n"
+"\n"
+"[SPF, Version 7.0.0]\n"
+"\n"
+"*********************************************************\n"
+"THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND\n"
+"CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED\n"
+"WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n"
+"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\n"
+"PARTICULAR PURPOSE ARE DISCLAIMED. \n"
+"\n"
+"Please see full open source license included in file LICENSE.\n"
+"*********************************************************\n"
+"\n"
+"\n";
 } // namespace Spf
 
 /*@}*/

@@ -9,13 +9,13 @@
  */
 #ifndef TPEM_H
 #define TPEM_H
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_errno.h>
+
 #include "CrsMatrix.h"
 #include "TpemSubspace.h"
 #include "TpemFunctors.h"
 #include "TypeToString.h"
 #include <cassert>
+#include "GslWrapper.h"
 
 namespace Tpem {
 
@@ -29,6 +29,7 @@ namespace Tpem {
 		typedef ActionFunctor<TpemParametersType> ActionFunctorType;
 		typedef EnergyFunctor<TpemParametersType> EnergyFunctorType;
 		typedef NumberFunctor<TpemParametersType> NumberFunctorType;
+		typedef PsimagLite::GslWrapper GslWrapperType;
 		
 		enum {NO_VERBOSE,YES_VERBOSE};
 		static const size_t verbose_ = NO_VERBOSE;
@@ -46,7 +47,7 @@ namespace Tpem {
 		Tpem(const TpemParametersType& tpemParameters)
 		: tpemParameters_(tpemParameters)
 		{
-			gsl_set_error_handler(&my_handler);
+			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
 
 		void calcCoeffs(std::vector<RealType> &vobs,
@@ -60,23 +61,24 @@ namespace Tpem {
 			RealType epsrel=1e-3;
 			
 			size_t limit = 1e5;
-			gsl_integration_workspace *workspace= gsl_integration_workspace_alloc(limit+2);
+			GslWrapperType::gsl_integration_workspace *workspace = 
+			                   gslWrapper_.gsl_integration_workspace_alloc(limit+2);
 			
 			RealType result = 0,abserr = 0;
 			
-			gsl_function f;
+			GslWrapperType::gsl_function f;
 			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			//int key = GSL_INTEG_GAUSS61;
 			for (size_t m=0;m<tpemParameters_.cutoff;m++) {
 				params.m = m;
-				gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
+				gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
 				//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
 				//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
 				vobs[m] = result;
 			}
-			gsl_integration_workspace_free (workspace);
+			gslWrapper_.gsl_integration_workspace_free (workspace);
 		}
 		
 		void calcMoments(TpemSparseType& matrix,
@@ -345,6 +347,7 @@ namespace Tpem {
 		}
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
+		GslWrapperType gslWrapper_;
 	}; // class Tpem
 } // namespace Tpem
 

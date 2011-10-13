@@ -22,22 +22,24 @@ namespace Spf {
 		typename EngineParamsType,
 		typename ParametersModelType_,
 		typename GeometryType,
-		typename ConcurrencyType>
+		typename ConcurrencyType_>
 	class DmsMultiOrbital : public ModelBase<Spin<
 	     typename EngineParamsType::RealType>,
-		 EngineParamsType,ParametersModelType_,GeometryType,ConcurrencyType> {
+		 EngineParamsType,ParametersModelType_,GeometryType,ConcurrencyType_> {
 		
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
-		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef DmsMultiOrbital<EngineParamsType,ParametersModelType_,
-		                        GeometryType,ConcurrencyType> ThisType;
+		                        GeometryType,ConcurrencyType_> ThisType;
 
 	public:
+		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef ConcurrencyType_ ConcurrencyType;
 		typedef ParametersModelType_ ParametersModelType;
 		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
@@ -143,7 +145,16 @@ namespace Spf {
 			else
 				createHamiltonian(dynVars,matrix);
 		}
-		
+
+		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		{
+			// ALL THIS IS VERY INEFFICIENT
+			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
+			MatrixType matrix;
+			createHamiltonian(matrix,oldOrNewDynVars);
+			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+		}
+
 		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;

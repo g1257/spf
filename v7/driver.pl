@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
+use File::Temp qw/ tempfile tempdir /;
 
+my $PsimagLiteDir = "../../PsimagLite";
 my $model = "PnictidesMultiOrbitals";
 print "What model do you want to compile?\n";
 print "Available: DmsMultiOrbital  PhononsTwoOrbitals  PnictidesMultiOrbitals\n";
@@ -42,26 +44,18 @@ s/ //g;
 chomp;
 $mpi = $_ unless ($_ eq "");
 
-my $tpem = "n";
-if ($mpi eq "n") {
-	print "Do you want to use TPEM?\n";
-	print "Available: y or n\n";
-	print "Default is: n (press ENTER): ";
-	$_=<STDIN>;
-	s/ //g;
-	chomp;
-	$tpem = $_ unless ($_ eq "");
-}
 
-$tpem = "Diag" if ($tpem eq "n");
-$tpem = "Tpem" if ($tpem eq "y");
-my $tpemInclude = " ";
-$tpemInclude = " -I../Tpem " if ($tpem eq "Tpem");
-my $gslLib = "  ";
-$gslLib = " -lgsl -lgslcblas " if ($tpem eq "Tpem");
+my $gslDefine = " -DUSE_GSL ";
+my $gslLibs = " -lgsl -lgslcblas ";
+my $hasGsl = findIfWeHaveGsl($gslDefine,$gslLibs);
+if (!$hasGsl) {
+	$gslLibs = "  ";
+	$gslDefine = "  ";
+}
 
 my $compiler = "g++";
 $compiler = "mpicxx -DUSE_MPI" if ($mpi eq "y");
+
 
 createMakefile();
 createDriver();
@@ -78,9 +72,9 @@ print FOUT<<EOF;
 # Platform: linux
 # Model: $model
 # MPI: $mpi
-LDFLAGS =  -llapack -lblas -lm $gslLib
+LDFLAGS =  -llapack -lblas -lm $gslLibs
 EXENAME = spf
-CPPFLAGS =  -I../../PsimagLite/src   -IGeometries -IModels/$model -IEngine -IClassicalFields $tpemInclude
+CPPFLAGS =  -I${PsimagLiteDir}/src   -IGeometries -IModels/$model -IEngine -IClassicalFields -I../Tpem $gslDefine
 CXX = $compiler -DNDEBUG -Werror -Wall -O3 
 #comment out this one for debugging
 #CXX = $compiler -Werror -Wall -g3
@@ -90,9 +84,6 @@ all: \$(EXENAME)
 \$(EXENAME):  spf.o
 	\$(CXX) -o \$(EXENAME) spf.o \$(LDFLAGS)  
 
-tpemSample: tpemSample.o
-	\$(CXX) -o tpemSample tpemSample.o \$(LDFLAGS) 
-
 # dependencies brought about by Makefile.dep
 %.o: %.cpp Makefile
 	\$(CXX) \$(CPPFLAGS) -c \$<
@@ -100,9 +91,8 @@ tpemSample: tpemSample.o
 spf.cpp: driver.pl
 	perl driver.pl
 
-Makefile.dep: spf.cpp tpemSample.cpp Makefile
+Makefile.dep: spf.cpp  Makefile
 	\$(CXX) \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
-	\$(CXX) \$(CPPFLAGS) -MM tpemSample.cpp  > Makefile.dep
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt
@@ -131,33 +121,31 @@ print FOUT<<EOF;
 typedef double FieldType;
 #include "ParametersEngine.h"
 #include "Engine.h"
+#include <algorithm>
 #ifndef USE_MPI
 #include "ConcurrencySerial.h"
-typedef PsimagLite::ConcurrencySerial<FieldType> ConcurrencyType;
+typedef PsimagLite::ConcurrencySerial<FieldType> MyConcurrencyType;
 #else
 #include "ConcurrencyMpi.h"
-typedef PsimagLite::ConcurrencyMpi<FieldType> ConcurrencyType;
+typedef PsimagLite::ConcurrencyMpi<FieldType> MyConcurrencyType;
 #endif
 #include "Parameters$modelFile.h"
 #include "$model.h"
 #include "Geometry$geometry.h"
 #include "Random48.h"
-#include "GreenFunction$tpem.h"
 
 typedef PsimagLite::IoSimple::In IoInType;
 typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
 typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModelType;
-typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,ConcurrencyType> ModelType;
+typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,MyConcurrencyType> ModelType;
 typedef ModelType::DynVarsType DynVarsType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
-typedef Spf::GreenFunction$tpem<ParametersEngineType,ModelType,RandomNumberGeneratorType> GreenFunctionType;
-typedef Spf::Engine<ParametersEngineType,GreenFunctionType,ConcurrencyType> EngineType;
+typedef Spf::Engine<ParametersEngineType,ModelType,IoInType,RandomNumberGeneratorType> EngineType;
 
- 
 int main(int argc,char *argv[])
 {
-	ConcurrencyType concurrency(argc,argv);
+	MyConcurrencyType concurrency(argc,argv);
 	if (argc<2) {
 		std::string s = "Usage is: ./" + std::string(argv[0]) +
 		" input_file\\n";
@@ -166,32 +154,14 @@ int main(int argc,char *argv[])
 	PsimagLite::IoSimple::In io(argv[1]);
 	ParametersEngineType engineParams(io);
 	ParametersModelType mp(io,engineParams);
-	// print license
-	std::string license = "Copyright (c) 2009-2011, UT-Battelle, LLC\\n"
-"All rights reserved\\n"
-"\\n"
-"[SPF, Version 7.0.0]\\n"
-"\\n"
-"*********************************************************\\n"
-"THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND\\n"
-"CONTRIBUTORS \\"AS IS\\" AND ANY EXPRESS OR IMPLIED\\n"
-"WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\\n"
-"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\\n"
-"PARTICULAR PURPOSE ARE DISCLAIMED. \\n"
-"\\n"
-"Please see full open source license included in file LICENSE.\\n"
-"*********************************************************\\n"
-"\\n"
-"\\n"
-"// END LICENSE BLOCK\\n"
-;
-	if (concurrency.root()) std::cerr<<license;
+	
+	if (concurrency.root()) std::cout<<EngineType::license();
 	GeometryType geometry(engineParams.latticeLength);
 	
 	ModelType model(engineParams,mp,geometry,concurrency);
-	GreenFunctionType gf(engineParams,model,io);
-	EngineType engine(engineParams,gf,concurrency);
-	
+
+	EngineType engine(engineParams,model,io,concurrency);
+
 	engine.main();
 }
 
@@ -201,4 +171,26 @@ int main(int argc,char *argv[])
 EOF
 	close(FOUT);
 	print "$thisFile has been written\n";
+}
+
+sub findIfWeHaveGsl
+{
+	my ($gslDefine,$gslLibs)=@_;
+	my $dir = tempdir( CLEANUP => 1 );
+	my ($fh, $filename) = tempfile( DIR => $dir );
+
+	$fh or die "Cannot write to temporary filehandle: $!\n";
+print $fh <<EOF;
+#include "GslWrapper.h"
+int main() { return 0;}
+EOF
+	close($fh);
+	my $cppFile = $filename.".cpp";
+	system("mv $filename $cppFile");
+	unlink("a.out");
+# 	print "Temp file is $cppFile\n";
+# 	system("cat $cppFile");
+	system("g++ -I$PsimagLiteDir/src $cppFile >& /dev/null"); 
+	return 1 if (-x "a.out");
+	return 0;
 }

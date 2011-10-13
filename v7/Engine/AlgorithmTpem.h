@@ -30,7 +30,7 @@ namespace Spf {
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 		typedef typename EngineParametersType::IoInType IoInType;
-		typedef Tpem::TpemParameters<IoInType,EngineParametersType> TpemParametersType;
+		typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
 		// includes from Tpem.h
 		typedef Tpem::Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
@@ -47,7 +47,7 @@ namespace Spf {
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
 		  adjustTpemBounds_(false),
-		  tpemParameters_(io,engineParams),
+		  tpemParameters_(io,engineParams.mu,engineParams.beta),
 		  tpem_(tpemParameters_),
 		  actionFunc_(tpemParameters_),
 		  actionCoeffs_(cutoff_),

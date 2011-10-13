@@ -24,12 +24,12 @@ namespace Spf {
 	template<typename EngineParamsType,
 	           typename ParametersModelType_,
 	           typename GeometryType,
-	           typename ConcurrencyType>
+	           typename ConcurrencyType_>
 	class PnictidesMultiOrbitals : public ModelBase<Spin<
 	  typename EngineParamsType::RealType>,
 	  EngineParamsType,ParametersModelType_,
 	  GeometryType,
-	  ConcurrencyType> {
+	  ConcurrencyType_> {
 
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -40,6 +40,7 @@ namespace Spf {
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 
 	public:
+		typedef ConcurrencyType_ ConcurrencyType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ParametersModelType_ ParametersModelType;
 		static const size_t norb_ = ParametersModelType::numberOfOrbitals;
@@ -50,7 +51,7 @@ namespace Spf {
 				GeometryType> ThreeOrbitalTermsType;
 		typedef ObservablesStored<SpinOperationsType,ComplexType,
 				ParametersModelType,ConcurrencyType> ObservablesStoredType;
-
+		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		

@@ -14,13 +14,13 @@
 #include <cassert>
 
 namespace Tpem {
-	template<typename IoInType,typename MuBetaStructType>
+	template<typename IoInType,typename RealType_>
 	struct TpemParameters {
-		typedef typename MuBetaStructType::RealType RealType;
+		typedef RealType_ RealType;
 		enum {TPEM,PEM};
-
-		TpemParameters(IoInType& io,const MuBetaStructType& engineParams)
-		: mu(engineParams.mu),beta(engineParams.beta)
+		
+		TpemParameters(IoInType& io,const RealType& mu1, const RealType& beta1)
+		: mu(mu1),beta(beta1)
 		{
 			std::string s;
 			io.readline(s,"TpemAlgorithm=");
