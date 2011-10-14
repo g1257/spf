@@ -112,7 +112,7 @@ int main (int argc,char *argv[])
 	typedef double RealOrComplexType;
 	typedef PsimagLite::IoSimple::In IoInType;
 	typedef MuBetaStruct<IoInType,RealType> MuBetaStructType;
-	typedef Tpem::TpemParameters<IoInType,MuBetaStructType> TpemParametersType;
+	typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
 	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType> TpemType;
 	typedef PsimagLite::CrsMatrix<RealOrComplexType> SparseMatrixType;
 	
@@ -126,7 +126,7 @@ int main (int argc,char *argv[])
 	fillRandomMatrix(matrix1,10.0,rng);
 
 	MuBetaStructType muBeta(io);
-	TpemParametersType tpemParameters(io,muBeta);
+	TpemParametersType tpemParameters(io,muBeta.mu,muBeta.beta);
 	tpemParameters.support.resize(2,0);
 	tpemParameters.support[0] = 0;
 	tpemParameters.support[1] = matrix0.rank() / 2 - 1;
