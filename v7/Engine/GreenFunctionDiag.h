@@ -44,6 +44,8 @@ namespace Spf {
 
 		AlgorithmType& algorithm() { return algorithm_; }
 
+		bool usesDiagonalization() const { return true; }
+
 		ModelType& model() { return algorithm_.model(); } // should be const
 
 		const ComplexType& operator()(size_t lambda1,size_t lambda2) const

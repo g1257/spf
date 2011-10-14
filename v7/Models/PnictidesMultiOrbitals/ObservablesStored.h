@@ -55,6 +55,7 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
+			if (!greenFunction.usesDiagonalization()) return;
 			//spinOperations_.classicalCorrelations(cc_,spins);
 			greenFunction.localCharge(lc_);
 			chargeCorrelation(chargeCor_,greenFunction);
@@ -72,6 +73,7 @@ namespace Spf {
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout)
 		{
+			if (counter_==0) return;
 			divideAndPrint(fout,lc_,"#LocalCharge:");
 			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
 			divideAndPrint(fout,mc_,"#MCorrelations");

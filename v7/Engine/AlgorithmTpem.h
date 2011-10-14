@@ -30,7 +30,7 @@ namespace Spf {
 		typedef std::vector<RealType> VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 		typedef typename EngineParametersType::IoInType IoInType;
-		typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
+		typedef Tpem::TpemParameters<IoInType,RealType,ModelType> TpemParametersType;
 		// includes from Tpem.h
 		typedef Tpem::Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
@@ -43,25 +43,26 @@ namespace Spf {
 		AlgorithmTpem(const EngineParametersType& engineParams,
 		              ModelType& model,
 		              IoInType& io)
-		: engineParams_(engineParams),model_(model),
+		: engineParams_(engineParams),
+		  model_(model),
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
 		  adjustTpemBounds_(false),
-		  tpemParameters_(io,engineParams.mu,engineParams.beta),
+		  tpemParameters_(io,engineParams.mu,engineParams.beta,&model),
 		  tpem_(tpemParameters_),
 		  actionFunc_(tpemParameters_),
-		  actionCoeffs_(cutoff_),
-		  moment0_(cutoff_),
-		  moment1_(cutoff_)
+		  matrixOld_(model.hilbertSize(),model.hilbertSize()),
+		  actionCoeffs_(tpemParameters_.cutoff),
+		  moment_(tpemParameters_.cutoff),
+		  curMoments_(tpemParameters_.cutoff)
 		{
-			throw std::runtime_error("Need to set cutoff_, a_, b_, mu_, beta_\n");
 			//tmpValues(a,b,mu,beta,TMPVALUES_SET);
 			tpem_.calcCoeffs(actionCoeffs_,actionFunc_); 
 		}
 
 		void init()
 		{
-// 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
+ 			model_.createHsparse(matrixOld_,ModelType::OLDFIELDS);
 // 			diag(matrixOld_,eigOld_,'N');
 // 			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
 		}
@@ -79,7 +80,7 @@ namespace Spf {
 						"Cannot adjust bounds for tpem spectrum\n");
 				}
 			}
-			RealType dS = calcDeltaAction(moment_,matrixOld_, matrixNew_);
+			RealType dS = calcDeltaAction(matrixOld_, matrixNew_);
 			
 			dS -= engineParams_.beta*dsDirect;
 
@@ -94,7 +95,8 @@ namespace Spf {
 		{
 			model_.accept(i);
 			// update current moments
-			for (size_t j=0;j<cutoff_;j++) curMoments_[j] -= moment_[j];
+			for (size_t j=0;j<tpemParameters_.cutoff;j++)
+				curMoments_[j] -= moment_[j];
 		}
 
 		void prepare()
@@ -103,8 +105,6 @@ namespace Spf {
 		}
 		
 		const VectorType& moment() const { return moment_; }
-		
-		const size_t cutoff() const { return cutoff_; }
 
 		ModelType& model() { return model_; }
 		
@@ -126,33 +126,33 @@ namespace Spf {
 			return 0;
 		}
 		
-		double calcDeltaAction(const VectorType &moment,
-		                       TpemSparseType& matrix1,
+		double calcDeltaAction(TpemSparseType& matrix1,
 		                       TpemSparseType& matrix)
 		{
-			RealType a = a_;
-			RealType b = b_;
-			RealType mu = mu_;
-			RealType beta = beta_;
-			RealType e1=b_-a_;
-			RealType e2=b_+a_;
-			RealType e11=tpemParameters_.b - tpemParameters_.a;
-			RealType e21=tpemParameters_.b + tpemParameters_.a;
-
-			if (e1 > e11) e1 = e11;
-			if (e2 < e21) e2 = e21;
+// 			RealType a = tpemParameters_.a;
+// 			RealType b = tpemParameters_.b;
+// 			RealType mu = tpemParameters_.mu;
+// 			RealType beta = tpemParameters_.beta;
+// 			RealType e1=b_-a_;
+// 			RealType e2=b_+a_;
+// 			RealType e11=tpemParameters_.b - tpemParameters_.a;
+// 			RealType e21=tpemParameters_.b + tpemParameters_.a;
+// 
+// 			if (e1 > e11) e1 = e11;
+// 			if (e2 < e21) e2 = e21;
 
 			if (engineParams_.carriers>0) {
-				tmpValues(a,b,mu,beta,TMPVALUES_SET);
+// 				tmpValues(a,b,mu,beta,TMPVALUES_SET);
 				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
 			} 
 			if (adjustTpemBounds_) {
-				a=0.5*(e2-e1);
-				b=0.5*(e2+e1);
-				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
+				throw std::runtime_error("adjustTpemBounds_ : unimplemented\n");
+// 				a=0.5*(e2-e1);
+// 				b=0.5*(e2+e1);
+// 				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
 			}
 		
-			tmpValues(a,b,mu,beta,TMPVALUES_SET);
+// 			tmpValues(a,b,mu,beta,TMPVALUES_SET);
 			
 			TpemSparseType& mod_matrix1 = matrix1;
 			TpemSparseType& mod_matrix = matrix;
@@ -183,28 +183,26 @@ namespace Spf {
 			return dS;
 		}
 		
-		void tmpValues(RealType &a,RealType &b,RealType &mu,RealType &beta,size_t option)
-		{
-			if (option==TMPVALUES_SET) { // set static members
-				a_ = a;
-				b_ = b;
-				mu_ = mu;
-				beta_ = beta;
-				return;
-			}
-			//else retrieve static members
-			a = a_;
-			b = b_;
-			mu = mu_;
-			beta = beta_;
-		}
+// 		void tmpValues(RealType &a,RealType &b,RealType &mu,RealType &beta,size_t option)
+// 		{
+// 			if (option==TMPVALUES_SET) { // set static members
+// 				a_ = a;
+// 				b_ = b;
+// 				mu_ = mu;
+// 				beta_ = beta;
+// 				return;
+// 			}
+// 			//else retrieve static members
+// 			a = a_;
+// 			b = b_;
+// 			mu = mu_;
+// 			beta = beta_;
+// 		}
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		size_t hilbertSize_;
 		MetropolisOrGlauberType metropolisOrGlauber_;
-		size_t cutoff_;
-		RealType a_,b_,mu_,beta_;
 		bool adjustTpemBounds_;
 		TpemParametersType tpemParameters_;
 		TpemType tpem_;
@@ -212,10 +210,8 @@ namespace Spf {
 		TpemSparseType matrixOld_;
 		TpemSparseType matrixNew_;
 		VectorType actionCoeffs_;
-		VectorType curMoments_;
 		VectorType moment_;
-		VectorType moment0_;
-		VectorType moment1_;
+		VectorType curMoments_;
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,

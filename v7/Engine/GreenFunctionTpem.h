@@ -37,8 +37,8 @@ namespace Spf {
 		  hilbertSize_(model.hilbertSize()),
 		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),
-		  energyCoeffs_(algorithm_.cutoff()),
-		  numberCoeffs_(algorithm_.cutoff()),
+		  energyCoeffs_(algorithm_.tpemParameters().cutoff),
+		  numberCoeffs_(algorithm_.tpemParameters().cutoff),
 		  energyFunctor_(algorithm_.tpemParameters()),
 		  numberFunctor_(algorithm_.tpemParameters())
 		{
@@ -59,6 +59,8 @@ namespace Spf {
 		ModelType& model() { return algorithm_.model(); } // should be const
 
 		size_t hilbertSize() const { return hilbertSize_; }
+
+		bool usesDiagonalization() const { return false; }
 
 		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
 		{
@@ -118,7 +120,8 @@ namespace Spf {
 		void electronSpin(std::vector<ComplexType>& es,
 				size_t orbitals,size_t n) const
 		{
-			throw std::runtime_error("electron spin is unimplemented for TPEM\n");
+			for (size_t i=0;i<es.size();i++)  es[i]=0;
+			//throw std::runtime_error("electron spin is unimplemented for TPEM\n");
 // 			enum {SPIN_UP,SPIN_DOWN};
 // 
 // 			for (size_t i=0;i<n;i++) {

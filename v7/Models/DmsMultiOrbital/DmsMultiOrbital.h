@@ -150,9 +150,14 @@ namespace Spf {
 		{
 			// ALL THIS IS VERY INEFFICIENT
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
-			MatrixType matrix;
+			MatrixType matrix(hilbertSize_,hilbertSize_);
 			createHamiltonian(matrix,oldOrNewDynVars);
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+		}
+
+		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		{
+			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
 
 		void adjustChemPot(const std::vector<RealType>& eigs)

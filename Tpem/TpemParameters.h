@@ -13,12 +13,15 @@
 #include <cassert>
 
 namespace Tpem {
-	template<typename IoInType,typename RealType_>
+	template<typename IoInType,typename RealType_,typename CallbackType=void>
 	struct TpemParameters {
 		typedef RealType_ RealType;
 		enum {TPEM,PEM};
 		
-		TpemParameters(IoInType& io,const RealType& mu1, const RealType& beta1)
+		TpemParameters(IoInType& io,
+		               const RealType& mu1,
+		               const RealType& beta1,
+		               const CallbackType* callback=0)
 		: mu(mu1),beta(beta1)
 		{
 			std::string s;
@@ -34,6 +37,10 @@ namespace Tpem {
 			io.readline(cutoff,"TpemCutoff=");
 			io.readline(epsForProduct,"TpemEpsForProduct=");
 			io.readline(epsForTrace,"TpemEpsForTrace=");
+			if (callback) {
+				callback->setTpemThings(a,b,support);
+				return;
+			}
 			io.readline(a,"TpemA=");
 			io.readline(b,"TpemB=");
 			io.read(support,"TpemSupport");

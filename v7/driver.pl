@@ -74,10 +74,12 @@ print FOUT<<EOF;
 # MPI: $mpi
 LDFLAGS =  -llapack -lblas -lm $gslLibs
 EXENAME = spf
-CPPFLAGS =  -I${PsimagLiteDir}/src   -IGeometries -IModels/$model -IEngine -IClassicalFields -I../Tpem $gslDefine
-CXX = $compiler -DNDEBUG -Werror -Wall -O3 
+CPPFLAGS =  -Werror -Wall -I${PsimagLiteDir}/src   -IGeometries -IModels/$model -IEngine -IClassicalFields -I../Tpem $gslDefine
+CXX = $compiler -DNDEBUG -O3 
 #comment out this one for debugging
-#CXX = $compiler -Werror -Wall -g3
+#CXX = $compiler -g3
+#comment out for performance profiling with valgrind
+#CXX = $compiler -g3 -O
 
 all: \$(EXENAME)
 

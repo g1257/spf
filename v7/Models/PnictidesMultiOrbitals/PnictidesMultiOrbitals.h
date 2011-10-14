@@ -167,44 +167,70 @@ namespace Spf {
 			
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
-		
-// 		template<typename GreenFunctionType>
-// 		void checkMatrix(const MatrixType& matrix,GreenFunctionType& gf)
-// 		{
-// 			size_t volume = geometry_.volume();
-// 			size_t norb = mp_.numberOfOrbitals;
-// 			double eps = 1e-16;
-// 			for (size_t i=0;i<matrix.n_row();i++) {
-// 				for (size_t j=0;j<matrix.n_col();j++) {
-// 					if (fabs(gf.e(i) -gf.e(j))<eps && norm(matrix(i,j))>eps) {
-// 						size_t isite  = i % volume;
-// 						size_t tmp = i / volume;
-// 						size_t ispin = tmp/norb;
-// 						size_t iorb = tmp % norb;
-// 						size_t jsite = j % volume;
-// 						tmp = j / volume;
-// 						size_t jspin = tmp /norb;
-// 						size_t jorb = tmp  % norb;
-// 						std::cerr<<isite<<" "<<ispin<<" "<<iorb<<" *** "<<jsite<<" "<<jspin<<" "<<jorb<<" m="<<matrix(i,j)<<"\n";
-// 					}
-// 				}
-// 			}
-// 		}
-		
+
 		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
-			if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(spinOperations_.dynVars2(),matrix);
-			else createHamiltonian(dynVars,matrix);
+			if (oldOrNewDynVars==NEWFIELDS)
+				createHamiltonian(spinOperations_.dynVars2(),matrix);
+			else
+				createHamiltonian(dynVars,matrix);
 		}
 
 		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
 		{
 			// ALL THIS IS VERY INEFFICIENT
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
-			MatrixType matrix;
+			MatrixType matrix(hilbertSize_,hilbertSize_);
 			createHamiltonian(matrix,oldOrNewDynVars);
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+		}
+		
+		struct FakeParams {
+			FakeParams(std::string dynvarsfile1,int long long randomSeed1)
+			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) {}
+
+			std::string dynvarsfile;
+			int long long randomSeed;
+		};
+
+		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		{
+			{
+				MatrixType matrix(hilbertSize_,hilbertSize_);
+				bool classicalFields = false;
+				FakeParams fakeParams("random",343313);
+				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
+				createHamiltonian(tmpDynVars,matrix,classicalFields);
+				std::vector<RealType> e(matrix.n_row());
+				diag(matrix,e,'N');
+			
+				// will delegate to common code in the future
+				// modelCommon_.setTpemThings(a,b,support,e[0],e[e.size()-1]);
+				RealType eMin = e[0];
+				RealType eMax = e[e.size()-1];
+				a = 1.0/(eMax-eMin);
+				b = -a * eMin;
+			}
+			
+			{
+				// setup support
+				MatrixType matrix(hilbertSize_,hilbertSize_);
+				SpinType tmpDynVars(geometry_.volume(),engineParams_); 
+				createHamiltonian(tmpDynVars,matrix);
+				SpinOperationsType spinOps(geometry_,engineParams_);
+				spinOps.set(tmpDynVars);
+				size_t site = 0;
+				PsimagLite::Random48<RealType> rng(3493891);
+				spinOps.proposeChange(site,rng);
+				MatrixType matrix2(hilbertSize_,hilbertSize_);
+				createHamiltonian(spinOps.dynVars2(),matrix2);
+				support.clear();
+				for (size_t i=0;i<matrix.n_col();i++) {
+					ComplexType tmp = matrix(0,i) - matrix2(0,i);
+					if (std::norm(tmp)>1e-6) support.push_back(i);
+				}
+			}
 		}
 
 		void adjustChemPot(const std::vector<RealType>& eigs)
@@ -246,19 +272,21 @@ namespace Spf {
 		
 	private:
 		
-		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,MatrixType& matrix) const
+		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,
+		                       MatrixType& matrix,
+							   bool withClassicalFields = true) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t dof = norb * 2; // the 2 comes because of the spin
-			std::vector<ComplexType> jmatrix(2*2);
+			std::vector<ComplexType> jmatrix(2*2,0);
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 			
 			for (size_t p = 0; p < volume; p++) {
-				auxCreateJmatrix(jmatrix,dynVars,p);
+				if (withClassicalFields) auxCreateJmatrix(jmatrix,dynVars,p);
 				for (size_t gamma1=0;gamma1<dof;gamma1++) {		
 					
 		

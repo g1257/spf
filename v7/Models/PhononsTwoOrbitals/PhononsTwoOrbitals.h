@@ -147,6 +147,11 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
+		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		{
+			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
+		}
+
 		void adjustChemPot(const std::vector<RealType>& eigs)
 		{
 			if (engineParams_.carriers==0) return;
