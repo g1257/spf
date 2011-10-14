@@ -9,7 +9,6 @@
  */
 #ifndef TPEM_PARAMETERS_H
 #define TPEM_PARAMETERS_H
-#include <gsl/gsl_integration.h>
 #include "CrsMatrix.h"
 #include <cassert>
 
