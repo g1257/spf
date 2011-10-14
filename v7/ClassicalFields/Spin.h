@@ -20,7 +20,7 @@ namespace Spf {
 
 		template<typename SomeParamsType>
 		Spin(size_t vol,const SomeParamsType& params,bool freeze=false,bool makeVoid=false) : 
-				size(vol),theta(vol),phi(vol),isFrozen(freeze),isVoid(makeVoid)
+				size(vol),theta(vol,0),phi(vol,0),isFrozen(freeze),isVoid(makeVoid)
 		{
 			if (params.dynvarsfile=="none") return;
 			if (params.dynvarsfile=="random") {

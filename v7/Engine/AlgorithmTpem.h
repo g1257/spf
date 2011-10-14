@@ -56,13 +56,12 @@ namespace Spf {
 		  moment_(tpemParameters_.cutoff),
 		  curMoments_(tpemParameters_.cutoff)
 		{
-			//tmpValues(a,b,mu,beta,TMPVALUES_SET);
 			tpem_.calcCoeffs(actionCoeffs_,actionFunc_); 
 		}
 
 		void init()
 		{
- 			model_.createHsparse(matrixOld_,ModelType::OLDFIELDS);
+ 			setMatrix(matrixOld_,ModelType::OLDFIELDS);
 // 			diag(matrixOld_,eigOld_,'N');
 // 			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
 		}
@@ -73,18 +72,12 @@ namespace Spf {
 		{
 			RealType dsDirect = model_.deltaDirect(i);
 							
-			model_.createHsparse(matrixNew_,ModelType::NEWFIELDS);
-			if (adjustTpemBounds_) {
-				if (tpemAdjustBounds(matrixNew_)!=0) {
-					throw std::runtime_error(
-						"Cannot adjust bounds for tpem spectrum\n");
-				}
-			}
+			setMatrix(matrixNew_,ModelType::NEWFIELDS);
+
 			RealType dS = calcDeltaAction(matrixOld_, matrixNew_);
 			
 			dS -= engineParams_.beta*dsDirect;
 
-			
 			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
 			//RealType integrationMeasure = model_.integrationMeasure(i);
 			RealType X = exp(dS);
@@ -101,7 +94,11 @@ namespace Spf {
 
 		void prepare()
 		{
-// 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
+			TpemSparseType matrix(hilbertSize_,hilbertSize_);
+			setMatrix(matrix,ModelType::OLDFIELDS);
+			bool b = isHermitian(matrix,true);
+			tpem_.calcMoments(matrix,moment_);
+			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
 		
 		const VectorType& moment() const { return moment_; }
@@ -120,84 +117,29 @@ namespace Spf {
 
 	private:
 		
-		int tpemAdjustBounds(const TpemSparseType& matrix) const
-		{
-			// unimplemented for now
-			return 0;
-		}
-		
 		double calcDeltaAction(TpemSparseType& matrix1,
 		                       TpemSparseType& matrix)
 		{
-// 			RealType a = tpemParameters_.a;
-// 			RealType b = tpemParameters_.b;
-// 			RealType mu = tpemParameters_.mu;
-// 			RealType beta = tpemParameters_.beta;
-// 			RealType e1=b_-a_;
-// 			RealType e2=b_+a_;
-// 			RealType e11=tpemParameters_.b - tpemParameters_.a;
-// 			RealType e21=tpemParameters_.b + tpemParameters_.a;
-// 
-// 			if (e1 > e11) e1 = e11;
-// 			if (e2 < e21) e2 = e21;
+			tpem_.calcMomentsDiff(moment_,matrix1, matrix);
 
-			if (engineParams_.carriers>0) {
-// 				tmpValues(a,b,mu,beta,TMPVALUES_SET);
-				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
-			} 
-			if (adjustTpemBounds_) {
-				throw std::runtime_error("adjustTpemBounds_ : unimplemented\n");
-// 				a=0.5*(e2-e1);
-// 				b=0.5*(e2+e1);
-// 				tpem_.calcCoeffs(actionCoeffs_,actionFunc_);
-			}
-		
-// 			tmpValues(a,b,mu,beta,TMPVALUES_SET);
-			
-			TpemSparseType& mod_matrix1 = matrix1;
-			TpemSparseType& mod_matrix = matrix;
-
-			if (adjustTpemBounds_) {
-				std::string s(__FILE__);
-				s += std::string(" ") + __FUNCTION__ + " adjusttpembounds, not sure how to proceed\n";
-				throw std::runtime_error(s.c_str());
-					// full copy/allocation
-// 					mod_matrix1 = new_tpem_sparse(engineParams_.hilbertSize,matrix1->rowptr[engineParams_.hilbertSize]);
-// 					tpem_sparse_copy (matrix1, mod_matrix1);
-// 					mod_matrix = new_tpem_sparse(engineParams_.hilbertSize,matrix->rowptr[engineParams_.hilbertSize]);
-// 					tpem_sparse_copy (matrix, mod_matrix);
-// 					
-// 					tpem_sparse_scale(mod_matrix1,a/aux.atmp,(b-aux.btmp)*aux.atmp/(a*a));
-// 					tpem_sparse_scale(mod_matrix,a/aux.varTpem_a,(b-aux.varTpem_b)*aux.varTpem_a/(a*a));
-					
-			}
-
-			tpem_.calcMomentsDiff(moment_,mod_matrix1, mod_matrix);
-
-			RealType dS = -tpem_.expand(actionCoeffs_, moment_);
-
-// 			if (adjustTpemBounds_) {
-// 				tpem_sparse_free(mod_matrix);
-// 				tpem_sparse_free(mod_matrix1);
-// 			}
-			return dS;
+			return -tpem_.expand(actionCoeffs_, moment_);
 		}
-		
-// 		void tmpValues(RealType &a,RealType &b,RealType &mu,RealType &beta,size_t option)
-// 		{
-// 			if (option==TMPVALUES_SET) { // set static members
-// 				a_ = a;
-// 				b_ = b;
-// 				mu_ = mu;
-// 				beta_ = beta;
-// 				return;
-// 			}
-// 			//else retrieve static members
-// 			a = a_;
-// 			b = b_;
-// 			mu = mu_;
-// 			beta = beta_;
-// 		}
+
+		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
+		{
+			model_.createHsparse(matrix,oldOrNewFields);
+			matrix *= tpemParameters_.a;
+			typedef typename TpemSparseType::value_type ElementType;
+			size_t counter = 0;
+			for (size_t i=0;i<matrix.rank();i++) {
+				for (int k=matrix.getRowPtr(i);k<matrix.getRowPtr(i+1);k++) {
+					counter++;
+					if (matrix.getCol(k)!=int(i)) continue;
+					ElementType tmp = matrix.getValue(k)+tpemParameters_.b;
+					matrix.setValues(counter-1,tmp);
+				}
+			}
+		}
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;

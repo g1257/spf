@@ -127,9 +127,9 @@ int main (int argc,char *argv[])
 
 	MuBetaStructType muBeta(io);
 	TpemParametersType tpemParameters(io,muBeta.mu,muBeta.beta);
-	tpemParameters.support.resize(2,0);
-	tpemParameters.support[0] = 0;
-	tpemParameters.support[1] = matrix0.rank() / 2 - 1;
+	std::vector<size_t> support(2,0);
+	support[0] = 0;
+	support[1] = matrix0.rank() / 2 - 1;
 	
 	TpemType tpem(tpemParameters);
 
@@ -153,8 +153,8 @@ int main (int argc,char *argv[])
 	std::cout<<"\n";
 	
 	matrix1 = matrix0;
-	matrix1.setValues(tpemParameters.support[0], 2.4 * (rng() - 0.5));
-	matrix1.setValues(matrix1.getRowPtr(tpemParameters.support[1]), 2.4 * (rng() - 0.5));
+	matrix1.setValues(support[0], 2.4 * (rng() - 0.5));
+	matrix1.setValues(matrix1.getRowPtr(support[1]), 2.4 * (rng() - 0.5));
 
 	std::cout<<"-------------------------------------------------------------\n";
 	std::cout<<"TEST 1: MEAN VALUE FOR THE FUNCTION:                         \n";

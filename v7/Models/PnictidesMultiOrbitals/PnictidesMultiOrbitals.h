@@ -198,17 +198,21 @@ namespace Spf {
 		{
 			{
 				MatrixType matrix(hilbertSize_,hilbertSize_);
-				bool classicalFields = false;
-				FakeParams fakeParams("random",343313);
+				FakeParams fakeParams("none",343313);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
-				createHamiltonian(tmpDynVars,matrix,classicalFields);
+				createHamiltonian(tmpDynVars,matrix);
 				std::vector<RealType> e(matrix.n_row());
 				diag(matrix,e,'N');
 			
 				// will delegate to common code in the future
 				// modelCommon_.setTpemThings(a,b,support,e[0],e[e.size()-1]);
 				RealType eMin = e[0];
+				RealType factor = 1.1;
+				if (eMin>0) eMin = 0;
+				else eMin *= factor;
 				RealType eMax = e[e.size()-1];
+				if (eMax<0) throw std::runtime_error("Hmmm\n");
+				else eMax *= factor;
 				a = 1.0/(eMax-eMin);
 				b = -a * eMin;
 			}
@@ -273,8 +277,7 @@ namespace Spf {
 	private:
 		
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,
-		                       MatrixType& matrix,
-							   bool withClassicalFields = true) const
+		                       MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = mp_.numberOfOrbitals;
@@ -286,7 +289,7 @@ namespace Spf {
 					matrix(gamma1,p)=0;
 			
 			for (size_t p = 0; p < volume; p++) {
-				if (withClassicalFields) auxCreateJmatrix(jmatrix,dynVars,p);
+				auxCreateJmatrix(jmatrix,dynVars,p);
 				for (size_t gamma1=0;gamma1<dof;gamma1++) {		
 					
 		
