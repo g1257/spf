@@ -1389,7 +1389,8 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 	vector<double> phononsNew(ether.D,0.0);
 	Phonons<Parameters,Geometry> phonons(ether,geometry);
 	
-	if (!ether.tpem) diag(aux.eigAllBands,geometry,dynVars2,ether,aux);
+	char jobz = (fabs(ether.coulombV)>1e-6) ? 'V' : 'N';
+	if (!ether.tpem) diag(aux.eigAllBands,geometry,dynVars2,ether,aux,jobz);
 		
 	if (ether.tpem && ether.carriers>0) calcMoments(dynVars,geometry,ether,aux,tpemOptions);
 	
@@ -1455,7 +1456,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				if (ether.carriers>0) adjChemPotTpem(ether,aux,tpemOptions);
 				flag=kTpemAllBands(i,geometry,dynVars2,ether,aux,dsDirect,tpemOptions);
 			} else {
-				diag(eigNewAllBands,geometry,dynVars2,ether,aux);
+				diag(eigNewAllBands,geometry,dynVars2,ether,aux,jobz);
 				if (ether.carriers>0) adjChemPot(eigNewAllBands,ether,aux);	
 				sineupdate= sin(dynVars.theta[i]);
 				if (dynVars.theta[i]!=0) {
@@ -1799,7 +1800,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		n_electrons=measure_density (moment, ether,aux,tpemOptions);
 	} else {
 	
-		diag(aux.eigOneBand,geometry,dynVars,ether,aux);
+		diag(aux.eigOneBand,geometry,dynVars,ether,aux,'N');
 		
 		for (i=0;i<ether.hilbertSize;i++) {
 			//aux.eigM[i] += aux.eigOneBand[i];

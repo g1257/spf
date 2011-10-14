@@ -54,7 +54,7 @@ template<typename ConcurrencyIoType>
  void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<ConcurrencyIoType> &io,
 		Parameters const &ether,Aux &aux,TpemOptions const &tpemOptions);
  void diag(vector<double> &eigOneBand,Geometry const &geometry,
-        DynVars const &dynVars,Parameters const &ether, Aux &aux,char jobz='N');
+        DynVars const &dynVars,Parameters const &ether, Aux &aux,char jobz);
  void tmpValues(double &a,double &b,double &mu,double &beta,int option);
  double effective_action (double x);
 void setupHamiltonian(MyMatrix<MatType> &matrix,Geometry const &geometry,DynVars const &dynVars,
