@@ -64,6 +64,23 @@ namespace Tpem {
 		RealType b;
 		std::vector<size_t> support;
 	}; // struct TpemParameters
+	
+	template<typename IoInType,typename RealType,typename CallbackType>
+	std::ostream& operator<<(std::ostream& os,const TpemParameters<IoInType,RealType,CallbackType>& t)
+	{
+		os<<"#TpemParameters\n";
+		os<<"#TpemMu="<<t.mu<<"\n";
+		os<<"#TpemBeta="<<t.beta<<"\n";
+		os<<"#TpemCutoff="<<t.cutoff<<"\n";
+		os<<"#TpemAlgorithm="<<t.algorithm<<"\n";
+		os<<"#TpemEpsProduct="<<t.epsForProduct<<"\n";
+		os<<"#TpemEpsTrace="<<t.epsForTrace<<"\n";
+		os<<"#TpemA="<<t.a<<"\n";
+		os<<"#TpemB="<<t.b<<"\n";
+		os<<"#TpemSupport\n";
+		os<<t.support;
+		return os;
+	}
 } // namespace Tpem
 
 /*@}*/

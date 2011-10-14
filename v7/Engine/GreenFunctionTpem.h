@@ -42,8 +42,8 @@ namespace Spf {
 		  energyFunctor_(algorithm_.tpemParameters()),
 		  numberFunctor_(algorithm_.tpemParameters())
 		{
-			computeCoeffs(energyCoeffs_,energyFunctor_);
-			computeCoeffs(numberCoeffs_,numberFunctor_);
+			tpem_.calcCoeffs(energyCoeffs_,energyFunctor_);
+			tpem_.calcCoeffs(numberCoeffs_,numberFunctor_);
 		}
 		
 		void measure()
@@ -82,7 +82,7 @@ namespace Spf {
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
-			
+
 			return tpem_.expand(algorithm_.moment(), energyCoeffs_);
 		}
 
@@ -147,28 +147,6 @@ namespace Spf {
 		  const GreenFunctionTpem<EngineParametersType2,ModelType2,RngType2>& gf);
 
 	private:
-		
-		template<typename ObservableFunctorType>
-		void computeCoeffs(std::vector<RealType>& coeffs,
-		                   ObservableFunctorType& obsFunc)
-		{
-// 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
-			tpem_.calcCoeffs(coeffs, obsFunc);
-		}
-		
-// 		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
-// 		{
-// 			ComplexType sum = 0;
-// 			RealType beta = engineParams_.beta;
-// 			RealType mu = engineParams_.mu;
-// 
-// 			for (size_t lambda=0;lambda<hilbertSize_;lambda++)
-// 				sum += std::conj(algorithm_.matrix(lambda1,lambda)) *
-// 					algorithm_.matrix(lambda2,lambda) *
-// 				PsimagLite::fermi(-beta*(algorithm_.e(lambda)-mu));
-// 			return sum;
-// 		}
-
 
 		const EngineParametersType& engineParams_;		
 		AlgorithmType algorithm_;

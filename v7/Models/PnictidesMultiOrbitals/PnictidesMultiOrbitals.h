@@ -213,8 +213,8 @@ namespace Spf {
 				RealType eMax = e[e.size()-1];
 				if (eMax<0) throw std::runtime_error("Hmmm\n");
 				else eMax *= factor;
-				a = 1.0/(eMax-eMin);
-				b = -a * eMin;
+				a = 0.5*(eMax-eMin);
+				b = 0.5*(eMax+eMin);
 			}
 			
 			{

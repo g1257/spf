@@ -54,7 +54,7 @@ namespace Tpem {
 		{
 // 			tmpValues(a,b,mu,beta,1);
 			RealType tmp = tpemParameters_.a * x + tpemParameters_.b;
-			return tmp*0.5*(1.0-tanh(0.5*tpemParameters_.beta*(tmp-tpemParameters_.mu)));
+			return tmp*(1.0-tanh(0.5*tpemParameters_.beta*(tmp-tpemParameters_.mu)));
 		}
 
 	private:
@@ -74,7 +74,7 @@ namespace Tpem {
 		{
 // 			tmpValues(a,b,mu,beta,1);
 			RealType tmp = tpemParameters_.a * x + tpemParameters_.b - tpemParameters_.mu;
-			return 0.5*(1.0-tanh(0.5*tpemParameters_.beta*tmp));
+			return (1.0-tanh(0.5*tpemParameters_.beta*tmp));
 		}
 		
 	private:

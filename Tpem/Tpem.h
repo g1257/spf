@@ -57,10 +57,10 @@ namespace Tpem {
 			pts[0]= -1.0;
 			pts[1] = 1.0;
 			//size_t npts = pts.size();
-			RealType epsabs=1e-3;
-			RealType epsrel=1e-3;
+			RealType epsabs=1e-9;
+			RealType epsrel=1e-9;
 			
-			size_t limit = 1e5;
+			size_t limit = 1e6;
 			GslWrapperType::gsl_integration_workspace *workspace = 
 			                   gslWrapper_.gsl_integration_workspace_alloc(limit+2);
 			
