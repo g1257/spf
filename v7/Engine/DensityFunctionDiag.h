@@ -2,13 +2,13 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file DensityFunction.h
+/*! \file DensityFunctionDiag.h
  *
- *  DensityFunction such as chemical potential
+ *  DensityFunctionDiag such as chemical potential
  *
  */
-#ifndef DENSITY_FUNCTION_H
-#define DENSITY_FUNCTION_H
+#ifndef DENSITY_FUNCTION_DIAG_H
+#define DENSITY_FUNCTION_DIAG_H
 #include "ProgressIndicator.h"
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h"// in PsimagLite
@@ -18,16 +18,16 @@
 
 namespace Spf {
 	template<typename EngineParamsType>
-	class DensityFunction {
+	class DensityFunctionDiag {
 	public:
 		typedef typename EngineParamsType::RealType RealType;
 		
-		DensityFunction(const EngineParamsType& engineParams,
+		DensityFunctionDiag(const EngineParamsType& engineParams,
 						const std::vector<RealType>& eig)
 		: engineParams_(engineParams),eig_(eig)
 		{
 		}
-		
+
 		RealType operator()(const RealType& mu) const
 		{
 			RealType sum = 0;
@@ -48,9 +48,9 @@ namespace Spf {
 		
 		const EngineParamsType& engineParams_;
 		const std::vector<RealType>& eig_;
-	}; // DensityFunction
+	}; // DensityFunctionDiag
 } // namespace Spf
 
 /*@}*/
-#endif// DENSITY_FUNCTION_H
+#endif// DENSITY_FUNCTION_DIAG_H
 

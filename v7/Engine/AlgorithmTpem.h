@@ -17,12 +17,13 @@
 #include "Tpem.h"
 #include "MetropolisOrGlauber.h"
 #include "TpemParameters.h"
+#include "Adjustments.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmTpem {
 		static const bool DO_GLAUBER = true;
-
+		typedef Adjustments<EngineParametersType> AdjustmentsType;
 	public:	
 		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -36,8 +37,7 @@ namespace Spf {
 		typedef typename TpemType::TpemSparseType TpemSparseType;
 		//
 		typedef typename TpemType::ActionFunctorType ActionFunctorType;
-		
-		
+
 		enum {TMPVALUES_SET,TMPVALUES_RETRIEVE};
 
 		AlgorithmTpem(const EngineParametersType& engineParams,
@@ -47,6 +47,7 @@ namespace Spf {
 		  model_(model),
 		  hilbertSize_(model_.hilbertSize()),
 		  metropolisOrGlauber_(),
+		  adjustments_(engineParams),
 		  adjustTpemBounds_(false),
 		  tpemParameters_(io,engineParams.mu,engineParams.beta,&model),
 		  tpem_(tpemParameters_),
@@ -62,8 +63,7 @@ namespace Spf {
 		void init()
 		{
  			setMatrix(matrixOld_,ModelType::OLDFIELDS);
-// 			diag(matrixOld_,eigOld_,'N');
-// 			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
+			tpem_.calcMoments(matrixOld_,curMoments_);
 		}
 
 		size_t hilbertSize() const { return hilbertSize_; }
@@ -75,10 +75,16 @@ namespace Spf {
 			setMatrix(matrixNew_,ModelType::NEWFIELDS);
 
 			RealType dS = calcDeltaAction(matrixOld_, matrixNew_);
-			
+
 			dS -= engineParams_.beta*dsDirect;
 
-			//if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
+			if (engineParams_.carriers>0) {
+				try {
+					engineParams_.mu = adjustments_.adjChemPot(curMoments_,tpem_); //changes engineParams_.mu
+				} catch (std::exception& e) {
+					std::cerr<<e.what()<<"\n";
+				}
+			}
 			//RealType integrationMeasure = model_.integrationMeasure(i);
 			RealType X = exp(dS);
 			return metropolisOrGlauber_(X,rng);
@@ -96,9 +102,9 @@ namespace Spf {
 		{
 			TpemSparseType matrix(hilbertSize_,hilbertSize_);
 			setMatrix(matrix,ModelType::OLDFIELDS);
-			bool b = isHermitian(matrix,true);
+			isHermitian(matrix,true);
 			tpem_.calcMoments(matrix,moment_);
-			std::cerr<<"IsHerm = "<<b<<"\n";
+// 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
 		
 		const VectorType& moment() const { return moment_; }
@@ -116,7 +122,7 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		
+
 		double calcDeltaAction(TpemSparseType& matrix1,
 		                       TpemSparseType& matrix)
 		{
@@ -138,6 +144,7 @@ namespace Spf {
 		ModelType& model_;
 		size_t hilbertSize_;
 		MetropolisOrGlauberType metropolisOrGlauber_;
+		AdjustmentsType adjustments_;
 		bool adjustTpemBounds_;
 		TpemParametersType tpemParameters_;
 		TpemType tpem_;

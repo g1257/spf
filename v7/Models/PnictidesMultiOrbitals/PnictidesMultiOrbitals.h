@@ -12,7 +12,6 @@
 #include "PnictidesMultiOrbitalsFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
-#include "Adjustments.h"
 #include "SpinOperations.h"
 #include "ModelBase.h"
 #include "ThreeOrbitalTerms.h"
@@ -37,7 +36,6 @@ namespace Spf {
 		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
-		typedef Adjustments<EngineParamsType> AdjustmentsType;
 
 	public:
 		typedef ConcurrencyType_ ConcurrencyType;
@@ -65,7 +63,7 @@ namespace Spf {
 		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
-		  adjustments_(engineParams),progress_("PnictidesTwoOrbitals",0),
+		  progress_("PnictidesTwoOrbitals",0),
 		  spinOperations_(geometry,engineParams),
 		  threeOrbitalTerms_(mp,geometry),
 		  observablesStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
@@ -124,7 +122,7 @@ namespace Spf {
 // 			s="TotalEnergy="+ttos(temp);
 			packer.pack("TotalEnergy=",temp);
 // 			progress_.printline(s,fout);
-			
+
 			packer.pack("Adjustments: mu=",engineParams_.mu);
 	
 			std::vector<RealType> magVector(3,0);
@@ -147,7 +145,7 @@ namespace Spf {
 				packer.pack("CombinedMagnetization"+ttos(i)+"=",combinedVector[i]);
 // 				progress_.printline(s,fout);
 			}
-			
+
 			if (engineParams_.options.find("conductance")!=std::string::npos) {
 				//greenFunction.printMatrix(OLDFIELDS);
 				PsimagLite::Matrix<RealType> v
@@ -164,7 +162,7 @@ namespace Spf {
 				packer.pack("ConductanceY=" ,conductance(v));
 // 				progress_.printline(s,fout);
 			}
-			
+
 			observablesStored_(dynVars,greenFunction);
 		} // doMeasurements
 
@@ -203,9 +201,7 @@ namespace Spf {
 				createHamiltonian(tmpDynVars,matrix);
 				std::vector<RealType> e(matrix.n_row());
 				diag(matrix,e,'N');
-			
-				// will delegate to common code in the future
-				// modelCommon_.setTpemThings(a,b,support,e[0],e[e.size()-1]);
+
 				RealType eMin = e[0];
 				RealType factor = 1.02;
 				if (eMin>0) eMin = 0;
@@ -213,35 +209,40 @@ namespace Spf {
 				RealType eMax = e[e.size()-1];
 				if (eMax<0) throw std::runtime_error("Hmmm\n");
 				else eMax *= factor;
+				// will delegate to common code in the future
+				// modelCommon_.setAandB(a,b,emax,emin);
 				a = 0.5*(eMax-eMin);
 				b = 0.5*(eMax+eMin);
 				std::cerr<<"Set a="<<a<<" b="<<b<<"\n";
 			}
 
 			{
-				// setup support
+				// setup support: 
+				// to make this work for mp.J==0 we need to set
+				RealType J = 0.5;
 				MatrixType matrix(hilbertSize_,hilbertSize_);
 				FakeParams fakeParams("random",343313);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
-				createHamiltonian(tmpDynVars,matrix);
+				createHamiltonian(tmpDynVars,matrix,&J);
 				SpinOperationsType spinOps(geometry_,engineParams_);
 				spinOps.set(tmpDynVars);
 				size_t site = 0;
-				PsimagLite::Random48<RealType> rng(3493891);
+// 				PsimagLite::Random48<RealType> rng(3493891);
 				spinOps. makeChange(site,0.2,0.1);
-				spinOps. makeChange(3,0.2,0.1);
 
 				MatrixType matrix2(hilbertSize_,hilbertSize_);
-				createHamiltonian(spinOps.dynVars2(),matrix2);
+				createHamiltonian(spinOps.dynVars2(),matrix2,&J);
+
+				// will delegate to common code in the future
+				// modelCommon_.setSupport(support,matrix,matrix2);
+				
 				support.clear();
-				for (size_t j=0;j<matrix.n_row();j++) {
-					for (size_t i=0;i<matrix.n_col();i++) {
-						ComplexType tmp = matrix(j,i) - matrix2(j,i);
-						if (std::norm(tmp)<1e-6) continue;
-						//if (std::find(support.begin(),support.end(),i)==
-						//    support.end())
-						support.push_back(i);
-					}
+				for (size_t i=0;i<matrix.n_col();i++) {
+					ComplexType tmp = matrix(site,i) - matrix2(site,i);
+					if (std::norm(tmp)<1e-6) continue;
+					//if (std::find(support.begin(),support.end(),i)==
+					//    support.end())
+					support.push_back(i);
 				}
 				assert(support.size()>0);
 				std::cerr<<"Set support with size="<<support.size()<<"\n";
@@ -249,15 +250,15 @@ namespace Spf {
 			}
 		}
 
-		void adjustChemPot(const std::vector<RealType>& eigs)
-		{
-			if (engineParams_.carriers==0) return;
-			try {
-				engineParams_.mu = adjustments_.adjChemPot(eigs);
-			} catch (std::exception& e) {
-				std::cerr<<e.what()<<"\n";
-			}
-		}
+// 		void adjustChemPot(const std::vector<RealType>& eigs)
+// 		{
+// 			if (engineParams_.carriers==0) return;
+// 			try {
+// 				engineParams_.mu = adjustments_.adjChemPot(eigs);
+// 			} catch (std::exception& e) {
+// 				std::cerr<<e.what()<<"\n";
+// 			}
+// 		}
 
 		void accept(size_t i) 
 		{
@@ -288,7 +289,8 @@ namespace Spf {
 	private:
 
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,
-		                       MatrixType& matrix) const
+		                       MatrixType& matrix,
+		                       const RealType* J = 0) const
 		{
 			size_t volume = geometry_.volume();
 			size_t norb = mp_.numberOfOrbitals;
@@ -298,9 +300,9 @@ namespace Spf {
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
-
+			RealType jvalue = (J==0) ? mp_.J : *J;
 			for (size_t p = 0; p < volume; p++) {
-				auxCreateJmatrix(jmatrix,dynVars,p);
+				auxCreateJmatrix(jmatrix,dynVars,p,jvalue);
 				for (size_t gamma1=0;gamma1<dof;gamma1++) {
 					size_t spin1 = size_t(gamma1/norb);
 					size_t orb1 = gamma1 % norb;
@@ -348,7 +350,8 @@ namespace Spf {
 		}
 
 		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
-				typename DynVarsType::SpinType& dynVars,size_t site) const
+		                      typename DynVarsType::SpinType& dynVars,size_t site,
+		                      const RealType& J) const
 		{
 			if (!mp_.modulus[site]) {
 				for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] = 0;
@@ -364,7 +367,7 @@ namespace Spf {
 
 			jmatrix[3]= -cos(dynVars.theta[site]);
 
-			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
+			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= J;
 		}
 
 		size_t getSiteAtLayer(size_t xOrY,size_t layer,size_t dir) const
@@ -457,7 +460,6 @@ namespace Spf {
 		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
-		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		SpinOperationsType spinOperations_;
 		ThreeOrbitalTermsType threeOrbitalTerms_;

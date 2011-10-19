@@ -19,9 +19,10 @@
 
 namespace Tpem {
 
-	template<typename TpemParametersType,typename RealOrComplexType>
+	template<typename TpemParametersType_,typename RealOrComplexType>
 	class Tpem {
 	public:
+		typedef TpemParametersType_ TpemParametersType;
 		typedef typename TpemParametersType::RealType RealType;
 		typedef BaseFunctor<TpemParametersType> BaseFunctorType;
 		typedef PsimagLite::CrsMatrix<RealOrComplexType> TpemSparseType;

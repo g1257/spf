@@ -20,13 +20,13 @@ namespace Tpem {
 		typedef typename SparseMatrixType::value_type RealOrComplexType;
 		
 	public:
-		TpemSubspace(size_t size) : flags_(size,0),stack_(size,0),top_(0)
+		TpemSubspace(size_t size) : flags_(size,false),stack_(size,0),top_(0)
 		{}
 
 		void clear()
 		{
 			top_=0;
-			for (size_t i=0;i<flags_.size();i++) flags_[i] = 0;
+			for (size_t i=0;i<flags_.size();i++) flags_[i] = false;
 		}
 
 // 		size_t size() const { return stack_.size(); }
@@ -42,8 +42,8 @@ namespace Tpem {
 
 		void push (size_t state)
 		{
-			if (flags_[state] != 0) return;
-			flags_[state] = 1;
+			if (flags_[state]) return;
+			flags_[state] = true;
 			stack_[top_] = state;
 			top_++;
 		}
@@ -62,13 +62,14 @@ namespace Tpem {
 				size_t j = stack_[p];
 				//if (real(src[j])==0 && imag(src[j])==0) continue;
 				/* loop over nonzero elements of j^th row */
-				for (int k = matrix.getRowPtr(j);k<matrix.getRowPtr(j+1);k++) {
+				int start = matrix.getRowPtr(j);
+				int end = matrix.getRowPtr(j+1);
+				for (int k = start;k<end;k++) {
 					size_t i = matrix.getCol(k);
 					RealOrComplexType t = src[j] * matrix.getValue(k);
-					//RealType u = std::real(t)*std::real(t) + std::imag(t)*std::imag(t);
+					RealType u = std::real(t)*std::real(t) + std::imag(t)*std::imag(t);
 					dest[i] += t;
-					//if (u > eps) 
-					push(i); // FIXME REMOVED U>EPS
+					if (u > eps) push(i);
 				}
 			}
 		}
@@ -91,7 +92,7 @@ namespace Tpem {
 		}
 
 	private:
-		std::vector<size_t> flags_;
+		std::vector<bool> flags_;
 		std::vector<size_t> stack_;
 		size_t top_;
 	}; // class TpemSupspace

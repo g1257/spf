@@ -15,21 +15,23 @@
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
 #include "MetropolisOrGlauber.h"
+#include "Adjustments.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	class AlgorithmDiag {
-
-	public:	
+		typedef Adjustments<EngineParametersType> AdjustmentsType;
+	public:
 		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
-		
+
 		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
 		: engineParams_(engineParams),
 		  model_(model),
 		  metropolisOrGlauber_(),
+		  adjustments_(engineParams),
 		  eigNew_(model.hilbertSize()),
 		  eigOld_(model.hilbertSize()),
 		  hilbertSize_(model_.hilbertSize()),
@@ -55,8 +57,14 @@ namespace Spf {
 			diagonalize(matrixNew_,eigNew_,'N');
 			//testMatrix();
 			//testEigs();
-			
-			if (engineParams_.carriers>0) model_.adjustChemPot(eigNew_); //changes engineParams_.mu
+			if (engineParams_.carriers>0) {
+				try {
+					engineParams_.mu = adjustments_.adjChemPot(eigNew_);
+				} catch (std::exception& e) {
+					std::cerr<<e.what()<<"\n";
+				}
+			}
+
 			RealType integrationMeasure = model_.integrationMeasure(i);
 				
 			RealType X = computeDeltaAction(integrationMeasure);
@@ -74,12 +82,12 @@ namespace Spf {
 		{
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 		}
-		
+
 		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return matrixNew_(lambda1,lambda2);
 		}
-		
+
 		const RealType& e(size_t i) const
 		{
 			return eigNew_[i];
@@ -96,7 +104,7 @@ namespace Spf {
 			if (jobz!='V')
 				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
 		}
-		
+
 		void printMatrix(size_t mode) const
 		{
 			if (mode==ModelType::NEWFIELDS) {
@@ -138,7 +146,7 @@ namespace Spf {
 			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
 			return X;
 		}
-		
+
 		void testEigs() const
 		{
 			RealType eps = 1e-6;
@@ -163,6 +171,7 @@ namespace Spf {
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
 		MetropolisOrGlauberType metropolisOrGlauber_;
+		AdjustmentsType adjustments_;
 		std::vector<RealType> eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
