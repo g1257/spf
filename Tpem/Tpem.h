@@ -137,7 +137,6 @@ namespace Tpem {
 
 			for (size_t i = 0; i < n; i++)
 				moments[i] = moment0[i] - moment1[i];
-
 		}
 
 		RealType expand(const std::vector<RealType>& moments,

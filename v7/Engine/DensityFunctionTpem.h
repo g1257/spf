@@ -30,8 +30,7 @@ namespace Spf {
 		: engineParams_(engineParams),
 		  tpem_(tpem),
 		  moments_(moments),
-		  tpemParameters_(tpem_.tpemParameters()),
-		  numberFunctor_(tpemParameters_)
+		  numberFunctor_(tpem_.tpemParameters())
 		{}
 
 		RealType operator()(const RealType& mu) const
@@ -53,7 +52,6 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		const TpemType& tpem_;
 		const std::vector<RealType>& moments_;
-		TpemParamtersType tpemParameters_; // <-- we own this copy
 		NumberFunctorType numberFunctor_;
 	}; // DensityFunctionTpem
 } // namespace Spf

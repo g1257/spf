@@ -37,14 +37,9 @@ namespace Spf {
 		  hilbertSize_(model.hilbertSize()),
 		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),
-		  energyCoeffs_(algorithm_.tpemParameters().cutoff),
-		  numberCoeffs_(algorithm_.tpemParameters().cutoff),
 		  energyFunctor_(algorithm_.tpemParameters()),
 		  numberFunctor_(algorithm_.tpemParameters())
-		{
-			tpem_.calcCoeffs(energyCoeffs_,energyFunctor_);
-			tpem_.calcCoeffs(numberCoeffs_,numberFunctor_);
-		}
+		{}
 		
 		void measure()
 		{
@@ -73,8 +68,9 @@ namespace Spf {
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (numberCoeffs_,numberFunctor_,tpemOptions_);
-			
-			return tpem_.expand(algorithm_.moment(), numberCoeffs_);
+			VectorType numberCoeffs(algorithm_.tpemParameters().cutoff);
+			tpem_.calcCoeffs(numberCoeffs,numberFunctor_);
+			return tpem_.expand(algorithm_.moment(), numberCoeffs);
 		}
 
 		RealType calcElectronicEnergy() const
@@ -85,8 +81,9 @@ namespace Spf {
 // 			size_t min=5;
 // 			for (size_t i=min;i<energyCoeffs_.size();i++)
 // 				std::cerr<<"cutoff="<<i<<" value="<<tpem_.expand(algorithm_.moment(),energyCoeffs_,i)<<"\n";
-
-			return tpem_.expand(algorithm_.moment(), energyCoeffs_);
+			VectorType energyCoeffs(algorithm_.tpemParameters().cutoff);
+			tpem_.calcCoeffs(energyCoeffs,energyFunctor_);
+			return tpem_.expand(algorithm_.moment(), energyCoeffs);
 		}
 
 		ComplexType matrix(size_t lambda1,size_t lambda2) const
@@ -156,8 +153,6 @@ namespace Spf {
 		size_t hilbertSize_;
 		TpemType& tpem_; // we don't own it, FIXME: must be const
 		PsimagLite::Matrix<ComplexType> data_;
-		VectorType energyCoeffs_;
-		VectorType numberCoeffs_;
 		EnergyFunctorType energyFunctor_;
 		NumberFunctorType numberFunctor_;
 		
