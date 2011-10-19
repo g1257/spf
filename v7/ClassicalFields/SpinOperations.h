@@ -15,8 +15,8 @@ namespace Spf {
 	
 	template<typename GeometryType_,typename DynVarsType_>
 	class ClassicalSpinOperations {
-		typedef typename DynVarsType_::FieldType FieldType;
-		typedef PsimagLite::Vector<FieldType> VectorType;
+		typedef typename DynVarsType_::FieldType RealType;
+		typedef PsimagLite::Vector<RealType> VectorType;
 			
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
@@ -53,42 +53,49 @@ namespace Spf {
 		template<typename RandomNumberGeneratorType>
 		void proposeChange(size_t i,RandomNumberGeneratorType& rng)
 		{
-			FieldType thetaOld = dynVars_->theta[i];
-			FieldType phiOld = dynVars_->phi[i];
+			RealType thetaOld = dynVars_->theta[i];
+			RealType phiOld = dynVars_->phi[i];
 			
 			dynVars2_ = *dynVars_;
 			
 			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
 		}
 		
+		void makeChange(size_t i,const RealType& eps1,const RealType& eps2)
+		{
+			dynVars2_ = *dynVars_;
+			dynVars2_.theta[i] += eps1;
+			dynVars2_.phi[i] += eps2;
+		}
+		
 		const DynVarsType& dynVars2() const { return dynVars2_; } 
 		
-		FieldType deltaDirect(size_t i,FieldType coupling1,FieldType coupling2) const
+		RealType deltaDirect(size_t i,RealType coupling1,RealType coupling2) const
 		{
 			size_t z = geometry_.z(1)/2;
-			std::vector<FieldType> coupling1v(z,coupling1);
+			std::vector<RealType> coupling1v(z,coupling1);
 			return deltaDirect(i,coupling1v,coupling2);
 		}
 		
-		FieldType deltaDirect(size_t i,
-		                       const std::vector<FieldType>& coupling1v,
-		                       FieldType coupling2) const
+		RealType deltaDirect(size_t i,
+		                       const std::vector<RealType>& coupling1v,
+		                       RealType coupling2) const
 		{
-			FieldType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1v);
+			RealType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1v);
 			sum += directExchange2(dynVars2_,coupling2)
 										-directExchange2(*dynVars_,coupling2);
 			return sum;
 		}
 
-		FieldType deltaMagneticField(size_t i, const FieldType& B) const
+		RealType deltaMagneticField(size_t i, const RealType& B) const
 		{
-			FieldType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
+			RealType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
 			return dx * B;
 		}
 				
-		FieldType sineUpdate(size_t i) const
+		RealType sineUpdate(size_t i) const
 		{
-			FieldType sineupdate= sin(dynVars_->theta[i]);
+			RealType sineupdate= sin(dynVars_->theta[i]);
 			if (sineupdate!=0) {
 				sineupdate = sin(dynVars2_.theta[i])/sineupdate;
 			} else {
@@ -103,63 +110,63 @@ namespace Spf {
 			dynVars_->phi[i]=dynVars2_.phi[i];
 		}
 		
-		FieldType directExchange2(const DynVarsType& dynVars,FieldType coupling) const
+		RealType directExchange2(const DynVarsType& dynVars,RealType coupling) const
 		{
 			size_t n = dynVars.theta.size();
-			FieldType dS = 0;
+			RealType dS = 0;
 			
 			for (size_t i=0;i<n;i++) {
-				FieldType t1=dynVars.theta[i];
-				FieldType p1=dynVars.phi[i];
-				FieldType cost1 = cos(t1);
-				FieldType sint1 = sin(t1);
-				FieldType cosp1 = cos(p1);
-				FieldType sinp1 = sin(p1);
+				RealType t1=dynVars.theta[i];
+				RealType p1=dynVars.phi[i];
+				RealType cost1 = cos(t1);
+				RealType sint1 = sin(t1);
+				RealType cosp1 = cos(p1);
+				RealType sinp1 = sin(p1);
 				for (size_t k = 0; k<geometry_.z(2); k++){
 					size_t j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
-					FieldType t2=dynVars.theta[j];
-					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cost1*cos(t2)+sint1*sin(t2)*(cosp1*cos(p2)+sinp1*sin(p2));
+					RealType t2=dynVars.theta[j];
+					RealType p2=dynVars.phi[j];
+					RealType tmp = cost1*cos(t2)+sint1*sin(t2)*(cosp1*cos(p2)+sinp1*sin(p2));
 					dS += tmp; 
 				}
 			}
 			
 			return coupling*dS*0.5;
 		}
-		FieldType calcSuperExchange(const DynVarsType& dynVars,
-				                              const FieldType& coupling)
+		RealType calcSuperExchange(const DynVarsType& dynVars,
+				                              const RealType& coupling)
 					const
 		{
 			size_t z = geometry_.z(1)/2;
-			std::vector<FieldType> coupling1v(z,coupling);
+			std::vector<RealType> coupling1v(z,coupling);
 			return calcSuperExchange(dynVars,coupling1v);
 
 		}
 		
-		FieldType calcSuperExchange(const DynVarsType& dynVars,
-		                              const std::vector<FieldType>& coupling)
+		RealType calcSuperExchange(const DynVarsType& dynVars,
+		                              const std::vector<RealType>& coupling)
 			const
 		{
-			FieldType sum = 0;
+			RealType sum = 0;
 			for (size_t i=0;i<geometry_.volume();i++) {
 				for (size_t k = 0; k<geometry_.z(1); k++){
 					size_t j=geometry_.neighbor(i,k).first;
 					size_t dir=geometry_.neighbor(i,k).second;
 
-					FieldType t1=dynVars.theta[i];
-					FieldType t2=dynVars.theta[j];
-					FieldType p1=dynVars.phi[i];
-					FieldType p2=dynVars.phi[j];
-					FieldType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
+					RealType t1=dynVars.theta[i];
+					RealType t2=dynVars.theta[j];
+					RealType p1=dynVars.phi[i];
+					RealType p2=dynVars.phi[j];
+					RealType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
 					sum += coupling[dir]*tmp;
 				}
 			}
 			return sum*0.5;
 		}
 
-		FieldType calcMag(const DynVarsType& dynVars) const
+		RealType calcMag(const DynVarsType& dynVars) const
 		{
-			std::vector<FieldType> mag(3);
+			std::vector<RealType> mag(3);
 			
 			for (size_t i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
@@ -170,11 +177,11 @@ namespace Spf {
 		}
 
 		//! For diluted systems
-		FieldType calcMag(
+		RealType calcMag(
 				const DynVarsType& dynVars,
 				const std::vector<size_t>& modulus) const
 		{
-			std::vector<FieldType> mag(3);
+			std::vector<RealType> mag(3);
 
 			for (size_t i=0;i<geometry_.volume();i++) {
 				if (modulus[i]==0) continue;
@@ -186,7 +193,7 @@ namespace Spf {
 		}
 
 		void calcMagVector(
-				std::vector<FieldType>& mag,
+				std::vector<RealType>& mag,
 				const DynVarsType& dynVars) const
 		{
 			for (size_t i=0;i<geometry_.volume();i++) {
@@ -198,13 +205,13 @@ namespace Spf {
 
 		
 		void classicalCorrelations(VectorType &cc,
-				 //std::vector<FieldType> &weight,
+				 //std::vector<RealType> &weight,
 				 const DynVarsType& dynVars)
 		{
 			size_t n = geometry_.volume();
 			
 			for (size_t i=0;i<n;i++) {
-				FieldType temp=0;
+				RealType temp=0;
 				size_t counter=0;
 				for (size_t j=0;j<n;j++) {
 					size_t k = geometry_.add(i,j);
@@ -226,10 +233,10 @@ namespace Spf {
 		
 		template<typename RngType>
 		void propose_(
-				FieldType thetaOld,
-				FieldType phiOld,
-				FieldType &thetaNew,
-				FieldType &phiNew,
+				RealType thetaOld,
+				RealType phiOld,
+				RealType &thetaNew,
+				RealType &phiNew,
 				RngType& rng)
 		{
 			if (fabs(mcwindow_[0])<1e-8 && fabs(mcwindow_[1]<1e-8)) return;
@@ -271,17 +278,17 @@ namespace Spf {
 			//std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
 		}
 		
-		FieldType dSDirect(const DynVarsType& dynVars,
+		RealType dSDirect(const DynVarsType& dynVars,
 		                    const DynVarsType& dynVars2,
 		                    size_t i,
-		                    std::vector<FieldType> coupling) const
+		                    std::vector<RealType> coupling) const
 		{
-			FieldType dS = 0;
+			RealType dS = 0;
 				
 			for (size_t k = 0; k<geometry_.z(1); k++){
 				size_t j=geometry_.neighbor(i,k).first;
 				size_t dir = geometry_.neighbor(i,k).second;
-				FieldType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
+				RealType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
 						(sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					sin(dynVars.phi[i]))*sin(dynVars.theta[j])*sin(dynVars.phi[j]) +
@@ -296,7 +303,7 @@ namespace Spf {
 		}
 		
 		const GeometryType& geometry_;
-		const std::vector<FieldType>& mcwindow_;
+		const std::vector<RealType>& mcwindow_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
 		

@@ -185,7 +185,7 @@ namespace Spf {
 			createHamiltonian(matrix,oldOrNewDynVars);
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
-		
+
 		struct FakeParams {
 			FakeParams(std::string dynvarsfile1,int long long randomSeed1)
 			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) {}
@@ -215,25 +215,37 @@ namespace Spf {
 				else eMax *= factor;
 				a = 0.5*(eMax-eMin);
 				b = 0.5*(eMax+eMin);
+				std::cerr<<"Set a="<<a<<" b="<<b<<"\n";
 			}
-			
+
 			{
 				// setup support
 				MatrixType matrix(hilbertSize_,hilbertSize_);
-				SpinType tmpDynVars(geometry_.volume(),engineParams_); 
+				FakeParams fakeParams("random",343313);
+				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
 				createHamiltonian(tmpDynVars,matrix);
 				SpinOperationsType spinOps(geometry_,engineParams_);
 				spinOps.set(tmpDynVars);
 				size_t site = 0;
 				PsimagLite::Random48<RealType> rng(3493891);
-				spinOps.proposeChange(site,rng);
+				spinOps. makeChange(site,0.2,0.1);
+				spinOps. makeChange(3,0.2,0.1);
+
 				MatrixType matrix2(hilbertSize_,hilbertSize_);
 				createHamiltonian(spinOps.dynVars2(),matrix2);
+				matrix2(3,2)=9.9;
 				support.clear();
-				for (size_t i=0;i<matrix.n_col();i++) {
-					ComplexType tmp = matrix(0,i) - matrix2(0,i);
-					if (std::norm(tmp)>1e-6) support.push_back(i);
+				for (size_t j=0;j<matrix.n_row();j++) {
+					for (size_t i=0;i<matrix.n_col();i++) {
+						ComplexType tmp = matrix(j,i) - matrix2(j,i);
+						if (std::norm(tmp)<1e-6) continue;
+						//if (std::find(support.begin(),support.end(),i)==
+						//    support.end())
+						support.push_back(i);
+					}
 				}
+				std::cerr<<"Set support with size="<<support.size()<<"\n";
+				std::cerr<<support;
 			}
 		}
 
@@ -245,25 +257,24 @@ namespace Spf {
 			} catch (std::exception& e) {
 				std::cerr<<e.what()<<"\n";
 			}
-				
 		}
-		
+
 		void accept(size_t i) 
 		{
 			spinOperations_.accept(i);
 		}
-		
+
 		RealType integrationMeasure(size_t i)
 		{
 			return spinOperations_.sineUpdate(i);
 		}
-		
+
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout)
 		{
 			observablesStored_.finalize(fout);	
 		}
-		
+
 		template<typename EngineParamsType2,
 		         typename ParametersModelType2,
 		         typename GeometryType2,
@@ -273,9 +284,9 @@ namespace Spf {
 		                               ParametersModelType2,
 		                               GeometryType2,
 		                               ConcurrencyType2>& model);
-		
+
 	private:
-		
+
 		void createHamiltonian(const typename DynVarsType::SpinType& dynVars,
 		                       MatrixType& matrix) const
 		{
@@ -283,16 +294,14 @@ namespace Spf {
 			size_t norb = mp_.numberOfOrbitals;
 			size_t dof = norb * 2; // the 2 comes because of the spin
 			std::vector<ComplexType> jmatrix(2*2,0);
-			
+
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
-			
+
 			for (size_t p = 0; p < volume; p++) {
 				auxCreateJmatrix(jmatrix,dynVars,p);
-				for (size_t gamma1=0;gamma1<dof;gamma1++) {		
-					
-		
+				for (size_t gamma1=0;gamma1<dof;gamma1++) {
 					size_t spin1 = size_t(gamma1/norb);
 					size_t orb1 = gamma1 % norb;
 					//! Term B (n_iup - n_idown)
@@ -345,16 +354,16 @@ namespace Spf {
 				for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] = 0;
 				return;
 			}
-			
+
 			jmatrix[0]=cos(dynVars.theta[site]);
-		
+
 			jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
 				sin(dynVars.theta[site])*sin(dynVars.phi[site]));
 		
 			jmatrix[2]=conj(jmatrix[1]);
-		
+
 			jmatrix[3]= -cos(dynVars.theta[site]);
-		
+
 			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
 		}
 
@@ -362,7 +371,7 @@ namespace Spf {
 		{
 			return (dir==0) ? geometry_.coorToIndex(xOrY,layer) : geometry_.coorToIndex(layer,xOrY);
 		}
-		
+
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
 		                     PsimagLite::Matrix<RealType>& v,
@@ -373,7 +382,7 @@ namespace Spf {
 			for (size_t layer=0;layer<l;layer++) {
 				calcVelocitySquared(gf,w,dir,layer);
 			}
-			
+
 			for (size_t a=0;a<v.n_row();a++) {
 				for (size_t b=0;b<v.n_col();b++) {
 					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
@@ -381,7 +390,6 @@ namespace Spf {
 				}
 			}
 			//std::cout<<"----------------------\n";
-			
 		}
 
 		template<typename GreenFunctionType>
@@ -393,8 +401,7 @@ namespace Spf {
 			size_t ly = geometry_.length();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t volume = geometry_.volume();
-			
-			
+
 			for (size_t y=0;y<ly;y++) {
 				for (size_t spin=0;spin<2;spin++) {
 					for (size_t orb1=0;orb1<norb;orb1++) {
@@ -409,10 +416,10 @@ namespace Spf {
 								if (endingLayer==ly) endingLayer = 0;
 								size_t jsite = getSiteAtLayer(y2,endingLayer,dir);
 								size_t j = jsite + gamma2*volume; // ending layer
-								
+
 								int dir2 = geometry_.getDirection(isite,jsite);
 								if (dir2<0) continue;
-								
+
 								size_t h = orb1+orb2*norb+norb*norb*dir2;
 								RealType hopping = mp_.hoppings[h] 
 								    + threeOrbitalTerms_.hopping(isite,dir2,orb1,orb2);
@@ -442,7 +449,6 @@ namespace Spf {
 		{
 			return std::conj(gf.matrix(i,a)) * gf.matrix(j,b) -
 					std::conj(gf.matrix(j,a)) * gf.matrix(i,b);
-
 		}
 
 		const EngineParamsType& engineParams_;
@@ -456,7 +462,6 @@ namespace Spf {
 		SpinOperationsType spinOperations_;
 		ThreeOrbitalTermsType threeOrbitalTerms_;
 		ObservablesStoredType observablesStored_;
-
 	}; // PnictidesMultiOrbitals
 
 	template<typename EngineParamsType,

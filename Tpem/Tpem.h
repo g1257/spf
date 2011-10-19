@@ -59,13 +59,13 @@ namespace Tpem {
 			//size_t npts = pts.size();
 			RealType epsabs=1e-9;
 			RealType epsrel=1e-9;
-			
+
 			size_t limit = 1e6;
 			GslWrapperType::gsl_integration_workspace *workspace = 
 			                   gslWrapper_.gsl_integration_workspace_alloc(limit+2);
 			
 			RealType result = 0,abserr = 0;
-			
+
 			GslWrapperType::gsl_function f;
 			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
@@ -80,7 +80,7 @@ namespace Tpem {
 			}
 			gslWrapper_.gsl_integration_workspace_free (workspace);
 		}
-		
+
 		void calcMoments(TpemSparseType& matrix,
 		                 std::vector<RealType>& moment) const
 		{	
@@ -99,7 +99,7 @@ namespace Tpem {
 			for (size_t i = 3; i < n - 1; i += 2)
 				moment[i] = 2.0 * moment[i] - moment[1];
 		}
-		
+
 		void calcMomentsDiff(std::vector<RealType> &moments,
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
@@ -115,7 +115,7 @@ namespace Tpem {
 			} else {
 				info.fill();
 			}
-			
+
 			moment0[0] = moment1[0] =  matrix0.rank();
 
 			for (size_t k=0;k<info.top();k++) {
@@ -140,12 +140,15 @@ namespace Tpem {
 		}
 
 		RealType expand(const std::vector<RealType>& moments,
-		                const std::vector<RealType>& coeffs) const
+		                const std::vector<RealType>& coeffs,
+						size_t progressiveCutoff=0) const
 		{
 			assert(moments.size()==coeffs.size());
 
 			RealType ret = 0.0;
-			for (size_t i = 0; i < moments.size(); ++i)
+			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
+			assert(progressiveCutoff<=coeffs.size());
+			for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
 			return ret;
 		}
@@ -164,7 +167,7 @@ namespace Tpem {
 			tmp = params->functor(x) *  tmp2 * factorAlpha * chebyshev(m,x)/sqrt(1.0-x*x);
 			return tmp;
 		}
-		
+
 		static void my_handler (const char * reason, const char * file, int line, int gsl_errno)
 		{
 			if (verbose_==NO_VERBOSE) return;
@@ -174,6 +177,7 @@ namespace Tpem {
 		}
 
 	private:
+
 		static RealType chebyshev(int m,RealType x)
 		{
 			if (m==0) return 1;
@@ -184,12 +188,12 @@ namespace Tpem {
 				int p=(m-1)/2;
 				return (2*chebyshev(p,x)*chebyshev(p+1,x)-x);
 			}
-			
+
 			int pp = m/2;
 			RealType tmp=chebyshev(pp,x);
 			return (2*tmp*tmp-1);
 		}
-		
+
 		void diagonalElement(const TpemSparseType& matrix,
 		                     std::vector<RealType> &moment,
 		                     size_t ket) const

@@ -82,6 +82,9 @@ namespace Spf {
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
+// 			size_t min=5;
+// 			for (size_t i=min;i<energyCoeffs_.size();i++)
+// 				std::cerr<<"cutoff="<<i<<" value="<<tpem_.expand(algorithm_.moment(),energyCoeffs_,i)<<"\n";
 
 			return tpem_.expand(algorithm_.moment(), energyCoeffs_);
 		}

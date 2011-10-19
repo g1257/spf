@@ -134,7 +134,7 @@ namespace Spf {
 			for (size_t i=0;i<matrix.rank();i++) {
 				for (int k=matrix.getRowPtr(i);k<matrix.getRowPtr(i+1);k++) {
 					counter++;
-					if (matrix.getCol(k)!=int(i)) continue;
+					if (size_t(matrix.getCol(k))!=i) continue;
 					ElementType tmp = matrix.getValue(k)-tpemParameters_.b;
 					matrix.setValues(counter-1,tmp);
 				}
