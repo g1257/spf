@@ -128,17 +128,9 @@ namespace Spf {
 		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
 		{
 			model_.createHsparse(matrix,oldOrNewFields);
-			
-			typedef typename TpemSparseType::value_type ElementType;
-			size_t counter = 0;
-			for (size_t i=0;i<matrix.rank();i++) {
-				for (int k=matrix.getRowPtr(i);k<matrix.getRowPtr(i+1);k++) {
-					counter++;
-					if (size_t(matrix.getCol(k))!=i) continue;
-					ElementType tmp = matrix.getValue(k)-tpemParameters_.b;
-					matrix.setValues(counter-1,tmp);
-				}
-			}
+			TpemSparseType diagB(matrix.rank(),matrix.rank());
+			diagB.makeDiagonal(matrix.rank(),-tpemParameters_.b);
+			matrix += diagB;
 			matrix *= (1.0/tpemParameters_.a);
 		}
 

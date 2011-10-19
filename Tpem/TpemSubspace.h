@@ -65,9 +65,10 @@ namespace Tpem {
 				for (int k = matrix.getRowPtr(j);k<matrix.getRowPtr(j+1);k++) {
 					size_t i = matrix.getCol(k);
 					RealOrComplexType t = src[j] * matrix.getValue(k);
-					RealType u = std::real(t)*std::real(t) + std::imag(t)*std::imag(t);
+					//RealType u = std::real(t)*std::real(t) + std::imag(t)*std::imag(t);
 					dest[i] += t;
-					if (u > eps) push(i);
+					//if (u > eps) 
+					push(i); // FIXME REMOVED U>EPS
 				}
 			}
 		}

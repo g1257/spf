@@ -207,7 +207,7 @@ namespace Spf {
 				// will delegate to common code in the future
 				// modelCommon_.setTpemThings(a,b,support,e[0],e[e.size()-1]);
 				RealType eMin = e[0];
-				RealType factor = 1.1;
+				RealType factor = 1.02;
 				if (eMin>0) eMin = 0;
 				else eMin *= factor;
 				RealType eMax = e[e.size()-1];
@@ -233,7 +233,6 @@ namespace Spf {
 
 				MatrixType matrix2(hilbertSize_,hilbertSize_);
 				createHamiltonian(spinOps.dynVars2(),matrix2);
-				matrix2(3,2)=9.9;
 				support.clear();
 				for (size_t j=0;j<matrix.n_row();j++) {
 					for (size_t i=0;i<matrix.n_col();i++) {
@@ -244,6 +243,7 @@ namespace Spf {
 						support.push_back(i);
 					}
 				}
+				assert(support.size()>0);
 				std::cerr<<"Set support with size="<<support.size()<<"\n";
 				std::cerr<<support;
 			}
