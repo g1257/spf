@@ -77,6 +77,11 @@ namespace Tpem {
 				gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
 				//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
 				//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
+				
+				if (std::isinf(result) || std::isnan(result)) {
+					vobs[m] = 0;
+					continue;
+				}
 				vobs[m] = result;
 			}
 			gslWrapper_.gsl_integration_workspace_free (workspace);
@@ -148,8 +153,14 @@ namespace Tpem {
 			RealType ret = 0.0;
 			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
 			assert(progressiveCutoff<=coeffs.size());
-			for (size_t i = 0; i < progressiveCutoff; ++i)
+			for (size_t i = 0; i < progressiveCutoff; ++i) {
 				ret += moments[i] * coeffs[i];
+				if (std::isinf(ret))  {
+					std::cerr<<"HEEEEEEEEEREEEEEEEEEE i="<<i<<"\n";
+					break;
+				}
+			}
+			if (std::isinf(ret)) assert(false);
 			return ret;
 		}
 

@@ -12,6 +12,7 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h" // in PsimagLite
 #include "AlgorithmTpem.h"
+#include <cmath>
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType_,typename RngType>
@@ -70,7 +71,8 @@ namespace Spf {
 // 				tpem_calculate_coeffs (numberCoeffs_,numberFunctor_,tpemOptions_);
 			VectorType numberCoeffs(algorithm_.tpemParameters().cutoff);
 			tpem_.calcCoeffs(numberCoeffs,numberFunctor_);
-			return tpem_.expand(algorithm_.moment(), numberCoeffs);
+			RealType tmp =  tpem_.expand(algorithm_.moment(), numberCoeffs);
+			return tmp;
 		}
 
 		RealType calcElectronicEnergy() const

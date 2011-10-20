@@ -10,6 +10,7 @@
 #ifndef TPEM_FUNCTORS_H
 #define TPEM_FUNCTORS_H
 #include <cmath>
+#include <cassert>
 
 namespace Tpem {
 	template<typename TpemParametersType>
@@ -75,6 +76,8 @@ namespace Tpem {
 // 			tmpValues(a,b,mu,beta,1);
 			RealType tmp = tpemParameters_.a * x + tpemParameters_.b - tpemParameters_.mu;
 			return 0.5*(1.0-tanh(0.5*tpemParameters_.beta*tmp));
+			//assert(!std::isinf(tmp2) && !std::isnan(tmp2));
+			//return tmp2;
 		}
 		
 	private:

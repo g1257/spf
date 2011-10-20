@@ -53,12 +53,9 @@ namespace Spf {
 		  tpem_(tpemParameters_),
 		  actionFunc_(tpemParameters_),
 		  matrixOld_(model.hilbertSize(),model.hilbertSize()),
-		  actionCoeffs_(tpemParameters_.cutoff),
-		  moment_(tpemParameters_.cutoff),
-		  curMoments_(tpemParameters_.cutoff)
-		{
-			tpem_.calcCoeffs(actionCoeffs_,actionFunc_); 
-		}
+		  curMoments_(tpemParameters_.cutoff),
+		  newMoments_(tpemParameters_.cutoff)
+		{}
 
 		void init()
 		{
@@ -74,17 +71,13 @@ namespace Spf {
 							
 			setMatrix(matrixNew_,ModelType::NEWFIELDS);
 
-			RealType dS = calcDeltaAction(matrixOld_, matrixNew_);
+			VectorType moments(curMoments_.size());
+			RealType dS = calcDeltaAction(moments,matrixOld_, matrixNew_);
 
 			dS -= engineParams_.beta*dsDirect;
-
-			if (engineParams_.carriers>0) {
-				try {
-					engineParams_.mu = adjustments_.adjChemPot(curMoments_,tpem_); //changes engineParams_.mu
-				} catch (std::exception& e) {
-					std::cerr<<e.what()<<"\n";
-				}
-			}
+			newMoments_ = curMoments_ - moments;
+			
+			adjustChemPot(newMoments_);
 			//RealType integrationMeasure = model_.integrationMeasure(i);
 			RealType X = exp(dS);
 			return metropolisOrGlauber_(X,rng);
@@ -94,20 +87,30 @@ namespace Spf {
 		{
 			model_.accept(i);
 			// update current moments
-			for (size_t j=0;j<tpemParameters_.cutoff;j++)
-				curMoments_[j] -= moment_[j];
+			curMoments_ = newMoments_;
 		}
 
 		void prepare()
 		{
 			TpemSparseType matrix(hilbertSize_,hilbertSize_);
 			setMatrix(matrix,ModelType::OLDFIELDS);
-			isHermitian(matrix,true);
-			tpem_.calcMoments(matrix,moment_);
+			assert(isHermitian(matrix));
+			tpem_.calcMoments(matrix,curMoments_);
+			adjustChemPot(curMoments_);
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
 		
-		const VectorType& moment() const { return moment_; }
+		void adjustChemPot(const VectorType& moments)
+		{
+			if (engineParams_.carriers<=0) return;
+			try {
+				engineParams_.mu = adjustments_.adjChemPot(moments,tpem_); //changes engineParams_.mu
+			} catch (std::exception& e) {
+				std::cerr<<e.what()<<"\n";
+			}
+		}
+		
+		const VectorType& moment() const { return curMoments_; }
 
 		ModelType& model() { return model_; }
 		
@@ -123,12 +126,16 @@ namespace Spf {
 
 	private:
 
-		double calcDeltaAction(TpemSparseType& matrix1,
-		                       TpemSparseType& matrix)
+		double calcDeltaAction(VectorType& moments,
+		                       const TpemSparseType& matrix0,
+		                       const TpemSparseType& matrix1)
 		{
-			tpem_.calcMomentsDiff(moment_,matrix1, matrix);
+			VectorType actionCoeffs(tpemParameters_.cutoff);
+			tpem_.calcCoeffs(actionCoeffs,actionFunc_); 
+			
+			tpem_.calcMomentsDiff(moments,matrix0, matrix1);
 
-			return -tpem_.expand(actionCoeffs_, moment_);
+			return -tpem_.expand(actionCoeffs, moments);
 		}
 
 		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
@@ -151,9 +158,8 @@ namespace Spf {
 		ActionFunctorType actionFunc_;
 		TpemSparseType matrixOld_;
 		TpemSparseType matrixNew_;
-		VectorType actionCoeffs_;
-		VectorType moment_;
 		VectorType curMoments_;
+		VectorType newMoments_;
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,
