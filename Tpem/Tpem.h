@@ -153,14 +153,10 @@ namespace Tpem {
 			RealType ret = 0.0;
 			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
 			assert(progressiveCutoff<=coeffs.size());
-			for (size_t i = 0; i < progressiveCutoff; ++i) {
+			for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
-				if (std::isinf(ret))  {
-					std::cerr<<"HEEEEEEEEEREEEEEEEEEE i="<<i<<"\n";
-					break;
-				}
-			}
-			if (std::isinf(ret)) assert(false);
+
+			assert(!std::isinf(ret) && !std::inan(ret));
 			return ret;
 		}
 

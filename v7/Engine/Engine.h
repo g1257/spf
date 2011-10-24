@@ -14,6 +14,7 @@
 #include "IoSimple.h"
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
+#include "Loop.h" // in PsimagLite
 #include "MonteCarlo.h"
 #include "Packer.h"
 #include "SaveConfigs.h"
@@ -110,9 +111,11 @@ namespace Spf {
 		void measure()
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
-			concurrency_.loopCreate(params_.iterEffective);
-			size_t iter=0;
-			while(concurrency_.loop(iter)) {
+
+			PsimagLite::Loop<ConcurrencyType> loop(concurrency_,params_.iterEffective);
+
+			for (;!loop.end();loop.next()) {
+				size_t iter=loop.index();
 				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
