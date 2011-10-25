@@ -14,7 +14,7 @@
 #include "IoSimple.h"
 #include "ProgressIndicator.h" //in PsimagLite
 #include "TypeToString.h" // in PsimagLite
-#include "Loop.h" // in PsimagLite
+#include "Range.h" // in PsimagLite
 #include "MonteCarlo.h"
 #include "Packer.h"
 #include "SaveConfigs.h"
@@ -107,15 +107,15 @@ namespace Spf {
 			std::cerr<<"\n";
 			printProgress(accepted);
 		}
-		
+
 		void measure()
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
 
-			PsimagLite::Loop<ConcurrencyType> loop(concurrency_,params_.iterEffective);
+			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,concurrency_);
 
-			for (;!loop.end();loop.next()) {
-				size_t iter=loop.index();
+			for (;!range.end();range.next()) {
+				size_t iter=range.index();
 				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
@@ -133,7 +133,7 @@ namespace Spf {
 			}
 			std::cerr<<"\n";
 		}
-		
+
 		void writeHeader()
 		{
 			ioOut_<<"#This is SPF v7\n";
@@ -144,7 +144,7 @@ namespace Spf {
 			ioOut_<<model_;
 		
 		}
-		
+
 		void finalize()
 		{
 			model_.finalize(ioOut_);
@@ -161,8 +161,7 @@ namespace Spf {
 			ioOut_<<s;
 			ioOut_<<"#EOF\n";
 		}
-		
-		
+
 		void doMonteCarlo(std::vector<PairType>& accepted,DynVarsType& dynVars, size_t iter)
 		{
 			typedef typename DynVarsType::OperationsType0 OperationsType0;
@@ -191,7 +190,7 @@ namespace Spf {
 			accepted[1].second += res.second;
 			
 		}
-		
+
 		void printProgress(const std::vector<PairType>& accepted,PackerType* packer = 0)
 		{
 			for (size_t i=0;i<dynVars_.size();i++) {
@@ -209,7 +208,7 @@ namespace Spf {
 				}
 			}
 		}
-		
+
 		void printProgress(int i,int total,int nMarks,char mark,int option)
 		{
 			int every=total/nMarks;
