@@ -18,10 +18,9 @@ namespace Spf {
 	class Histogram {
 	public:	
 
-		Histogram(
-				const RealType& minE,
-				const RealType& maxE,
-				size_t steps)
+		Histogram(const RealType& minE,
+		          const RealType& maxE,
+		          size_t steps)
 		: minE_(minE),maxE_(maxE),steps_(steps),
 		  histX_(steps+1),histY_(steps+1)
 		{
@@ -63,9 +62,10 @@ namespace Spf {
 		}
 		
 		template<typename SomeConcurrencyType>
-		void reduce(SomeConcurrencyType& concurrency)
+		void reduce(SomeConcurrencyType& concurrency,
+					typename SomeConcurrencyType::CommType comm)
 		{
-			concurrency.reduce(histY_);
+			concurrency.reduce(histY_,comm);
 		}
 
 		const RealType& x(size_t i) const  { return histX_[i]; }

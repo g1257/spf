@@ -40,6 +40,7 @@ namespace Spf {
 	public:
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ConcurrencyType_ ConcurrencyType;
+		typedef typename ConcurrencyType::CommType CommType;
 		typedef ParametersModelType_ ParametersModelType;
 		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
@@ -182,9 +183,9 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType& fout,CommType comm)
 		{
-			observablesStored_.finalize(fout);	
+			observablesStored_.finalize(fout,comm);	
 		}
 		
 		template<

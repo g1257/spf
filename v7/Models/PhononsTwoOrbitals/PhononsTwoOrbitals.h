@@ -45,6 +45,7 @@ namespace Spf {
 
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ConcurrencyType_ ConcurrencyType;
+		typedef typename ConcurrencyType::CommType CommType;
 		typedef ParametersModelType_ ParametersModelType;
 		typedef PhononsTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
@@ -174,7 +175,7 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType& fout,CommType comm)
 		{
 			
 		}

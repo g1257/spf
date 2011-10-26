@@ -30,6 +30,7 @@ namespace Spf {
 
 		typedef Histogram<RealType,ComplexType> HistogramComplexType;
 		typedef Histogram<RealType,RealType> HistogramRealType;
+		typedef typename ConcurrencyType::CommType CommType;
 
 	public:
 		static size_t const ORBITALS = 3;
@@ -65,20 +66,20 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType& fout,CommType comm)
 		{
-			reduce(arw_);
-			optical_.reduce(concurrency_);
-			if (!concurrency_.root()) return;
+			reduce(arw_,comm);
+			optical_.reduce(concurrency_,comm);
+			if (!concurrency_.root(comm)) return;
 			divideAndPrint(fout,arw_,"#Arw:");
 			divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
 
-		void reduce(std::vector<HistogramComplexType>& h)
+		void reduce(std::vector<HistogramComplexType>& h,CommType comm)
 		{
-			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_);
+			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_,comm);
 		}
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma

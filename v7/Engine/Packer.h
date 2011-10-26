@@ -27,26 +27,30 @@ Please see full open source license included in file LICENSE.
 namespace Spf {
 	template<typename RealType,typename IoOutputType,typename ConcurrencyType>
 	class  Packer {
+
+		typedef typename ConcurrencyType::CommType CommType;
+
 		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T};
+
 	public:
 		
-		Packer(IoOutputType& fout,ConcurrencyType& concurrency)
-		: fout_(fout),concurrency_(concurrency),progress_("Packer",0)
+		Packer(IoOutputType& fout,ConcurrencyType& concurrency,CommType comm)
+		: fout_(fout),concurrency_(concurrency),comm_(comm),progress_("Packer",0)
 		{}
 		
 		~Packer()
 		{
-			size_t nprocs = concurrency_.nprocs();
-			size_t r = concurrency_.rank();
+			size_t nprocs = concurrency_.nprocs(comm_);
+			size_t r = concurrency_.rank(comm_);
 			std::vector<RealType> values(values_.size()*nprocs,0);
 			for (size_t i=0;i<values_.size();i++) {
 				values[r+i*nprocs] = values_[i];
 			}
 			values_.clear();
 			
-			concurrency_.reduce(values);
+			concurrency_.reduce(values,comm_);
 			
-			if (!concurrency_.root()) return;
+			if (!concurrency_.root(comm_)) return;
 			
 			bool flag = false;
 			RealType prev = 0;
@@ -103,6 +107,7 @@ namespace Spf {
 
 		IoOutputType& fout_;
 		ConcurrencyType& concurrency_;
+		CommType comm_;
 		PsimagLite::ProgressIndicator progress_;
 		std::vector<std::string> labels_;
 		std::vector<RealType> values_;

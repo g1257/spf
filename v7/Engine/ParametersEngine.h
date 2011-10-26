@@ -118,6 +118,13 @@ namespace Spf {
 				randomSeed = -1;
 			else    randomSeed = atoi(s.c_str());
 			io.readline(latticeLength,"LatticeLength=");
+			
+			coresForKernel = 1;
+			try {
+				io.readline(coresForKernel,"CoresForKernel=");
+			} catch (std::exception& e) {
+				io.rewind();
+			}
 			saveEach=0;
 			try {
 				io.readline(saveEach,"SaveEach=");
@@ -140,6 +147,7 @@ namespace Spf {
 		std::string boundaryConditions; // boundary conditions
 		long int randomSeed;
 		size_t latticeLength;
+		size_t coresForKernel;
 		size_t saveEach;
 	};
 
@@ -168,6 +176,7 @@ namespace Spf {
 		if (parameters.randomSeed<0) s="TIME";
 		os<<"parameters.randomSeed="<<s<<"\n";
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
+		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
 		return os;
 	}
 } // namespace Dmrg

@@ -38,7 +38,9 @@ namespace Spf {
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 
 	public:
+
 		typedef ConcurrencyType_ ConcurrencyType;
+		typedef typename ConcurrencyType::CommType CommType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ParametersModelType_ ParametersModelType;
 		static const size_t norb_ = ParametersModelType::numberOfOrbitals;
@@ -271,9 +273,9 @@ namespace Spf {
 		}
 
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType& fout,CommType comm)
 		{
-			observablesStored_.finalize(fout);	
+			observablesStored_.finalize(fout,comm);	
 		}
 
 		template<typename EngineParamsType2,

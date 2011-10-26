@@ -23,6 +23,7 @@ namespace Spf {
 		typedef std::vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
 		typedef PsimagLite::Matrix<FieldType> MatrixType;
+		typedef typename ConcurrencyType::CommType CommType;
 
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
 		enum {ORBITAL_XZ,ORBITAL_YZ};
@@ -71,15 +72,15 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType& fout,CommType comm)
 		{
 			if (counter_==0) return;
-			divideAndPrint(fout,lc_,"#LocalCharge:");
-			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
-			divideAndPrint(fout,mc_,"#MCorrelations");
-			divideAndPrint(fout,tc_,"#TCorrelations");
-			divideAndPrint(fout,cs_,"#ClassicalSpinCorrelations");
-			divideAndPrint(fout,qs_,"#ItinerantSpinCorrelations");
+			divideAndPrint(fout,comm,lc_,"#LocalCharge:");
+			divideAndPrint(fout,comm,chargeCor_,"#ChargeCorrelations:");
+			divideAndPrint(fout,comm,mc_,"#MCorrelations");
+			divideAndPrint(fout,comm,tc_,"#TCorrelations");
+			divideAndPrint(fout,comm,cs_,"#ClassicalSpinCorrelations");
+			divideAndPrint(fout,comm,qs_,"#ItinerantSpinCorrelations");
 		}
 
 	private:
@@ -267,11 +268,12 @@ namespace Spf {
 		
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
+		                    CommType comm,
 		                    VectorType& v,
 		                    const std::string& label)
 		{
-			concurrency_.reduce(v);
-			if (!concurrency_.root()) return;
+			concurrency_.reduce(v,comm);
+			if (!concurrency_.root(comm)) return;
 			v /= counter_;
 			fout<<label<<"\n";
 			fout<<v;
@@ -279,6 +281,7 @@ namespace Spf {
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
+		                    CommType comm,
 		                    MatrixType& m,
 		                    const std::string& label)
 		{
@@ -288,7 +291,7 @@ namespace Spf {
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
 				std::string newlabel = label+ttos(dir);
-				divideAndPrint(fout,v,newlabel);
+				divideAndPrint(fout,comm,v,newlabel);
 			}
 		}
 

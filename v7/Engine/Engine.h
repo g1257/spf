@@ -33,6 +33,7 @@ namespace Spf {
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
 		typedef typename ModelType::ConcurrencyType ConcurrencyType;
+		typedef typename ConcurrencyType::CommType CommType;
 		typedef Packer<RealType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 		typedef Spf::GreenFunctionTpem<ParametersType,ModelType,RngType> GreenFunctionTpemType;
@@ -50,14 +51,15 @@ namespace Spf {
 		: params_(params),
 		  model_(model),
 		  concurrency_(concurrency),
+		  comm_(concurrency_.newCommFromSegments(params_.coresForKernel)),
 		  gfTpem_(0),
 		  gfDiag_(0),
 		  dynVars_(model_.dynVars()),
 		  ioOut_(params_.filename,
 		  concurrency_.rank()),
 		  progress_("Engine",concurrency.rank()),
-		  rng_(params.randomSeed,concurrency_.rank(),concurrency_.nprocs()),
-		  saveConfigs_(params_,dynVars_,concurrency.rank())
+		  rng_(params.randomSeed,concurrency_.rank(comm_.second),concurrency_.nprocs(comm_.second)),
+		  saveConfigs_(params_,dynVars_,concurrency.rank(comm_.second))
 		{
 			const std::string opts = params.options;
 			bool tpem = (opts.find("tpem")!=std::string::npos);
@@ -66,12 +68,12 @@ namespace Spf {
 			} else {
 				gfDiag_ = new GreenFunctionDiagType(params,model,io);
 			}
-			size_t nprocs = concurrency_.nprocs();
-			size_t temp = params_.iterEffective/nprocs;
-			if (temp * nprocs != params_.iterEffective) {
-				std::string s = "numberOfProcessors must be a divisor of params.iterEffective\n";
-				std::runtime_error(s.c_str());
-			}
+// 			size_t nprocs = concurrency_.nprocs();
+// 			size_t temp = params_.iterEffective/nprocs;
+// 			if (temp * nprocs != params_.iterEffective) {
+// 				std::string s = "numberOfProcessors must be a divisor of params.iterEffective\n";
+// 				std::runtime_error(s.c_str());
+// 			}
 			writeHeader();
 		}
 
@@ -89,7 +91,7 @@ namespace Spf {
 			// announce measurements done
 			finalize();
 		}
-		
+
 		static const std::string& license()
 		{
 			return license_;
@@ -112,15 +114,17 @@ namespace Spf {
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
 
-			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,concurrency_);
-
+			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,
+			             concurrency_,comm_.second);
+						 
 			for (;!range.end();range.next()) {
 				size_t iter=range.index();
-				printProgress(iter,params_.iterEffective,10,'*',concurrency_.rank());
+				printProgress(iter,params_.iterEffective,10,'*',
+				         concurrency_.rank(comm_.second));
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
-				PackerType packer(ioOut_,concurrency_);
+				PackerType packer(ioOut_,concurrency_,comm_.second);
 				if (gfDiag_) {
 					gfDiag_->measure();
 					model_.doMeasurements(*gfDiag_,iter,packer);
@@ -142,12 +146,11 @@ namespace Spf {
 			ioOut_<<s;
 			ioOut_<<params_;
 			ioOut_<<model_;
-		
 		}
 
 		void finalize()
 		{
-			model_.finalize(ioOut_);
+			model_.finalize(ioOut_,comm_.second);
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
 			ioOut_<<"#AlgorithmRelated:\n";
@@ -222,6 +225,7 @@ namespace Spf {
 		const ParametersType& params_;
 		ModelType& model_;
 		ConcurrencyType& concurrency_;
+		std::pair<CommType,CommType> comm_;
 		GreenFunctionTpemType* gfTpem_; // we own it, we new it, and we delete it
 		GreenFunctionDiagType* gfDiag_; // we own it, we new it, and we delete it
 		DynVarsType& dynVars_;
