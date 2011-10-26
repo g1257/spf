@@ -3,6 +3,13 @@
 #include "Tpem.h"
 #include "RandomForTests.h"
 #include "IoSimple.h"
+#ifndef USE_MPI
+#include "ConcurrencySerial.h"
+typedef PsimagLite::ConcurrencySerial<> ConcurrencyType;
+#else
+#include "ConcurrencyMpi.h"
+typedef PsimagLite::ConcurrencySerial<> ConcurrencyType;
+#endif
 
 template<typename SparseMatrixType,typename RealType,typename RngType>
 void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
@@ -109,12 +116,16 @@ struct MuBetaStruct {
 int main (int argc,char *argv[])
 {
 	typedef double RealType;
-	typedef double RealOrComplexType;
+	typedef RealType RealOrComplexType;
 	typedef PsimagLite::IoSimple::In IoInType;
 	typedef MuBetaStruct<IoInType,RealType> MuBetaStructType;
 	typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
-	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType> TpemType;
+	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType> TpemType;
 	typedef PsimagLite::CrsMatrix<RealOrComplexType> SparseMatrixType;
+	
+	if (argc<2) throw std::runtime_error("Needs the filename\n");
+
+	ConcurrencyType concurrency(argc,argv);
 	
 	IoInType io(argv[1]);
 	
@@ -130,8 +141,9 @@ int main (int argc,char *argv[])
 	std::vector<size_t> support(2,0);
 	support[0] = 0;
 	support[1] = matrix0.rank() / 2 - 1;
-	
-	TpemType tpem(tpemParameters);
+	tpemParameters.support = support;
+
+	TpemType tpem(tpemParameters,concurrency);
 
 // 	tpemOptions.epsProd=1e-5;
 // 	tpemOptions.epsTrace=1e-7;

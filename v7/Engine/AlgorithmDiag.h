@@ -23,11 +23,15 @@ namespace Spf {
 		typedef Adjustments<EngineParametersType> AdjustmentsType;
 	public:
 		typedef typename EngineParametersType::RealType RealType;
+		typedef typename EngineParametersType::IoInType IoInType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 
-		AlgorithmDiag(const EngineParametersType& engineParams,ModelType& model)
+		AlgorithmDiag(const EngineParametersType& engineParams,
+		              ModelType& model,
+		              IoInType& io,
+		              typename ModelType::ConcurrencyType::CommType comm)
 		: engineParams_(engineParams),
 		  model_(model),
 		  metropolisOrGlauber_(),

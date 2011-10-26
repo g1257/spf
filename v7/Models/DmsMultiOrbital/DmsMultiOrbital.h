@@ -59,6 +59,7 @@ namespace Spf {
 		                ConcurrencyType& concurrency)
 		: engineParams_(engineParams),mp_(mp),
 		 geometry_(geometry),
+		 concurrency_(concurrency),
 		 dynVars_(geometry.volume(),engineParams),
 		 hilbertSize_(2*ORBITALS*geometry.volume()),
 		 adjustments_(engineParams),
@@ -75,7 +76,9 @@ namespace Spf {
 		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
-		
+
+		ConcurrencyType& concurrency() { return concurrency_; }
+
 		RealType deltaDirect(size_t i) const
 		{
 			// don't use line below, unless geometry has nnn:
@@ -422,6 +425,7 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		const ParametersModelType& mp_;
 		const GeometryType& geometry_;
+		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;

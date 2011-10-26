@@ -32,9 +32,10 @@ namespace Spf {
 
 		GreenFunctionTpem(const EngineParametersType& engineParams,
 		                  ModelType& model,
-		                  IoInType& io)
+		                  IoInType& io,
+						  typename ModelType::ConcurrencyType::CommType comm)
 		: engineParams_(engineParams),
-		  algorithm_(engineParams,model,io),
+		  algorithm_(engineParams,model,io,comm),
 		  hilbertSize_(model.hilbertSize()),
 		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),
@@ -144,9 +145,11 @@ namespace Spf {
 		}
 
 
-		template<typename EngineParametersType2,typename ModelType2,typename RngType2>
+		template<typename EngineParametersType2,typename ModelType2,
+		         typename RngType2>
 		friend std::ostream& operator<<(std::ostream& os,
-		  const GreenFunctionTpem<EngineParametersType2,ModelType2,RngType2>& gf);
+		  const GreenFunctionTpem<EngineParametersType2,ModelType2,
+		                          RngType2>& gf);
 
 	private:
 
@@ -161,7 +164,8 @@ namespace Spf {
 	}; // class GreenFunctionTpem
 	
 	template<typename EngineParametersType,typename ModelType,typename RngType>
-	std::ostream& operator<<(std::ostream& os,const GreenFunctionTpem<EngineParametersType,ModelType,RngType>& gf)
+	std::ostream& operator<<(std::ostream& os,const GreenFunctionTpem<
+	              EngineParametersType,ModelType,RngType>& gf)
 	{
 		os<<"#GF\n";
 		os<<"#GF is unimplemented for TPEM\n";

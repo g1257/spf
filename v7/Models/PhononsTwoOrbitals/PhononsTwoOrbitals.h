@@ -59,15 +59,17 @@ namespace Spf {
 		                   const ParametersModelType& mp,
 		                   const GeometryType& geometry,
 		                   ConcurrencyType& concurrency)
-		: engineParams_(engineParams),mp_(mp),
-		  geometry_(geometry),dynVars_(geometry.volume(),engineParams),
+		: engineParams_(engineParams),
+		  mp_(mp),
+		  geometry_(geometry),
+		  concurrency_(concurrency),
+		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 		  adjustments_(engineParams),
 		  progress_("PhononsTwoOrbitals",0),
 		  spinOperations_(geometry_,engineParams_),
 		  phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
-		{
-		}
+		{}
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		
@@ -78,7 +80,9 @@ namespace Spf {
 		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
 		
 		size_t hilbertSize() const { return hilbertSize_; }
-		
+
+		ConcurrencyType& concurrency() { return concurrency_; }
+
 		RealType deltaDirect(size_t i) const 
 		{
 			return spinOperations_.deltaDirect(i,mp_.jaf,0);
@@ -285,6 +289,7 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		const ParametersModelType& mp_;
 		const GeometryType& geometry_;
+		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;

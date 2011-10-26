@@ -16,6 +16,7 @@ namespace Tpem {
 	template<typename TpemParametersType>
 	class BaseFunctor {
 	public:
+		virtual ~BaseFunctor() { }
 		typedef typename TpemParametersType::RealType RealType;
 		virtual RealType operator()(RealType x) const = 0;
 	};
@@ -28,6 +29,8 @@ namespace Tpem {
 		ActionFunctor(const TpemParametersType& tpemParameters)
 		: tpemParameters_(tpemParameters)
 		{}
+
+		virtual ~ActionFunctor() { }
 
 		virtual RealType operator()(RealType x) const
 		{
@@ -50,6 +53,8 @@ namespace Tpem {
 		EnergyFunctor(const TpemParametersType& tpemParameters)
 		: tpemParameters_(tpemParameters)
 		{}
+		
+		virtual ~EnergyFunctor() { }
 
 		virtual RealType operator()(RealType x) const
 		{
@@ -70,6 +75,8 @@ namespace Tpem {
 		NumberFunctor(const TpemParametersType& tpemParameters)
 		: tpemParameters_(tpemParameters)
 		{}
+
+		virtual ~NumberFunctor() { }
 
 		virtual RealType operator()(RealType x) const
 		{

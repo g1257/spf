@@ -20,11 +20,18 @@ namespace Spf {
 	public:
 		typedef typename EngineParamsType::RealType RealType;
 		
-		MonteCarlo(const EngineParamsType& engineParams,OperationsType& ops,AlgorithmType& algorithm,
-			   RandomNumberGeneratorType& rng) 
-			: engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
+		MonteCarlo(const EngineParamsType& engineParams,
+		           OperationsType& ops,
+		           AlgorithmType& algorithm,
+		           RandomNumberGeneratorType& rng) 
+		 : engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
 		
-		PairType operator()(DynVarsType& dynVars, size_t iter)
+		template<typename SomeConcurrencyType>
+		PairType operator()(DynVarsType& dynVars,
+		                    size_t iter,
+		                    SomeConcurrencyType& concurrency,
+		                    typename SomeConcurrencyType::CommType comm)
+
 		{
 			PairType acc = PairType(0,0);
 			ops_.set(dynVars);
@@ -35,6 +42,7 @@ namespace Spf {
 				ops_.proposeChange(i,rng_);
 				//RealType oldmu = engineParams_.mu;
 				bool flag= algorithm_.isAccepted(i,rng_);
+				concurrency.broadcast(flag,comm);
 				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted

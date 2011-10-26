@@ -33,7 +33,10 @@ namespace Spf {
 		typedef typename EngineParametersType::IoInType IoInType;
 		typedef Tpem::TpemParameters<IoInType,RealType,ModelType> TpemParametersType;
 		// includes from Tpem.h
-		typedef Tpem::Tpem<TpemParametersType,typename ModelType::MatrixType::value_type> TpemType;
+		typedef typename ModelType::MatrixType::value_type MatrixValueType;
+		typedef typename ModelType::ConcurrencyType ConcurrencyType;
+		typedef typename ConcurrencyType::CommType CommType;
+		typedef Tpem::Tpem<TpemParametersType,MatrixValueType,ConcurrencyType> TpemType;
 		typedef typename TpemType::TpemSparseType TpemSparseType;
 		//
 		typedef typename TpemType::ActionFunctorType ActionFunctorType;
@@ -42,7 +45,8 @@ namespace Spf {
 
 		AlgorithmTpem(const EngineParametersType& engineParams,
 		              ModelType& model,
-		              IoInType& io)
+		              IoInType& io,
+					  CommType comm)
 		: engineParams_(engineParams),
 		  model_(model),
 		  hilbertSize_(model_.hilbertSize()),
@@ -50,7 +54,7 @@ namespace Spf {
 		  adjustments_(engineParams),
 		  adjustTpemBounds_(false),
 		  tpemParameters_(io,engineParams.mu,engineParams.beta,&model),
-		  tpem_(tpemParameters_),
+		  tpem_(tpemParameters_,model.concurrency(),comm),
 		  actionFunc_(tpemParameters_),
 		  matrixOld_(model.hilbertSize(),model.hilbertSize()),
 		  curMoments_(tpemParameters_.cutoff),
@@ -119,7 +123,7 @@ namespace Spf {
 		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
 
 		template<typename EngineParametersType2,typename ModelType2,
-			typename RandomNumberGeneratorType2>
+		         typename RandomNumberGeneratorType2>
 		friend std::ostream& operator<<
 			(std::ostream& os,const AlgorithmTpem<EngineParametersType2,
 					ModelType2,RandomNumberGeneratorType2>& a);
@@ -163,9 +167,9 @@ namespace Spf {
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,
-		typename RandomNumberGeneratorType>
+	         typename RandomNumberGeneratorType>
 	std::ostream& operator<<(std::ostream& os,const AlgorithmTpem<
-			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
+	    EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
 		
 // 		typedef typename EngineParametersType::FieldType RealType;

@@ -16,12 +16,21 @@
 #include "TypeToString.h"
 #include <cassert>
 #include "GslWrapper.h"
+#include "Range.h"
+#include <cmath>
 
 namespace Tpem {
 
-	template<typename TpemParametersType_,typename RealOrComplexType>
+	template<typename TpemParametersType_,typename RealOrComplexType,typename ConcurrencyType>
 	class Tpem {
+
+		typedef typename ConcurrencyType::CommType CommType;
+
+		static const CommType COMM_WORLD;
+
 	public:
+
+		typedef PsimagLite::Range<ConcurrencyType> RangeType;
 		typedef TpemParametersType_ TpemParametersType;
 		typedef typename TpemParametersType::RealType RealType;
 		typedef BaseFunctor<TpemParametersType> BaseFunctorType;
@@ -45,8 +54,10 @@ namespace Tpem {
 
 		typedef MyFunctionParams MyFunctionParamsType;
 
-		Tpem(const TpemParametersType& tpemParameters)
-		: tpemParameters_(tpemParameters)
+		Tpem(const TpemParametersType& tpemParameters,
+		     ConcurrencyType& concurrency,
+			 CommType comm = COMM_WORLD)
+		: tpemParameters_(tpemParameters),concurrency_(concurrency),comm_(comm)
 		{
 			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
@@ -61,14 +72,14 @@ namespace Tpem {
 			RealType epsabs=1e-9;
 			RealType epsrel=1e-9;
 
-			size_t limit = 1e6;
+			size_t limit = 1000000;
 			GslWrapperType::gsl_integration_workspace *workspace = 
 			                   gslWrapper_.gsl_integration_workspace_alloc(limit+2);
 			
 			RealType result = 0,abserr = 0;
 
 			GslWrapperType::gsl_function f;
-			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
+			f.function= &Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			//int key = GSL_INTEG_GAUSS61;
@@ -96,8 +107,13 @@ namespace Tpem {
 			for (size_t i = 0; i < n; i++) moment[i] = 0.0;
 			moment[0] = matrix.rank();
 			
-			for (size_t i=0;i<matrix.rank();i++)
+			RangeType range(0,matrix.rank(),concurrency_,comm_);
+			for (;!range.end();range.next()) {
+				size_t i = range.index();
 				diagonalElement(matrix, moment, i);
+			}
+			concurrency_.reduce(moment,comm_);
+			moment[0] = matrix.rank();
 
 			for (size_t i = 2; i < n; i += 2)
 				moment[i] = 2.0 * moment[i] - moment[0];
@@ -124,11 +140,16 @@ namespace Tpem {
 
 			moment0[0] = moment1[0] =  matrix0.rank();
 
-			for (size_t k=0;k<info.top();k++) {
-				size_t p= info(k);
+			RangeType range(0,info.top(),concurrency_,comm_);
+			// FIXME: we could use twice as many procs here
+			for (;!range.end();range.next()) {
+				size_t p= info(range.index());
 				diagonalElement(matrix0, moment0, p);
 				diagonalElement(matrix1, moment1, p);
 			}
+			concurrency_.reduce(moment0,comm_);
+			concurrency_.reduce(moment1,comm_);
+			moment0[0] = moment1[0] = matrix0.rank();
 
 			for (size_t i = 2; i < n; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[0];
@@ -156,7 +177,7 @@ namespace Tpem {
 			for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
 
-			assert(!std::isinf(ret) && !std::inan(ret));
+			assert(!std::isinf(ret) && !std::isnan(ret));
 			return ret;
 		}
 
@@ -358,8 +379,16 @@ namespace Tpem {
 		}
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
+		ConcurrencyType& concurrency_;
+		CommType comm_;
 		GslWrapperType gslWrapper_;
 	}; // class Tpem
+
+	template<typename TpemParametersType,typename RealOrComplexType,typename ConcurrencyType>
+	const typename ConcurrencyType::CommType
+	Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::COMM_WORLD = 
+	ConcurrencyType::COMM_WORLD; 
+
 } // namespace Tpem
 
 /*@}*/

@@ -27,9 +27,10 @@ namespace Spf {
 
 		GreenFunctionDiag(const EngineParametersType& engineParams,
 		                  ModelType& model,
-		                  IoInType& io)
+		                  IoInType& io,
+		                  typename ModelType::ConcurrencyType::CommType comm)
 		: engineParams_(engineParams),
-		  algorithm_(engineParams,model),
+		  algorithm_(engineParams,model,io,comm),
 		  hilbertSize_(model.hilbertSize()),
 		  data_(hilbertSize_,hilbertSize_)
 		{}

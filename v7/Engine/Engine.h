@@ -64,16 +64,10 @@ namespace Spf {
 			const std::string opts = params.options;
 			bool tpem = (opts.find("tpem")!=std::string::npos);
 			if (tpem) {
-				gfTpem_ = new GreenFunctionTpemType(params,model,io);
+				gfTpem_ = new GreenFunctionTpemType(params,model,io,comm_.first);
 			} else {
-				gfDiag_ = new GreenFunctionDiagType(params,model,io);
+				gfDiag_ = new GreenFunctionDiagType(params,model,io,comm_.first);
 			}
-// 			size_t nprocs = concurrency_.nprocs();
-// 			size_t temp = params_.iterEffective/nprocs;
-// 			if (temp * nprocs != params_.iterEffective) {
-// 				std::string s = "numberOfProcessors must be a divisor of params.iterEffective\n";
-// 				std::runtime_error(s.c_str());
-// 			}
 			writeHeader();
 		}
 
@@ -175,7 +169,7 @@ namespace Spf {
 
 			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm,rng_);
 			Type0& spinPart = dynVars.getField((Type0*)0);
-			PairType res= monteCarlo0(spinPart,iter); // (accepted, totalflips)
+			PairType res= monteCarlo0(spinPart,iter,concurrency_,comm_.second);
 			accepted[0].first += res.first;
 			accepted[0].second += res.second;
 			
@@ -188,7 +182,7 @@ namespace Spf {
 			
 			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm,rng_);
 			Type1& phononPart = dynVars.getField((Type1*)0);
-			res= monteCarlo1(phononPart,iter); // (accepted, totalflips)
+			res= monteCarlo1(phononPart,iter,concurrency_,comm_.second);
 			accepted[1].first += res.first;
 			accepted[1].second += res.second;
 			
@@ -225,6 +219,12 @@ namespace Spf {
 		const ParametersType& params_;
 		ModelType& model_;
 		ConcurrencyType& concurrency_;
+		/** comm_ is a pair of communicators that the Engine owns
+		  * comm_.first is the communicator for the kernel, which
+		  *   means either parallel TPEM or parallel diagonalization
+		  * comm_.second is the communicator for the Monte Carlo
+		  *  meaning that MC measurements are parallel over comm_.second
+		  */ 
 		std::pair<CommType,CommType> comm_;
 		GreenFunctionTpemType* gfTpem_; // we own it, we new it, and we delete it
 		GreenFunctionDiagType* gfDiag_; // we own it, we new it, and we delete it

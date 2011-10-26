@@ -80,6 +80,8 @@ namespace Spf {
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
+		ConcurrencyType& concurrency() { return concurrency_; }
+
 		RealType deltaDirect(size_t i) const 
 		{
 			RealType x = spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
