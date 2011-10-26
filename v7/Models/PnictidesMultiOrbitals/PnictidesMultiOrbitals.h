@@ -204,18 +204,7 @@ namespace Spf {
 				std::vector<RealType> e(matrix.n_row());
 				diag(matrix,e,'N');
 
-				RealType eMin = e[0];
-				RealType factor = 1.02;
-				if (eMin>0) eMin = 0;
-				else eMin *= factor;
-				RealType eMax = e[e.size()-1];
-				if (eMax<0) throw std::runtime_error("Hmmm\n");
-				else eMax *= factor;
-				// will delegate to common code in the future
-				// modelCommon_.setAandB(a,b,emax,emin);
-				a = 0.5*(eMax-eMin);
-				b = 0.5*(eMax+eMin);
-				std::cerr<<"Set a="<<a<<" b="<<b<<"\n";
+				this->setTpemAandB(a,b,e[0],e[e.size()-1]);
 			}
 
 			{
@@ -235,32 +224,9 @@ namespace Spf {
 				MatrixType matrix2(hilbertSize_,hilbertSize_);
 				createHamiltonian(spinOps.dynVars2(),matrix2,&J);
 
-				// will delegate to common code in the future
-				// modelCommon_.setSupport(support,matrix,matrix2);
-				
-				support.clear();
-				for (size_t i=0;i<matrix.n_col();i++) {
-					ComplexType tmp = matrix(site,i) - matrix2(site,i);
-					if (std::norm(tmp)<1e-6) continue;
-					//if (std::find(support.begin(),support.end(),i)==
-					//    support.end())
-					support.push_back(i);
-				}
-				assert(support.size()>0);
-				std::cerr<<"Set support with size="<<support.size()<<"\n";
-				std::cerr<<support;
+				this->setTpemSupport(support,matrix,matrix2,site);
 			}
 		}
-
-// 		void adjustChemPot(const std::vector<RealType>& eigs)
-// 		{
-// 			if (engineParams_.carriers==0) return;
-// 			try {
-// 				engineParams_.mu = adjustments_.adjChemPot(eigs);
-// 			} catch (std::exception& e) {
-// 				std::cerr<<e.what()<<"\n";
-// 			}
-// 		}
 
 		void accept(size_t i) 
 		{

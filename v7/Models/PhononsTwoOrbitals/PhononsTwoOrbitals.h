@@ -52,8 +52,7 @@ namespace Spf {
 		typedef typename DynVarsType::PhononType PhononType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef typename DynVarsType::PhononOperationsType PhononOperationsType;
-		
-		
+
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		PhononsTwoOrbitals(const EngineParamsType& engineParams,
