@@ -1,9 +1,2 @@
-This is an old code that needs to be rewritten
-completely, in progres...
-
-cd src/
-perl configure.pl
-
-For more see:
-http://mri-fre.ornl.gov/spf/
+See README
 
