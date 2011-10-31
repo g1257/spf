@@ -39,7 +39,7 @@ namespace Spf {
 
 			a = 0.5*(eMax-eMin);
 			b = 0.5*(eMax+eMin);
-			std::cerr<<"Set a="<<a<<" b="<<b<<"\n";
+// 			std::cerr<<"Set a="<<a<<" b="<<b<<"\n";
 		}
 
 		template<typename MatrixType>
@@ -57,8 +57,8 @@ namespace Spf {
 				support.push_back(i);
 			}
 			assert(support.size()>0);
-			std::cerr<<"Set support with size="<<support.size()<<"\n";
-			std::cerr<<support;
+// 			std::cerr<<"Set support with size="<<support.size()<<"\n";
+// 			std::cerr<<support;
 		}
 
 	}; // ModelBase

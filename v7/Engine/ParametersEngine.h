@@ -86,17 +86,18 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <stdexcept>
 #include "TypeToString.h"
 
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename RealType_,typename IoInType_>
+	template<typename RealType_,typename IoInType_,typename ConcurrencyType>
 	struct ParametersEngine {
 		typedef RealType_ RealType;
 		typedef IoInType_ IoInType;
 		//! Read Dmrg parameters from inp file
-		ParametersEngine(IoInType& io)
+		ParametersEngine(IoInType& io,ConcurrencyType& concurrency)
 		{
 			io.readline(options,"EngineOptions=");
 			io.readline(version,"Version=");
@@ -124,6 +125,12 @@ namespace Spf {
 				io.readline(coresForKernel,"CoresForKernel=");
 			} catch (std::exception& e) {
 				io.rewind();
+				if (concurrency.nprocs()>1) throw e;
+			}
+			if (size_t(concurrency.nprocs())<coresForKernel) {
+				s= std::string(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
+				s += std::string("nprocs<coresForKernel is an error\n");
+				throw std::runtime_error(s.c_str());
 			}
 			saveEach=0;
 			try {
@@ -152,9 +159,9 @@ namespace Spf {
 	};
 
 	//! print dmrg parameters
-	template<typename RealType,typename IoInType>
+	template<typename RealType,typename IoInType,typename ConcurrencyType>
 	std::ostream &operator<<(std::ostream &os,
-		ParametersEngine<RealType,IoInType> const &parameters)
+		ParametersEngine<RealType,IoInType,ConcurrencyType> const &parameters)
 	{
 		os<<"#This is SPF\n";
 		os<<"parameters.version="<<parameters.version<<"\n";

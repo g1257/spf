@@ -137,7 +137,7 @@ typedef PsimagLite::ConcurrencyMpi<FieldType> MyConcurrencyType;
 #include "Random48.h"
 
 typedef PsimagLite::IoSimple::In IoInType;
-typedef Spf::ParametersEngine<FieldType,IoInType> ParametersEngineType;
+typedef Spf::ParametersEngine<FieldType,IoInType,MyConcurrencyType> ParametersEngineType;
 typedef Spf::Geometry$geometry<FieldType> GeometryType;
 typedef Spf::Parameters$modelFile<ParametersEngineType,IoInType> ParametersModelType;
 typedef Spf::$model<ParametersEngineType,ParametersModelType,GeometryType,MyConcurrencyType> ModelType;
@@ -154,7 +154,7 @@ int main(int argc,char *argv[])
 		throw std::runtime_error(s.c_str());
 	}
 	PsimagLite::IoSimple::In io(argv[1]);
-	ParametersEngineType engineParams(io);
+	ParametersEngineType engineParams(io,concurrency);
 	ParametersModelType mp(io,engineParams);
 	
 	if (concurrency.root()) std::cout<<EngineType::license();
