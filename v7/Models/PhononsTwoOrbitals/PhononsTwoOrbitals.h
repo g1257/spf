@@ -97,9 +97,9 @@ namespace Spf {
 			typedef typename DynVarsType::Type0 Type0;
 			const SpinType& spinPart = dynVars_.getField((Type0*)0);
 			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
-			
+
 			packer.pack("iter=",iter);
-				
+
 			RealType temp=calcNumber(greenFunction);
 			packer.pack("Number_Of_Electrons=",temp);
 			
