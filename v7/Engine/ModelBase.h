@@ -11,6 +11,7 @@
 #define MODEL_BASE_H
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 namespace Spf {
 	template<typename DynVarsType,
@@ -20,7 +21,7 @@ namespace Spf {
 	         typename ConcurrencyType>
 	class ModelBase {
 		typedef typename EngineParamsType::RealType RealType;
-		
+
 	public:
 
 		// please follow the interface from one of the model classes
@@ -60,7 +61,6 @@ namespace Spf {
 // 			std::cerr<<"Set support with size="<<support.size()<<"\n";
 // 			std::cerr<<support;
 		}
-
 	}; // ModelBase
 } // namespace Spf
 

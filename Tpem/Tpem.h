@@ -83,17 +83,18 @@ namespace Tpem {
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			//int key = GSL_INTEG_GAUSS61;
-			for (size_t m=0;m<tpemParameters_.cutoff;m++) {
-				params.m = m;
+			RangeType range(0,tpemParameters_.cutoff,concurrency_,comm_);
+			for (;!range.end();range.next()) {
+				params.m = range.index();
 				gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
 				//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
 				//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
 				
 				if (std::isinf(result) || std::isnan(result)) {
-					vobs[m] = 0;
+					vobs[params.m] = 0;
 					continue;
 				}
-				vobs[m] = result;
+				vobs[params.m] = result;
 			}
 			gslWrapper_.gsl_integration_workspace_free (workspace);
 		}

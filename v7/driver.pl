@@ -79,7 +79,7 @@ CXX = $compiler -DNDEBUG -O3
 #comment out this one for debugging
 #CXX = $compiler -g3
 #comment out for performance profiling with valgrind
-#CXX = $compiler -g3 -O
+#CXX = $compiler -g3 -O1 -DNDEBUG
 
 all: \$(EXENAME)
 
