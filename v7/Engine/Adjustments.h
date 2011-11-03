@@ -27,7 +27,7 @@ namespace Spf {
 		            RealType tolerance=1.0e-3)
 		: engineParams_(engineParams),maxIter_(maxIter),tolerance_(tolerance)
 		{}
-		
+
 		RealType adjChemPot(const std::vector<RealType>& eigs) const
 		{
 			typedef DensityFunctionDiag<EngineParamsType> DensityFunctionType;
@@ -42,7 +42,7 @@ namespace Spf {
 			//std::cerr<<" new mu = "<<mu<<"\n";
 			return mu;
 		}
-		
+
 		template<typename SomeTpemType>
 		RealType adjChemPot(const std::vector<RealType>& moments,
 		                    const SomeTpemType& tpem) const
@@ -58,16 +58,10 @@ namespace Spf {
 			rootFinding(mu);
 			//std::cerr<<" new mu = "<<mu<<"\n";
 			return mu;
-		
-	}
-		/* template<typename SomeOutputType>
-		void print(SomeOutputType& os) const
-		{
-			os<<"Adjustments: mu="<<engineParams_.mu<<"\n";
-		}*/
-		
+		}
+
 	private:
-		
+
 		const EngineParamsType& engineParams_;
 		size_t maxIter_;
 		RealType tolerance_;

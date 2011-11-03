@@ -94,7 +94,7 @@ spf.cpp: driver.pl
 	perl driver.pl
 
 Makefile.dep: spf.cpp  Makefile
-	\$(CXX) \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
+	g++ \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
 
 clean:
 	rm -f core* \$(EXENAME) *.o *.ii *.tt

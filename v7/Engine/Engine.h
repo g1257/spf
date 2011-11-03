@@ -169,7 +169,7 @@ namespace Spf {
 
 			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm,rng_);
 			Type0& spinPart = dynVars.getField((Type0*)0);
-			PairType res= monteCarlo0(spinPart,iter,concurrency_,comm_.second);
+			PairType res= monteCarlo0(spinPart,iter); //concurrency_,comm_.second);
 			accepted[0].first += res.first;
 			accepted[0].second += res.second;
 			
@@ -182,7 +182,7 @@ namespace Spf {
 			
 			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm,rng_);
 			Type1& phononPart = dynVars.getField((Type1*)0);
-			res= monteCarlo1(phononPart,iter,concurrency_,comm_.second);
+			res= monteCarlo1(phononPart,iter); //concurrency_,comm_.second);
 			accepted[1].first += res.first;
 			accepted[1].second += res.second;
 			

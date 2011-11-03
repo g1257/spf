@@ -96,6 +96,7 @@ namespace Tpem {
 				}
 				vobs[params.m] = result;
 			}
+			concurrency_.reduce(vobs,comm_);
 			gslWrapper_.gsl_integration_workspace_free (workspace);
 		}
 
@@ -175,10 +176,12 @@ namespace Tpem {
 			RealType ret = 0.0;
 			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
 			assert(progressiveCutoff<=coeffs.size());
+			if (moments.size()<progressiveCutoff) progressiveCutoff = moments.size();
 			for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
 
 			assert(!std::isinf(ret) && !std::isnan(ret));
+			concurrency_.broadcast(ret,comm_);
 			return ret;
 		}
 
@@ -204,6 +207,10 @@ namespace Tpem {
 			s += std::string(reason) + std::string(" gsl_errno=")+ttos(gsl_errno);
 			std::cerr<<s<<"\n";
 		}
+
+// 		ConcurrencyType& concurrency() { return concurrency_; }
+// 
+// 		CommType comm() const { return comm_; }
 
 	private:
 

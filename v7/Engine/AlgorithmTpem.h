@@ -103,17 +103,7 @@ namespace Spf {
 			adjustChemPot(curMoments_);
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
-		
-		void adjustChemPot(const VectorType& moments)
-		{
-			if (engineParams_.carriers<=0) return;
-			try {
-				engineParams_.mu = adjustments_.adjChemPot(moments,tpem_); //changes engineParams_.mu
-			} catch (std::exception& e) {
-				std::cerr<<e.what()<<"\n";
-			}
-		}
-		
+
 		const VectorType& moment() const { return curMoments_; }
 
 		ModelType& model() { return model_; }
@@ -129,6 +119,17 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
+
+		void adjustChemPot(const VectorType& moments)
+		{
+			if (engineParams_.carriers<=0) return;
+			
+			try {
+				engineParams_.mu = adjustments_.adjChemPot(moments,tpem_);
+			} catch (std::exception& e) {
+				std::cerr<<e.what()<<"\n";
+			}
+		}
 
 		double calcDeltaAction(VectorType& moments,
 		                       const TpemSparseType& matrix0,

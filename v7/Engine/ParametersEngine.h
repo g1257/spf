@@ -129,7 +129,7 @@ namespace Spf {
 			}
 			if (size_t(concurrency.nprocs())<coresForKernel) {
 				s= std::string(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
-				s += std::string("nprocs<coresForKernel is an error\n");
+				s += std::string(": nprocs<coresForKernel is an error\n");
 				throw std::runtime_error(s.c_str());
 			}
 			saveEach=0;

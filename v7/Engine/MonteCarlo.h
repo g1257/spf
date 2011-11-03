@@ -26,11 +26,11 @@ namespace Spf {
 		           RandomNumberGeneratorType& rng) 
 		 : engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
 		
-		template<typename SomeConcurrencyType>
+		//template<typename SomeConcurrencyType>
 		PairType operator()(DynVarsType& dynVars,
-		                    size_t iter,
-		                    SomeConcurrencyType& concurrency,
-		                    typename SomeConcurrencyType::CommType comm)
+		                    size_t iter)
+// 		                    SomeConcurrencyType& concurrency,
+// 		                    typename SomeConcurrencyType::CommType comm)
 
 		{
 			PairType acc = PairType(0,0);
@@ -42,7 +42,7 @@ namespace Spf {
 				ops_.proposeChange(i,rng_);
 				//RealType oldmu = engineParams_.mu;
 				bool flag= algorithm_.isAccepted(i,rng_);
-				concurrency.broadcast(flag,comm);
+// 				concurrency.broadcast(flag,comm);
 				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted
