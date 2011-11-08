@@ -92,7 +92,7 @@ namespace Tpem {
 		}
 
 	private:
-		std::vector<bool> flags_;
+		std::vector<size_t> flags_;
 		std::vector<size_t> stack_;
 		size_t top_;
 	}; // class TpemSupspace
