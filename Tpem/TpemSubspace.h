@@ -20,13 +20,13 @@ namespace Tpem {
 		typedef typename SparseMatrixType::value_type RealOrComplexType;
 		
 	public:
-		TpemSubspace(size_t size) : flags_(size,false),stack_(size,0),top_(0)
+		TpemSubspace(size_t size) : flags_(size,0),stack_(size,0),top_(0)
 		{}
 
 		void clear()
 		{
 			top_=0;
-			for (size_t i=0;i<flags_.size();i++) flags_[i] = false;
+			for (size_t i=0;i<flags_.size();i++) flags_[i] = 0;
 		}
 
 // 		size_t size() const { return stack_.size(); }
@@ -43,7 +43,7 @@ namespace Tpem {
 		void push (size_t state)
 		{
 			if (flags_[state]) return;
-			flags_[state] = true;
+			flags_[state] = 1;
 			stack_[top_] = state;
 			top_++;
 		}

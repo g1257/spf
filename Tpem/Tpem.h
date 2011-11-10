@@ -18,6 +18,7 @@
 #include "GslWrapper.h"
 #include "Range.h"
 #include <cmath>
+#include "BLAS.h"
 
 namespace Tpem {
 
@@ -173,13 +174,15 @@ namespace Tpem {
 		{
 			assert(moments.size()==coeffs.size());
 
-			RealType ret = 0.0;
 			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
 			assert(progressiveCutoff<=coeffs.size());
 			if (moments.size()<progressiveCutoff) progressiveCutoff = moments.size();
-			for (size_t i = 0; i < progressiveCutoff; ++i)
+			double* dx = (double *) &(moments[0]);
+			double* dy = (double *) &(coeffs[0]);
+			RealType ret = psimag::BLAS::DOT(progressiveCutoff,dx,1,dy,1);
+			/* for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
-
+			*/
 			assert(!std::isinf(ret) && !std::isnan(ret));
 			concurrency_.broadcast(ret,comm_);
 			return ret;
