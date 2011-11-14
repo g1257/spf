@@ -172,15 +172,7 @@ namespace Spf {
 	std::ostream& operator<<(std::ostream& os,const AlgorithmTpem<
 	    EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
-		
-// 		typedef typename EngineParametersType::FieldType RealType;
-// 		std::vector<RealType> eigNew(a.hilbertSize_);
-// 		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
-// 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
-// 		os<<"Eigenvalues\n";
-// 		os<<eigNew;
 		os<<a.tpemParameters_;
-		os<<"operator<< (os,AlgorithmTpem) unimplemented yet(sorry)\n";
 		return os;
 	}
 } // namespace Spf

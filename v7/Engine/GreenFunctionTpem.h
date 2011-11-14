@@ -46,6 +46,7 @@ namespace Spf {
 		void measure()
 		{
 			algorithm_.prepare();
+			data_(0,0) = -1; // unimplemented
 // 			size_t n = hilbertSize_;
 // 			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
 // 				data_(i,j) = greenFunction(i,j);
@@ -61,7 +62,8 @@ namespace Spf {
 
 		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
 		{
-			throw std::runtime_error("gf is unimplemented for TPEM\n");
+			//! gf is unimplemented for TPEM
+			return data_(0,0);
 // 			return data_(lambda1,lambda2);
 		}
 
@@ -101,10 +103,10 @@ namespace Spf {
 
 		void localCharge(std::vector<RealType>& lc)
 		{
-			throw std::runtime_error("local charge is unimplemented for TPEM\n");
+// 			throw std::runtime_error("local charge is unimplemented for TPEM\n");
 // 			//checkUs();
 // 			//checkLevels();
-// 			for (size_t i=0;i<hilbertSize_;i++) {
+			for (size_t i=0;i<hilbertSize_;i++) lc[i] = -1;
 // 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
 // 					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 // 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero

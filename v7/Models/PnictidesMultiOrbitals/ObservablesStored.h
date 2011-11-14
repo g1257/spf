@@ -56,7 +56,7 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-			if (!greenFunction.usesDiagonalization()) return;
+			//if (!greenFunction.usesDiagonalization()) return;
 			//spinOperations_.classicalCorrelations(cc_,spins);
 			greenFunction.localCharge(lc_);
 			chargeCorrelation(chargeCor_,greenFunction);
@@ -273,8 +273,9 @@ namespace Spf {
 		                    const std::string& label)
 		{
 			concurrency_.reduce(v,comm);
-			if (!concurrency_.root(comm)) return;
 			v /= counter_;
+			//! No comm below, only world root prints:
+			if (!concurrency_.root()) return;
 			fout<<label<<"\n";
 			fout<<v;
 		}
