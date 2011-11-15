@@ -59,7 +59,7 @@ namespace Spf {
 		  concurrency_.rank()),
 		  progress_("Engine",concurrency.rank()),
 		  rng_(params.randomSeed,concurrency_.rank(comm_.second),concurrency_.nprocs(comm_.second)),
-		  saveConfigs_(params_,dynVars_,concurrency.rank(comm_.second))
+		  saveConfigs_(params_,dynVars_,concurrency.rank(comm_.first))
 		{
 			const std::string opts = params.options;
 			bool tpem = (opts.find("tpem")!=std::string::npos);

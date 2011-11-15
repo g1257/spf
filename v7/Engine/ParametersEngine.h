@@ -124,7 +124,6 @@ namespace Spf {
 			try {
 				io.readline(coresForKernel,"CoresForKernel=");
 			} catch (std::exception& e) {
-				io.rewind();
 				if (concurrency.nprocs()>1) throw e;
 			}
 			if (size_t(concurrency.nprocs())<coresForKernel) {
@@ -133,11 +132,13 @@ namespace Spf {
 				throw std::runtime_error(s.c_str());
 			}
 			saveEach=0;
+				
+			io.rewind();
 			try {
 				io.readline(saveEach,"SaveEach=");
 			} catch (std::exception& e) {
 				io.rewind();
-			}
+			}	
 		}
 
 		std::string filename; // filename to save observables and continued fractions
@@ -182,6 +183,8 @@ namespace Spf {
 		std::string s = ttos(parameters.randomSeed);
 		if (parameters.randomSeed<0) s="TIME";
 		os<<"parameters.randomSeed="<<s<<"\n";
+		if (parameters.saveEach>0)
+			os<<"parameters.SaveEach="<<parameters.saveEach<<"\n";
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
 		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
 		return os;

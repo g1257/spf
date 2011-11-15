@@ -22,8 +22,10 @@ namespace Spf {
 	public:
 			
 		SaveConfigs(const ParametersType& params,const DynVarsType& dynvars,size_t parallelRank)
-		: params_(params),dynVars_(dynvars),ioOut_(params_.filename+".configs",parallelRank),
-		  enabled_(params_.saveEach>0)
+		: params_(params),
+		  dynVars_(dynvars),
+		  enabled_(parallelRank==0 && params_.saveEach>0),
+		  ioOut_(params_.filename+".configs",(enabled_) ? parallelRank: 1)
 		{
 			if (!enabled_) return;
 			writeHeader();
@@ -63,8 +65,8 @@ namespace Spf {
 
 		const ParametersType& params_;
 		const DynVarsType& dynVars_;
-		PsimagLite::IoSimple::Out ioOut_;
 		bool enabled_;
+		PsimagLite::IoSimple::Out ioOut_;
 	}; // class SaveConfigs
 } // namespace Spf
 

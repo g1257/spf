@@ -4,7 +4,7 @@
 
 /*! \file TpemParameters.h
  *
- *  Do not add functions here except a ctor
+ *  Do not add member functions here except a ctor, this is a struct
  *
  */
 #ifndef TPEM_PARAMETERS_H
@@ -13,14 +13,14 @@
 #include <cassert>
 
 namespace Tpem {
-	
+
 	template<typename RealType>
 	class EmptyCallBack {
 	public:
 		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
 		{}
 	};
-	
+
 	template<typename IoInType,typename RealType_,typename CallbackType=EmptyCallBack<RealType_> >
 	struct TpemParameters {
 		typedef RealType_ RealType;
