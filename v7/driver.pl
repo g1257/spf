@@ -192,7 +192,7 @@ EOF
 	unlink("a.out");
 # 	print "Temp file is $cppFile\n";
 # 	system("cat $cppFile");
-	system("g++ -I$PsimagLiteDir/src $gslDefine $cppFile  $gslLibs "); 
+	system("g++ -I$PsimagLiteDir/src $gslDefine $cppFile  $gslLibs &> /dev/null"); 
 	return 1 if (-x "a.out");
 	return 0;
 }
