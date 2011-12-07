@@ -108,8 +108,9 @@ namespace Spf {
 		{
 			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
 
+			bool isStrict = true;
 			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,
-			             concurrency_,comm_.second);
+			             concurrency_,comm_.second,isStrict);
 						 
 			for (;!range.end();range.next()) {
 				size_t iter=range.index();
