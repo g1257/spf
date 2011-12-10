@@ -124,7 +124,11 @@ namespace Spf {
 			try {
 				io.readline(coresForKernel,"CoresForKernel=");
 			} catch (std::exception& e) {
-				if (concurrency.nprocs()>1) throw e;
+
+				if (concurrency.nprocs()>1) {
+					std::cerr<<"Did you forget CoresForKernel= line in the input file?\n";
+					throw e;
+				}
 			}
 			if (size_t(concurrency.nprocs())<coresForKernel) {
 				s= std::string(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;

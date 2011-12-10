@@ -412,7 +412,6 @@ namespace Spf {
 			}
 		}
 
-		
 		template<typename GreenFunctionType>
 		ComplexType velocity(const GreenFunctionType& gf,
 				size_t i,

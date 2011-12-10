@@ -28,7 +28,7 @@ if ($model eq "PnictidesMultiOrbitals") {
 
 my $geometry = "Square";
 print "What geometry do you want to use?\n";
-print "Available: Square Cubic Fcc\n";
+print "Available: Square Cubic Fcc Square45Degrees\n";
 print "Default is: Square (press ENTER): ";
 $_=<STDIN>;
 s/ //g;
