@@ -24,7 +24,7 @@ namespace Spf {
 		
 		typedef std::pair<size_t,size_t> PairType;
 		
-		GeometrySquare45Degrees(size_t l) : l_(l),volume_(l*l+(l-1)*l)
+		GeometrySquare45Degrees(size_t l) : l_(l),volume_(2*l*l)
 		{
 			buildNeighbors();
 			std::cout<<(*this);
@@ -127,66 +127,55 @@ namespace Spf {
 // 			int zz = 0;
 			//PairType zeroVal(0,0);
 			size_t n = volume();
-			size_t twolxm1 = (2*lx-1);
+			size_t twolx = 2*lx;
 			PsimagLite::Matrix<PairType> matrix(n,4);
-			for (size_t p=0;p<n;p+=twolxm1) {
-				for (size_t i=p;i<p+size_t(lx);i++) {
+			for (size_t p=0;p<n;p+=twolx) {
+				for (size_t i=p+lx;i<p+twolx;i++) {
 					size_t counter = 0;
 					int j = i-lx;
 					if (j<0) j += n;
-					if (i>0 && i%twolxm1==0) j = i - 1;
+					if (i>0 && i%twolx==0) j = i - 1;
 					if (i==0) j = n-1;
 					matrix(i,counter++) = PairType(j,DIRXMY);
 					
 					j = i-lx+1;
 					if (i+1>=size_t(lx)) {
-						size_t k = (i+1)-lx;
-						if (k%(2*lx-1)==0) j -= (lx-1);
+						size_t k = (i+1);
+						if (k%twolx==0) j -= lx;
 					}
 					if (j<0) j+=n;
 					matrix(i,counter++) = PairType(j,DIRXPY);
 					
 					j = i+lx;
-					if (i+1>=size_t(lx)) {
-						size_t k = (i+1)-lx;
-						if (k%(2*lx-1)==0) j -= (lx-1);
-					}
-					matrix(i,counter++) = PairType(j,DIRXPY);
-					
-					j = i+lx-1;
-					if (i==0 || i%(2*lx-1)==0) j = (j+lx) - 1;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRXPY);
-					
-				}
-				for (size_t i=p+lx;i<p+twolxm1;i++) {
-					size_t counter = 0;
-					int j = i-lx;
-					if (j<0) j += n;
-					if (i>0 && i%(2*lx-1)==0) j = i - 1;
-					if (i==0) j = n-1;
-					matrix(i,counter++) = PairType(j,DIRXMY);
-					
-					if (i+1>=size_t(lx)) {
-						size_t k = (i+1) - lx;
-						if (k%(2*lx-1)==0) j = (j+1) - lx;
-					}
-					j++;
-					if (size_t(j)>=n) j -= (lx-1);
 					matrix(i,counter++) = PairType(j,DIRXPY);
 
-					j = i+lx;
-					if (i+1>=size_t(lx)) {
-						size_t k = (i+1) - lx;
-						if (k%(2*lx-1)==0) j = (j+1) - lx;
-					}
+					j = i+lx+1;
+					if ((i+1)%twolx==0) j -= lx;
 					if (size_t(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,DIRXMY);
 					
+				}
+				for (size_t i=p;i<p+lx;i++) {
+					size_t counter = 0;
+					int j = i-lx-1;
+					if (j<0) j += n;
+					if (i>0 && i%twolx==0) j = i - 1;
+					if (i==0) j = n-1;
+					matrix(i,counter++) = PairType(j,DIRXMY);
+
+					j = i-lx;
+					if (j<0) j+=n;
+					matrix(i,counter++) = PairType(j,DIRXPY);
+
 					j = i+lx-1;
-					if (i==0 || i%(2*lx-1)==0) j = (j+lx) - 1;
+					if (i%twolx==0) j+= lx;
 					if (size_t(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,DIRXPY);
+					
+					j = i+lx;
+					if (size_t(j)>=n) j-=n;
+					matrix(i,counter++) = PairType(j,DIRXMY);
 				}
 			}
 			neighbors_.push_back(matrix);
@@ -200,50 +189,44 @@ namespace Spf {
 			//PairType zeroVal(0,0);
 			size_t n = volume();
 			PsimagLite::Matrix<PairType> matrix(n,4);
-			size_t twolxm1 = (2*lx-1);
-			for (size_t p=0;p<n;p+=twolxm1) {
+			size_t twolx = 2*lx;
+			for (size_t p=0;p<n;p+=twolx) {
 				for (size_t i=p;i<p+size_t(lx);i++) {
 					size_t counter = 0;
 					
 					int j = i-1;
-					if (i==0 || i%twolxm1==0) j += lx;
+					if (i%twolx==0) j += lx;
 
 					matrix(i,counter++) = PairType(j,DIRX);
 
 					j = i+1;
-					if (i+1>=size_t(lx)) {
-						size_t k = (i+1) - lx;
-						if (k%(2*lx-1)==0) j -= lx;
-					}
+					if ((i+1)%lx==0) j -= lx;
 					matrix(i,counter++) = PairType(j,DIRX);
 					
-					j = i - twolxm1; 
+					j = i - twolx; 
 					if (j<0) j += n;
 					matrix(i,counter++) = PairType(j,DIRY);
 					
-					j = i + twolxm1;
+					j = i + twolx;
 					if (size_t(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,DIRY);
 				}
-				for (size_t i=p+lx;i<p+twolxm1;i++) {
+				for (size_t i=p+lx;i<p+twolx;i++) {
 					size_t counter = 0;
 					int j = i-1;
 					size_t k = i-lx;
-					if (k%twolxm1==0) j += (lx-1);
+					if (k%twolx==0) j += lx;
 					matrix(i,counter++) = PairType(j,DIRX);
 
 					j = i+1;
-					if (i+1>=size_t(lx)) {
-						size_t k = i+1;
-						if (k%twolxm1==0) j -= (lx-1);
-					}
+					if ((i+1)%lx==0) j -= lx;
 					matrix(i,counter++) = PairType(j,DIRX);
-					
-					j = i - twolxm1; 
+
+					j = i - twolx; 
 					if (j<0) j += n;
 					matrix(i,counter++) = PairType(j,DIRY);
-					
-					j = i + twolxm1;
+
+					j = i + twolx;
 					if (size_t(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,DIRY);
 				}
@@ -297,7 +280,7 @@ namespace Spf {
 			for (size_t k=0;k<g.neighbors_[i].n_row();k++) {
 				os<<"Neighbors of "<<k<<" are ";
 				for (size_t l=0;l<g.neighbors_[i].n_col();l++) {
-					os<<g.neighbors_[i](k,l).first<<" ";
+					os<<g.neighbors_[i](k,l).first<<"\t";
 				}
 				os<<"\n";
 			}
