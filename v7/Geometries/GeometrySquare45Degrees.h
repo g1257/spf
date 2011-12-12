@@ -14,11 +14,53 @@
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 #include <iostream>
+#include <cstdlib>
+#include <cassert>
+#include <stdexcept>
 
 namespace Spf {
 	template<typename FieldType_>
 	class GeometrySquare45Degrees {
+
+	
+		struct SiteInfo {
+
+			enum {TYPE_0,TYPE_1};
+
+			SiteInfo(size_t indd,size_t l) : ind(indd) 
+			{
+				init(l);
+			}
+			
+			size_t ind;
+			size_t x;
+			size_t y;
+			size_t type;
+		
+		private:
+
+			void init(size_t l)
+			{
+				size_t lx = l;
+				size_t twolx = 2*lx;
+				div_t divresult = div(ind,twolx);
+
+				if (size_t(divresult.rem)<lx) {
+					type = TYPE_0;
+					x = divresult.rem;
+					y = divresult.quot;
+					return;
+				}
+				type = TYPE_1;
+				x = divresult.rem-lx;
+				y = divresult.quot;
+			}
+		};
+
+		typedef SiteInfo SiteInfoType;
+
 	public:
+		
 		//typedef FieldType_ FieldType;
 		enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3};
 		
@@ -57,8 +99,24 @@ namespace Spf {
 		
 		size_t add(size_t ind,size_t ind2) const
 		{
-			unimplemented("add");
-			return 0;
+			SiteInfoType s1(ind,l_);
+			SiteInfoType s2(ind2,l_);
+			
+			size_t lx = l_;
+			size_t ly = l_;
+			size_t xsum = s1.x + s2.x;
+			size_t ysum = s1.y + s2.y;
+			if (xsum >= lx) xsum -= lx;
+			if (ysum >= ly) ysum -= ly;
+
+			if (s1.type==s2.type) {
+				size_t shift = (s1.type==SiteInfoType::TYPE_0) ? 0 : 1;
+				return siteAt(xsum+shift,ysum+shift);
+			}
+			size_t j = siteAt(xsum,ysum) + lx;
+			size_t n = volume();
+			if (size_t(j)>=n) j-=n;
+			return j;
 		}
 		
 		size_t dim() const { return 2; }
@@ -98,6 +156,18 @@ namespace Spf {
 
 	private:
 		
+		
+		
+		size_t siteAt(size_t x,size_t y) const
+		{
+			size_t lx = l_;
+			size_t ly = l_;
+			size_t twolx = 2*lx;
+			if (x>=lx) x-=lx;
+			if (y>=ly) y-=ly;
+			return y*twolx + x;
+		}
+
 		void unimplemented(const std::string& s) const
 		{
 			std::string ss = "GeometrySquare45Degrees::" + s;
@@ -283,6 +353,13 @@ namespace Spf {
 					os<<g.neighbors_[i](k,l).first<<"\t";
 				}
 				os<<"\n";
+			}
+		}
+		os<<"-------------------------\n";
+		for (size_t i=0;i<g.volume();i++) {
+			for (size_t j=0;j<g.volume();j++) {
+				size_t k = g.add(i,j);
+				os<<i<<"\t+\t"<<j<<"\t=\t"<<k<<"\n";
 			}
 		}
 		return os;
