@@ -148,16 +148,22 @@ namespace Spf {
 			model_.finalize(ioOut_,comm_.second);
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
+			bool printgf = (params_.options.find("printgf")!=std::string::npos);
+			if (printgf) printGf();
+			time_t t = time(0);
+			std::string s(ctime(&t));
+			ioOut_<<s;
+			ioOut_<<"#EOF\n";
+		}
+
+		void printGf()
+		{
 			ioOut_<<"#AlgorithmRelated:\n";
 			if (gfDiag_) {
 				ioOut_<<(*gfDiag_);
 			} else {
 				ioOut_<<(*gfTpem_);
 			}
-			time_t t = time(0);
-			std::string s(ctime(&t));
-			ioOut_<<s;
-			ioOut_<<"#EOF\n";
 		}
 
 		void doMonteCarlo(std::vector<PairType>& accepted,DynVarsType& dynVars, size_t iter)
