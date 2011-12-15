@@ -148,7 +148,7 @@ namespace Spf {
 		std::string filename; // filename to save observables and continued fractions
 		std::string version;
 		std::string options; // options
-		size_t carriers;
+		RealType carriers;
 		mutable RealType mu; // chemical potential 
 		RealType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
