@@ -5,14 +5,25 @@
 use strict;
 
 
-my ($filename,$label) = @ARGV;
+my ($filename,$GlobalLatticeName,$label) = @ARGV;
+if (!defined($filename) or !defined($GlobalLatticeName)) {
+	die "USAGE is: $0 filename latticeName Label\n";
+}
+
+print STDERR "#Arguments are $filename $GlobalLatticeName $label\n";
 my $Dim = 2;
 
 $label = "#ClassicalCorrelations:" if (!defined($label));
 
 my @cc;
 loadData(\@cc,$label);
-my $L = sqrt($#cc+1);
+my $L = $#cc+1;
+print STDERR "#Read $L points\n";
+
+$L /= 2 if ($GlobalLatticeName eq "square45degrees");
+$L = sqrt($L);
+print STDERR "#Computed lattice length is $L\n";
+
 procData(\@cc,$#cc+1);
 
 sub loadData {
@@ -42,9 +53,9 @@ sub procData {
 		$Si[$m]=0;
 		for (my $x=0;$x<$n;$x++) {
 			my @mm;
-			calcComponents($m,\@mm);	 
+			calcComponentsReciprocal($m,\@mm);	 
 			my @qq;
-			calcComponents($x,\@qq);
+			calcComponentsDirect($x,\@qq);
 			my $sp=0;
 			for (my $i=0;$i<$Dim;$i++) {
 				$sp += $qq[$i]*$mm[$i];
@@ -58,9 +69,33 @@ sub procData {
 	}
 }
 
-sub calcComponents {
+sub calcComponentsReciprocal
+{
 	my ($q,$qq)=@_;
-				
+	if ($GlobalLatticeName eq "square") {
+		calcComponentsSquare($q,$qq);
+		return;
+	}
+	($GlobalLatticeName eq "square45degrees") or die "$0: Geometry $GlobalLatticeName is not supported yet (sorry)\n";
+	calcCompSquare45DegreesReciprocal($q,$qq);
+}
+
+sub calcComponentsDirect
+{
+	my ($q,$qq)=@_;
+	if ($GlobalLatticeName eq "square") {
+		calcComponentsSquare($q,$qq);
+		return;
+	}
+	($GlobalLatticeName eq "square45degrees") or die "$0: Geometry $GlobalLatticeName is not supported yet (sorry)\n";
+	calcCompSquare45DegreesDirect($q,$qq);
+}
+
+# only one function needed for both direct and reciprocal
+sub calcComponentsSquare
+{
+	my ($q,$qq)=@_;
+
 	my $r=$q;
 	for (my $i=$Dim-1;$i>0;$i--) {
 		my $nn=$L**$i;
@@ -70,4 +105,36 @@ sub calcComponents {
 	$qq->[0]=$r;
 }
 
+# misses an additional sqrt(2), cancels with Reciprocal
+sub calcCompSquare45DegreesDirect
+{
+	my ($q,$qq)=@_;
 	
+	my $xind =$q % (2*$L);
+	my $yind = int($q / (2*$L));
+	if ($xind>=$L) {
+		$xind -= ($L - 0.5);
+		$yind += 0.5;
+	}
+	$qq->[0] = $xind;
+	$qq->[1]= $yind;
+}
+
+# has an additional sqrt(2), cancels with Direct
+sub calcCompSquare45DegreesReciprocal
+{
+	my ($q,$qq)=@_;
+	if ($q<$L) {
+		# first sub-lattice:
+		$qq->[0] = $q % $L;
+		$qq->[1] = int($q / $L);
+		return;
+	}
+
+	# second sub-lattice;
+	my $qMl = $q - $L;
+	$qq->[0] = $qMl % $L;
+	$qq->[1] = int($qMl / $L);
+	$qq->[0] *= 2/3;
+	$qq->[0] *= 2/3;
+}

@@ -202,7 +202,7 @@ namespace Spf {
 				}
 			}
 		}
-		
+
 		template<typename GreenFunctionType>
 		void chargeCorrelation(std::vector<FieldType>& cc,
 				       size_t gamma,size_t gamma2,GreenFunctionType& greenFunction)
@@ -227,6 +227,7 @@ namespace Spf {
 			
 			if (fabs(slip)>1e-6) std::cerr<<"slipping="<<slip<<"\n";
 		}
+
 		template<typename GreenFunctionType>
 		void allChargeCorrelation(GreenFunctionType& greenFunction)
 		{
@@ -246,9 +247,8 @@ namespace Spf {
 			}
 			std::cerr<<m;
 			throw std::runtime_error("testing\n");
-							
 		}
-		
+
 		template<typename GreenFunctionType>
 		ComplexType chargeCorrelation(size_t w, size_t gamma,size_t v, size_t gamma2,
 			GreenFunctionType& greenFunction)
