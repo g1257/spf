@@ -4,6 +4,7 @@
 # 
 use strict;
 
+my $sqrt2= sqrt(2.0);
 
 my ($filename,$GlobalLatticeName,$label) = @ARGV;
 if (!defined($filename) or !defined($GlobalLatticeName)) {
@@ -124,17 +125,17 @@ sub calcCompSquare45DegreesDirect
 sub calcCompSquare45DegreesReciprocal
 {
 	my ($q,$qq)=@_;
+	my ($Lprime1,$Lprime2)=($L/$sqrt2,$L*$sqrt2/3);
 	if ($q<$L) {
 		# first sub-lattice:
-		$qq->[0] = $q % $L;
-		$qq->[1] = int($q / $L);
+		$qq->[0] = $q % $Lprime1;
+		$qq->[1] = int($q / $Lprime2);
 		return;
 	}
 
 	# second sub-lattice;
 	my $qMl = $q - $L;
-	$qq->[0] = $qMl % $L;
-	$qq->[1] = int($qMl / $L);
-	$qq->[0] *= 2/3;
-	$qq->[0] *= 2/3;
+	$qq->[0] = $qMl % $Lprime2;
+	$qq->[1] = int($qMl / $Lprime1);
 }
+

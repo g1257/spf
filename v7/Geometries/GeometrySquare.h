@@ -129,7 +129,7 @@ namespace Spf {
 			neighborsAt1();
 			neighborsAt2();
 		}
-		
+
 		void neighborsAt1()
 		{
 			int lx = l_;
@@ -174,7 +174,7 @@ namespace Spf {
 			}
 			neighbors_.push_back(matrix);
 		}
-		
+
 		void neighborsAt2()
 		{
 			int lx = l_;
@@ -199,7 +199,7 @@ namespace Spf {
 			}
 			neighbors_.push_back(matrix);
 		}
-		
+
 		bool g_pbc(int& x, size_t l) const
 		{
 			int L = l;
@@ -210,13 +210,13 @@ namespace Spf {
 			while(x>=L) x-=L;
 			return r;
 		}
-		
+
 		size_t g_index(std::vector<int>& x) const
 		{
 			int zz=0;
 			return g_index(x[0],x[1],zz);
 		}
-		
+
 		size_t g_index(int& x,int& y,int& z) const
 		{
 			size_t lx = l_;

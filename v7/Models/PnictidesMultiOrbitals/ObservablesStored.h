@@ -265,7 +265,7 @@ namespace Spf {
 			}
 			return tmp;
 		}
-		
+
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
 		                    CommType comm,
@@ -310,7 +310,7 @@ namespace Spf {
 		size_t counter_;
 
 	}; // ObservablesStored
-	
+
 } // namespace Spf
 
 /*@}*/
