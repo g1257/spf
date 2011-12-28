@@ -128,7 +128,7 @@ namespace Spf {
 					ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
-		bool computeDeltaAction(RealType integrationMeasure) const
+		RealType computeDeltaAction(RealType integrationMeasure) const
 		{
 			RealType mu=engineParams_.mu;
 			RealType beta = engineParams_.beta;
