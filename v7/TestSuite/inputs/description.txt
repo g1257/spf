@@ -1,0 +1,4 @@
+#TAGSTART DO NOT REMOVE THIS TAG
+List of Standard Tests for SPFv7
+(See Notation in the doc directory)
+0) Pnictides two orbitals

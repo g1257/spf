@@ -1,0 +1,8 @@
+[spf]
+Let $input = $inputsDir input$testNum.inp
+Let $raw = $resultsDir stderrAndOut$testNum.txt
+Execute runSpf($input,$raw)
+
+[observables]
+Let $options = 0 
+Execute runObserve($input,$raw,$options)

@@ -1,6 +1,6 @@
 EngineOptions=none
 Version=SPFv7
-OutputFilename=output0
+OutputFilename=data0
 Carriers=128 
 ChemicalPotential=-0.5 
 Beta=10
