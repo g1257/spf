@@ -178,17 +178,15 @@ EOF
 sub findIfWeHaveGsl
 {
 	my ($gslDefine,$gslLibs)=@_;
+
+	my $slashTmp = "/tmp";
+	return askForGslDirectly() unless (-w $slashTmp);
+
 	my $dir = tempdir( CLEANUP => 1 );
 	my ($fh, $filename) = tempfile( DIR => $dir );
 
 	if (!$fh) {
-		print "Do you have the GNU Scientific Library (GSL)?\n";
-		print "Available is y or n\n";
-		print "Default is n (press ENTER)";
-		$_=<STDIN>;
-		chomp;
-		return 1 if ($_=~/^y/i);
-		return 0;
+		return askForGslDirectly();
 	}
 
 	#$fh or die "Cannot write to temporary filehandle: $!\n";
@@ -204,6 +202,17 @@ EOF
 # 	system("cat $cppFile");
 	system("g++ -I$PsimagLiteDir/src $gslDefine $cppFile  $gslLibs &> /dev/null"); 
 	return 1 if (-x "a.out");
+	return 0;
+}
+
+sub askForGslDirectly
+{
+	print "Do you have the GNU Scientific Library (GSL)?\n";
+	print "Available is y or n\n";
+	print "Default is n (press ENTER)";
+	$_=<STDIN>;
+	chomp;
+	return 1 if ($_=~/^y/i);
 	return 0;
 }
 
