@@ -181,7 +181,17 @@ sub findIfWeHaveGsl
 	my $dir = tempdir( CLEANUP => 1 );
 	my ($fh, $filename) = tempfile( DIR => $dir );
 
-	$fh or die "Cannot write to temporary filehandle: $!\n";
+	if (!$fh) {
+		print "Do you have the GNU Scientific Library (GSL)?\n";
+		print "Available is y or n\n";
+		print "Default is n (press ENTER)";
+		$_=<STDIN>;
+		chomp;
+		return 1 if ($_=~/^y/i);
+		return 0;
+	}
+
+	#$fh or die "Cannot write to temporary filehandle: $!\n";
 print $fh <<EOF;
 #include "GslWrapper.h"
 int main() { return 0;}
