@@ -2,3 +2,9 @@
 List of Standard Tests for SPFv7
 (See Notation in the doc directory)
 0) Pnictides two orbitals
+200) Pnictides two orbitals on a square geometry
+210) Pnictides two orbitals on a square45degrees geometry
+400) Pnictides three orbitals on a square geometry
+
+#TAGEND DO NOT REMOVE THIS TAG
+

@@ -1,0 +1,39 @@
+EngineOptions=none
+Version=SPFv7
+OutputFilename=data400
+Carriers=64
+ChemicalPotential=0.27
+Beta=120
+MonteCarloThermalizations=300
+MonteCarloEffectiveIteractions=30
+MonteCarloUnmeasuredPlusOne=2
+MonteCarloWindows 2 0.025 0.025
+MonteCarloStartTypeOrFile=TestSuite/inputs/startingConfig400.txt
+MonteCarloStartLevel=1000
+HistogramSteps=1000
+BoundaryConditions=periodic
+RandomSeed=8713794
+LatticeLength=4
+Hoppings
+36
+0.06 0 0
+0 0.02 0
+0 0 -0.2
+0.02 0 0
+0 0.06 0
+0 0 -0.2
+0.03 0.01 0
+0.01 0.03 0
+0 0 0.3
+0.03 -0.01 0
+-0.01 0.03 0
+0 0 0.3
+HoppingT7=-0.2
+HoppingT8=-0.1
+DeltaXY=0.4
+CouplingJ=0.15
+PotentialV 64  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+JAFNN 2 0.015 0.013   !Jx and Jy a little different for conductance measurement
+JAFNNN=0.01         !Set as to make the transition happening at around 100K
+MagneticField=0.0

@@ -1,0 +1,31 @@
+EngineOptions=none
+Version=SPFv7
+OutputFilename=data210
+Carriers=128
+ChemicalPotential=-0.96
+Beta=1000
+MonteCarloThermalizations=0
+MonteCarloEffectiveIteractions=20
+MonteCarloUnmeasuredPlusOne=1
+MonteCarloWindows 2 0.5 0.2
+MonteCarloStartTypeOrFile=none
+MonteCarloStartLevel=0
+HistogramSteps=1000
+BoundaryConditions=periodic
+RandomSeed=34898
+LatticeLength=8
+Hoppings
+16
+0.25 -0.07
+-0.07 +0.25
+0.25 +0.07
+0.07 +0.25
+-0.4 0
+0 -0.13
+-0.13 0
+0 -0.4
+CouplingJ=-0.8
+PotentialV 128  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 
+JAFNN=0.003
+JAFNNN=0.009
+MagneticField=0.0

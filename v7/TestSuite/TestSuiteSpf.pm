@@ -6,7 +6,7 @@
 Copyright (c) 2008-2011, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SpinPhononFermion, Version 7.1.0]
 [by G.A., Oak Ridge National Laboratory]
 [TestSuite by E.P., Puerto Rico and ORNL]
 
@@ -67,7 +67,7 @@ sub runSpf
 	my $arg = "$executable $inputFile &> $raw";
 # 	grep {s/&//} $arg if($verbose);
 	
-	print "Running $name test...\n";
+	print "Running $name test number $TestSuiteGlobals::testNum...\n";
 	my $err = chdir($TestSuiteGlobals::srcDir);
 	die "Changing directory to $TestSuiteGlobals::srcDir: $!" if(!$err);
 	$err = system($arg);

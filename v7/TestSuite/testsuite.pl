@@ -6,7 +6,7 @@
 Copyright (c) 2008-2011, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SpinPhononFermion, Version 7.1.0]
 [by G.A., Oak Ridge National Laboratory]
 [TestSuite by E.P., Puerto Rico and ORNL]
 
@@ -49,6 +49,7 @@ but it is hopelessly inadequate for showing their absence." -- Edsger Dijkstra
 #Declarations of Perl modules required
 use strict;
 use warnings;
+use lib "../../../PsimagLite/TestSuite";
 
 use TestSuiteGlobals;
 
@@ -57,12 +58,7 @@ use TestSuiteSpf;
 *TestSuiteHooks:: = *TestSuiteSpf::;
 #END OF CHANGE BLOCK
 
-
 TestSuiteGlobals::init();
 TestSuiteGlobals::doMain();
-
-
-
-
 
 

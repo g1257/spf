@@ -1,0 +1,580 @@
+#This is SPF v7
+Thu Dec 29 14:27:54 2011
+#This is SPF
+parameters.version=SPFv7
+parameters.filename=data420
+parameters.options=tpem
+parameters.carriers=64
+parameters.mu=0.27
+parameters.beta=120
+parameters.iterTherm=300
+parameters.iterEffective=5
+parameters.iterUnmeasured=2
+parameters.mcWindow
+2
+0.025
+0.025
+parameters.dynvarsfile=TestSuite/inputs/startingConfig420.txt
+parameters.dynvarslevel=1000
+parameters.histSteps=1000
+parameters.boundaryConditions=periodic
+parameters.randomSeed=9818247
+parameters.latticeLength=4
+parameters.coresForKernel=1
+ModelParameters
+parameters.jafNn=2
+0.015
+0.013
+
+parameters.jafNnn=0.01
+parameters.J=0.15
+parameters.magneticField=0
+parameters.potentialV
+64
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+parameters.hoppings
+36
+0.06
+0
+0
+0
+0.02
+0
+0
+0
+-0.2
+0.02
+0
+0
+0
+0.06
+0
+0
+0
+-0.2
+0.03
+0.01
+0
+0.01
+0.03
+0
+0
+0
+0.3
+0.03
+-0.01
+0
+-0.01
+0.03
+0
+0
+0
+0.3
+parameters.modulus=0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 
+Engine: Acceptance spin=1753
+Engine: AcceptancePercentage spin=%36
+Packer: iter=0
+Packer: Number_Of_Electrons=63.97053493
+Packer: Electronic Energy=-14.13198048
+Packer: Superexchange=-0.1029202439
+Packer: Superexchange2=-0.1334068152
+Packer: TotalEnergy=-14.36830754
+Packer: Adjustments: mu=0.2738952637
+Packer: ClassicalMagnetizationSquared=1.187586604
+Packer: CombinedMagnetizationSquared=1.187586604
+Packer: CombinedMagnetization0=(-1.012676786,0)
+Packer: CombinedMagnetization1=(-0.3994364513,0)
+Packer: CombinedMagnetization2=(0.0502280091,0)
+Packer: Acceptance spin=14
+Packer: AcceptancePercentage spin=%43
+Packer: iter=1
+Packer: Number_Of_Electrons=64.01656965
+Packer: Electronic Energy=-14.12749565
+Packer: Superexchange=-0.07586664938
+Packer: Superexchange2=-0.1769042854
+Packer: TotalEnergy=-14.38026659
+Packer: Adjustments: mu=0.2769470215
+Packer: ClassicalMagnetizationSquared=0.9563068763
+Packer: CombinedMagnetizationSquared=0.9563068763
+Packer: CombinedMagnetization0=(-0.8992497329,0)
+Packer: CombinedMagnetization1=(-0.2214012521,0)
+Packer: CombinedMagnetization2=(0.3140673174,0)
+Packer: Acceptance spin=30
+Packer: AcceptancePercentage spin=%46
+Packer: iter=2
+Packer: Number_Of_Electrons=64.01529253
+Packer: Electronic Energy=-14.12865031
+Packer: Superexchange=-0.07427329615
+Packer: Superexchange2=-0.1796820821
+Packer: TotalEnergy=-14.38260568
+Packer: Adjustments: mu=0.2769470215
+Packer: ClassicalMagnetizationSquared=0.6659635506
+Packer: CombinedMagnetizationSquared=0.6659635506
+Packer: CombinedMagnetization0=(-0.7519050966,0)
+Packer: CombinedMagnetization1=(-0.1017984686,0)
+Packer: CombinedMagnetization2=(0.3003986485,0)
+Packer: Acceptance spin=35
+Packer: AcceptancePercentage spin=%36
+Packer: iter=3
+Packer: Number_Of_Electrons=64.01267133
+Packer: Electronic Energy=-14.1258443
+Packer: Superexchange=-0.08189853222
+Packer: Superexchange2=-0.1773269778
+Packer: TotalEnergy=-14.38506982
+Packer: Adjustments: mu=0.2754211426
+Packer: ClassicalMagnetizationSquared=0.3681768441
+Packer: CombinedMagnetizationSquared=0.3681768441
+Packer: CombinedMagnetization0=(-0.5477665336,0)
+Packer: CombinedMagnetization1=(-0.2237642219,0)
+Packer: CombinedMagnetization2=(0.1343809575,0)
+Packer: Acceptance spin=44
+Packer: AcceptancePercentage spin=%34
+Packer: iter=4
+Packer: Number_Of_Electrons=64.02739528
+Packer: Electronic Energy=-14.11779404
+Packer: Superexchange=-0.06320523603
+Packer: Superexchange2=-0.1445119643
+Packer: TotalEnergy=-14.32551124
+Packer: Adjustments: mu=0.2754211426
+Packer: ClassicalMagnetizationSquared=3.666722846
+Packer: CombinedMagnetizationSquared=3.666722846
+Packer: CombinedMagnetization0=(-1.179697739,0)
+Packer: CombinedMagnetization1=(-0.4528078432,0)
+Packer: CombinedMagnetization2=(-1.438749856,0)
+Packer: Acceptance spin=58
+Packer: AcceptancePercentage spin=%36
+#LocalCharge:
+96
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+-0.2
+#ChargeCorrelations:
+16
+102
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+108
+#MCorrelations0
+16
+142.53
+136.623
+140.224
+136.623
+137.35
+139.63
+137.922
+139.94
+139.833
+138.266
+138.456
+138.266
+137.35
+139.94
+137.922
+139.63
+#MCorrelations1
+16
+5.21967
+-3.18963
+2.12757
+-3.18963
+2.58794
+-3.26056
+3.0712
+-3.22131
+4.50889
+-2.81748
+1.89837
+-2.81748
+2.58794
+-3.22131
+3.0712
+-3.26056
+#MCorrelations2
+16
+6.98125
+-5.8813
+5.83981
+-5.8813
+5.56486
+-5.78262
+5.74575
+-6.08143
+5.75846
+-5.57381
+5.89349
+-5.57381
+5.56486
+-6.08143
+5.74575
+-5.78262
+#TCorrelations0
+16
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+64
+#TCorrelations1
+16
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+#TCorrelations2
+16
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+#ClassicalSpinCorrelations0
+16
+3.79908
+-2.10741
+1.4936
+-2.10741
+-1.38031
+0.899516
+-0.808151
+1.20976
+1.10285
+-0.464777
+-0.274561
+-0.464777
+-1.38031
+1.20976
+-0.808151
+0.899516
+#ClassicalSpinCorrelations1
+16
+5.21967
+-3.18963
+2.12757
+-3.18963
+2.58794
+-3.26056
+3.0712
+-3.22131
+4.50889
+-2.81748
+1.89837
+-2.81748
+2.58794
+-3.22131
+3.0712
+-3.26056
+#ClassicalSpinCorrelations2
+16
+6.98125
+-5.8813
+5.83981
+-5.8813
+5.56486
+-5.78262
+5.74575
+-6.08143
+5.75846
+-5.57381
+5.89349
+-5.57381
+5.56486
+-6.08143
+5.74575
+-5.78262
+#ItinerantSpinCorrelations0
+16
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+144
+#ItinerantSpinCorrelations1
+16
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+#ItinerantSpinCorrelations2
+16
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+#FinalClassicalFieldConfiguration:
+Theta
+16
+0.221405
+2.0579
+1.34107
+2.27892
+1.43822
+2.45915
+1.1029
+2.19945
+1.96897
+2.29999
+0.697544
+2.42583
+0.814288
+2.70943
+0.414837
+1.97577
+Phi
+16
+1.92216
+4.52568
+2.49041
+4.56962
+1.71898
+3.19585
+0.380281
+4.75273
+2.72321
+5.71074
+2.58618
+5.54577
+1.98129
+1.53439
+5.94687
+4.742
+IsFrozen0
+Thu Dec 29 14:43:32 2011
+#EOF
