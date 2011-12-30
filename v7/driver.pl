@@ -44,6 +44,15 @@ s/ //g;
 chomp;
 $mpi = $_ unless ($_ eq "");
 
+my $blasAndLapack=" -lblas -llapack ";
+print "What are the linking flags for BLAS and LAPACK?\n";
+print "Available: any\n";
+print "Default is: $blasAndLapack (press ENTER): ";
+$_=<STDIN>;
+s/^ +//g;
+s/ +$//g;
+chomp;
+$blasAndLapack = $_ unless ($_ eq "");
 
 my $gslDefine = " -DUSE_GSL ";
 my $gslLibs = " -lgsl -lgslcblas ";
@@ -72,7 +81,7 @@ print FOUT<<EOF;
 # Platform: linux
 # Model: $model
 # MPI: $mpi
-LDFLAGS =  -llapack -lblas -lm $gslLibs
+LDFLAGS = $blasAndLapack -lm $gslLibs
 EXENAME = spf
 CPPFLAGS =  -Werror -Wall -I${PsimagLiteDir}/src   -IGeometries -IModels/$model -IEngine -IClassicalFields -I../Tpem $gslDefine
 CXX = $compiler -DNDEBUG -O3 

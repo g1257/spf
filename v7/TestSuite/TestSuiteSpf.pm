@@ -88,28 +88,42 @@ sub runObserve
 	chdir($TestSuiteGlobals::testDir);
 }
 
-#Configures the current test, either manually or automatically (model spec file), and creates the executable
+sub doOurBestWithMake
+{
+	my ($specFile, $execType) = @_;
+	my $configFile = "driver.pl";
+	my $arg2="";
+	for (my $i= -1;$i<10;$i++) { # try up to 10 times
+		my $mySpec = $specFile;
+		$mySpec .= $i if ($i>=0);
+		my $arg1 = "./$configFile < $mySpec &> /dev/null";
+		$arg2 = "make $execType -f Makefile &> /dev/null";
+	
+		# 	grep {s/>.*//} $arg1 if($verbose);
+		# 	grep {s/>.*//} $arg2 if($verbose);
+	
+		my $err = chdir($TestSuiteGlobals::srcDir);
+		die "$0: Error: Changing directory to $TestSuiteGlobals::srcDir: $!\n" if(!$err);
+		print "Configuring $execType in Test $TestSuiteGlobals::testNum...\n";
+		last unless (-r $mySpec);
+		$err = system($arg1);
+		die "$0: Error: Configuration error using $configFile with $specFile: $arg1\n" if($err);
+		print "Creating $execType executable for Test $TestSuiteGlobals::testNum...\n";
+		$err = system($arg2);
+		return if (!$err);
+	}
+	print STDERR "$0: Giving up on make ... no more specFiles to try\n";
+	die "$0 Failed Make command for $execType: $arg2\n";
+
+}
+
 sub createExecutable
 {
 	my ($specFile,$refKey, $execType) = @_;
-	my $configFile = "driver.pl";
-	my $arg1 = "./$configFile < $specFile &> /dev/null";
-	my $arg2 = "make $execType -f Makefile &> /dev/null";
-
-# 	grep {s/>.*//} $arg1 if($verbose);
-# 	grep {s/>.*//} $arg2 if($verbose);
-	
-	my $err = chdir($TestSuiteGlobals::srcDir);
-	die "Changing directory to $TestSuiteGlobals::srcDir: $!" if(!$err);
-	print "Configuring $execType in Test $TestSuiteGlobals::testNum...\n";
-	$err = system($arg1);
-	die "Configuration error using $configFile with $specFile: $arg1\n" if($err);
-	print "Creating $execType executable for Test $TestSuiteGlobals::testNum...\n";
-	$err = system($arg2);
-	die "Make command for $execType: $arg2\n" if($err);
+	doOurBestWithMake($specFile,$execType);
 
 	my $executable= $execType."-".$refKey;
-	$err = rename($execType, $executable);
+	my $err = rename($execType, $executable);
 	die "Renaming $execType to $executable: $!" if(!$err);
 	
 	$err = chdir($TestSuiteGlobals::testDir);
