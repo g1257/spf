@@ -76,8 +76,6 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 /*! \file ParametersEngine.h
  *
- *  Contains the parameters for the DmrgSolver class and implements functionality to
- *  read them from a JSON file
  *
  */
 #ifndef PARAMETERSENGINE_H
@@ -87,6 +85,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <iostream>
 #include <cstdlib>
 #include <stdexcept>
+#include <map>
 #include "TypeToString.h"
 
 namespace Spf {
@@ -96,7 +95,6 @@ namespace Spf {
 	struct ParametersEngine {
 		typedef RealType_ RealType;
 		typedef IoInType_ IoInType;
-		//! Read Dmrg parameters from inp file
 		ParametersEngine(IoInType& io,ConcurrencyType& concurrency)
 		{
 			io.readline(options,"EngineOptions=");
@@ -152,7 +150,7 @@ namespace Spf {
 		mutable RealType mu; // chemical potential 
 		RealType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
-		std::vector<RealType> mcWindow; // monte carlo window of change
+		std::map<std::string,RealType>  mcWindow; // monte carlo windows
 		std::string dynvarsfile; // file with fields to start from or none
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
@@ -193,7 +191,7 @@ namespace Spf {
 		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
 		return os;
 	}
-} // namespace Dmrg
+} // namespace Spf 
 /*@}*/
 
 #endif

@@ -11,6 +11,7 @@
 #define SPIN_H
 #include "IoSimple.h"
 #include "Random48.h"
+#include "TypeToString.h"
 
 namespace Spf {
 	template<typename FieldType_>
@@ -31,6 +32,24 @@ namespace Spf {
 				}
 				return;
 			}
+
+			if (params.dynvarsfile=="pizero") {
+				size_t l = sqrt(size);
+				if (l*l!=size) {
+					std::string s(__FILE__);
+					s += " : " + ttos(__LINE__);
+					s += ": Hi there, I'm the Spin class, I have no way of ";
+					s += " knowing what geometry you are using, but ";
+					s += " it sure doesn't appear to be a square lattice.\n";
+					s += " \"pizero\" start type valid only for square lattice\n";
+					throw std::runtime_error(s.c_str());
+				}
+				for (size_t i=0;i<theta.size();i++) {
+					theta[i] = M_PI;
+					phi[i] = (i % l) % 2 ? 0 : M_PI;
+				}
+			}
+
 			IoSimpleIn ioin(params.dynvarsfile);
 			(*this)<=ioin;
 			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
