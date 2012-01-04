@@ -26,7 +26,7 @@ namespace Spf {
 		
 		template<typename SomeParamsType>
 		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params) 
-		: geometry_(geometry),mcwindow_(params.mcWindow),dynVars2_(0,params)
+		: geometry_(geometry),mcwindowPhi_(params.mcWindow.find("SpinPhi")->second),dynVars2_(0,params)
 		{
 		}
 		
@@ -239,7 +239,7 @@ namespace Spf {
 				RealType &phiNew,
 				RngType& rng)
 		{
-			if (fabs(mcwindow_[0])<1e-8 && fabs(mcwindow_[1]<1e-8)) return;
+			//if (fabs(mcwindowPhi_)<1e-8 && fabs(mcwindow_[1]<1e-8)) return;
 
 			if (isingSpins_) {
 				if (thetaOld==0) thetaNew=M_PI; 
@@ -248,16 +248,15 @@ namespace Spf {
 				return;
 			} 
 		
-			if (mcwindow_[0]<0) {
-				thetaNew = 2*rng.random()-1;
+			thetaNew=2*rng.random()- 1;
+			if (thetaNew < -1) thetaNew= 0;
+			if (thetaNew > 1) thetaNew = 0;
+			thetaNew = acos(thetaNew);
+	
+			if (mcwindowPhi_<0) {
 				phiNew = 2*M_PI*rng.random();
-				thetaNew = acos(thetaNew);
 			} else {
-				thetaNew=2*rng.random()- 1;
-				if (thetaNew < -1) thetaNew= 0;
-				if (thetaNew > 1) thetaNew = 0;		
-				phiNew=phiOld+2*M_PI*(rng.random()- 0.5)*mcwindow_[1];
-				thetaNew = acos(thetaNew);
+				phiNew=phiOld+2*M_PI*(rng.random()- 0.5)*mcwindowPhi_;
 			}
 			/*if (ether.isSet("sineupdate")) {
 				thetaNew = M_PI*rng();
@@ -303,7 +302,7 @@ namespace Spf {
 		}
 		
 		const GeometryType& geometry_;
-		const std::vector<RealType>& mcwindow_;
+		const RealType& mcwindowPhi_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
 		

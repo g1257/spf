@@ -34,7 +34,7 @@ namespace Spf {
 		              typename ModelType::ConcurrencyType::CommType comm)
 		: engineParams_(engineParams),
 		  model_(model),
-		  metropolisOrGlauber_(),
+		  metropolisOrGlauber_(engineParams.detailedBalance),
 		  adjustments_(engineParams),
 		  eigNew_(model.hilbertSize()),
 		  eigOld_(model.hilbertSize()),

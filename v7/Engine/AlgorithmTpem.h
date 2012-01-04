@@ -50,7 +50,7 @@ namespace Spf {
 		: engineParams_(engineParams),
 		  model_(model),
 		  hilbertSize_(model_.hilbertSize()),
-		  metropolisOrGlauber_(),
+		  metropolisOrGlauber_(engineParams.detailedBalance),
 		  adjustments_(engineParams),
 		  adjustTpemBounds_(false),
 		  tpemParameters_(io,engineParams.mu,engineParams.beta,&model),

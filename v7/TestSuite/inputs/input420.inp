@@ -7,7 +7,7 @@ Beta=120
 MonteCarloThermalizations=300
 MonteCarloEffectiveIteractions=5
 MonteCarloUnmeasuredPlusOne=2
-MonteCarloWindows 2 0.025 0.025
+MonteCarloWindow[SpinPhi]=0.025
 MonteCarloStartTypeOrFile=TestSuite/inputs/startingConfig420.txt
 MonteCarloStartLevel=1000
 HistogramSteps=1000
@@ -42,4 +42,5 @@ TpemCutoff=40
 TpemEpsForProduct=1e-8
 TpemEpsForTrace=1e-9
 CoresForKernel=1
+DetailedBalance=metropolis
 

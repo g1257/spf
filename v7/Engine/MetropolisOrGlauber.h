@@ -9,6 +9,7 @@
  */
 #ifndef METROPOLIS_OR_GLAUBER_H
 #define METROPOLIS_OR_GLAUBER_H
+#include <stdexcept>
 
 namespace Spf {
 	template<typename RealType,typename RngType>
@@ -16,13 +17,24 @@ namespace Spf {
 	public:
 		enum { GLAUBER, METROPOLIS};
 		
-		MetropolisOrGlauber(size_t which = GLAUBER) : algo_(which)
-		{}
+		MetropolisOrGlauber(const std::string& detailedBalance)
+		{
+			if (detailedBalance=="glauber") {
+				algo_=GLAUBER;
+			} else if (detailedBalance=="metropolis") {
+				algo_=METROPOLIS;
+			} else {
+				std::string s(__FILE__);
+				s += " : Unknown detailed balance method: " + detailedBalance;
+				s += "\n";
+				throw std::runtime_error(s.c_str());
+			}
+		}
 		
 		bool operator()(const RealType& X2,RngType& rng) const
 		{
 			RealType X = X2;
-			if (algo_) {
+			if (algo_==GLAUBER) {
 				if (X<1) {
 					X=X/(1.0+X);
 				} else {

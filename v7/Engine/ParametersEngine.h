@@ -87,6 +87,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <stdexcept>
 #include <map>
 #include "TypeToString.h"
+#include "IoSimple.h"
 
 namespace Spf {
 	
@@ -106,7 +107,7 @@ namespace Spf {
 			io.readline(iterTherm,"MonteCarloThermalizations=");
 			io.readline(iterEffective,"MonteCarloEffectiveIteractions=");
 			io.readline(iterUnmeasured,"MonteCarloUnmeasuredPlusOne=");
-			io.read(mcWindow,"MonteCarloWindows");
+			io.read(mcWindow,"MonteCarloWindow");
 			io.readline(dynvarsfile,"MonteCarloStartTypeOrFile=");
 			io.readline(dynvarslevel,"MonteCarloStartLevel=");
 			io.readline(histSteps,"HistogramSteps=");
@@ -140,7 +141,14 @@ namespace Spf {
 				io.readline(saveEach,"SaveEach=");
 			} catch (std::exception& e) {
 				io.rewind();
-			}	
+			}
+			detailedBalance = "glauber";
+			try {
+				io.readline(detailedBalance,"DetailedBalance=");
+			} catch (std::exception& e) {
+				io.rewind();
+			}
+			
 		}
 
 		std::string filename; // filename to save observables and continued fractions
@@ -159,6 +167,7 @@ namespace Spf {
 		size_t latticeLength;
 		size_t coresForKernel;
 		size_t saveEach;
+		std::string detailedBalance;
 	};
 
 	//! print dmrg parameters
@@ -176,8 +185,7 @@ namespace Spf {
 		os<<"parameters.iterTherm="<<parameters.iterTherm<<"\n";
 		os<<"parameters.iterEffective="<<parameters.iterEffective<<"\n";
 		os<<"parameters.iterUnmeasured="<<parameters.iterUnmeasured<<"\n";
-		os<<"parameters.mcWindow\n";
-		os<<parameters.mcWindow;
+		PsimagLite::printMap(os,parameters.mcWindow,"parameters.mcWindow");
 		os<<"parameters.dynvarsfile="<<parameters.dynvarsfile<<"\n";
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";

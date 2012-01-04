@@ -7,7 +7,7 @@ Beta=1000
 MonteCarloThermalizations=0
 MonteCarloEffectiveIteractions=20
 MonteCarloUnmeasuredPlusOne=1
-MonteCarloWindows 2 0.5 0.2
+MonteCarloWindow[SpinPhi]=0.2
 MonteCarloStartTypeOrFile=none
 MonteCarloStartLevel=0
 HistogramSteps=1000
@@ -29,3 +29,5 @@ PotentialV 128  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
 JAFNN=0.003
 JAFNNN=0.009
 MagneticField=0.0
+DetailedBalance=metropolis
+
