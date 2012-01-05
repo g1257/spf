@@ -43,6 +43,8 @@ namespace Spf {
 
 		enum {TMPVALUES_SET,TMPVALUES_RETRIEVE};
 
+		static const size_t computeError_ = 1;
+
 		AlgorithmTpem(const EngineParametersType& engineParams,
 		              ModelType& model,
 		              IoInType& io,
@@ -58,7 +60,8 @@ namespace Spf {
 		  actionFunc_(tpemParameters_),
 		  matrixOld_(model.hilbertSize(),model.hilbertSize()),
 		  curMoments_(tpemParameters_.cutoff),
-		  newMoments_(tpemParameters_.cutoff)
+		  newMoments_(tpemParameters_.cutoff),
+		  error_("DISABLED")
 		{}
 
 		void init()
@@ -103,6 +106,11 @@ namespace Spf {
 			adjustChemPot(curMoments_);
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
+		
+		std::string error() const
+		{
+			return error_;
+		}
 
 		const VectorType& moment() const { return curMoments_; }
 
@@ -114,9 +122,9 @@ namespace Spf {
 
 		template<typename EngineParametersType2,typename ModelType2,
 		         typename RandomNumberGeneratorType2>
-		friend std::ostream& operator<<
-			(std::ostream& os,const AlgorithmTpem<EngineParametersType2,
-					ModelType2,RandomNumberGeneratorType2>& a);
+		friend std::ostream& operator<<(std::ostream& os,
+                                        const AlgorithmTpem<EngineParametersType2,
+		                                ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
 
@@ -131,16 +139,31 @@ namespace Spf {
 			}
 		}
 
-		double calcDeltaAction(VectorType& moments,
-		                       const TpemSparseType& matrix0,
-		                       const TpemSparseType& matrix1)
+		RealType calcDeltaAction(VectorType& moments,
+		                         const TpemSparseType& matrix0,
+		                         const TpemSparseType& matrix1)
 		{
 			VectorType actionCoeffs(tpemParameters_.cutoff);
 			tpem_.calcCoeffs(actionCoeffs,actionFunc_); 
 			
 			tpem_.calcMomentsDiff(moments,matrix0, matrix1);
 
-			return -tpem_.expand(actionCoeffs, moments);
+			size_t total = moments.size();
+			size_t start = size_t(total*0.8);
+			
+			if (!computeError_ || start<2) 
+				return -tpem_.expand(actionCoeffs, moments);
+			
+			RealType error1 = 0;
+			RealType x = -tpem_.expand(actionCoeffs, moments,0,start-1);
+			for (size_t i=start;i<total;i++) {
+				RealType deltaX = -tpem_.expand(actionCoeffs, moments,i-1,i);
+				error1 += deltaX * deltaX;
+				x += deltaX;
+			}
+			error_ = ttos(error1);
+			assert(x==-tpem_.expand(actionCoeffs, moments));
+			return x;
 		}
 
 		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
@@ -165,6 +188,7 @@ namespace Spf {
 		TpemSparseType matrixNew_;
 		VectorType curMoments_;
 		VectorType newMoments_;
+		std::string error_;
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,

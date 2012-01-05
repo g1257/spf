@@ -171,16 +171,18 @@ namespace Tpem {
 
 		RealType expand(const std::vector<RealType>& moments,
 		                const std::vector<RealType>& coeffs,
-						size_t progressiveCutoff=0) const
+		                size_t start=0,
+		                size_t progressiveCutoff=0) const
 		{
 			assert(moments.size()==coeffs.size());
 
 			if (progressiveCutoff==0) progressiveCutoff = coeffs.size();
 			assert(progressiveCutoff<=coeffs.size());
 			if (moments.size()<progressiveCutoff) progressiveCutoff = moments.size();
-			double* dx = (double *) &(moments[0]);
-			double* dy = (double *) &(coeffs[0]);
-			RealType ret = psimag::BLAS::DOT(progressiveCutoff,dx,1,dy,1);
+			if (start>=progressiveCutoff) start=0;
+			double* dx = (double *) &(moments[start]);
+			double* dy = (double *) &(coeffs[start]);
+			RealType ret = psimag::BLAS::DOT(progressiveCutoff-start,dx,1,dy,1);
 			/* for (size_t i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
 			*/

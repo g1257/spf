@@ -23,14 +23,16 @@ Please see full open source license included in file LICENSE.
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "TypeToString.h"
 
+// FIXME: values_ should be a string here
 namespace Spf {
 	template<typename RealType,typename IoOutputType,typename ConcurrencyType>
 	class  Packer {
 
 		typedef typename ConcurrencyType::CommType CommType;
 
-		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T};
+		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T,TYPE_STRING};
 
 	public:
 		
@@ -77,7 +79,14 @@ namespace Spf {
 				}
 			}
 		}
-		
+
+		void pack(const std::string& label,const std::string& value)
+		{
+			labels_.push_back(label);
+			values_.push_back(atof(value.c_str()));
+			types_.push_back(TYPE_STRING);
+		}
+
 		void pack(const std::string& label,const RealType& value)
 		{
 			labels_.push_back(label);

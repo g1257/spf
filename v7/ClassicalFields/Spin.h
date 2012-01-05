@@ -34,7 +34,7 @@ namespace Spf {
 			}
 
 			if (params.dynvarsfile=="pizero") {
-				size_t l = sqrt(size);
+				size_t l = size_t(sqrt(size));
 				if (l*l!=size) {
 					std::string s(__FILE__);
 					s += " : " + ttos(__LINE__);
@@ -48,6 +48,7 @@ namespace Spf {
 					theta[i] = M_PI;
 					phi[i] = (i % l) % 2 ? 0 : M_PI;
 				}
+				return;
 			}
 
 			IoSimpleIn ioin(params.dynvarsfile);

@@ -146,8 +146,13 @@ namespace Spf {
 			try {
 				io.readline(detailedBalance,"DetailedBalance=");
 			} catch (std::exception& e) {
-				io.rewind();
+				std::string s("*** WARNING *** Omission of DetailedBalance line ");
+				s += " in the input file is deprecated. Assuming GLAUBER. ";
+				s += "Please make sure it is correct.\n";
+				std::cerr<<s;
 			}
+
+			io.rewind();
 			
 		}
 

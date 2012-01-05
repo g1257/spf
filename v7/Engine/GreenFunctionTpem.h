@@ -146,6 +146,10 @@ namespace Spf {
 // 			es[1] *= ComplexType(0,1);
 		}
 
+		std::string error() const
+		{
+			return algorithm_.error();
+		}
 
 		template<typename EngineParametersType2,typename ModelType2,
 		         typename RngType2>

@@ -120,15 +120,17 @@ namespace Spf {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
 				PackerType packer(ioOut_,concurrency_,comm_.second);
+				std::string algorithmicError = "DISABLED";
 				if (gfDiag_) {
 					gfDiag_->measure();
 					model_.doMeasurements(*gfDiag_,iter,packer);
 				} else {
 					gfTpem_->measure();
 					model_.doMeasurements(*gfTpem_,iter,packer);
+					algorithmicError = gfTpem_->error();
 				}
 				saveConfigs_(iter); 
-				printProgress(accepted,&packer);
+				printProgress(accepted,algorithmicError,&packer);
 			}
 			std::cerr<<"\n";
 		}
@@ -195,20 +197,27 @@ namespace Spf {
 			
 		}
 
-		void printProgress(const std::vector<PairType>& accepted,PackerType* packer = 0)
+		void printProgress(const std::vector<PairType>& accepted,
+		                   const std::string& algorithmicError = "DISABLED",
+		                   PackerType* packer = 0)
 		{
 			for (size_t i=0;i<dynVars_.size();i++) {
 				if (accepted[i].second==0) continue;
 				std::string s1=  "Acceptance " + dynVars_.name(i) + "=";
 				size_t pp = 100*accepted[i].first/accepted[i].second;
 				std::string s2=  "AcceptancePercentage " + dynVars_.name(i) + "=%";
-				
+				std::string s3 = "AlgorithmicError=";
+
 				if (packer) {
 					packer->pack(s1,accepted[i].first);
 					packer->pack(s2,pp);
+					if (algorithmicError!="DISABLED")
+						packer->pack(s3,algorithmicError);
 				} else {
 					progress_.printline(s1+ttos(accepted[i].first),ioOut_);
 					progress_.printline(s2+ttos(pp),ioOut_);
+					if (algorithmicError!="DISABLED")
+						progress_.printline(s3+algorithmicError,ioOut_);
 				}
 			}
 		}
