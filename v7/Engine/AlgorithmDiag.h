@@ -123,9 +123,9 @@ namespace Spf {
 
 		template<typename EngineParametersType2,typename ModelType2,
 			typename RandomNumberGeneratorType2>
-		friend std::ostream& operator<<
-			(std::ostream& os,const AlgorithmDiag<EngineParametersType2,
-					ModelType2,RandomNumberGeneratorType2>& a);
+		friend std::ostream& operator<<(std::ostream& os,
+		                                const AlgorithmDiag<EngineParametersType2,
+		                                ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
 		RealType computeDeltaAction(RealType integrationMeasure) const
@@ -133,7 +133,7 @@ namespace Spf {
 			RealType mu=engineParams_.mu;
 			RealType beta = engineParams_.beta;
 			RealType X =1.0;
-			
+
 			for (size_t i=0;i<eigNew_.size();i++) {
 				RealType temp = 0;
 				if (eigNew_[i]>mu)

@@ -32,6 +32,14 @@ namespace Spf {
 				}
 				return;
 			}
+			
+			if (params.dynvarsfile=="ferro") {
+				for (size_t i=0;i<theta.size();i++) {
+					theta[i] = 0.0;
+					phi[i] = 0.0;
+				}
+				return;
+			}
 
 			if (params.dynvarsfile=="pizero") {
 				size_t l = size_t(sqrt(size));

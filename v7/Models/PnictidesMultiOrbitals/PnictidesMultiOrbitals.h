@@ -173,10 +173,13 @@ namespace Spf {
 		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
 			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
-			if (oldOrNewDynVars==NEWFIELDS)
+			if (oldOrNewDynVars==NEWFIELDS) {
 				createHamiltonian(spinOperations_.dynVars2(),matrix);
-			else
+//				std::cout<<"--------------\n";
+//				std::cout<<spinOperations_.dynVars2();
+			} else {
 				createHamiltonian(dynVars,matrix);
+			}
 		}
 
 		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
@@ -190,7 +193,8 @@ namespace Spf {
 
 		struct FakeParams {
 			FakeParams(std::string dynvarsfile1,int long long randomSeed1)
-			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) {}
+			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) 
+			{}
 
 			std::string dynvarsfile;
 			int long long randomSeed;
@@ -214,7 +218,7 @@ namespace Spf {
 				// to make this work for mp.J==0 we need to set
 				RealType J = 0.5;
 				MatrixType matrix(hilbertSize_,hilbertSize_);
-				FakeParams fakeParams("random",343313);
+				FakeParams fakeParams("none",343313);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
 				createHamiltonian(tmpDynVars,matrix,&J);
 				SpinOperationsType spinOps(geometry_,engineParams_);

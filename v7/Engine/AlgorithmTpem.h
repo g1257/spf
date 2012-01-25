@@ -43,7 +43,7 @@ namespace Spf {
 
 		enum {TMPVALUES_SET,TMPVALUES_RETRIEVE};
 
-		static const size_t computeError_ = 1;
+		static const size_t computeError_ = 0;
 
 		AlgorithmTpem(const EngineParametersType& engineParams,
 		              ModelType& model,
@@ -82,7 +82,7 @@ namespace Spf {
 			RealType dS = calcDeltaAction(moments,matrixOld_, matrixNew_);
 
 			dS -= engineParams_.beta*dsDirect;
-			newMoments_ = curMoments_ - moments;
+			newMoments_ = curMoments_ + moments;
 			
 			adjustChemPot(newMoments_);
 			//RealType integrationMeasure = model_.integrationMeasure(i);
@@ -95,6 +95,7 @@ namespace Spf {
 			model_.accept(i);
 			// update current moments
 			curMoments_ = newMoments_;
+			matrixOld_ = matrixNew_;
 		}
 
 		void prepare()
@@ -145,15 +146,17 @@ namespace Spf {
 		{
 			VectorType actionCoeffs(tpemParameters_.cutoff);
 			tpem_.calcCoeffs(actionCoeffs,actionFunc_); 
-			
+
 			tpem_.calcMomentsDiff(moments,matrix0, matrix1);
+
 
 			size_t total = moments.size();
 			size_t start = size_t(total*0.8);
 			
-			if (!computeError_ || start<2) 
+			if (!computeError_ || start<2)  {
 				return -tpem_.expand(actionCoeffs, moments);
-			
+			}
+		
 			RealType error1 = 0;
 			RealType x = -tpem_.expand(actionCoeffs, moments,0,start-1);
 			for (size_t i=start;i<total;i++) {
@@ -162,7 +165,8 @@ namespace Spf {
 				x += deltaX;
 			}
 			error_ = ttos(error1);
-			assert(x==-tpem_.expand(actionCoeffs, moments));
+			//assert(x==-tpem_.expand(actionCoeffs, moments));
+			
 			return x;
 		}
 
