@@ -287,6 +287,7 @@ namespace Spf {
 			for (size_t k = 0; k<geometry_.z(1); k++){
 				size_t j=geometry_.neighbor(i,k).first;
 				size_t dir = geometry_.neighbor(i,k).second;
+				assert(dir<coupling.size());
 				RealType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +
 						(sin(dynVars2.theta[i])*sin(dynVars2.phi[i])-sin(dynVars.theta[i])*

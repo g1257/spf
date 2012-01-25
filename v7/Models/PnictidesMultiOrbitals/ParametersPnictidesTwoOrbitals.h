@@ -101,7 +101,7 @@ namespace Spf {
 			try {
 				RealType x = 0;
 				io.readline(x,"JAFNN=");
-				jafNn.resize(2,x);
+				jafNn.resize(4,x);
 			} catch (std::exception& e) {
 				// must rewind because exception consumed file:
 				io.rewind();
