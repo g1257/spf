@@ -16,7 +16,7 @@
 #include "TypeToString.h"
 #include <cassert>
 #include "GslWrapper.h"
-#include "ChebyshevFunction.h"
+#include "ChebyshevFunctionExplicit.h"
 #include "Range.h"
 #include <cmath>
 #include "BLAS.h"
@@ -42,6 +42,10 @@ namespace Tpem {
 		typedef EnergyFunctor<TpemParametersType> EnergyFunctorType;
 		typedef NumberFunctor<TpemParametersType> NumberFunctorType;
 		typedef PsimagLite::GslWrapper GslWrapperType;
+		// choose how to compute ChebyshevFunction below
+		typedef PsimagLite::ChebyshevFunctionExplicit<RealType> ChebyshevFunctionType;
+		// typedef ChebyshevFunctionCached<RealType> ChebyshevFunctionType;
+		// typedef ChebyshevFunction<RealType> ChebyshevFunctionType;
 		
 		enum {NO_VERBOSE,YES_VERBOSE};
 		static const size_t verbose_ = NO_VERBOSE;
@@ -59,7 +63,9 @@ namespace Tpem {
 		Tpem(const TpemParametersType& tpemParameters,
 		     ConcurrencyType& concurrency,
 		     CommType comm = COMM_WORLD)
-		: tpemParameters_(tpemParameters),concurrency_(concurrency),comm_(comm)
+		: tpemParameters_(tpemParameters),
+		  concurrency_(concurrency),
+		  comm_(comm)
 		{
 			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
@@ -214,28 +220,7 @@ namespace Tpem {
 			std::cerr<<s<<"\n";
 		}
 
-// 		ConcurrencyType& concurrency() { return concurrency_; }
-// 
-// 		CommType comm() const { return comm_; }
-
 	private:
-
-		// FUNCTION BELOW WAS MOVED TO psimaglite ChebyshevFunction
-		/* static RealType chebyshev(int m,RealType x)
-		{
-			if (m==0) return 1;
-
-			if (m==1) return x;
-			
-			if (m&1) {
-				int p=(m-1)/2;
-				return (2*chebyshev(p,x)*chebyshev(p+1,x)-x);
-			}
-
-			int pp = m/2;
-			RealType tmp=chebyshev(pp,x);
-			return (2*tmp*tmp-1);
-		} */
 
 		void diagonalElement(const TpemSparseType& matrix,
 		                     std::vector<RealType> &moment,
@@ -397,7 +382,7 @@ namespace Tpem {
 		ConcurrencyType& concurrency_;
 		CommType comm_;
 		GslWrapperType gslWrapper_;
-		static PsimagLite::ChebyshevFunction<RealType> chebyshev_;
+		static ChebyshevFunctionType chebyshev_;
 	}; // class Tpem
 
 	template<typename TpemParametersType,typename RealOrComplexType,typename ConcurrencyType>
@@ -406,7 +391,7 @@ namespace Tpem {
 	ConcurrencyType::COMM_WORLD; 
 
 	template<typename TpemParametersType,typename RealOrComplexType,typename ConcurrencyType>
-	PsimagLite::ChebyshevFunction<typename TpemParametersType::RealType> Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::chebyshev_;
+	typename Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::ChebyshevFunctionType Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::chebyshev_;
 } // namespace Tpem
 
 /*@}*/
