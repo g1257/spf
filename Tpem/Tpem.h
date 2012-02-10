@@ -43,9 +43,9 @@ namespace Tpem {
 		typedef NumberFunctor<TpemParametersType> NumberFunctorType;
 		typedef PsimagLite::GslWrapper GslWrapperType;
 		// choose how to compute ChebyshevFunction below
-		typedef PsimagLite::ChebyshevFunctionExplicit<RealType> ChebyshevFunctionType;
+		//typedef PsimagLite::ChebyshevFunctionExplicit<RealType> ChebyshevFunctionType;
 		// typedef ChebyshevFunctionCached<RealType> ChebyshevFunctionType;
-		// typedef ChebyshevFunction<RealType> ChebyshevFunctionType;
+		typedef PsimagLite::ChebyshevFunction<RealType> ChebyshevFunctionType;
 		
 		enum {NO_VERBOSE,YES_VERBOSE};
 		static const size_t verbose_ = NO_VERBOSE;
