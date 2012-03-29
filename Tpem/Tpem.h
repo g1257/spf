@@ -115,15 +115,16 @@ namespace Tpem {
 			std::vector<RealType> buf(n,0);
 
 			for (size_t i = 0; i < n; i++) moment[i] = 0.0;
-			moment[0] = matrix.rank();
+			assert(matrix.row()==matrix.col());
+			moment[0] = matrix.row();
 			
-			RangeType range(0,matrix.rank(),concurrency_,comm_);
+			RangeType range(0,matrix.row(),concurrency_,comm_);
 			for (;!range.end();range.next()) {
 				size_t i = range.index();
 				diagonalElement(matrix, moment, i);
 			}
 			concurrency_.reduce(moment,comm_);
-			moment[0] = matrix.rank();
+			moment[0] = matrix.row();
 
 			for (size_t i = 2; i < n; i += 2)
 				moment[i] = 2.0 * moment[i] - moment[0];
@@ -136,7 +137,8 @@ namespace Tpem {
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
 		{	
-			TpemSubspaceType info(matrix0.rank());
+			assert(matrix0.row()==matrix0.col());
+			TpemSubspaceType info(matrix0.row());
 			size_t n=moments.size();
 			std::vector<RealType>  moment0(n,0.0), moment1(n,0.0);
 
@@ -148,7 +150,8 @@ namespace Tpem {
 				info.fill();
 			}
 
-			moment0[0] = moment1[0] =  matrix0.rank();
+			assert(matrix0.row()==matrix0.col());
+			moment0[0] = moment1[0] =  matrix0.row();
 
 			RangeType range(0,info.top(),concurrency_,comm_);
 			// FIXME: we could use twice as many procs here
@@ -159,7 +162,7 @@ namespace Tpem {
 			}
 			concurrency_.reduce(moment0,comm_);
 			concurrency_.reduce(moment1,comm_);
-			moment0[0] = moment1[0] = matrix0.rank();
+			moment0[0] = moment1[0] = matrix0.row();
 
 			for (size_t i = 2; i < n; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[0];
@@ -226,7 +229,7 @@ namespace Tpem {
 		                     std::vector<RealType> &moment,
 		                     size_t ket) const
 		{
-			TpemSubspaceType work(matrix.rank());
+			TpemSubspaceType work(matrix.row());
 			if (tpemParameters_.algorithm == TpemParametersType::TPEM) {
 				diagonalElementTpem(matrix,moment,ket,work,tpemParameters_.epsForProduct);
 			} else if (tpemParameters_.algorithm == TpemParametersType::PEM) {
@@ -258,9 +261,10 @@ namespace Tpem {
 		                         TpemSubspaceType& info,
 		                         const RealType& eps) const
 		{
-			std::vector<RealOrComplexType> tmp(matrix.rank(),0.0);
-			std::vector<RealOrComplexType> jm0(matrix.rank(),0.0);
-			std::vector<RealOrComplexType> jm1(matrix.rank(),0.0);
+			assert(matrix.row()==matrix.col());
+			std::vector<RealOrComplexType> tmp(matrix.row(),0.0);
+			std::vector<RealOrComplexType> jm0(matrix.row(),0.0);
+			std::vector<RealOrComplexType> jm1(matrix.row(),0.0);
 
 			jm0[ket] = 1.0;/* set |j,0> */
 
@@ -313,9 +317,10 @@ namespace Tpem {
 		                         std::vector<RealType> &moment,
 		                         size_t ket) const
 		{
-			std::vector<RealOrComplexType> tmp(matrix.rank(),0.0);
-			std::vector<RealOrComplexType> jm0(matrix.rank(),0.0);
-			std::vector<RealOrComplexType> jm1(matrix.rank(),0.0);
+			assert(matrix.row()==matrix.col());
+			std::vector<RealOrComplexType> tmp(matrix.row(),0.0);
+			std::vector<RealOrComplexType> jm0(matrix.row(),0.0);
+			std::vector<RealOrComplexType> jm1(matrix.row(),0.0);
 
 			jm0[ket] = 1.0;	/* set |j,0> */
 
@@ -326,7 +331,7 @@ namespace Tpem {
 			moment[1] += std::real (sum1);
 
 			RealOrComplexType sum2 =  0.0;
-			for (size_t j=0;j<matrix.rank();j++)
+			for (size_t j=0;j<matrix.row();j++)
 				sum2 += std::conj(jm1[j]) * jm1[j];
 			moment[2] += std::real (sum2);
 
@@ -344,7 +349,7 @@ namespace Tpem {
 				TpemSubspaceType::sparseProductPem(matrix, tmp, jm1);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
-				for (size_t i=0;i<matrix.rank();i++) {
+				for (size_t i=0;i<matrix.row();i++) {
 					RealOrComplexType keep = tmp[i] + tmp[i] - jm0[i];
 					/* for moment[2 * m    ] */
 					sum1 +=  std::conj(keep) * keep;
@@ -368,7 +373,8 @@ namespace Tpem {
 			const std::vector<size_t>& support = tpemParameters_.support;
 			info.clear();
 
-			TpemSubspaceType work(matrix0.rank());
+			assert(matrix0.row()==matrix0.col());
+			TpemSubspaceType work(matrix0.row());
 			for (size_t i = 0; i < support.size(); i++) {
 				size_t j = support[i];
 				diagonalElement(matrix0, moment0, j,work);

@@ -53,7 +53,8 @@ namespace Tpem {
 		                   const std::vector<RealOrComplexType>& src,
 		                   const RealType& eps)
 		{
-			for (size_t i = 0; i < matrix.rank(); i++) dest[i] = 0.0;
+			assert(matrix.row()==matrix.col());
+			for (size_t i = 0; i < matrix.row(); i++) dest[i] = 0.0;
 			
 			size_t oldtop = top_;
 			
@@ -78,10 +79,11 @@ namespace Tpem {
 		                             std::vector<RealOrComplexType>& dest,
 		                             const std::vector<RealOrComplexType>& src)
 		{	
-			for (size_t i = 0; i < matrix.rank(); i++) dest[i] = 0.0;
+			assert(matrix.row()==matrix.col());
+			for (size_t i = 0; i < matrix.col(); i++) dest[i] = 0.0;
 
 			/* loop over all rows */
-			for (size_t j=0;j<matrix.rank();j++) {
+			for (size_t j=0;j<matrix.row();j++) {
 				/* loop over nonzero elements of j^th row */	
 				for (int k = matrix.getRowPtr(j);k<matrix.getRowPtr(j+1);k++) {
 					size_t i = matrix.getCol(k);
