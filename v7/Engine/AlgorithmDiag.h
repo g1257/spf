@@ -61,7 +61,7 @@ namespace Spf {
 			diagonalize(matrixNew_,eigNew_,'N');
 			//testMatrix();
 			//testEigs();
-			if (engineParams_.carriers>0) {
+			if (engineParams_.carriers>0 && needsAdjustment(i)) {
 				try {
 					engineParams_.mu = adjustments_.adjChemPot(eigNew_);
 				} catch (std::exception& e) {
@@ -128,6 +128,14 @@ namespace Spf {
 		                                ModelType2,RandomNumberGeneratorType2>& a);
 
 	private:
+
+		bool needsAdjustment(size_t i) const
+		{
+			if (engineParams_.adjustEach==0) return true;
+			size_t x = (i % engineParams_.adjustEach);
+			return (x==0);
+		}
+
 		RealType computeDeltaAction(RealType integrationMeasure) const
 		{
 			RealType mu=engineParams_.mu;

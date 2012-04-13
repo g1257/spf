@@ -151,7 +151,17 @@ namespace Spf {
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
 			}
+			io.rewind();
 
+			adjustEach = 0;
+			try {
+				io.readline(adjustEach,"AdjustEach=");
+			} catch (std::exception& e) {
+				std::string s("*** WARNING *** Omission of AdjustEach= line ");
+				s += " in the input file is deprecated. Assuming 0. ";
+				s += "Please make sure it is correct.\n";
+				std::cerr<<s;
+			}
 			io.rewind();
 			
 		}
@@ -173,6 +183,7 @@ namespace Spf {
 		size_t coresForKernel;
 		size_t saveEach;
 		std::string detailedBalance;
+		size_t adjustEach;
 	};
 
 	//! print dmrg parameters
@@ -202,6 +213,7 @@ namespace Spf {
 			os<<"parameters.SaveEach="<<parameters.saveEach<<"\n";
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
 		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
+		os<<"parameters.adjustEach="<<parameters.adjustEach<<"\n";
 		return os;
 	}
 } // namespace Spf 

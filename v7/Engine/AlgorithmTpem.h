@@ -84,7 +84,7 @@ namespace Spf {
 			dS -= engineParams_.beta*dsDirect;
 			newMoments_ = curMoments_ + moments;
 			
-			adjustChemPot(newMoments_);
+			adjustChemPot(newMoments_,i,engineParams_.adjustEach);
 			//RealType integrationMeasure = model_.integrationMeasure(i);
 			RealType X = exp(dS);
 			return metropolisOrGlauber_(X,rng);
@@ -104,7 +104,7 @@ namespace Spf {
 			setMatrix(matrix,ModelType::OLDFIELDS);
 			assert(isHermitian(matrix));
 			tpem_.calcMoments(matrix,curMoments_);
-			adjustChemPot(curMoments_);
+			adjustChemPot(curMoments_,0,0);
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
 		
@@ -129,15 +129,23 @@ namespace Spf {
 
 	private:
 
-		void adjustChemPot(const VectorType& moments)
+		void adjustChemPot(const VectorType& moments,size_t i,size_t adjustEach)
 		{
 			if (engineParams_.carriers<=0) return;
-			
+			if (!needsAdjustment(i,adjustEach)) return;
+
 			try {
 				engineParams_.mu = adjustments_.adjChemPot(moments,tpem_);
 			} catch (std::exception& e) {
 				std::cerr<<e.what()<<"\n";
 			}
+		}
+
+		bool needsAdjustment(size_t i,size_t adjustEach) const
+		{
+			if (adjustEach==0) return true;
+			size_t x = (i % adjustEach);
+			return (x==0);
 		}
 
 		RealType calcDeltaAction(VectorType& moments,
@@ -172,7 +180,6 @@ namespace Spf {
 
 		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
 		{
-			assert(matrix.row()==matrix.col());
 			model_.createHsparse(matrix,oldOrNewFields);
 			TpemSparseType diagB(matrix.row(),matrix.col());
 			diagB.makeDiagonal(matrix.row(),-tpemParameters_.b);
