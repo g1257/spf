@@ -1111,6 +1111,13 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 			}
 					
 		}
+		tmpString=string("#PhononsActive"); // + Ttoa(j);
+		tmpVector.resize(ether.D*n);
+		loadVector(tmpVector,ether.dynVarsInputFile,tmpString,ether.startLevel);
+		ether.phononsActive.resize(tmpVector.size());
+		for (i=0;i<tmpVector.size();i++) {
+			ether.phononsActive[i]=(tmpVector[i]>0) ? true : false;
+		}
 #endif
 		if (ether.isSet("wangLandau"))
 			aux.wangLandau_.init(ether.dynVarsInputFile,ether.startLevel);
@@ -1344,12 +1351,12 @@ void r_newSpins(double thetaOld, double phiOld, double &thetaNew,double &phiNew,
 	}
 }
 
-void r_newPhonons(vector<double> const &phononsOld,vector<double>  &phononsNew,Parameters const &ether)
+void r_newPhonons(size_t site,vector<double> const &phononsOld,vector<double>  &phononsNew,Parameters const &ether)
 {
-	unsigned int i;
-	for (i=0;i<phononsNew.size();i++) {
-		phononsNew[i]=phononsOld[i] + (myRandom()- 0.5)*ether.window;
-		//if (fabs(phononsNew[i]) > ether.maxPhonons) phononsNew[i]= 0.9*ether.maxPhonons;
+	for (size_t i=0;i<phononsNew.size();i++) {
+		phononsNew[i]=phononsOld[i];
+		if (!ether.phononsActive[i+site*phononsNew.size()]) continue;
+		phononsNew[i]  += (myRandom()- 0.5)*ether.window;
 	}
 	
 }
@@ -1404,12 +1411,12 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 		
 		for (k=0;k<ether.classFieldList.size();k++) {
 			dof = ether.classFieldList[k];
-		
+
 			if (ether.isSet("freezephonons") && dof==1) break;
 			if (ether.isSet("freezespins") && dof==0) continue;
-			
+
 			if (ether.tpem) kTpemSetAllBands(geometry,dynVars,ether,aux);
-		
+
 			dynVars2.theta=dynVars.theta;
 			dynVars2.phi=dynVars.phi;
 			dynVars2.phonons=dynVars.phonons;
@@ -1430,7 +1437,7 @@ void doMonteCarlo(Geometry const &geometry,DynVars &dynVars,
 				dsDirect +=  (coulombNew - coulombOld);
 				break;
 			case 1:  // phonons
-				r_newPhonons(dynVars.phonons[i],phononsNew,ether);
+				r_newPhonons(i,dynVars.phonons[i],phononsNew,ether);
 				dynVars2.phonons[i]=phononsNew;
 				dsDirect= dPhonons(dynVars,dynVars2,i,geometry,ether,phonons);
 				coulombNew = calcCoulomb(geometry,dynVars2,ether,aux);
