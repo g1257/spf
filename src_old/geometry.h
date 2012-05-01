@@ -117,7 +117,7 @@ public:
 	/** \brief Returns the dimension of the lattice */
 	int dim() const;
 	/** \brief Returns the length of the lattice. Implemented only for lattices with all sides equal. */
-	int length() const;
+	const std::vector<int>& length() const;
 	/** \brief Lattice Addition.
 	 
 	 * Converts ind and ind2 to vectors on the lattice, adds them, and returns the corresponding

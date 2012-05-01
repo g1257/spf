@@ -38,6 +38,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 
 
 #include "geometry.h"
+#include <cassert>
 
 /* SEE int main() at the end for an example of use */
 
@@ -1019,6 +1020,8 @@ int Geometry::add(siteIndex ind,siteIndex ind2) const
 	index2Coor(x,ind,latticeType);
 	index2Coor(y,ind2,latticeType);
 	//cerr<<"ind="<<ind<<" and ind2="<<ind2<<endl;
+	assert(x.size()==Length.size());
+	assert(x.size()==y.size());
 	for (i=0;i<x.size();i++) {
 		//cerr<<"add: i="<<i<<" x="<<x[i]<<" y="<<y[i]<<endl;
 		x[i] += y[i];
@@ -1041,15 +1044,16 @@ int Geometry::dim() const
 }
 
 // Generalize: FIXME NONCUBIC NON-CUBIC
-int Geometry::length() const
-{
+const std::vector<int>& Geometry::length() const { return Length; }
+/*{
 	
 	if (!allSidesEqual()) {
-		cerr<<"Geometry::length not implemented for latticeType="<<latticeType<<endl;
-		exit(1);
+		std::string str("Geometry::length not implemented for latticeType=");
+		str += latticeType + "\n";
+		throw std::runtime_error(str.c_str());
 	}
 	return Length[0]; // to satisfy the compiler 
-}
+}*/
 
 void Geometry::g_geometrySquare(vector<siteIndex> &nn,vector<siteIndex> &nidx,int l)
 {

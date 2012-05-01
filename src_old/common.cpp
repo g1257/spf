@@ -983,7 +983,7 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 				}								
 				break;
 			case 2:
-				dynVars.theta[i]=(parity(i,d,geometry.length())==1) ? 0 : M_PI;
+				dynVars.theta[i]=(parity(i,d,geometry.length(0))==1) ? 0 : M_PI;
 				break;
 			case 3:
 				dynVars.theta[i]=M_PI*0.5;
@@ -1123,38 +1123,41 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 			aux.wangLandau_.init(ether.dynVarsInputFile,ether.startLevel);
 
 	}
+	if (ether.phononsActive.size()==0) {
+		ether.phononsActive.resize(ether.D*n);
+		for (i=0;i<ether.phononsActive.size();i++) ether.phononsActive[i]=true;
+	}
 	if (ether.startType==5) {
-		int L = geometry.length();
 		int column, row;
-		for (row = 0; row < L; row++) {
-			for (column=0;column<L;column++) {
-				dynVars.theta[row + column*L]=M_PI*0.5;
+		for (row = 0; row < geometry.length(0); row++) {
+			for (column=0;column<geometry.length(1);column++) {
+				dynVars.theta[row + column*geometry.length(0)]=M_PI*0.5;
 			}
 			if (row % 4 == 0)
-				for (column=3; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
+				for (column=3; column < geometry.length(0); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
 			
 		
 			if (row % 4 == 1) {
-				for (column=1; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
-				for (column=2; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
-				for (column=3; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
+				for (column=1; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
+				for (column=2; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
+				for (column=3; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
 			}
 			
 			if (row % 4 == 2)
-				for (column=1; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
+				for (column=1; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
 			
 			if (row % 4 == 3) {
-				for (column=0; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
-				for (column=1; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
-				for (column=3; column < L; column += 4)
-					dynVars.phi[row*L+column]=M_PI;
+				for (column=0; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
+				for (column=1; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
+				for (column=3; column < geometry.length(1); column += 4)
+					dynVars.phi[row*geometry.length(0)+column]=M_PI;
 				
 			}
 		}
@@ -1162,12 +1165,12 @@ void setupVariables(Geometry const &geometry,DynVars &dynVars,Parameters &ether,
 		j= -1;
 		if (geometry.dim()==3) {
 			row=0;
-			for (i=L*L;i<L*L*L;i++) {
+			for (i=geometry.length(0)*geometry.length(1);i<geometry.length(0)*geometry.length(1)*geometry.length(2);i++) {
 				dynVars.theta[i]=dynVars.theta[row];
 				dynVars.phi[i]=dynVars.phi[row];
 				if (j!=1) dynVars.phi[i] += M_PI;
 				row++;
-				if (row==L*L) {
+				if (row==geometry.length(0)*geometry.length(1)) {
 					row=0;
 					j= -j;
 				}
@@ -1893,14 +1896,13 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	io.historyPrint(s,tmp[1]);
 
 	if (geometry.isCubicType()) {
-		int l = geometry.length();
 		switch (d) {
 			case 1:
-				i=int(l*0.5);
+				i=int(geometry.length(0)*0.5);
 			case 2:
-				i+=int(l*l*0.5);
+				i+=int(geometry.length(0)*geometry.length(1)*0.5);
 			case 3:
-				i+=int(l*l*l*0.5);
+				i+=int(geometry.length(0)*geometry.length(1)*geometry.length(2)*0.5);
 		}
 		temp=calcSq(tmp,geometry,i);
        
@@ -1908,7 +1910,7 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 		io.historyPrint(s,temp);
 	
 		if (d==2) {
-			i=l*0.5;
+			i=geometry.length(0)*0.5;
 			temp=calcSq(tmp,geometry,i);
 			s="Sq[(pi,0)]=";
 			io.historyPrint(s,temp);

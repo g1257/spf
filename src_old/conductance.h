@@ -81,6 +81,6 @@ extern void setupHamiltonian(MyMatrix<MatType> & matrix,Geometry const &geometry
 extern Complex **matrix_alloc (unsigned int row, unsigned int col);
 extern void matrix_free (Complex **this1a);	
 double conductance3d(MyMatrix<MatType> const & matrix,double mu, int n,
-int dim,int l1,int maxiter,double maxerror);
+int dim,const std::vector<int>& l1,int maxiter,double maxerror);
 	
 #endif

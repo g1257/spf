@@ -87,8 +87,9 @@ int maxiter,double maxerror)
 #endif
 #endif
 
+
 #ifdef MODEL_KONDO_2N
-double conductance3d(MyMatrix<MatType> const & matrix,double mu, int n,int dim,int l1,
+double conductance3d(MyMatrix<MatType> const & matrix,double mu, int n,int dim,const std::vector<int>& length,
 int maxiter,double maxerror)
 {
 	static	int	firstcall = 1;
@@ -146,30 +147,30 @@ int maxiter,double maxerror)
 	
 	switch (dim) {
 	case 3:
-		for (i = 0; i < l1; i++) {
-		for (j = 0; j < l1; j++) {
-			for (k=0;k<l1;k++) {
-				x0=k*l1*l1+j*l1+i;
+		for (i = 0; i < length[0]; i++) {
+		for (j = 0; j < length[1]; j++) {
+			for (k=0;k<length[2];k++) {
+				x0=k*length[1]*length[0]+j*length[0]+i;
 				x[x0][x0]=x[x0+volume][x0+volume]=k;
 			}
 		}
 	}
 	
-	for (i = 0; i < l1; i++) {
-	for (j = 0; j < l1; j++) {
-	for (k = 0; k < l1; k++) {
-		x1 = k*l1*l1 + j*l1 +i;
-		for (x0=0;x0<l1;x0++) {
-			for (y0=0;y0<l1;y0++) {
-				for (z0=0;z0<l1;z0++) {
-					y1=z0*l1*l1+y0*l1+x0;
-					if (z0==0 && k==l1-1) {
+	for (i = 0; i < length[0]; i++) {
+	for (j = 0; j < length[1]; j++) {
+	for (k = 0; k < length[2]; k++) {
+		x1 = k*length[1]*length[0] + j*length[0] +i;
+		for (x0=0;x0<length[0];x0++) {
+			for (y0=0;y0<length[1];y0++) {
+				for (z0=0;z0<length[2];z0++) {
+					y1=z0*length[1]*length[0]+y0*length[0]+x0;
+					if (z0==0 && k==length[2]-1) {
 						h1[x1][y1]=matrix(x1,y1);
 						h1[x1+volume][y1+volume]=matrix(x1+volume,y1+volume);
 						h1[x1+volume][y1]=matrix(x1+volume,y1);
 						h1[x1][y1+volume]=matrix(x1,y1+volume);
 					}
-					else if (k!=0 || z0!=l1-1) {
+					else if (k!=0 || z0!=length[2]-1) {
 						h0[x1][y1]=matrix(x1,y1);
 						h0[x1+volume][y1+volume]=matrix(x1+volume,y1+volume);
 						h0[x1+volume][y1]=matrix(x1+volume,y1);
@@ -182,26 +183,26 @@ int maxiter,double maxerror)
 	}}}
 	break;
 	case 2:
-		for (i = 0; i < l1; i++) {
-		for (j = 0; j < l1; j++) {
-			x0=j*l1+i;
+		for (i = 0; i < length[0]; i++) {
+		for (j = 0; j < length[1]; j++) {
+			x0=j*length[0]+i;
 			x[x0][x0]=x[x0+volume][x0+volume]=j;
 		}
 		}
 	
-	for (i = 0; i < l1; i++) {
-	for (j = 0; j < l1; j++) {
-		x1 =j*l1 +i;
-		for (x0=0;x0<l1;x0++) {
-			for (y0=0;y0<l1;y0++) {
-					y1=y0*l1+x0;
-					if (y0==0 && j==l1-1) {
+	for (i = 0; i < length[0]; i++) {
+	for (j = 0; j < length[1]; j++) {
+		x1 =j*length[0] +i;
+		for (x0=0;x0<length[0];x0++) {
+			for (y0=0;y0<length[1];y0++) {
+					y1=y0*length[0]+x0;
+					if (y0==0 && j==length[1]-1) {
 						h1[x1][y1]=matrix(x1,y1);
 						h1[x1+volume][y1+volume]=matrix(x1+volume,y1+volume);
 						h1[x1+volume][y1]=matrix(x1+volume,y1);
 						h1[x1][y1+volume]=matrix(x1,y1+volume);
 					}
-					else if (j!=0 || y0!=l1-1) {
+					else if (j!=0 || y0!=length[2]-1) {
 						h0[x1][y1]=matrix(x1,y1);
 						h0[x1+volume][y1+volume]=matrix(x1+volume,y1+volume);
 						h0[x1+volume][y1]=matrix(x1+volume,y1);
@@ -232,9 +233,9 @@ int maxiter,double maxerror)
 	for (i = 0; i < n; i++)
 		for (j = 0; j < n; j++) {
         		x[i][j] = Complex((double)(imag(t0[i][j] - t1[i][j])) /
-				(l1 - 1.0),
+				(length[0] - 1.0),
 		(double)(real(t1[i][j] - t0[i][j])) /
-				(l1 - 1.0));
+				(length[0] - 1.0));
 		}
 	
 	e = Complex (mu, eta);
