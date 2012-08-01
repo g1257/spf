@@ -202,7 +202,7 @@ int maxiter,double maxerror)
 						h1[x1+volume][y1]=matrix(x1+volume,y1);
 						h1[x1][y1+volume]=matrix(x1,y1+volume);
 					}
-					else if (j!=0 || y0!=length[2]-1) {
+					else if (j!=0 || y0!=length[1]-1) {
 						h0[x1][y1]=matrix(x1,y1);
 						h0[x1+volume][y1+volume]=matrix(x1+volume,y1+volume);
 						h0[x1+volume][y1]=matrix(x1+volume,y1);

@@ -43,6 +43,7 @@ computer code (http://mri-fre.ornl.gov/spf)."
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <cassert>
 #include "basic.h"
 #include "Plaquette.h"
 
@@ -109,7 +110,7 @@ public:
 	/** Returns the n-th neighbor of site index at distance */
 	int neighbor(int index,int n,int distance=1) const ;
 	/** Length of the lattice along dimension d */
-	int length(int d) const { return Length[d]; }
+	int length(int d) const { assert(Length.size()>d); return Length[d]; }
 	/** Number of lattice sites  */
 	int volume() const { return Nn.size(); }
 	/** Prints the neighbors of all sites. Usefull for debugging */

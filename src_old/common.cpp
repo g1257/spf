@@ -1620,7 +1620,7 @@ void rotateSpins(DynVars &dynVars1,DynVars const &dynVars2, Geometry const &geom
 		exit(1); //ERROR CODE		
 		break;
 	case 2:
-		lx=geometry.length(0); ly=geometry.length(1); lz=geometry.length(2);
+		lx=geometry.length(0); ly=geometry.length(1);// lz=geometry.length(2);
 		for (y=0;y<ly;y++) {
 			for (x=0;x<lx;x++) {
 				copyDynVars(dynVars1 ,x+y*lx,dynVars2,ly-1-y+lx*x);
@@ -1896,13 +1896,14 @@ void doMeasurements(int iter,DynVars const &dynVars,Geometry const &geometry,Io<
 	io.historyPrint(s,tmp[1]);
 
 	if (geometry.isCubicType()) {
+		i=0;
 		switch (d) {
-			case 1:
-				i=int(geometry.length(0)*0.5);
-			case 2:
-				i+=int(geometry.length(0)*geometry.length(1)*0.5);
 			case 3:
 				i+=int(geometry.length(0)*geometry.length(1)*geometry.length(2)*0.5);
+			case 2:
+				i+=int(geometry.length(0)*geometry.length(1)*0.5);
+			case 1:
+				i=int(geometry.length(0)*0.5);
 		}
 		temp=calcSq(tmp,geometry,i);
        

@@ -842,6 +842,9 @@ int Io<ConcurrencyIoType>::input(char const *filename,Geometry &geometry,DynVars
 	i=2*ether.linSize; /* potentials for each band, or spin-orbit couplings first N for a, last N for b */
 #endif
 	ether.potential.insert(ether.potential.begin(),i,0.0);
+	ether.numberOfMuConfigs = 1;
+	ether.muCenter = ether.muDelta = 0;
+	ether.muSeparate = 0; // meaning SEPARATE
 	if (ether.isSet("havepotential")) {
 		fin>>ether.potentialFile;
 		s2="#Potential";
