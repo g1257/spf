@@ -166,9 +166,11 @@ void registerHook(Parameters& ether,ConcurrencyIo<ConcurrencyType>** ciovar)
 	// example of random
 	rng.setBimodal(ether.muCenter,ether.muDelta); 
 	rng.seed(ether.localRank[counter]);
-	ConcurrencyParameterRandType muvector(ether.potential,ether,rng,ether.muSeparate,
+	std::vector<double> potentialCopy = ether.potential;
+	ConcurrencyParameterRandType muvector(potentialCopy,ether,rng,ether.muSeparate,
 					  ether.localRank[counter],mpiCommVector[counter],ether.localSize[counter]); //uses the sequence
 
+	if (!ether.isSet("havepotential")) ether.potential = potentialCopy;
 	
 	// allocate
 	ciovar[0] = new ConcurrencyIo<ConcurrencyType>(beta,jafvector,muvector);
