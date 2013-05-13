@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <stdexcept>
+#include "ProgramGlobals.h"
 
 namespace Spf {
 	template<typename FieldType_>
@@ -60,9 +61,6 @@ namespace Spf {
 		typedef SiteInfo SiteInfoType;
 
 	public:
-		
-		//typedef FieldType_ FieldType;
-		enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3};
 		
 		typedef std::pair<size_t,size_t> PairType;
 		
@@ -206,7 +204,7 @@ namespace Spf {
 					if (j<0) j += n;
 					if (i>0 && i%twolx==0) j = i - 1;
 					if (i==0) j = n-1;
-					matrix(i,counter++) = PairType(j,DIRXMY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 					
 					j = i-lx+1;
 					if (i+1>=size_t(lx)) {
@@ -214,16 +212,16 @@ namespace Spf {
 						if (k%twolx==0) j -= lx;
 					}
 					if (j<0) j+=n;
-					matrix(i,counter++) = PairType(j,DIRXPY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 					
 					j = i+lx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRXPY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 
 					j = i+lx+1;
 					if ((i+1)%twolx==0) j -= lx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRXMY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 					
 				}
 				for (size_t i=p;i<p+lx;i++) {
@@ -232,20 +230,20 @@ namespace Spf {
 					if (j<0) j += n;
 					if (i>0 && i%twolx==0) j = i - 1;
 					if (i==0) j = n-1;
-					matrix(i,counter++) = PairType(j,DIRXMY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 
 					j = i-lx;
 					if (j<0) j+=n;
-					matrix(i,counter++) = PairType(j,DIRXPY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 
 					j = i+lx-1;
 					if (i%twolx==0) j+= lx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRXPY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 					
 					j = i+lx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRXMY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 				}
 			}
 			neighbors_.push_back(matrix);
@@ -267,38 +265,38 @@ namespace Spf {
 					int j = i-1;
 					if (i%twolx==0) j += lx;
 
-					matrix(i,counter++) = PairType(j,DIRX);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRX);
 
 					j = i+1;
 					if ((i+1)%lx==0) j -= lx;
-					matrix(i,counter++) = PairType(j,DIRX);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRX);
 					
 					j = i - twolx; 
 					if (j<0) j += n;
-					matrix(i,counter++) = PairType(j,DIRY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 					
 					j = i + twolx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 				}
 				for (size_t i=p+lx;i<p+twolx;i++) {
 					size_t counter = 0;
 					int j = i-1;
 					size_t k = i-lx;
 					if (k%twolx==0) j += lx;
-					matrix(i,counter++) = PairType(j,DIRX);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRX);
 
 					j = i+1;
 					if ((i+1)%lx==0) j -= lx;
-					matrix(i,counter++) = PairType(j,DIRX);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRX);
 
 					j = i - twolx; 
 					if (j<0) j += n;
-					matrix(i,counter++) = PairType(j,DIRY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 
 					j = i + twolx;
 					if (size_t(j)>=n) j-=n;
-					matrix(i,counter++) = PairType(j,DIRY);
+					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 				}
 			}
 			neighbors_.push_back(matrix);

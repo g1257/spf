@@ -13,13 +13,13 @@
 #include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
+#include "ProgramGlobals.h"
 
 namespace Spf {
 	template<typename FieldType_>
 	class GeometrySquare {
+
 	public:
-		//typedef FieldType_ FieldType;
-		enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3};
 		
 		typedef std::pair<size_t,size_t> PairType;
 		
@@ -95,17 +95,17 @@ namespace Spf {
 				vi[i] -= vj[i];
 			}
 			
-			if (vi[0] == 0 && periodicEqualTo(vi[1],1)) return DIRY;
-			if (vi[0] == 0 && periodicEqualTo(vi[1],-1)) return DIRY;
+			if (vi[0] == 0 && periodicEqualTo(vi[1],1)) return ProgramGlobals::DIRY;
+			if (vi[0] == 0 && periodicEqualTo(vi[1],-1)) return ProgramGlobals::DIRY;
 			
-			if (vi[1] == 0 &&  periodicEqualTo(vi[0],1)) return DIRX;
-			if (vi[1] == 0 &&  periodicEqualTo(vi[0],-1)) return DIRX;
+			if (vi[1] == 0 &&  periodicEqualTo(vi[0],1)) return ProgramGlobals::DIRX;
+			if (vi[1] == 0 &&  periodicEqualTo(vi[0],-1)) return ProgramGlobals::DIRX;
 			
-			if (periodicEqualTo(vi[0],1) && periodicEqualTo(vi[1],1)) return DIRXPY;
-			if (periodicEqualTo(vi[0],-1) && periodicEqualTo(vi[1],-1)) return DIRXPY;
+			if (periodicEqualTo(vi[0],1) && periodicEqualTo(vi[1],1)) return ProgramGlobals::DIRXPY;
+			if (periodicEqualTo(vi[0],-1) && periodicEqualTo(vi[1],-1)) return ProgramGlobals::DIRXPY;
 			
-			if (periodicEqualTo(vi[0],1) && periodicEqualTo(vi[1],-1)) return DIRXMY;
-			if (periodicEqualTo(vi[0],-1) && periodicEqualTo(vi[1],1)) return DIRXMY;
+			if (periodicEqualTo(vi[0],1) && periodicEqualTo(vi[1],-1)) return ProgramGlobals::DIRXMY;
+			if (periodicEqualTo(vi[0],-1) && periodicEqualTo(vi[1],1)) return ProgramGlobals::DIRXMY;
 			
 			return -1;
 		}
@@ -148,28 +148,28 @@ namespace Spf {
 					} else {
 						border.push_back(-1);
 					}*/
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRX);
 					xx=x-1;
 					/*if (g_pbc(xx,lvector[0])) {
 						border.push_back(0);
 					} else {
 						border.push_back(-1);
 					}*/
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRX);
 					xx=x; yy=y+1;
 					/*if (g_pbc(yy,lvector[1])) {
 						border.push_back(1);
 					} else {
 						border.push_back(-1);
 					}*/
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRY);
 					yy=y-1;
 					/*if (g_pbc(yy,lvector[1])) {
 						border.push_back(1);
 					} else {
 						border.push_back(-1);
 					}*/
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRY);
 				}
 			}
 			neighbors_.push_back(matrix);
@@ -188,13 +188,13 @@ namespace Spf {
 					int xx=x+1; 
 					int yy=y+1;
 					size_t counter=0;
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXPY);
 					xx=x-1; yy=y-1;
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXPY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXPY);
 					xx=x-1; yy=y+1;
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXMY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXMY);
 					xx=x+1; yy=y-1;
-					matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRXMY);
+					matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXMY);
 				}
 			}
 			neighbors_.push_back(matrix);

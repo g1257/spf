@@ -18,7 +18,7 @@ namespace Spf {
 	template<typename RealType>
 	class GeometryFcc {
 	public:
-		enum {DIRX=0,DIRY=1,DIRZ=0};
+
 		static size_t const DIMENSION = 3;
 		static size_t const COORDINATION = 12;
 		static size_t const BASIS_FOR_CUBIC  = 4;

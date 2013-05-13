@@ -16,6 +16,7 @@
 #ifndef THREE_ORBITAL_TERMS_H
 #define THREE_ORBITAL_TERMS_H
 #include "Vector.h"
+#include "ProgramGlobals.h"
 
 namespace Spf {
 	template<int norb_,typename MatrixType,typename ParametersModelType,
@@ -40,11 +41,6 @@ namespace Spf {
 		static const size_t SPINS = 2; // 2 spins
 		typedef typename MatrixType::value_type FieldType;
 		typedef typename ParametersModelType::RealType RealType;
-		enum {
-			DIR_X=GeometryType::DIRX,
-			DIR_Y=GeometryType::DIRY,
-			DIR_XPY=GeometryType::DIRXPY,
-			DIR_XMY=GeometryType::DIRXMY};
 
 	public:
 		ThreeOrbitalTerms(
@@ -64,7 +60,7 @@ namespace Spf {
 					size_t iorb=0;
 					size_t iorb2=2;
 					size_t ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					size_t isite2=geometry_.getNeighbour(isite,DIR_X).first;
+					size_t isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRX).first;
 					size_t iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					FieldType hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -72,7 +68,7 @@ namespace Spf {
 					// xy -> xz, +x
 					iorb=2; iorb2=0;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_X).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRX).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -80,7 +76,7 @@ namespace Spf {
 					// yz -> xy, +y
 					iorb=1; iorb2=2;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_Y).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -88,7 +84,7 @@ namespace Spf {
 					// xy -> yz, +y
 					iorb=2; iorb2=1;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_Y).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -96,7 +92,7 @@ namespace Spf {
 					// xz -> xy, +x+y
 					iorb=0; iorb2=2;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*mp_.t8;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -104,7 +100,7 @@ namespace Spf {
 					// xy -> xz, +x+y
 					iorb=2; iorb2=0;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(-mp_.t8);
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -112,7 +108,7 @@ namespace Spf {
 					// xz -> xy, +x-y
 					iorb=0; iorb2=2;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(-mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -120,7 +116,7 @@ namespace Spf {
 					// xy -> xz, +x-y
 					iorb=2; iorb2=0;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -128,7 +124,7 @@ namespace Spf {
 					// yz -> xy, +x+y
 					iorb=1; iorb2=2;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*mp_.t8;
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -136,7 +132,7 @@ namespace Spf {
 					// xy -> yz, +x+y
 					iorb=2; iorb2=1;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XPY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXPY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(-mp_.t8);
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -144,7 +140,7 @@ namespace Spf {
 					// yz -> xy, +x-y
 					iorb=1; iorb2=2;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -152,7 +148,7 @@ namespace Spf {
 					// xy -> yz, +x-y
 					iorb=2; iorb2=1;
 					ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					isite2=geometry_.getNeighbour(isite,DIR_XMY).first;
+					isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRXMY).first;
 					iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					hopping = signHop(isite)*(-mp_.t8); // ***********************
 					updateHamiltonian(ham,ix,iy,hopping);
@@ -170,21 +166,21 @@ namespace Spf {
 		RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
 		{
 			switch (dir2) {
-				case DIR_X:
+				case ProgramGlobals::DIRX:
 					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t7;
 					if (iorb==2 && iorb2==0) return signHop(isite)*mp_.t7;
 					return 0;
-				case DIR_Y:
+				case ProgramGlobals::DIRY:
 					if (iorb==1 && iorb2==2) return signHop(isite)*mp_.t7;
 					if (iorb==2 && iorb2==1) return signHop(isite)*mp_.t7;
 					return 0;
-				case DIR_XPY:
+				case ProgramGlobals::DIRXPY:
 					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t8;
 					if (iorb==2 && iorb2==0) return -signHop(isite)*mp_.t8;
 					if (iorb==1 && iorb2==2) return signHop(isite)*mp_.t8;
 					if (iorb==2 && iorb2==1) return -signHop(isite)*mp_.t8;
 					return 0;
-				case DIR_XMY:
+				case ProgramGlobals::DIRXMY:
 					if (iorb==0 && iorb2==2) return -signHop(isite)*mp_.t8;
 					if (iorb==2 && iorb2==0) return signHop(isite)*mp_.t8;
 					if (iorb==1 && iorb2==2) return -signHop(isite)*mp_.t8;

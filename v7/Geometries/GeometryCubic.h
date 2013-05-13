@@ -10,12 +10,14 @@
 #ifndef GEOM_CUBIC_H
 #define GEOM_CUBIC_H
 
+#include "ProgramGlobals.h"
+
 namespace Spf {
 	template<typename FieldType_>
 	class GeometryCubic {
 	public:
 		//typedef FieldType_ FieldType;
-		enum {DIRX=0,DIRY=1,DIRZ=0};
+
 		static int const DIMENSION = 3;
 		
  		typedef std::pair<size_t,size_t> PairType;
@@ -105,23 +107,23 @@ namespace Spf {
 				size_t counter = 0;
 
 				int xx=x+1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRX);
 
 				xx=x-1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRX);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRX);
 
 				xx=x; yy=y+1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRY);
 
 				yy=y-1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRY);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRY);
 
 				xx = x; yy = y;
 				zz = z + 1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRZ);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRZ);
 
 				zz = z - 1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),DIRZ);
+				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRZ);
 			}
 			neighbors_.push_back(matrix);
 		}
