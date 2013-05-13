@@ -1,4 +1,9 @@
 EngineOptions=tpem
+
+Geometry=square
+Model=PnictidesMultiOrbitals
+Orbitals=3
+
 Version=SPFv7
 OutputFilename=data420
 Carriers=64
