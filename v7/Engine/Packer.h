@@ -44,7 +44,7 @@ namespace Spf {
 		{
 			size_t nprocs = concurrency_.nprocs(comm_);
 			size_t r = concurrency_.rank(comm_);
-			std::vector<RealType> values(values_.size()*nprocs,0);
+			typename PsimagLite::Vector<RealType>::Type values(values_.size()*nprocs,0);
 			for (size_t i=0;i<values_.size();i++) {
 				values[r+i*nprocs] = values_[i];
 			}
@@ -118,9 +118,9 @@ namespace Spf {
 		ConcurrencyType& concurrency_;
 		CommType comm_;
 		PsimagLite::ProgressIndicator progress_;
-		std::vector<std::string> labels_;
-		std::vector<RealType> values_;
-		std::vector<size_t> types_;
+		PsimagLite::Vector<std::string>::Type labels_;
+		typename PsimagLite::Vector<RealType>::Type values_;
+		PsimagLite::Vector<size_t>::Type types_;
 	}; // Packer
 } // namespace PsimagLite
 

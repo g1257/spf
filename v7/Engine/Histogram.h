@@ -89,8 +89,8 @@ namespace Spf {
 
 		RealType minE_,maxE_;
 		size_t steps_;
-		std::vector<RealType> histX_;
-		std::vector<FieldType> histY_;
+		PsimagLite::Vector<RealType>::Type histX_;
+		PsimagLite::Vector<FieldType>::Type histY_;
 	
 	}; // class Histogram
 

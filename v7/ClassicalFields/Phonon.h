@@ -19,7 +19,7 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 		
 		Phonon(size_t vol,const std::string& mcstarttype)
-			: size(vol),phonon(vol, std::vector<FieldType>(3)),isFrozen(false)
+			: size(vol),phonon(vol, PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);
@@ -32,7 +32,7 @@ namespace Spf {
 		
 		size_t size;
                 //PsimagLite::Vector<FieldType> dummy_;
-		std::vector<std::vector<FieldType> > phonon;
+		PsimagLite::Vector<std::vector<FieldType>::Type > phonon;
 		bool isFrozen;
 		
 	}; // Spin

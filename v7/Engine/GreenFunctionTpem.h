@@ -25,7 +25,7 @@ namespace Spf {
 		typedef typename AlgorithmType::ComplexType ComplexType;
 		typedef typename AlgorithmType::TpemType TpemType;
 		typedef RngType RandomNumberGeneratorType;
-		typedef std::vector<RealType> VectorType;
+		typedef typename PsimagLite::Vector<RealType>::Type VectorType;
 		typedef typename TpemType::EnergyFunctorType EnergyFunctorType;
 		typedef typename TpemType::NumberFunctorType NumberFunctorType;
 		typedef typename EngineParametersType::IoInType IoInType;
@@ -101,7 +101,7 @@ namespace Spf {
 			return 0;
 		}
 
-		void localCharge(std::vector<RealType>& lc)
+		void localCharge(typename PsimagLite::Vector<RealType>::Type& lc)
 		{
 // 			throw std::runtime_error("local charge is unimplemented for TPEM\n");
 // 			//checkUs();
@@ -122,7 +122,7 @@ namespace Spf {
 // 			}
 		}
 
-		void electronSpin(std::vector<ComplexType>& es,
+		void electronSpin(typename PsimagLite::Vector<ComplexType>::Type& es,
 				size_t orbitals,size_t n) const
 		{
 			for (size_t i=0;i<es.size();i++)  es[i]=0;

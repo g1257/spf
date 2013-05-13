@@ -122,7 +122,7 @@ namespace Spf {
 
 			for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
 
-			std::vector<size_t> tmp;
+			PsimagLite::Vector<size_t>::Type tmp;
 			io.read(tmp,"Modulus");
 			for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
 
@@ -130,17 +130,17 @@ namespace Spf {
 
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		std::vector<RealType> hoppings;
+		typename PsimagLite::Vector<RealType>::Type hoppings;
 		// J value
 		RealType J;
 		// Onsite potential values, one for each site
-		std::vector<RealType> potentialV;
+		typename PsimagLite::Vector<RealType>::Type potentialV;
 		
 		// target number of electrons  in the system
 		//int nOfElectrons;
 		
 		// JAF n-n
-		std::vector<RealType> jafNn;
+		typename PsimagLite::Vector<RealType>::Type jafNn;
 		
 		// JAF n-n-n
 		RealType jafNnn;
@@ -149,7 +149,7 @@ namespace Spf {
 		RealType magneticField;
 
 		// moduli of the classical spins (either 0 or 1)
-		std::vector<size_t> modulus;
+		PsimagLite::Vector<size_t>::Type modulus;
 	};
 
 

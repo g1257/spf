@@ -25,7 +25,7 @@ namespace Spf {
 		typedef typename TpemType::TpemParametersType TpemParamtersType;
 
 		DensityFunctionTpem(const EngineParamsType& engineParams,
-		                    const std::vector<RealType>& moments,
+		                    const typename PsimagLite::Vector<RealType>::Type& moments,
 		                    const TpemType& tpem)
 		: engineParams_(engineParams),
 		  tpem_(tpem),
@@ -37,7 +37,7 @@ namespace Spf {
 		{
 			RealType muSaved = engineParams_.mu;
 			engineParams_.mu = mu;
-			std::vector<RealType> numberCoeffs(moments_.size());
+			typename PsimagLite::Vector<RealType>::Type numberCoeffs(moments_.size());
 			tpem_.calcCoeffs(numberCoeffs,numberFunctor_);
 			engineParams_.mu = muSaved;
 			return tpem_.expand(moments_, numberCoeffs) - engineParams_.carriers;
@@ -51,7 +51,7 @@ namespace Spf {
 		
 		const EngineParamsType& engineParams_;
 		const TpemType& tpem_;
-		const std::vector<RealType>& moments_;
+		const typename PsimagLite::Vector<RealType>::Type& moments_;
 		NumberFunctorType numberFunctor_;
 	}; // DensityFunctionTpem
 } // namespace Spf

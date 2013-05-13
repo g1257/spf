@@ -16,7 +16,7 @@ namespace Spf {
 	template<typename GeometryType,typename DynVarsType> // DynVarsType == PhononsType
 	class PhononOperations {
 		typedef typename DynVarsType::FieldType FieldType;
-		typedef std::vector<FieldType> PhononType;
+		typedef PsimagLite::Vector<FieldType>::Type PhononType;
 		
 	public:
 		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
@@ -102,7 +102,7 @@ namespace Spf {
 			return ret;
 		}
 
-		void calcQvector(std::vector<FieldType>& v,size_t p,const DynVarsType& dynVars) const
+		void calcQvector(PsimagLite::Vector<FieldType>::Type& v,size_t p,const DynVarsType& dynVars) const
 		{
 			size_t numberOfNormalModes = 3;
 			v.resize(numberOfNormalModes);

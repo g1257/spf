@@ -67,8 +67,8 @@ namespace Spf {
 		//size_t size() const { return theta.size(); }
 		
 		size_t size;
-		std::vector<FieldType> theta;
-		std::vector<FieldType> phi;
+		typename PsimagLite::Vector<FieldType>::Type theta;
+		typename PsimagLite::Vector<FieldType>::Type phi;
 		bool isFrozen;
 		bool isVoid;
 		

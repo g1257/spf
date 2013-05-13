@@ -129,15 +129,15 @@ namespace Spf {
 
 			packer.pack("Adjustments: mu=",engineParams_.mu);
 	
-			std::vector<RealType> magVector(3,0);
+			typename PsimagLite::Vector<RealType>::Type magVector(3,0);
 			spinOperations_.calcMagVector(magVector,dynVars);
 // 			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
 			packer.pack("ClassicalMagnetizationSquared=",magVector*magVector);
 // 			progress_.printline(s,fout);
 
-			std::vector<ComplexType> electronSpinVector(3,0);
+			typename PsimagLite::Vector<ComplexType>::Type electronSpinVector(3,0);
 			greenFunction.electronSpin(electronSpinVector,mp_.numberOfOrbitals,dynVars.size);
-			std::vector<ComplexType> combinedVector(3,0);
+			typename PsimagLite::Vector<ComplexType>::Type combinedVector(3,0);
 			combinedVector =  electronSpinVector + magVector;
 // 			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
 // 			progress_.printline(s,fout);
@@ -200,14 +200,14 @@ namespace Spf {
 			int long long randomSeed;
 		};
 
-		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
 		{
 			{
 				MatrixType matrix(hilbertSize_,hilbertSize_);
 				FakeParams fakeParams("none",343313);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
 				createHamiltonian(tmpDynVars,matrix);
-				std::vector<RealType> e(matrix.n_row());
+				typename PsimagLite::Vector<RealType>::Type e(matrix.n_row());
 				diag(matrix,e,'N');
 
 				this->setTpemAandB(a,b,e[0],e[e.size()-1]);
@@ -269,7 +269,7 @@ namespace Spf {
 			size_t volume = geometry_.volume();
 			size_t norb = mp_.numberOfOrbitals;
 			size_t dof = norb * 2; // the 2 comes because of the spin
-			std::vector<ComplexType> jmatrix(2*2,0);
+			typename PsimagLite::Vector<ComplexType>::Type jmatrix(2*2,0);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
@@ -323,7 +323,7 @@ namespace Spf {
 			threeOrbitalTerms_(matrix);
 		}
 
-		void auxCreateJmatrix(std::vector<ComplexType>& jmatrix,const
+		void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
 		                      typename DynVarsType::SpinType& dynVars,size_t site,
 		                      const RealType& J) const
 		{

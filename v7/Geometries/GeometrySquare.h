@@ -54,7 +54,7 @@ namespace Spf {
 		
 		size_t add(size_t ind,size_t ind2) const
 		{
-			std::vector<int> x(2),y(2);
+			PsimagLite::Vector<int>::Type x(2),y(2);
 			indexToCoor(x,ind);
 			indexToCoor(y,ind2);
 			for (size_t i=0;i<x.size();i++) {
@@ -70,7 +70,7 @@ namespace Spf {
 		
 		std::string name() const { return "square"; }
 
-		void indexToCoor(std::vector<int> &v,size_t i) const
+		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
 		{
 			size_t lx = l_;
 			v[0] = i%lx;
@@ -87,7 +87,7 @@ namespace Spf {
 		// assume that i and j are n-neighbors or next n-neighbors
 		int getDirection(size_t ind,size_t jnd) const
 		{
-			std::vector<int> vi(2),vj(2);
+			PsimagLite::Vector<int>::Type vi(2),vj(2);
 			indexToCoor(vi,ind);
 			indexToCoor(vj,jnd);
 			
@@ -211,7 +211,7 @@ namespace Spf {
 			return r;
 		}
 
-		size_t g_index(std::vector<int>& x) const
+		size_t g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			int zz=0;
 			return g_index(x[0],x[1],zz);
@@ -229,7 +229,7 @@ namespace Spf {
 
 		size_t l_;
 		size_t volume_;
-		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
+		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	};
 	
 	std::ostream& operator<<(std::ostream& os,const std::pair<size_t,size_t>& p)

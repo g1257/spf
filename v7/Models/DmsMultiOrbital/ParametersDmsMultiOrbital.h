@@ -99,7 +99,7 @@ namespace Spf {
 				const ParametersEngineType& engineParams)
 		{
 			// legacy reading of pair of doubles to make a complex:
-			std::vector<RealType> tmpReal;
+			PsimagLite::Vector<RealType>::Type tmpReal;
 			io.read(tmpReal,"Hoppings");
 			hoppings.resize(tmpReal.size()/2);
 			for (size_t i=0;i<hoppings.size();i++)
@@ -119,7 +119,7 @@ namespace Spf {
 
 			io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
 
-			std::vector<size_t> tmp;
+			PsimagLite::Vector<size_t>::Type tmp;
 			io.read(tmp,"MODULUS");
 
 			modulus.resize(n);
@@ -135,11 +135,11 @@ namespace Spf {
 		// and gamma1 = orb + spin*ORBITALS I think
 		// or is it spin + orb*2 ?
 
-		std::vector<ComplexType> hoppings;
+		PsimagLite::Vector<ComplexType>::Type hoppings;
 		// J value
 		RealType J;
 		// Onsite potential values, one for each site
-		std::vector<RealType> potentialV;
+		PsimagLite::Vector<RealType>::Type potentialV;
 		
 		// JAF n-n
 		RealType jafNn;
@@ -150,9 +150,9 @@ namespace Spf {
 		RealType spinOrbitCoupling; // =0.34
 
 		// Modulus (FIXME: use less storage here it should be either 0 or 1)
-		std::vector<size_t> modulus;
+		PsimagLite::Vector<size_t>::Type modulus;
 
-		std::vector<RealType> histogramParams;
+		PsimagLite::Vector<RealType>::Type histogramParams;
 	}; // struct ParametersDmsMultiOrbital
 	
 	//! Function that prints model parameters to stream os

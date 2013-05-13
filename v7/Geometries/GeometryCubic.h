@@ -40,7 +40,7 @@ namespace Spf {
 		
 		size_t add(size_t ind,size_t ind2) const
 		{
-			std::vector<int> x(2),y(2);
+			PsimagLite::Vector<int>::Type x(2),y(2);
 			indexToCoor(x,ind);
 			indexToCoor(y,ind2);
 			for (size_t i=0;i<x.size();i++) {
@@ -54,7 +54,7 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
-		void indexToCoor(std::vector<size_t> &v,size_t i) const
+		void indexToCoor(PsimagLite::Vector<size_t>::Type& v,size_t i) const
 		{
 			size_t lx = l_, ly = l_;
 			v[2] = i/(lx*ly);
@@ -63,9 +63,9 @@ namespace Spf {
 			v[0] = tmp % lx;
 		}
 
-		size_t coor2Index(const std::vector<size_t> &v) const
+		size_t coor2Index(const PsimagLite::Vector<size_t>::Type& v) const
 		{
-			std::vector<size_t> length(3,l_);
+			PsimagLite::Vector<size_t>::Type length(3,l_);
 			int v0 = v[0];
 			g_pbc(v0,length[0]);
 			size_t pos=v0;
@@ -96,7 +96,7 @@ namespace Spf {
 		{
 			PsimagLite::Matrix<PairType> matrix(volume_,2*DIMENSION);
 			for (size_t i=0;i<volume_;i++) {
-				std::vector<size_t> v(DIMENSION);
+				PsimagLite::Vector<size_t>::Type v(DIMENSION);
 				indexToCoor(v,i);
 				size_t x = v[0], y=v[1], z=v[2];
 
@@ -137,7 +137,7 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(std::vector<int>& x) const
+		size_t g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			return g_index(x[0],x[1],x[2]);
 		}
@@ -155,7 +155,7 @@ namespace Spf {
 
 		size_t l_;
 		size_t volume_;
-		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
+		PsimagLite::Vector<PsimagLite::Matrix<PairType>::Type > neighbors_;
 	}; // class GeometryCubic
 	
 } // namespace Spf

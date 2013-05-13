@@ -73,12 +73,12 @@ namespace Spf {
 		RealType deltaDirect(size_t i,RealType coupling1,RealType coupling2) const
 		{
 			size_t z = geometry_.z(1)/2;
-			std::vector<RealType> coupling1v(z,coupling1);
+			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling1);
 			return deltaDirect(i,coupling1v,coupling2);
 		}
 		
 		RealType deltaDirect(size_t i,
-		                       const std::vector<RealType>& coupling1v,
+		                       const typename PsimagLite::Vector<RealType>::Type& coupling1v,
 		                       RealType coupling2) const
 		{
 			RealType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1v);
@@ -138,13 +138,13 @@ namespace Spf {
 					const
 		{
 			size_t z = geometry_.z(1)/2;
-			std::vector<RealType> coupling1v(z,coupling);
+			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling);
 			return calcSuperExchange(dynVars,coupling1v);
 
 		}
 		
 		RealType calcSuperExchange(const DynVarsType& dynVars,
-		                              const std::vector<RealType>& coupling)
+		                           const typename PsimagLite::Vector<RealType>::Type& coupling)
 			const
 		{
 			RealType sum = 0;
@@ -166,7 +166,7 @@ namespace Spf {
 
 		RealType calcMag(const DynVarsType& dynVars) const
 		{
-			std::vector<RealType> mag(3);
+			typename PsimagLite::Vector<RealType>::Type mag(3);
 			
 			for (size_t i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
@@ -179,9 +179,9 @@ namespace Spf {
 		//! For diluted systems
 		RealType calcMag(
 				const DynVarsType& dynVars,
-				const std::vector<size_t>& modulus) const
+				const PsimagLite::Vector<size_t>::Type& modulus) const
 		{
-			std::vector<RealType> mag(3);
+			typename PsimagLite::Vector<RealType>::Type mag(3);
 
 			for (size_t i=0;i<geometry_.volume();i++) {
 				if (modulus[i]==0) continue;
@@ -193,7 +193,7 @@ namespace Spf {
 		}
 
 		void calcMagVector(
-				std::vector<RealType>& mag,
+				typename PsimagLite::Vector<RealType>::Type& mag,
 				const DynVarsType& dynVars) const
 		{
 			for (size_t i=0;i<geometry_.volume();i++) {
@@ -205,7 +205,7 @@ namespace Spf {
 
 		
 		void classicalCorrelations(VectorType &cc,
-				 //std::vector<RealType> &weight,
+				 //PsimagLite::Vector<RealType>::Type& weight,
 				 const DynVarsType& dynVars)
 		{
 			size_t n = geometry_.volume();
@@ -280,7 +280,7 @@ namespace Spf {
 		RealType dSDirect(const DynVarsType& dynVars,
 		                    const DynVarsType& dynVars2,
 		                    size_t i,
-		                    std::vector<RealType> coupling) const
+		                    typename PsimagLite::Vector<RealType>::Type coupling) const
 		{
 			RealType dS = 0;
 				

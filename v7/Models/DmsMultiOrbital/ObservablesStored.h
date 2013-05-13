@@ -77,7 +77,7 @@ namespace Spf {
 
 	private:
 
-		void reduce(std::vector<HistogramComplexType>& h,CommType comm)
+		void reduce(PsimagLite::Vector<HistogramComplexType>::Type& h,CommType comm)
 		{
 			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_,comm);
 		}
@@ -158,7 +158,7 @@ namespace Spf {
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    std::vector<HistogramComplexType>& h,
+		                    PsimagLite::Vector<HistogramComplexType>::Type& h,
 		                    const std::string& label)
 		{
 			if (h.size()==0) return;
@@ -199,7 +199,7 @@ namespace Spf {
 		const ParametersModelType& mp_;
 		const EngineParamsType& pe_;
 		ConcurrencyType& concurrency_;
-		std::vector<HistogramComplexType> arw_;
+		PsimagLite::Vector<HistogramComplexType>::Type arw_;
 		HistogramRealType optical_;
 		size_t counter_;
 

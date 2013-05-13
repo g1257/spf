@@ -99,7 +99,7 @@ namespace Spf {
 
 		void diagonalize(
 				MatrixType& matrix,
-				std::vector<RealType>& eigs,
+				typename PsimagLite::Vector<RealType>::Type& eigs,
 				char jobz='N',
 				size_t fields=ModelType::NEWFIELDS) const
 		{
@@ -184,7 +184,7 @@ namespace Spf {
 		ModelType& model_;
 		MetropolisOrGlauberType metropolisOrGlauber_;
 		AdjustmentsType adjustments_;
-		std::vector<RealType> eigNew_,eigOld_;
+		typename PsimagLite::Vector<RealType>::Type eigNew_,eigOld_;
 		size_t hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
 	}; // AlgorithmDiag
@@ -196,7 +196,7 @@ namespace Spf {
 	{
 		
 		typedef typename EngineParametersType::RealType RealType;
-		std::vector<RealType> eigNew(a.hilbertSize_);
+		typename PsimagLite::Vector<RealType>::Type eigNew(a.hilbertSize_);
 		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";

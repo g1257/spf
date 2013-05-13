@@ -129,7 +129,7 @@ namespace Spf {
 
 // 		std::string name() const { return "square45degrees"; }
 
-// 		void indexToCoor(std::vector<int> &v,size_t i) const
+// 		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
 // 		{
 // 			size_t lx = l_;
 // 			v[0] = i%lx;
@@ -315,7 +315,7 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(std::vector<int>& x) const
+		size_t g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			int zz=0;
 			return g_index(x[0],x[1],zz);
@@ -333,7 +333,7 @@ namespace Spf {
 
 		size_t l_;
 		size_t volume_;
-		std::vector<PsimagLite::Matrix<PairType> > neighbors_;
+		PsimagLite::Vector<PsimagLite::Matrix<PairType>::Type > neighbors_;
 	}; //class Square45Degrees
 	
 	std::ostream& operator<<(std::ostream& os,const std::pair<size_t,size_t>& p)

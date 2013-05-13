@@ -128,7 +128,7 @@ namespace Spf {
 		          const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
-		static std::vector<std::string> name_;
+		static PsimagLite::Vector<std::string>::Type name_;
 		SpinType spin_;
 		PhononType phonon_;
 		
@@ -143,7 +143,7 @@ namespace Spf {
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>
-	std::vector<std::string> PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
+	PsimagLite::Vector<std::string>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
 	
 	/*template<>
 	template<>

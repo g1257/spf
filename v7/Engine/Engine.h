@@ -95,7 +95,7 @@ namespace Spf {
 		
 		void thermalize()
 		{
-			std::vector<PairType> accepted(dynVars_.size());
+			PsimagLite::Vector<PairType>::Type accepted(dynVars_.size());
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
 				printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
 				doMonteCarlo(accepted,dynVars_,iter);
@@ -106,7 +106,7 @@ namespace Spf {
 
 		void measure()
 		{
-			std::vector<std::pair<size_t,size_t> > accepted(dynVars_.size());
+			typename PsimagLite::Vector<std::pair<size_t,size_t> >::Type accepted(dynVars_.size());
 
 			bool isStrict = true;
 			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,
@@ -168,7 +168,7 @@ namespace Spf {
 			}
 		}
 
-		void doMonteCarlo(std::vector<PairType>& accepted,DynVarsType& dynVars, size_t iter)
+		void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,DynVarsType& dynVars, size_t iter)
 		{
 			typedef typename DynVarsType::OperationsType0 OperationsType0;
 			typedef typename DynVarsType::Type0 Type0;
@@ -197,7 +197,7 @@ namespace Spf {
 			
 		}
 
-		void printProgress(const std::vector<PairType>& accepted,
+		void printProgress(const PsimagLite::Vector<PairType>::Type& accepted,
 		                   const std::string& algorithmicError = "DISABLED",
 		                   PackerType* packer = 0)
 		{

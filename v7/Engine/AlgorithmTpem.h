@@ -28,7 +28,7 @@ namespace Spf {
 		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
-		typedef std::vector<RealType> VectorType;
+		typedef typename PsimagLite::Vector<RealType>::Type VectorType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 		typedef typename EngineParametersType::IoInType IoInType;
 		typedef Tpem::TpemParameters<IoInType,RealType,ModelType> TpemParametersType;

@@ -19,8 +19,8 @@ namespace Spf {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType FieldType;
-		typedef std::vector<FieldType> VectorType;
-		typedef std::vector<ComplexType> ComplexVectorType;
+		typedef typename PsimagLite::Vector<FieldType>::Type VectorType;
+		typedef typename PsimagLite::Vector<ComplexType>::Type ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
 		typedef PsimagLite::Matrix<FieldType> MatrixType;
 		typedef typename ConcurrencyType::CommType CommType;
@@ -187,14 +187,14 @@ namespace Spf {
 
 		// C_x = \sum_i <n_i n_{i+x}>, where n_i = \sum_{dof} n_{i dof}  
 		template<typename GreenFunctionType>
-		void chargeCorrelation(std::vector<FieldType>& cc,
+		void chargeCorrelation(typename PsimagLite::Vector<FieldType>::Type& cc,
 				       GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();
 			//allChargeCorrelation(greenFunction); // for debugging only, comment out for production
 			for (size_t gamma=0;gamma<dof_;gamma++) {
 				for (size_t gamma2=0;gamma2<dof_;gamma2++) {
-					std::vector<FieldType> tmpV(dof_*dof_*volume,0);
+					typename PsimagLite::Vector<FieldType>::Type tmpV(dof_*dof_*volume,0);
 					chargeCorrelation(tmpV,gamma,gamma2,greenFunction);
 					for (size_t x=0;x<volume;x++) {
 						cc[x] += tmpV[x + gamma*volume+gamma2*volume*dof_];
@@ -204,7 +204,7 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		void chargeCorrelation(std::vector<FieldType>& cc,
+		void chargeCorrelation(typename PsimagLite::Vector<FieldType>::Type& cc,
 				       size_t gamma,size_t gamma2,GreenFunctionType& greenFunction)
 		{
 			size_t volume = geometry_.volume();

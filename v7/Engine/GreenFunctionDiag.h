@@ -75,7 +75,7 @@ namespace Spf {
 				
 		}
 
-		void localCharge(std::vector<RealType>& lc)
+		void localCharge(typename PsimagLite::Vector<RealType>::Type& lc)
 		{
 			//checkUs();
 			//checkLevels();
@@ -95,7 +95,7 @@ namespace Spf {
 			}
 		}
 
-		void electronSpin(std::vector<ComplexType>& es,
+		void electronSpin(typename PsimagLite::Vector<ComplexType>::Type& es,
 				size_t orbitals,size_t n) const
 		{
 			enum {SPIN_UP,SPIN_DOWN};

@@ -44,7 +44,7 @@ namespace Spf {
 		}
 
 		template<typename MatrixType>
-		void setTpemSupport(std::vector<size_t>& support,
+		void setTpemSupport(PsimagLite::Vector<size_t>::Type& support,
 		                    const MatrixType& matrix,
 		                    const MatrixType& matrix2,
 		                    size_t site) const

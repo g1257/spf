@@ -151,12 +151,12 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
 		{
 			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
 
-		void adjustChemPot(const std::vector<RealType>& eigs)
+		void adjustChemPot(const PsimagLite::Vector<RealType>::Type& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -266,7 +266,7 @@ namespace Spf {
 		}
 		
 		RealType calcKinetic(const DynVarsType& dynVars,
-				      const std::vector<RealType>& eigs) const
+				      const PsimagLite::Vector<RealType>::Type& eigs) const
 		{
 			RealType sum = 0;
 			//constPsimagLite::Matrix<ComplexType>& matrix = matrix_;

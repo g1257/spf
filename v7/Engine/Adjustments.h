@@ -28,7 +28,7 @@ namespace Spf {
 		: engineParams_(engineParams),maxIter_(maxIter),tolerance_(tolerance)
 		{}
 
-		RealType adjChemPot(const std::vector<RealType>& eigs) const
+		RealType adjChemPot(const typename PsimagLite::Vector<RealType>::Type& eigs) const
 		{
 			typedef DensityFunctionDiag<EngineParamsType> DensityFunctionType;
 			DensityFunctionType densityFunction(engineParams_,eigs);
@@ -44,7 +44,7 @@ namespace Spf {
 		}
 
 		template<typename SomeTpemType>
-		RealType adjChemPot(const std::vector<RealType>& moments,
+		RealType adjChemPot(const typename PsimagLite::Vector<RealType>::Type& moments,
 		                    const SomeTpemType& tpem) const
 		{
 			typedef DensityFunctionTpem<EngineParamsType,SomeTpemType> DensityFunctionType;

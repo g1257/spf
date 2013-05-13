@@ -23,7 +23,7 @@ namespace Spf {
 		typedef typename EngineParamsType::RealType RealType;
 		
 		DensityFunctionDiag(const EngineParamsType& engineParams,
-						const std::vector<RealType>& eig)
+						const typename PsimagLite::Vector<RealType>::Type& eig)
 		: engineParams_(engineParams),eig_(eig)
 		{
 		}
@@ -47,7 +47,7 @@ namespace Spf {
 		}
 		
 		const EngineParamsType& engineParams_;
-		const std::vector<RealType>& eig_;
+		const typename PsimagLite::Vector<RealType>::Type& eig_;
 	}; // DensityFunctionDiag
 } // namespace Spf
 
