@@ -19,26 +19,12 @@
 #include "ProgramGlobals.h"
 
 namespace Spf {
-	template<int norb_,typename MatrixType,typename ParametersModelType,
+	template<typename MatrixType,typename ParametersModelType,
 	typename GeometryType>
 	class ThreeOrbitalTerms {
-		typedef typename ParametersModelType::RealType RealType;
-	public:
-		ThreeOrbitalTerms(
-			const ParametersModelType& mp,
-			const GeometryType& geometry) {}
-			void operator()(MatrixType& ham) const { }
-			
-			RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
-			{
-				return 0;
-			}
-	}; // class ThreeOrbitalTerms
 
-	template<typename MatrixType,typename ParametersModelType,
-		typename GeometryType>
-	class ThreeOrbitalTerms<3,MatrixType,ParametersModelType,GeometryType> {
 		static const size_t SPINS = 2; // 2 spins
+
 		typedef typename MatrixType::value_type FieldType;
 		typedef typename ParametersModelType::RealType RealType;
 
@@ -51,6 +37,8 @@ namespace Spf {
 
 		void operator()(MatrixType& ham) const
 		{
+			if (mp_.numberOfOrbitals!=3) return;
+
 			/*--------- hoppings t7 ~ t8 ------------*/
 			size_t volume = geometry_.volume();
 			for (size_t ispin=0;ispin<SPINS;ispin++)
@@ -165,6 +153,8 @@ namespace Spf {
 	
 		RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
 		{
+			if (mp_.numberOfOrbitals!=3) return 0.0;
+
 			switch (dir2) {
 				case ProgramGlobals::DIRX:
 					if (iorb==0 && iorb2==2) return signHop(isite)*mp_.t7;
@@ -191,6 +181,7 @@ namespace Spf {
 		}
 
 	private:
+
 		void updateHamiltonian(
 				MatrixType& ham,
 				size_t ix,

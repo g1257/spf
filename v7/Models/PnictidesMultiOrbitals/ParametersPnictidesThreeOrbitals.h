@@ -88,23 +88,28 @@ namespace Spf {
 	struct ParametersPnictidesThreeOrbitals {
 		typedef typename ParametersEngineType::RealType RealType;
 
-		static size_t const numberOfOrbitals = 3;
-
 		ParametersPnictidesThreeOrbitals(
 				IoInType& io,
 				const ParametersEngineType& engineParams)
+		    : t7(0.0),t8(0.0),deltaXY(0.0)
 		{
+			io.readline(numberOfOrbitals,"Orbitals=");
 			io.read(hoppings,"Hoppings");
-			// add here deltax_y and t7 and t8
-			io.readline(t7,"HoppingT7=");
-			io.readline(t8,"HoppingT8=");
-			io.readline(deltaXY,"DeltaXY=");
+
+			if (numberOfOrbitals==3) {
+				// add here deltax_y and t7 and t8
+				io.readline(t7,"HoppingT7=");
+				io.readline(t8,"HoppingT8=");
+				io.readline(deltaXY,"DeltaXY=");
+			}
+
 			io.readline(J,"CouplingJ=");
 			io.read(potentialV,"PotentialV");
 			try {
 				RealType x = 0;
 				io.readline(x,"JAFNN=");
-				jafNn.resize(2,x);
+				size_t jafSize = (numberOfOrbitals==3) ? 2 : 4;
+				jafNn.resize(jafSize,x);
 			} catch (std::exception& e) {
 				// must rewind because exception consumed file:
 				io.rewind();
@@ -130,6 +135,7 @@ namespace Spf {
 
 		}
 
+		size_t numberOfOrbitals;
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		typename PsimagLite::Vector<RealType>::Type hoppings;
@@ -164,6 +170,7 @@ namespace Spf {
 		std::ostream &os,
 		const ParametersPnictidesThreeOrbitals<ParametersEngineType,IoInType>& parameters)
 	{
+		os<<"parameters.orbitals="<<parameters.numberOfOrbitals<<"\n";
 		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
 		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
 		os<<"parameters.J="<<parameters.J<<"\n";

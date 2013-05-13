@@ -1,4 +1,9 @@
 EngineOptions=none
+
+Geometry=square
+Model=PnictidesMultiOrbitals
+Orbitals=2
+
 Version=SPFv7
 OutputFilename=data0
 Carriers=128 

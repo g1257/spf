@@ -44,11 +44,10 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersPnictidesThreeOrbitals<EngineParamsType,IoInType> ParametersModelType;
-		static const size_t norb_ = ParametersModelType::numberOfOrbitals;
 		typedef PnictidesTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ThreeOrbitalTerms<norb_,MatrixType,ParametersModelType,
+		typedef ThreeOrbitalTerms<MatrixType,ParametersModelType,
 				GeometryType> ThreeOrbitalTermsType;
 		typedef PnictidesMultiOrbitalsObsStored<SpinOperationsType,ComplexType,
 				ParametersModelType,ConcurrencyType> PnictidesMultiOrbitalsObsStoredType;
