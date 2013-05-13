@@ -155,7 +155,7 @@ namespace Spf {
 
 		size_t l_;
 		size_t volume_;
-		PsimagLite::Vector<PsimagLite::Matrix<PairType>::Type > neighbors_;
+		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; // class GeometryCubic
 	
 } // namespace Spf

@@ -106,19 +106,19 @@ namespace Spf {
 
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		PsimagLite::Vector<RealType>::Type hoppings;
+		typename PsimagLite::Vector<RealType>::Type hoppings;
 		
 		// Onsite potential values, one for each site
-		PsimagLite::Vector<RealType>::Type potential;
+		typename PsimagLite::Vector<RealType>::Type potential;
 		
 		// JAF n-n
 		RealType jaf;
 		
 		// Phonon couplings
-		PsimagLite::Vector<RealType>::Type phononSpinCoupling;
+		typename PsimagLite::Vector<RealType>::Type phononSpinCoupling;
 		
 		// Phonon dampings
-		PsimagLite::Vector<RealType>::Type phononDamping;
+		typename PsimagLite::Vector<RealType>::Type phononDamping;
 	};
 	
 	//! Function that prints model parameters to stream os

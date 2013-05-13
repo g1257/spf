@@ -40,8 +40,6 @@ namespace Spf {
 		typedef Spf::GreenFunctionDiag<ParametersType,ModelType,RngType> GreenFunctionDiagType;
 		typedef AlgorithmFactory<GreenFunctionDiagType,GreenFunctionTpemType> AlgorithmFactoryType;
 
-		static const PsimagLite::String license_;
-
 	public:
 
 		Engine(ParametersType& params,
@@ -84,11 +82,6 @@ namespace Spf {
 			measure();
 			// announce measurements done
 			finalize();
-		}
-
-		static const PsimagLite::String& license()
-		{
-			return license_;
 		}
 
 	private:
@@ -250,25 +243,6 @@ namespace Spf {
 		RngType rng_;
 		SaveConfigsType saveConfigs_;
 	}; // Engine
-	
-template<typename ParametersType,typename ModelType,typename IoInType,typename RngType>
-const PsimagLite::String Engine<ParametersType,ModelType,IoInType,RngType>::license_=
-"Copyright (c) 2009-2011, UT-Battelle, LLC\n"
-"All rights reserved\n"
-"\n"
-"[SPF, Version 7.0.0]\n"
-"\n"
-"*********************************************************\n"
-"THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND\n"
-"CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED\n"
-"WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n"
-"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\n"
-"PARTICULAR PURPOSE ARE DISCLAIMED. \n"
-"\n"
-"Please see full open source license included in file LICENSE.\n"
-"*********************************************************\n"
-"\n"
-"\n";
 } // namespace Spf
 
 /*@}*/

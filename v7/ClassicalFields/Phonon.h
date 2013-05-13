@@ -32,7 +32,7 @@ namespace Spf {
 		
 		size_t size;
                 //PsimagLite::Vector<FieldType> dummy_;
-		PsimagLite::Vector<std::vector<FieldType>::Type > phonon;
+		typename PsimagLite::Vector<typename PsimagLite::Vector<FieldType>::Type>::Type phonon;
 		bool isFrozen;
 		
 	}; // Spin

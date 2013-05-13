@@ -95,6 +95,8 @@ namespace Spf {
 		ParametersEngine(IoInType& io,ConcurrencyType& concurrency)
 		{
 			io.readline(options,"EngineOptions=");
+			io.readline(geometry,"Geometry=");
+			io.readline(model,"Model=");
 			io.readline(version,"Version=");
 			io.readline(filename,"OutputFilename=");
 			io.readline(carriers,"Carriers=");
@@ -163,6 +165,8 @@ namespace Spf {
 		}
 
 		PsimagLite::String filename; // filename to save observables and continued fractions
+		PsimagLite::String geometry;
+		PsimagLite::String model;
 		PsimagLite::String version;
 		PsimagLite::String options; // options
 		RealType carriers;
@@ -189,6 +193,8 @@ namespace Spf {
 	{
 		os<<"#This is SPF\n";
 		os<<"parameters.version="<<parameters.version<<"\n";
+		os<<"parameters.geometry="<<parameters.geometry<<"\n";
+		os<<"parameters.model="<<parameters.model<<"\n";
 		os<<"parameters.filename="<<parameters.filename<<"\n";
 		os<<"parameters.options="<<parameters.options<<"\n";
 		os<<"parameters.carriers="<<parameters.carriers<<"\n";

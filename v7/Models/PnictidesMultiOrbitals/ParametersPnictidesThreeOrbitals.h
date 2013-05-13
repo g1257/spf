@@ -132,7 +132,7 @@ namespace Spf {
 
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
-		PsimagLite::Vector<RealType>::Type hoppings;
+		typename PsimagLite::Vector<RealType>::Type hoppings;
 		// additional Hamiltonian params:
 		RealType t7,t8;
 		RealType deltaXY;
@@ -140,13 +140,13 @@ namespace Spf {
 		// J value
 		RealType J;
 		// Onsite potential values, one for each site
-		PsimagLite::Vector<RealType>::Type potentialV;
+		typename PsimagLite::Vector<RealType>::Type potentialV;
 		
 		// target number of electrons  in the system
 		//int nOfElectrons;
 		
 		// JAF n-n
-		PsimagLite::Vector<RealType>::Type jafNn;
+		typename PsimagLite::Vector<RealType>::Type jafNn;
 		
 		// JAF n-n-n
 		RealType jafNnn;

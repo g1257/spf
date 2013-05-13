@@ -16,15 +16,15 @@
 #include "SpinOperations.h"
 #include "PhononOperations.h"
 #include "ModelBase.h"
+#include "ParametersPhononsTwoOrbitals.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
-	         typename ParametersModelType_,
 	         typename GeometryType,
 			 typename ConcurrencyType_>
 	class PhononsTwoOrbitals : public ModelBase<
 	  Spin<typename EngineParamsType::RealType>,
-	  EngineParamsType,ParametersModelType_,
+	  EngineParamsType,
 	  GeometryType,
 	  ConcurrencyType_> {
 
@@ -35,7 +35,6 @@ namespace Spf {
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef PhononsTwoOrbitals<EngineParamsType,
-		                           ParametersModelType_,
 		                           GeometryType,
 		                           ConcurrencyType_> ThisType;
 
@@ -46,7 +45,8 @@ namespace Spf {
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ConcurrencyType_ ConcurrencyType;
 		typedef typename ConcurrencyType::CommType CommType;
-		typedef ParametersModelType_ ParametersModelType;
+		typedef typename EngineParamsType::IoInType IoInType;
+		typedef ParametersPhononsTwoOrbitals<EngineParamsType,IoInType> ParametersModelType;
 		typedef PhononsTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::PhononType PhononType;
@@ -56,11 +56,11 @@ namespace Spf {
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		PhononsTwoOrbitals(const EngineParamsType& engineParams,
-		                   const ParametersModelType& mp,
+		                   const IoInType& io,
 		                   const GeometryType& geometry,
 		                   ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
-		  mp_(mp),
+		  mp_(io),
 		  geometry_(geometry),
 		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
@@ -156,7 +156,7 @@ namespace Spf {
 			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
 
-		void adjustChemPot(const PsimagLite::Vector<RealType>::Type& eigs)
+		void adjustChemPot(const typename PsimagLite::Vector<RealType>::Type& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -184,13 +184,11 @@ namespace Spf {
 		}
 		
 		template<typename EngineParamsType2,
-		         typename ParametersModelType2,
 		         typename GeometryType2,
 		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		  const PhononsTwoOrbitals<
 		           EngineParamsType2,
-		           ParametersModelType2,
 		           GeometryType2,
 		           ConcurrencyType2>& model);
 		
@@ -266,7 +264,7 @@ namespace Spf {
 		}
 		
 		RealType calcKinetic(const DynVarsType& dynVars,
-				      const PsimagLite::Vector<RealType>::Type& eigs) const
+		                     const typename PsimagLite::Vector<RealType>::Type& eigs) const
 		{
 			RealType sum = 0;
 			//constPsimagLite::Matrix<ComplexType>& matrix = matrix_;
@@ -287,7 +285,7 @@ namespace Spf {
 		}
 
 		const EngineParamsType& engineParams_;
-		const ParametersModelType& mp_;
+		ParametersModelType mp_;
 		const GeometryType& geometry_;
 		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
@@ -300,13 +298,11 @@ namespace Spf {
 	}; // PhononsTwoOrbitals
 
 	template<typename EngineParamsType,
-	         typename ParametersModelType,
 	         typename GeometryType,
 	         typename ConcurrencyType>
 	std::ostream& operator<<(std::ostream& os,
       const PhononsTwoOrbitals<
                   EngineParamsType,
-                  ParametersModelType,
                   GeometryType,
                   ConcurrencyType>& model)
 	{

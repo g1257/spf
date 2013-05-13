@@ -2,9 +2,9 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file ObservablesStored.h
+/*! \file DmsMultiOrbitalObsStored.h
  *
- *  ObservablesStored for DmsMultiOrbital model
+ *  DmsMultiOrbitalObsStored for DmsMultiOrbital model
  *
  */
 
@@ -19,7 +19,7 @@ namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
 	         typename ParametersModelType,typename EngineParamsType,
 	         typename ConcurrencyType>
-	class ObservablesStored {
+	class DmsMultiOrbitalObsStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType RealType;
@@ -35,7 +35,7 @@ namespace Spf {
 	public:
 		static size_t const ORBITALS = 3;
 		
-		ObservablesStored(
+		DmsMultiOrbitalObsStored(
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
@@ -77,7 +77,7 @@ namespace Spf {
 
 	private:
 
-		void reduce(PsimagLite::Vector<HistogramComplexType>::Type& h,CommType comm)
+		void reduce(typename PsimagLite::Vector<HistogramComplexType>::Type& h,CommType comm)
 		{
 			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_,comm);
 		}
@@ -158,7 +158,7 @@ namespace Spf {
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    PsimagLite::Vector<HistogramComplexType>::Type& h,
+		                    typename PsimagLite::Vector<HistogramComplexType>::Type& h,
 		                    const PsimagLite::String& label)
 		{
 			if (h.size()==0) return;
@@ -199,11 +199,11 @@ namespace Spf {
 		const ParametersModelType& mp_;
 		const EngineParamsType& pe_;
 		ConcurrencyType& concurrency_;
-		PsimagLite::Vector<HistogramComplexType>::Type arw_;
+		typename PsimagLite::Vector<HistogramComplexType>::Type arw_;
 		HistogramRealType optical_;
 		size_t counter_;
 
-	}; // ObservablesStored
+	}; // DmsMultiOrbitalObsStored
 	
 } // namespace Spf
 

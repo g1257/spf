@@ -15,17 +15,17 @@
 #include "Adjustments.h"
 #include "SpinOperations.h"
 #include "ModelBase.h"
-#include "ObservablesStored.h"
+#include "ParametersDmsMultiOrbital.h"
+#include "DmsMultiOrbitalObsStored.h"
 
 namespace Spf {
 	template<
 		typename EngineParamsType,
-		typename ParametersModelType_,
 		typename GeometryType,
 		typename ConcurrencyType_>
 	class DmsMultiOrbital : public ModelBase<Spin<
 	     typename EngineParamsType::RealType>,
-		 EngineParamsType,ParametersModelType_,GeometryType,ConcurrencyType_> {
+		 EngineParamsType,GeometryType,ConcurrencyType_> {
 		
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -34,38 +34,39 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef DmsMultiOrbital<EngineParamsType,ParametersModelType_,
-		                        GeometryType,ConcurrencyType_> ThisType;
+		typedef DmsMultiOrbital<EngineParamsType,GeometryType,ConcurrencyType_> ThisType;
 
 	public:
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef ConcurrencyType_ ConcurrencyType;
 		typedef typename ConcurrencyType::CommType CommType;
-		typedef ParametersModelType_ ParametersModelType;
+		typedef typename EngineParamsType::IoInType IoInType;
+		typedef ParametersDmsMultiOrbital<EngineParamsType,IoInType> ParametersModelType;
 		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef typename DynVarsType::SpinType SpinType;
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-		typedef ObservablesStored<SpinOperationsType,ComplexType,
+		typedef DmsMultiOrbitalObsStored<SpinOperationsType,ComplexType,
 		                          ParametersModelType,
 		                          EngineParamsType,
-		                          ConcurrencyType> ObservablesStoredType;
-		static const size_t ORBITALS = ObservablesStoredType::ORBITALS;
+		                          ConcurrencyType> DmsMultiOrbitalObsStoredType;
+		static const size_t ORBITALS = DmsMultiOrbitalObsStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		DmsMultiOrbital(const EngineParamsType& engineParams,
-		                const ParametersModelType& mp,
+		                const IoInType& io,
 		                const GeometryType& geometry,
 		                ConcurrencyType& concurrency)
-		: engineParams_(engineParams),mp_(mp),
-		 geometry_(geometry),
-		 concurrency_(concurrency),
-		 dynVars_(geometry.volume(),engineParams),
-		 hilbertSize_(2*ORBITALS*geometry.volume()),
-		 adjustments_(engineParams),
-		 progress_("PnictidesTwoOrbitals",0),
-		 spinOperations_(geometry,engineParams),
-		 observablesStored_(spinOperations_,geometry,mp_,engineParams_,concurrency)
+		: engineParams_(engineParams),
+		  mp_(io),
+		  geometry_(geometry),
+		  concurrency_(concurrency),
+		  dynVars_(geometry.volume(),engineParams),
+		  hilbertSize_(2*ORBITALS*geometry.volume()),
+		  adjustments_(engineParams),
+		  progress_("PnictidesTwoOrbitals",0),
+		  spinOperations_(geometry,engineParams),
+		  DmsMultiOrbitalObsStored_(spinOperations_,geometry,mp_,engineParams_,concurrency)
 		{
 		}
 		
@@ -136,7 +137,7 @@ namespace Spf {
 // 			s ="KineticEnergy="+ttos(temp);
 // 			progress_.printline(s,fout);
 			
-			observablesStored_(dynVars,greenFunction);
+			DmsMultiOrbitalObsStored_(dynVars,greenFunction);
 		} // doMeasurements
 		
 		void createHamiltonian(
@@ -164,7 +165,7 @@ namespace Spf {
 			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
 
-		void adjustChemPot(const PsimagLite::Vector<RealType>::Type& eigs)
+		void adjustChemPot(const typename PsimagLite::Vector<RealType>::Type& eigs)
 		{
 			if (engineParams_.carriers==0) return;
 			try {
@@ -188,18 +189,17 @@ namespace Spf {
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout,CommType comm)
 		{
-			observablesStored_.finalize(fout,comm);	
+			DmsMultiOrbitalObsStored_.finalize(fout,comm);
 		}
 		
 		template<
 		         typename EngineParamsType2,
-		         typename ParametersModelType2,
 		         typename GeometryType2,
 		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(
 		           std::ostream& os,
 		           const DmsMultiOrbital<EngineParamsType2,
-		           ParametersModelType2,GeometryType2,ConcurrencyType2>& model);
+		           GeometryType2,ConcurrencyType2>& model);
 		
 	private:
 		
@@ -210,8 +210,8 @@ namespace Spf {
 			size_t volume = geometry_.volume();
 			size_t norb = ORBITALS;
 			size_t dof = norb * 2; // the 2 comes because of the spin
-			PsimagLite::Vector<ComplexType>::Type jmatrix(dof*dof);
-			PsimagLite::Vector<RealType>::Type ymatrix(dof*dof);
+			typename PsimagLite::Vector<ComplexType>::Type jmatrix(dof*dof);
+			typename PsimagLite::Vector<RealType>::Type ymatrix(dof*dof);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
@@ -252,7 +252,7 @@ namespace Spf {
 			}
 		}
 
-		void auxCreateJmatrix(PsimagLite::Vector<ComplexType>::Type& jmatrix,const
+		void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
 				typename DynVarsType::SpinType& dynVars,size_t site) const
 		{
 			jmatrix[0]=0.5*cos(dynVars.theta[site]);
@@ -377,7 +377,7 @@ namespace Spf {
 
 		}
 
-		void auxCreateYmatrix(PsimagLite::Vector<RealType>::Type& ymatrix,const
+		void auxCreateYmatrix(typename PsimagLite::Vector<RealType>::Type& ymatrix,const
 				typename DynVarsType::SpinType& dynVars,size_t site) const
 		{
 			size_t dof = ORBITALS*2;
@@ -402,7 +402,7 @@ namespace Spf {
 
 		
 		RealType calcKinetic(const DynVarsType& dynVars,
-				      const PsimagLite::Vector<RealType>::Type& eigs) const
+		                     const typename PsimagLite::Vector<RealType>::Type& eigs) const
 		{
 			RealType sum = 0;
 			//const psimag::Matrix<ComplexType>& matrix = matrix_;
@@ -423,7 +423,7 @@ namespace Spf {
 		}
 
 		const EngineParamsType& engineParams_;
-		const ParametersModelType& mp_;
+		ParametersModelType mp_;
 		const GeometryType& geometry_;
 		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
@@ -432,16 +432,15 @@ namespace Spf {
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;
 		SpinOperationsType spinOperations_;
-		ObservablesStoredType observablesStored_;
+		DmsMultiOrbitalObsStoredType DmsMultiOrbitalObsStored_;
 	}; // PnictidesTwoOrbitals
 
 	template<typename EngineParamsType,
-	         typename ParametersModelType,
 	         typename GeometryType,
 	         typename ConcurrencyType>
 	std::ostream& operator<<(std::ostream& os,
 	                         const DmsMultiOrbital<EngineParamsType,
-	                         ParametersModelType,GeometryType,ConcurrencyType>& model)
+	                         GeometryType,ConcurrencyType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

@@ -2,20 +2,20 @@
 /** \ingroup SPF */
 /*@{*/
 
-/*! \file ObservablesStored.h
+/*! \file PnictidesMultiOrbitalsObsStored.h
  *
- *  ObservablesStored for pnictidesTwoOrbitals model
+ *  PnictidesMultiOrbitalsObsStored for pnictidesTwoOrbitals model
  *
  */
 
-#ifndef OBSERVABLES_STORED_H
-#define OBSERVABLES_STORED_H
+#ifndef OBS_STORED_PNICTIDES_MULTIORBITALS_H
+#define OBS_STORED_PNICTIDES_MULTIORBITALS_H
 #include "Vector.h"
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
 	typename ParametersModelType,typename ConcurrencyType>
-	class ObservablesStored {
+	class PnictidesMultiOrbitalsObsStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType FieldType;
@@ -32,7 +32,7 @@ namespace Spf {
 
 	public:
 		
-		ObservablesStored(
+		PnictidesMultiOrbitalsObsStored(
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
@@ -309,10 +309,10 @@ namespace Spf {
 		MatrixType qs_;
 		size_t counter_;
 
-	}; // ObservablesStored
+	}; // PnictidesMultiOrbitalsObsStored
 
 } // namespace Spf
 
 /*@}*/
-#endif // OBSERVABLES_STORED_H
+#endif // OBS_STORED_PNICTIDES_MULTIORBITALS_H
 

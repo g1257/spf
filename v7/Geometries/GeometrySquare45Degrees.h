@@ -333,15 +333,9 @@ namespace Spf {
 
 		size_t l_;
 		size_t volume_;
-		PsimagLite::Vector<PsimagLite::Matrix<PairType>::Type > neighbors_;
+		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; //class Square45Degrees
 	
-	std::ostream& operator<<(std::ostream& os,const std::pair<size_t,size_t>& p)
-	{
-		os<<p.first<<" "<<p.second;
-		return os;
-	}
-
 	template<typename T>
 	std::ostream& operator<<(std::ostream& os,const GeometrySquare45Degrees<T>& g)
 	{

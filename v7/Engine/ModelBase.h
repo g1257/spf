@@ -16,7 +16,6 @@
 namespace Spf {
 	template<typename DynVarsType,
 	         typename EngineParamsType,
-	         typename ParametersModelType_,
 	         typename GeometryType,
 	         typename ConcurrencyType>
 	class ModelBase {
