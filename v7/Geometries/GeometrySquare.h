@@ -10,7 +10,7 @@
 #ifndef GEOM_SQUARE_H
 #define GEOM_SQUARE_H
 #include <utility>
-#include <string>
+#include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 
@@ -68,7 +68,7 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
-		std::string name() const { return "square"; }
+		PsimagLite::String name() const { return "square"; }
 
 		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
 		{

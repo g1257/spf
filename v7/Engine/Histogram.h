@@ -40,9 +40,9 @@ namespace Spf {
 			n = size_t(n/(maxE_-minE_));
 			// Don't remove this checking it's very important!
 			if (n>=steps_ || x<minE_) {
-				std::string s = "Histogram::add(" + ttos(x) + "," +
+				PsimagLite::String s = "Histogram::add(" + ttos(x) + "," +
 						ttos(y) + ") out of range\n";
-				//throw std::runtime_error(s.c_str());
+				//throw PsimagLite::RuntimeError(s.c_str());
 				std::cerr<<s;
 				return;
 			}
@@ -80,11 +80,11 @@ namespace Spf {
 		{
 			if (steps_>0 && minE_<maxE_) return;
 
-			std::string s ="steps=" + ttos(steps_) + " and minE=" +
+			PsimagLite::String s ="steps=" + ttos(steps_) + " and minE=" +
 					ttos(minE_) + " and maxE=" + ttos(maxE_)+"\n";
-			s += "Histogram: " + std::string(__FILE__) + ":" +
+			s += "Histogram: " + PsimagLite::String(__FILE__) + ":" +
 					ttos(__LINE__) + "\n";
-			throw std::runtime_error(s.c_str());
+			throw PsimagLite::RuntimeError(s.c_str());
 		}
 
 		RealType minE_,maxE_;

@@ -70,10 +70,10 @@ namespace Spf {
 				std::find(basisVector_.begin(),basisVector_.end(),bsumvector);
 
 			if (it==basisVector_.end()) {
-				std::string s = "Fcc::add(...) INTERNAL ERROR.\n";
-				s += "Exiting at this point " + std::string(__FILE__) +
+				PsimagLite::String s = "Fcc::add(...) INTERNAL ERROR.\n";
+				s += "Exiting at this point " + PsimagLite::String(__FILE__) +
 				" "+ ttos(__LINE__) + "\n";
-				throw std::runtime_error(s.c_str());
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 
 			size_t b = it-basisVector_.begin();
@@ -97,7 +97,7 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
-		std::string name() const { return "fcc"; }
+		PsimagLite::String name() const { return "fcc"; }
 
 	private:
 		
@@ -138,12 +138,12 @@ namespace Spf {
 				}
 			}
 			if (v.size()!=COORDINATION) {
-				std::string s ="GeometryFcc: "+PsimagLite::typeToString(site) +
+				PsimagLite::String s ="GeometryFcc: "+PsimagLite::typeToString(site) +
 					" has " + PsimagLite::typeToString(v.size()) +
 					" neighbours but it should be " +
 					PsimagLite::typeToString(COORDINATION) +
 						" instead\n";
-				throw std::runtime_error(s.c_str());
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 		}
 
@@ -263,11 +263,11 @@ namespace Spf {
 				v[0]=r[0]+MIN_DISTANCE;
 				v[1]=r[1]+MIN_DISTANCE;
 			} else {
-				std::string s = "GeometryFcc:: vector r has no entry 0: ";
+				PsimagLite::String s = "GeometryFcc:: vector r has no entry 0: ";
 				s = s + PsimagLite::typeToString(r[0]) + " "
 					+ PsimagLite::typeToString(r[1]) + " "
 					+ PsimagLite::typeToString(r[2]);
-				throw std::runtime_error(s.c_str());
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 		}
 
@@ -315,10 +315,10 @@ namespace Spf {
 			if (flaghalf==0 && flagzero==1) return  0;
 			if (flaghalf==1 && flagzero==0) return 1;
 			if (flaghalf==1 && flagzero==1) return 2;
-			std::string s = "Geometry::computeCase(...) for add: Error\n";
-			s += "Exiting at this point " + std::string(__FILE__) + " "
+			PsimagLite::String s = "Geometry::computeCase(...) for add: Error\n";
+			s += "Exiting at this point " + PsimagLite::String(__FILE__) + " "
 					+ ttos(__LINE__) + "\n";
-			throw std::runtime_error(s.c_str());
+			throw PsimagLite::RuntimeError(s.c_str());
 		}
 
 		size_t l_;

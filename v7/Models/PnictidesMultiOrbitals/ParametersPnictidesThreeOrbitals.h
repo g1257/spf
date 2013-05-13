@@ -114,9 +114,9 @@ namespace Spf {
 			io.readline(magneticField,"MagneticField=");
 
 			modulus.resize(potentialV.size());
-			if (engineParams.options.find("hasModulus")==std::string::npos
+			if (engineParams.options.find("hasModulus")==PsimagLite::String::npos
 					&&
-					engineParams.options.find("hasmodulus")==std::string::npos) {
+					engineParams.options.find("hasmodulus")==PsimagLite::String::npos) {
 				for (size_t i=0;i<modulus.size();i++)
 					modulus[i] = 1;
 				return;

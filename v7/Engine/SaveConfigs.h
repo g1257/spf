@@ -35,7 +35,7 @@ namespace Spf {
 		{
 			if (!enabled_) return;
 			time_t t = time(0);
-			std::string s(ctime(&t));
+			PsimagLite::String s(ctime(&t));
 			ioOut_<<s;
 			ioOut_<<"#EOF\n";
 		}
@@ -47,7 +47,7 @@ namespace Spf {
 			ioOut_<<"#Iteration"<<iter<<"\n";
 			ioOut_<<dynVars_;
 			time_t t = time(0);
-			std::string s(ctime(&t));
+			PsimagLite::String s(ctime(&t));
 			ioOut_<<s;
 		}
 		
@@ -58,7 +58,7 @@ namespace Spf {
 		{
 			ioOut_<<"#This is SPF v7\n";
 			time_t t = time(0);
-			std::string s(ctime(&t));
+			PsimagLite::String s(ctime(&t));
 			ioOut_<<s;
 			ioOut_<<params_;
 		}

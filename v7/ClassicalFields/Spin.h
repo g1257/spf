@@ -44,13 +44,13 @@ namespace Spf {
 			if (params.dynvarsfile=="pizero") {
 				size_t l = size_t(sqrt(size));
 				if (l*l!=size) {
-					std::string s(__FILE__);
+					PsimagLite::String s(__FILE__);
 					s += " : " + ttos(__LINE__);
 					s += ": Hi there, I'm the Spin class, I have no way of ";
 					s += " knowing what geometry you are using, but ";
 					s += " it sure doesn't appear to be a square lattice.\n";
 					s += " \"pizero\" start type valid only for square lattice\n";
-					throw std::runtime_error(s.c_str());
+					throw PsimagLite::RuntimeError(s.c_str());
 				}
 				for (size_t i=0;i<theta.size();i++) {
 					theta[i] = M_PI;
@@ -61,7 +61,7 @@ namespace Spf {
 
 			IoSimpleIn ioin(params.dynvarsfile);
 			(*this)<=ioin;
-			if (theta.size()==0 || phi.size()==0) throw std::runtime_error("PRoblem\n");
+			if (theta.size()==0 || phi.size()==0) throw PsimagLite::RuntimeError("PRoblem\n");
 		}
 				
 		//size_t size() const { return theta.size(); }

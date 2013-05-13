@@ -111,7 +111,7 @@ namespace Spf {
 		
 		size_t size() const { return 2; } //  spins and phonons for this model need MC simulation
 		
-		const std::string& name(size_t i) const { return name_[i]; }
+		const PsimagLite::String& name(size_t i) const { return name_[i]; }
 		
 		SpinType& getField(SpinType*)
 		{
@@ -128,7 +128,7 @@ namespace Spf {
 		          const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
-		static PsimagLite::Vector<std::string>::Type name_;
+		static PsimagLite::Vector<PsimagLite::String>::Type name_;
 		SpinType spin_;
 		PhononType phonon_;
 		
@@ -143,7 +143,7 @@ namespace Spf {
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>
-	PsimagLite::Vector<std::string>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
+	PsimagLite::Vector<PsimagLite::String>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
 	
 	/*template<>
 	template<>

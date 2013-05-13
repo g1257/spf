@@ -150,7 +150,7 @@ namespace Spf {
 // 				progress_.printline(s,fout);
 			}
 
-			if (engineParams_.options.find("conductance")!=std::string::npos) {
+			if (engineParams_.options.find("conductance")!=PsimagLite::String::npos) {
 				//greenFunction.printMatrix(OLDFIELDS);
 				PsimagLite::Matrix<RealType> v
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
@@ -192,11 +192,11 @@ namespace Spf {
 		}
 
 		struct FakeParams {
-			FakeParams(std::string dynvarsfile1,int long long randomSeed1)
+			FakeParams(PsimagLite::String dynvarsfile1,int long long randomSeed1)
 			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) 
 			{}
 
-			std::string dynvarsfile;
+			PsimagLite::String dynvarsfile;
 			int long long randomSeed;
 		};
 
@@ -296,7 +296,7 @@ namespace Spf {
 							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
 						}
 					}
-					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw std::runtime_error("neighbours wrong\n");
+					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw PsimagLite::RuntimeError("neighbours wrong\n");
 					for (size_t j = 0; j <  geometry_.z(2); j++) {
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j,2);

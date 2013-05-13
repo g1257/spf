@@ -108,7 +108,7 @@ namespace Spf {
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
 		
-		std::string error() const
+		PsimagLite::String error() const
 		{
 			return error_;
 		}
@@ -200,7 +200,7 @@ namespace Spf {
 		TpemSparseType matrixNew_;
 		VectorType curMoments_;
 		VectorType newMoments_;
-		std::string error_;
+		PsimagLite::String error_;
 	}; // AlgorithmTpem
 	
 	template<typename EngineParametersType,typename ModelType,

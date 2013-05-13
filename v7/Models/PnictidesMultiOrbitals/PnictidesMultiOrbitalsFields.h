@@ -102,7 +102,7 @@ namespace Spf {
 		
 		size_t size() const { return 1; } // only spin for this model needs MC simulation
 		
-		const std::string& name(size_t i) const { return name_; }
+		const PsimagLite::String& name(size_t i) const { return name_; }
 		
 		
 		SpinType& getField(SpinType*)
@@ -114,7 +114,7 @@ namespace Spf {
 		friend std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitalsFields<FieldType2,GeometryType2>& f);
 		
 	private:
-		static const std::string name_;
+		static const PsimagLite::String name_;
 		SpinType spin_;
 		
 	}; // PnictidesTwoOrbitalsFields
@@ -126,7 +126,7 @@ namespace Spf {
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>
-	const std::string PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
+	const PsimagLite::String PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
 	
 } // namespace Spf
 

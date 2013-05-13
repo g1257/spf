@@ -80,7 +80,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
-#include <string>
+#include "String.h"
 #include <vector>
 #include <iostream>
 #include <cstdlib>
@@ -112,7 +112,7 @@ namespace Spf {
 			io.readline(dynvarslevel,"MonteCarloStartLevel=");
 			io.readline(histSteps,"HistogramSteps=");
 			io.readline(boundaryConditions,"BoundaryConditions=");
-			std::string s;
+			PsimagLite::String s;
 			io.readline(s,"RandomSeed=");
 			if (s == "TIME" || s == "time")
 				randomSeed = -1;
@@ -130,9 +130,9 @@ namespace Spf {
 				}
 			}
 			if (size_t(concurrency.nprocs())<coresForKernel) {
-				s= std::string(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
-				s += std::string(": nprocs<coresForKernel is an error\n");
-				throw std::runtime_error(s.c_str());
+				s= PsimagLite::String(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
+				s += PsimagLite::String(": nprocs<coresForKernel is an error\n");
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 			saveEach=0;
 				
@@ -146,7 +146,7 @@ namespace Spf {
 			try {
 				io.readline(detailedBalance,"DetailedBalance=");
 			} catch (std::exception& e) {
-				std::string s("*** WARNING *** Omission of DetailedBalance line ");
+				PsimagLite::String s("*** WARNING *** Omission of DetailedBalance line ");
 				s += " in the input file is deprecated. Assuming GLAUBER. ";
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
@@ -157,7 +157,7 @@ namespace Spf {
 			try {
 				io.readline(adjustEach,"AdjustEach=");
 			} catch (std::exception& e) {
-				std::string s("*** WARNING *** Omission of AdjustEach= line ");
+				PsimagLite::String s("*** WARNING *** Omission of AdjustEach= line ");
 				s += " in the input file is deprecated. Assuming 0. ";
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
@@ -166,23 +166,23 @@ namespace Spf {
 			
 		}
 
-		std::string filename; // filename to save observables and continued fractions
-		std::string version;
-		std::string options; // options
+		PsimagLite::String filename; // filename to save observables and continued fractions
+		PsimagLite::String version;
+		PsimagLite::String options; // options
 		RealType carriers;
 		mutable RealType mu; // chemical potential 
 		RealType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
-		std::map<std::string,RealType>  mcWindow; // monte carlo windows
-		std::string dynvarsfile; // file with fields to start from or none
+		std::map<PsimagLite::String,RealType>  mcWindow; // monte carlo windows
+		PsimagLite::String dynvarsfile; // file with fields to start from or none
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
-		std::string boundaryConditions; // boundary conditions
+		PsimagLite::String boundaryConditions; // boundary conditions
 		long int randomSeed;
 		size_t latticeLength;
 		size_t coresForKernel;
 		size_t saveEach;
-		std::string detailedBalance;
+		PsimagLite::String detailedBalance;
 		size_t adjustEach;
 	};
 
@@ -206,7 +206,7 @@ namespace Spf {
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";
 		os<<"parameters.boundaryConditions="<<parameters.boundaryConditions<<"\n";
-		std::string s = ttos(parameters.randomSeed);
+		PsimagLite::String s = ttos(parameters.randomSeed);
 		if (parameters.randomSeed<0) s="TIME";
 		os<<"parameters.randomSeed="<<s<<"\n";
 		if (parameters.saveEach>0)

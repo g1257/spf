@@ -40,7 +40,7 @@ namespace Spf {
 		typedef Spf::GreenFunctionDiag<ParametersType,ModelType,RngType> GreenFunctionDiagType;
 		typedef AlgorithmFactory<GreenFunctionDiagType,GreenFunctionTpemType> AlgorithmFactoryType;
 
-		static const std::string license_;
+		static const PsimagLite::String license_;
 
 	public:
 
@@ -61,8 +61,8 @@ namespace Spf {
 		  rng_(params.randomSeed,concurrency_.rank(comm_.second),concurrency_.nprocs(comm_.second)),
 		  saveConfigs_(params_,dynVars_,concurrency.rank(comm_.first))
 		{
-			const std::string opts = params.options;
-			bool tpem = (opts.find("tpem")!=std::string::npos);
+			const PsimagLite::String opts = params.options;
+			bool tpem = (opts.find("tpem")!=PsimagLite::String::npos);
 			if (tpem) {
 				gfTpem_ = new GreenFunctionTpemType(params,model,io,comm_.first);
 			} else {
@@ -86,7 +86,7 @@ namespace Spf {
 			finalize();
 		}
 
-		static const std::string& license()
+		static const PsimagLite::String& license()
 		{
 			return license_;
 		}
@@ -120,7 +120,7 @@ namespace Spf {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
 				PackerType packer(ioOut_,concurrency_,comm_.second);
-				std::string algorithmicError = "DISABLED";
+				PsimagLite::String algorithmicError = "DISABLED";
 				if (gfDiag_) {
 					gfDiag_->measure();
 					model_.doMeasurements(*gfDiag_,iter,packer);
@@ -139,7 +139,7 @@ namespace Spf {
 		{
 			ioOut_<<"#This is SPF v7\n";
 			time_t t = time(0);
-			std::string s(ctime(&t));
+			PsimagLite::String s(ctime(&t));
 			ioOut_<<s;
 			ioOut_<<params_;
 			ioOut_<<model_;
@@ -150,10 +150,10 @@ namespace Spf {
 			model_.finalize(ioOut_,comm_.second);
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
-			bool printgf = (params_.options.find("printgf")!=std::string::npos);
+			bool printgf = (params_.options.find("printgf")!=PsimagLite::String::npos);
 			if (printgf) printGf();
 			time_t t = time(0);
-			std::string s(ctime(&t));
+			PsimagLite::String s(ctime(&t));
 			ioOut_<<s;
 			ioOut_<<"#EOF\n";
 		}
@@ -198,15 +198,15 @@ namespace Spf {
 		}
 
 		void printProgress(const PsimagLite::Vector<PairType>::Type& accepted,
-		                   const std::string& algorithmicError = "DISABLED",
+		                   const PsimagLite::String& algorithmicError = "DISABLED",
 		                   PackerType* packer = 0)
 		{
 			for (size_t i=0;i<dynVars_.size();i++) {
 				if (accepted[i].second==0) continue;
-				std::string s1=  "Acceptance " + dynVars_.name(i) + "=";
+				PsimagLite::String s1=  "Acceptance " + dynVars_.name(i) + "=";
 				size_t pp = 100*accepted[i].first/accepted[i].second;
-				std::string s2=  "AcceptancePercentage " + dynVars_.name(i) + "=%";
-				std::string s3 = "AlgorithmicError=";
+				PsimagLite::String s2=  "AcceptancePercentage " + dynVars_.name(i) + "=%";
+				PsimagLite::String s3 = "AlgorithmicError=";
 
 				if (packer) {
 					packer->pack(s1,accepted[i].first);
@@ -252,7 +252,7 @@ namespace Spf {
 	}; // Engine
 	
 template<typename ParametersType,typename ModelType,typename IoInType,typename RngType>
-const std::string Engine<ParametersType,ModelType,IoInType,RngType>::license_=
+const PsimagLite::String Engine<ParametersType,ModelType,IoInType,RngType>::license_=
 "Copyright (c) 2009-2011, UT-Battelle, LLC\n"
 "All rights reserved\n"
 "\n"

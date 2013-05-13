@@ -103,7 +103,7 @@ namespace Spf {
 
 		void localCharge(typename PsimagLite::Vector<RealType>::Type& lc)
 		{
-// 			throw std::runtime_error("local charge is unimplemented for TPEM\n");
+// 			throw PsimagLite::RuntimeError("local charge is unimplemented for TPEM\n");
 // 			//checkUs();
 // 			//checkLevels();
 			for (size_t i=0;i<hilbertSize_;i++) lc[i] = -1;
@@ -126,7 +126,7 @@ namespace Spf {
 				size_t orbitals,size_t n) const
 		{
 			for (size_t i=0;i<es.size();i++)  es[i]=0;
-			//throw std::runtime_error("electron spin is unimplemented for TPEM\n");
+			//throw PsimagLite::RuntimeError("electron spin is unimplemented for TPEM\n");
 // 			enum {SPIN_UP,SPIN_DOWN};
 // 
 // 			for (size_t i=0;i<n;i++) {
@@ -146,7 +146,7 @@ namespace Spf {
 // 			es[1] *= ComplexType(0,1);
 		}
 
-		std::string error() const
+		PsimagLite::String error() const
 		{
 			return algorithm_.error();
 		}

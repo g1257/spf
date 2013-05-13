@@ -246,7 +246,7 @@ namespace Spf {
 				}
 			}
 			std::cerr<<m;
-			throw std::runtime_error("testing\n");
+			throw PsimagLite::RuntimeError("testing\n");
 		}
 
 		template<typename GreenFunctionType>
@@ -270,7 +270,7 @@ namespace Spf {
 		void divideAndPrint(SomeOutputType& fout,
 		                    CommType comm,
 		                    VectorType& v,
-		                    const std::string& label)
+		                    const PsimagLite::String& label)
 		{
 			concurrency_.reduce(v,comm);
 			v /= counter_;
@@ -284,14 +284,14 @@ namespace Spf {
 		void divideAndPrint(SomeOutputType& fout,
 		                    CommType comm,
 		                    MatrixType& m,
-		                    const std::string& label)
+		                    const PsimagLite::String& label)
 		{
 			//concurrency_.reduce(m);
 			//if (!concurrency_.root()) return;
 			VectorType v(m.n_row(),0);
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
-				std::string newlabel = label+ttos(dir);
+				PsimagLite::String newlabel = label+ttos(dir);
 				divideAndPrint(fout,comm,v,newlabel);
 			}
 		}

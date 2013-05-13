@@ -58,9 +58,9 @@ namespace Spf {
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
 		{
-			if (pe_.options.find("akw")!=std::string::npos)
+			if (pe_.options.find("akw")!=PsimagLite::String::npos)
 				accAkw(greenFunction);
-			if (pe_.options.find("optical")!=std::string::npos)
+			if (pe_.options.find("optical")!=PsimagLite::String::npos)
 				accOptical(greenFunction);
 			counter_++;
 		}
@@ -117,9 +117,9 @@ namespace Spf {
 
 			// some checking
 			if (geometry_.name()!="fcc" || n % 4!=0) {
-				std::string s = "accOptical: "+ std::string(__FILE__) +
+				PsimagLite::String s = "accOptical: "+ PsimagLite::String(__FILE__) +
 						" " + ttos(__LINE__) + "\n";
-				throw std::runtime_error(s.c_str());
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 
 			size_t hilbertSize = gf.hilbertSize();
@@ -159,7 +159,7 @@ namespace Spf {
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
 		                    PsimagLite::Vector<HistogramComplexType>::Type& h,
-		                    const std::string& label)
+		                    const PsimagLite::String& label)
 		{
 			if (h.size()==0) return;
 
@@ -185,7 +185,7 @@ namespace Spf {
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
 		                    HistogramRealType& h,
-		                    const std::string& label)
+		                    const PsimagLite::String& label)
 		{
 
 			h.divide(counter_*h.xWidth());

@@ -17,17 +17,17 @@ namespace Spf {
 	public:
 		enum { GLAUBER, METROPOLIS};
 		
-		MetropolisOrGlauber(const std::string& detailedBalance)
+		MetropolisOrGlauber(const PsimagLite::String& detailedBalance)
 		{
 			if (detailedBalance=="glauber") {
 				algo_=GLAUBER;
 			} else if (detailedBalance=="metropolis") {
 				algo_=METROPOLIS;
 			} else {
-				std::string s(__FILE__);
+				PsimagLite::String s(__FILE__);
 				s += " : Unknown detailed balance method: " + detailedBalance;
 				s += "\n";
-				throw std::runtime_error(s.c_str());
+				throw PsimagLite::RuntimeError(s.c_str());
 			}
 		}
 		

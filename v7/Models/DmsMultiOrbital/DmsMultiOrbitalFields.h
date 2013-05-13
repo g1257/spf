@@ -103,7 +103,7 @@ namespace Spf {
 		//! only spin for this model needs MC simulation
 		size_t size() const { return 1; }
 		
-		const std::string& name(size_t i) const { return name_; }
+		const PsimagLite::String& name(size_t i) const { return name_; }
 		
 		SpinType& getField(SpinType*)
 		{
@@ -115,7 +115,7 @@ namespace Spf {
 		        const DmsMultiOrbitalFields<FieldType2,GeometryType2>& f);
 		
 	private:
-		static const std::string name_;
+		static const PsimagLite::String name_;
 		SpinType spin_;
 		
 	}; // DmsMultiOrbitalFields
@@ -128,7 +128,7 @@ namespace Spf {
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>
-	const std::string DmsMultiOrbitalFields<FieldType,GeometryType>::name_="spin";
+	const PsimagLite::String DmsMultiOrbitalFields<FieldType,GeometryType>::name_="spin";
 	
 } // namespace Spf
 

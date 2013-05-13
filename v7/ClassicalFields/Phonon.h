@@ -18,7 +18,7 @@ namespace Spf {
 		typedef typename PsimagLite::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
 		
-		Phonon(size_t vol,const std::string& mcstarttype)
+		Phonon(size_t vol,const PsimagLite::String& mcstarttype)
 			: size(vol),phonon(vol, PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
@@ -27,7 +27,7 @@ namespace Spf {
 			ioin.read(phonon,"Phonon");
 			ioin.readline(isFrozen,"IsFrozenPhonon");
 
-			if (phonon.size()==0) throw std::runtime_error("Problem in phonon\n");
+			if (phonon.size()==0) throw PsimagLite::RuntimeError("Problem in phonon\n");
 		}
 		
 		size_t size;

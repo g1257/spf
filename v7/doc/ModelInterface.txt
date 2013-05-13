@@ -58,12 +58,12 @@ SpinType& getField(SpinType*)
 
 and it also tells it the name (also in PnictidesTwoOrbitalsFields.h):
 
-const std::string& name(size_t i) const { return name_; }
+const PsimagLite::String& name(size_t i) const { return name_; }
 
 which is simply:
 
 template<typename FieldType,typename GeometryType>
-const std::string PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
+const PsimagLite::String PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
 
 So, now you see why I need the PnictidesTwoOrbitalsFields.h and not simply "Spin.h", i.e., 
 PnictidesTwoOrbitalsFields.h is just a wrapper around Spin.h so that the Engine will be able to understand our model.

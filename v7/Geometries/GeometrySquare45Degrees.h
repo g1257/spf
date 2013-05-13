@@ -10,7 +10,7 @@
 #ifndef GEOM_SQUARE45DEGREES_H
 #define GEOM_SQUARE45DEGREES_H
 #include <utility>
-#include <string>
+#include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 #include <iostream>
@@ -127,7 +127,7 @@ namespace Spf {
 			return 0;
 		}
 
-// 		std::string name() const { return "square45degrees"; }
+// 		PsimagLite::String name() const { return "square45degrees"; }
 
 // 		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
 // 		{
@@ -168,12 +168,12 @@ namespace Spf {
 			return y*twolx + x;
 		}
 
-		void unimplemented(const std::string& s) const
+		void unimplemented(const PsimagLite::String& s) const
 		{
-			std::string ss = "GeometrySquare45Degrees::" + s;
+			PsimagLite::String ss = "GeometrySquare45Degrees::" + s;
 			ss += " is unimplemented yet (sorry)\n";
 			
-			throw std::runtime_error(ss.c_str());
+			throw PsimagLite::RuntimeError(ss.c_str());
 		}
 
 		bool periodicEqualTo(int a,int b) const

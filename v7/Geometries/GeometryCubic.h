@@ -80,7 +80,7 @@ namespace Spf {
 			return pos;
 		}
 
-		std::string name() const { return "cubic"; }
+		PsimagLite::String name() const { return "cubic"; }
 
 	private:
 		

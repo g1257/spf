@@ -158,9 +158,9 @@ int main(int argc,char *argv[])
 {
 	MyConcurrencyType concurrency(argc,argv);
 	if (argc<2) {
-		std::string s = "Usage is: ./" + std::string(argv[0]) +
+		PsimagLite::String s = "Usage is: ./" + PsimagLite::String(argv[0]) +
 		" input_file\\n";
-		throw std::runtime_error(s.c_str());
+		throw PsimagLite::RuntimeError(s.c_str());
 	}
 	PsimagLite::IoSimple::In io(argv[1]);
 	ParametersEngineType engineParams(io,concurrency);
