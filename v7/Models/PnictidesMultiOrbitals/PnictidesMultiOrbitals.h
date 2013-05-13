@@ -57,11 +57,11 @@ namespace Spf {
 		enum {SPIN_UP,SPIN_DOWN};
 		
 		PnictidesMultiOrbitals(const EngineParamsType& engineParams,
-		                       const IoInType& io,
+		                       IoInType& io,
 		                       const GeometryType& geometry,
 		                       ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
-		  mp_(io),
+		  mp_(io,engineParams),
 		  geometry_(geometry),
 		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
@@ -155,14 +155,14 @@ namespace Spf {
 				//greenFunction.printMatrix(OLDFIELDS);
 				PsimagLite::Matrix<RealType> v
 					(greenFunction.hilbertSize(),greenFunction.hilbertSize());
-				calcVelocitySquared(greenFunction,v,GeometryType::DIRX);
+				calcVelocitySquared(greenFunction,v,ProgramGlobals::DIRX);
 				typedef Conductance<EngineParamsType,GreenFunctionType> ConductanceType;
 				ConductanceType conductance(engineParams_,greenFunction);
 // 				s = "ConductanceX=" + ttos(conductance(v));
 				packer.pack("ConductanceX=" ,conductance(v));
 // 				progress_.printline(s,fout);
 				//PsimagLite::Matrix<RealType> vv = v;
-				calcVelocitySquared(greenFunction,v,GeometryType::DIRY);
+				calcVelocitySquared(greenFunction,v,ProgramGlobals::DIRY);
 // 				s = "ConductanceY=" + ttos(conductance(v));
 				packer.pack("ConductanceY=" ,conductance(v));
 // 				progress_.printline(s,fout);
@@ -252,7 +252,6 @@ namespace Spf {
 		}
 
 		template<typename EngineParamsType2,
-		         typename ParametersModelType2,
 		         typename GeometryType2,
 		         typename ConcurrencyType2>
 		friend std::ostream& operator<<(std::ostream& os,

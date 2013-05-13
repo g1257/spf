@@ -93,11 +93,41 @@ namespace Spf {
 			return size_t(r2[0]+2*r2[1]+4*r2[2]);
 		}
 
+		int getDirection(size_t ind,size_t jnd) const
+		{
+			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
+			return  -1;
+		}
+
 		size_t dim() const { return DIMENSION; }
 		
 		size_t length() const { return l_; }
 		
 		PsimagLite::String name() const { return "fcc"; }
+
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		coor2Index(const SomeVectorType& v) const
+		{
+			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
+		}
+
+		size_t coorToIndex(size_t a,size_t b) const
+		{
+			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
+		}
+
+		PairType getNeighbour(size_t i,size_t dir) const
+		{
+			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
+		}
+
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		indexToCoor(SomeVectorType& v,size_t i) const
+		{
+			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
+		}
 
 	private:
 		

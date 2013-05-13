@@ -55,12 +55,12 @@ namespace Spf {
 
 		enum {OLDFIELDS,NEWFIELDS};
 		
-		PhononsTwoOrbitals(const EngineParamsType& engineParams,
-		                   const IoInType& io,
+		PhononsTwoOrbitals(EngineParamsType& engineParams,
+		                   IoInType& io,
 		                   const GeometryType& geometry,
 		                   ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
-		  mp_(io),
+		  mp_(io,engineParams),
 		  geometry_(geometry),
 		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
@@ -68,7 +68,7 @@ namespace Spf {
 		  adjustments_(engineParams),
 		  progress_("PhononsTwoOrbitals",0),
 		  spinOperations_(geometry_,engineParams_),
-		  phononOperations_(geometry_,engineParams_.mcWindow[1]) // should be window for phonons
+		  phononOperations_(geometry_,engineParams.mcWindow["Phonon"]) // should be window for phonons
 		{}
 		
 		DynVarsType& dynVars() { return dynVars_; }

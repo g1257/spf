@@ -70,7 +70,9 @@ namespace Spf {
 		
 		PsimagLite::String name() const { return "square"; }
 
-		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		indexToCoor(SomeVectorType& v,size_t i) const
 		{
 			size_t lx = l_;
 			v[0] = i%lx;
@@ -108,6 +110,18 @@ namespace Spf {
 			if (periodicEqualTo(vi[0],-1) && periodicEqualTo(vi[1],1)) return ProgramGlobals::DIRXMY;
 			
 			return -1;
+		}
+
+		size_t scalarDirection(size_t site1,size_t site2) const
+		{
+			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
+		}
+
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		coor2Index(const SomeVectorType& v) const
+		{
+			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
 		}
 		
 		template<typename T>

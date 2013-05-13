@@ -54,11 +54,11 @@ namespace Spf {
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		DmsMultiOrbital(const EngineParamsType& engineParams,
-		                const IoInType& io,
+		                IoInType& io,
 		                const GeometryType& geometry,
 		                ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
-		  mp_(io),
+		  mp_(io,engineParams),
 		  geometry_(geometry),
 		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),

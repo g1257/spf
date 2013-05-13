@@ -53,7 +53,7 @@ typedef Spf::GeometrySquare45Degrees<FieldType> GeometrySquare45DegreesType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
 
 template<typename GeometryType,typename ModelType>
-void mainLoop2(const ParametersEngineType& engineParams,
+void mainLoop2(ParametersEngineType& engineParams,
                IoInType& io,
                const GeometryType& geometry,
                MyConcurrencyType& concurrency)
@@ -68,7 +68,7 @@ void mainLoop2(const ParametersEngineType& engineParams,
 }
 
 template<typename GeometryType>
-void mainLoop(const ParametersEngineType& engineParams,
+void mainLoop(ParametersEngineType& engineParams,
               IoInType& io,
               MyConcurrencyType& concurrency)
 {

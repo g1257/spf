@@ -125,7 +125,7 @@ namespace Spf {
 			return 0;
 		}
 
-// 		PsimagLite::String name() const { return "square45degrees"; }
+ 		PsimagLite::String name() const { return "square45degrees"; }
 
 // 		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
 // 		{
@@ -147,7 +147,31 @@ namespace Spf {
 			unimplemented("getDirection");
 			return  -1;
 		}
-// 		
+
+		size_t scalarDirection(size_t site1,size_t site2) const
+		{
+			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
+		}
+
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		coor2Index(const SomeVectorType& v) const
+		{
+			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
+		}
+
+		PairType getNeighbour(size_t i,size_t dir) const
+		{
+			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
+		}
+
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		indexToCoor(SomeVectorType& v,size_t i) const
+		{
+			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
+		}
+
 		template<typename T>
 		friend std::ostream& operator<<(std::ostream& os,
 		                                const GeometrySquare45Degrees<T>& g);

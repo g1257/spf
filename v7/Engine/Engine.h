@@ -42,7 +42,7 @@ namespace Spf {
 
 	public:
 
-		Engine(ParametersType& params,
+		Engine(const ParametersType& params,
 		       ModelType& model,
 		       IoInType& io,
 		       ConcurrencyType& concurrency) 

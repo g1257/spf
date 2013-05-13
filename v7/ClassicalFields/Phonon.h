@@ -19,7 +19,7 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 		
 		Phonon(size_t vol,const PsimagLite::String& mcstarttype)
-			: size(vol),phonon(vol, PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
+			: size(vol),phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);

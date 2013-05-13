@@ -11,6 +11,8 @@
 #define GEOM_CUBIC_H
 
 #include "ProgramGlobals.h"
+#include "String.h"
+#include "Vector.h"
 
 namespace Spf {
 	template<typename FieldType_>
@@ -56,7 +58,9 @@ namespace Spf {
 		
 		size_t length() const { return l_; }
 		
-		void indexToCoor(PsimagLite::Vector<size_t>::Type& v,size_t i) const
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		indexToCoor(SomeVectorType& v,size_t i) const
 		{
 			size_t lx = l_, ly = l_;
 			v[2] = i/(lx*ly);
@@ -65,9 +69,11 @@ namespace Spf {
 			v[0] = tmp % lx;
 		}
 
-		size_t coor2Index(const PsimagLite::Vector<size_t>::Type& v) const
+		template<typename SomeVectorType>
+		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		coor2Index(const SomeVectorType& v) const
 		{
-			PsimagLite::Vector<size_t>::Type length(3,l_);
+			SomeVectorType length(3,l_);
 			int v0 = v[0];
 			g_pbc(v0,length[0]);
 			size_t pos=v0;
@@ -82,7 +88,28 @@ namespace Spf {
 			return pos;
 		}
 
+		size_t coorToIndex(size_t a,size_t b) const
+		{
+			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
+		}
+
 		PsimagLite::String name() const { return "cubic"; }
+
+		size_t scalarDirection(size_t site1,size_t site2) const
+		{
+			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
+		}
+
+		int getDirection(size_t ind,size_t jnd) const
+		{
+			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
+			return  -1;
+		}
+
+		PairType getNeighbour(size_t i,size_t dir) const
+		{
+			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
+		}
 
 	private:
 		
