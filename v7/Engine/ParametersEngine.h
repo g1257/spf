@@ -1,6 +1,4 @@
-// BEGIN LICENSE BLOCK
-/*
-Copyright (c) 2009 , UT-Battelle, LLC
+/* Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
 [DMRG++, Version 2.0.0]
@@ -68,9 +66,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 *********************************************************
 
-
 */
-// END LICENSE BLOCK
 /** \ingroup SPF */
 /*@{*/
 
@@ -85,7 +81,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <iostream>
 #include <cstdlib>
 #include <stdexcept>
-#include <map>
+#include "Map.h"
 #include "TypeToString.h"
 #include "IoSimple.h"
 
@@ -173,7 +169,7 @@ namespace Spf {
 		mutable RealType mu; // chemical potential 
 		RealType beta; // inverse temperature
 		size_t iterTherm,iterEffective,iterUnmeasured;
-		std::map<PsimagLite::String,RealType>  mcWindow; // monte carlo windows
+		typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
 		PsimagLite::String dynvarsfile; // file with fields to start from or none
 		size_t dynvarslevel; // from where to start to read in dynvarsfile
 		size_t histSteps; // histogram steps
