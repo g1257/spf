@@ -78,52 +78,64 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef HUBBARD_ONE_ORB_FIELDS_H
 #define HUBBARD_ONE_ORB_FIELDS_H
-#include "Spin.h"
-#include "SpinOperations.h"
+#include "ContVarFinite.h"
+#include "ContVarFiniteOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class HubbardOneOrbitalFields {
 	public:	
-		typedef Spin<FieldType> SpinType;
-		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
-		typedef SpinType Type0;
-		typedef SpinType Type1; //bogus
-		typedef SpinOperationsType OperationsType0;
-		typedef SpinOperationsType OperationsType1; // bogus
+		typedef ContVarFinite<FieldType> ContVarFiniteType;
+		typedef ContVarFiniteOperations<GeometryType,ContVarFiniteType> ContVarFiniteOperationsType;
+		typedef typename ContVarFiniteType::PairRealType PairRealType;
+		typedef ContVarFiniteType Type0;
+		typedef ContVarFiniteType Type1; //bogus
+		typedef ContVarFiniteOperationsType OperationsType0;
+		typedef ContVarFiniteOperationsType OperationsType1; // bogus
 		
 		template<typename SomeParamsType>
 		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
-		: spin_(vol,params)
+		    : charge_(vol,params.dynvarsfile,PairRealType(0,2))
+//		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
 		{}
 		
-		size_t size() const { return 1; } // only spin for this model needs MC simulation
+		HubbardOneOrbitalFields(const Type0& charge) //,const Type1& mag)
+		    : charge_(charge)//,mag_(mag)
+		{}
+
+		size_t size() const { return 2; } // spin and mag for this model need MC simulation
 		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		
-		
-		SpinType& getField(SpinType*)
+		Type0& getField(Type0*)
 		{
-			return spin_;
+			return charge_;
 		}
+
+//		Type1& getField(Type1*)
+//		{
+//			return mag_;
+//		}
 		
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType2,GeometryType2>& f);
 		
 	private:
 		static const PsimagLite::String name_;
-		SpinType spin_;
+		Type0 charge_;
+//		Type1 mag_;
 		
 	}; // HubbardOneOrbitalFields
 	
 	template<typename FieldType,typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType,GeometryType>& f)
 	{
-		os<<f.spin_;
+		os<<f.charge_;
+//		os<<f.mag_;
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>
-	const PsimagLite::String HubbardOneOrbitalFields<FieldType,GeometryType>::name_="spin";
+	const PsimagLite::String HubbardOneOrbitalFields<FieldType,GeometryType>::name_="ChargeAndMagnetization";
 	
 } // namespace Spf
 
