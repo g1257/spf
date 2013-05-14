@@ -24,7 +24,6 @@ namespace Spf {
 	public:
 
 		typedef Spin<RealType> SpinType;
-
 		typedef GeometryType_ GeometryType;
 		typedef SpinType DynVarsType;
 		

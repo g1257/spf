@@ -47,7 +47,7 @@ namespace Spf {
 		typedef ParametersHubbardOneOrbital<EngineParamsType,IoInType> ParametersModelType;
 		typedef HubbardOneOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef ContVarFinite<RealType> ContVarFiniteType;
-		typedef ContVarFiniteOperations<GeometryType,ContVarFiniteType> ContVarFiniteOperationsType;
+		typedef ContVarFiniteOperations<GeometryType,RealType> ContVarFiniteOperationsType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 //		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,ComplexType,
 //				ParametersModelType,ConcurrencyType> HubbardOneOrbitalObsStoredType;

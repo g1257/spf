@@ -78,15 +78,17 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef HUBBARD_ONE_ORB_FIELDS_H
 #define HUBBARD_ONE_ORB_FIELDS_H
-#include "ContVarFinite.h"
+
 #include "ContVarFiniteOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class HubbardOneOrbitalFields {
+
 	public:	
-		typedef ContVarFinite<FieldType> ContVarFiniteType;
-		typedef ContVarFiniteOperations<GeometryType,ContVarFiniteType> ContVarFiniteOperationsType;
+
+		typedef ContVarFiniteOperations<GeometryType,FieldType> ContVarFiniteOperationsType;
+		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 		typedef ContVarFiniteType Type0;
 		typedef ContVarFiniteType Type1; //bogus

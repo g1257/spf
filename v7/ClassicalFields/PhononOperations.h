@@ -21,6 +21,7 @@ namespace Spf {
 
 		typedef Phonon<FieldType> PhononType;
 		typedef typename PhononType::OnePhononType OnePhononType;
+		typedef PhononType DynVarsType;
 
 		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
