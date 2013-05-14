@@ -11,20 +11,23 @@
 #define PHONON_OPS_H_
 
 #include "Vector.h"
+#include "Phonon.h"
 
 namespace Spf {
-	template<typename GeometryType,typename DynVarsType> // DynVarsType == PhononsType
+	template<typename GeometryType,typename FieldType>
 	class PhononOperations {
-		typedef typename DynVarsType::FieldType FieldType;
-		typedef typename PsimagLite::Vector<FieldType>::Type PhononType;
 		
 	public:
+
+		typedef Phonon<FieldType> PhononType;
+		typedef typename PhononType::OnePhononType OnePhononType;
+
 		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
 		}
 		
-		void set(DynVarsType& dynVars)
+		void set(PhononType& dynVars)
 		{
 			dynVars_=&dynVars;
 		}
@@ -48,16 +51,16 @@ namespace Spf {
 		template<typename RngType>
 		void proposeChange(size_t i,RngType& rng)
 		{
-			PhononType phononsOld = dynVars_->phonon[i];
+			OnePhononType phononsOld = dynVars_->phonon[i];
 			
 			dynVars2_ = *dynVars_;
 			
 			propose_(phononsOld,dynVars2_.phonon[i],rng);
 		}
 		
-		const DynVarsType& dynVars2() const { return dynVars2_; } 
+		const PhononType& dynVars2() const { return dynVars2_; }
 		
-		FieldType deltaDirect(size_t i,const PhononType& coupling) const
+		FieldType deltaDirect(size_t i,const OnePhononType& coupling) const
 		{
 			return dSDirect(*dynVars_,dynVars2_,i,coupling);
 		}
@@ -72,14 +75,14 @@ namespace Spf {
 			dynVars_->phonons[i]=dynVars2_.phonons[i];
 		}
 	
-		FieldType calcPhononDiff(size_t direction,size_t ind,const DynVarsType& dynVars) const
+		FieldType calcPhononDiff(size_t direction,size_t ind,const PhononType& dynVars) const
 		{
 			if (direction >= geometry_.dim()) return 0; 
 			size_t j = geometry_.neighbor(ind,2*direction+1).first;
 			return  (dynVars.phonon[ind][direction]-dynVars.phonon[j][direction]);
 		}
 		
-		FieldType calcPhonon(size_t ind,const DynVarsType& dynVars,size_t what) const
+		FieldType calcPhonon(size_t ind,const PhononType& dynVars,size_t what) const
 		{
 			FieldType ret=0;
 			FieldType sqrt3=1.732050807569;
@@ -102,7 +105,7 @@ namespace Spf {
 			return ret;
 		}
 
-		void calcQvector(typename PsimagLite::Vector<FieldType>::Type& v,size_t p,const DynVarsType& dynVars) const
+		void calcQvector(typename PsimagLite::Vector<FieldType>::Type& v,size_t p,const PhononType& dynVars) const
 		{
 			size_t numberOfNormalModes = 3;
 			v.resize(numberOfNormalModes);
@@ -113,13 +116,13 @@ namespace Spf {
 	private:
 		const GeometryType& geometry_;
 		const FieldType& mcwindow_;
-		DynVarsType* dynVars_;
-		DynVarsType dynVars2_;
+		PhononType* dynVars_;
+		PhononType dynVars2_;
 		
 		template<typename RngType>
 		void propose_(
-				const PhononType& phononsOld,
-				PhononType& phononsNew,
+				const OnePhononType& phononsOld,
+				OnePhononType& phononsNew,
 				RngType& rng)
 		{
 			for (size_t i=0;i<phononsNew.size();i++) {
@@ -128,8 +131,8 @@ namespace Spf {
 			}
 		}
 
-		FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,
-				  const PhononType& coupling) const
+		FieldType dSDirect(const PhononType& dynVars,const PhononType& dynVars2, size_t i,
+				  const OnePhononType& coupling) const
 		{
 			double dS=0;
 

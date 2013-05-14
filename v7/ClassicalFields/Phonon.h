@@ -15,9 +15,11 @@
 namespace Spf {
 	template<typename FieldType_>
 	struct Phonon { // Do not add functions here, this is a struct!!
+
 		typedef typename PsimagLite::IoSimple::In IoSimpleIn;
 		typedef FieldType_ FieldType;
-		
+		typedef typename PsimagLite::Vector<FieldType>::Type OnePhononType;
+
 		Phonon(size_t vol,const PsimagLite::String& mcstarttype)
 			: size(vol),phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
@@ -32,7 +34,7 @@ namespace Spf {
 		
 		size_t size;
                 //PsimagLite::Vector<FieldType> dummy_;
-		typename PsimagLite::Vector<typename PsimagLite::Vector<FieldType>::Type>::Type phonon;
+		typename PsimagLite::Vector<OnePhononType>::Type phonon;
 		bool isFrozen;
 		
 	}; // Spin
