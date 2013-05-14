@@ -81,15 +81,16 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PNICTIDES_2ORB_FIELDS_H
 #define PNICTIDES_2ORB_FIELDS_H
-#include "Spin.h"
 #include "SpinOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class PnictidesTwoOrbitalsFields {
-	public:	
-		typedef Spin<FieldType> SpinType;
-		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
+
+	public:
+
+		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
+		typedef typename SpinOperationsType::SpinType SpinType;
 		typedef SpinType Type0;
 		typedef SpinType Type1; //bogus
 		typedef SpinOperationsType OperationsType0;

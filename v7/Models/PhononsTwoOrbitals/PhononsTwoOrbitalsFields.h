@@ -81,7 +81,6 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PHONONS_2ORB_FIELDS_H
 #define PHONONS_2ORB_FIELDS_H
-#include "Spin.h"
 #include "Phonon.h"
 #include "SpinOperations.h"
 #include "PhononOperations.h"
@@ -89,10 +88,12 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class PhononsTwoOrbitalsFields {
+
 	public:
-		typedef Spin<FieldType> SpinType;
+
 		typedef Phonon<FieldType> PhononType;
-		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
+		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
+		typedef typename SpinOperationsType::SpinType SpinType;
 		typedef PhononOperations<GeometryType,PhononType> PhononOperationsType;
 		typedef SpinType Type0;
 		typedef PhononType Type1;

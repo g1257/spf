@@ -10,19 +10,23 @@
 #ifndef CLASSICAL_SPIN_OPS_H
 #define CLASSICAL_SPIN_OPS_H
 #include "Vector.h"
+#include "Spin.h"
 
 namespace Spf {
 	
-	template<typename GeometryType_,typename DynVarsType_>
+	template<typename GeometryType_,typename RealType>
 	class ClassicalSpinOperations {
-		typedef typename DynVarsType_::FieldType RealType;
+
 		typedef PsimagLite::Vector<RealType> VectorType;
 			
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 		
 	public:
+
+		typedef Spin<RealType> SpinType;
+
 		typedef GeometryType_ GeometryType;
-		typedef DynVarsType_ DynVarsType;
+		typedef SpinType DynVarsType;
 		
 		template<typename SomeParamsType>
 		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params) 

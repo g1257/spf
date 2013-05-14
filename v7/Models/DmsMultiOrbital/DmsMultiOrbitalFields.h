@@ -1,9 +1,8 @@
-// BEGIN LICENSE BLOCK
 /*
-Copyright (c) 2009 , UT-Battelle, LLC
+Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SPF, Version 7.0]
 [by G.A., Oak Ridge National Laboratory]
 
 UT Battelle Open Source Software License 11242008
@@ -68,9 +67,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 *********************************************************
 
-
 */
-// END LICENSE BLOCK
 /** \ingroup SPF */
 /*@{*/
 
@@ -81,15 +78,16 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef DMS_MULTI_ORB_FIELDS_H
 #define DMS_MULTI_ORB_FIELDS_H
-#include "Spin.h"
 #include "SpinOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class DmsMultiOrbitalFields {
+
 	public:	
-		typedef Spin<FieldType> SpinType;
-		typedef ClassicalSpinOperations<GeometryType,SpinType> SpinOperationsType;
+
+		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
+		typedef typename SpinOperationsType::SpinType SpinType;
 		typedef SpinType Type0;
 		typedef SpinType Type1; //bogus
 		typedef SpinOperationsType OperationsType0;
