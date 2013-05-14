@@ -36,6 +36,7 @@ typedef PsimagLite::ConcurrencyMpi<FieldType> MyConcurrencyType;
 #include "PnictidesMultiOrbitals.h"
 #include "DmsMultiOrbital.h"
 #include "PhononsTwoOrbitals.h"
+#include "HubbardOneOrbital.h"
 #include "GeometrySquare.h"
 #include "GeometryCubic.h"
 #include "GeometryFcc.h"
@@ -75,6 +76,7 @@ void mainLoop(ParametersEngineType& engineParams,
 	typedef Spf::PnictidesMultiOrbitals<ParametersEngineType,GeometryType,MyConcurrencyType> PnictidesMultiOrbitalsType;
 	typedef Spf::DmsMultiOrbital<ParametersEngineType,GeometryType,MyConcurrencyType> DmsMultiOrbitalType;
 	typedef Spf::PhononsTwoOrbitals<ParametersEngineType,GeometryType,MyConcurrencyType> PhononsTwoOrbitalsType;
+	typedef Spf::HubbardOneOrbital<ParametersEngineType,GeometryType,MyConcurrencyType> HubbardOneOrbitalType;
 
 	GeometryType geometry(engineParams.latticeLength);
 
@@ -84,6 +86,8 @@ void mainLoop(ParametersEngineType& engineParams,
 		mainLoop2<GeometryType,PnictidesMultiOrbitalsType>(engineParams,io,geometry,concurrency);
 	} else if (engineParams.model=="PhononsTwoOrbitals") {
 		mainLoop2<GeometryType,PhononsTwoOrbitalsType>(engineParams,io,geometry,concurrency);
+	} else if (engineParams.model=="HubbardOneOrbital") {
+		mainLoop2<GeometryType,HubbardOneOrbitalType>(engineParams,io,geometry,concurrency);
 	} else {
 		std::cerr<<"model="<<engineParams.model<<"\n";
 		throw PsimagLite::RuntimeError("Unknown model");
