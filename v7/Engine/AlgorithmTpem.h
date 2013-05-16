@@ -72,9 +72,11 @@ namespace Spf {
 
 		size_t hilbertSize() const { return hilbertSize_; }
 
-		bool isAccepted(size_t i,RngType& rng)
+		template<typename OperationsType>
+		bool isAccepted(size_t i,RngType& rng,OperationsType& ops,int n)
 		{
-			RealType dsDirect = model_.deltaDirect(i);
+			assert(n==0 || n==1);
+			RealType dsDirect = model_.deltaDirect(i,ops,n);
 							
 			setMatrix(matrixNew_,ModelType::NEWFIELDS);
 
@@ -90,9 +92,10 @@ namespace Spf {
 			return metropolisOrGlauber_(X,rng);
 		}
 
-		void accept(size_t i)
+		template<typename OperationsType>
+		void accept(size_t i,OperationsType& ops)
 		{
-			model_.accept(i);
+			ops.accept(i);
 			// update current moments
 			curMoments_ = newMoments_;
 			matrixOld_ = matrixNew_;

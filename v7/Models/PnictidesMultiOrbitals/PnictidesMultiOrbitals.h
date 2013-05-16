@@ -86,11 +86,19 @@ namespace Spf {
 		
 		ConcurrencyType& concurrency() { return concurrency_; }
 
-		RealType deltaDirect(size_t i) const 
+		RealType deltaDirect(size_t i,const SpinOperationsType& ops,int n) const
 		{
-			RealType x = spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
-			x += spinOperations_.deltaMagneticField(i,mp_.magneticField);
+			assert(n == 0);
+			RealType x = ops.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			x += ops.deltaMagneticField(i,mp_.magneticField);
 			return x;
+		}
+
+		template<typename SomeOperationsType>
+		RealType integrationMeasure(size_t i,SomeOperationsType& ops,int n)
+		{
+			assert(n == 0);
+			return ops.sineUpdate(i);
 		}
 		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
@@ -241,16 +249,6 @@ namespace Spf {
 
 				this->setTpemSupport(support,matrix,matrix2,site);
 			}
-		}
-
-		void accept(size_t i) 
-		{
-			spinOperations_.accept(i);
-		}
-
-		RealType integrationMeasure(size_t i)
-		{
-			return spinOperations_.sineUpdate(i);
 		}
 
 		template<typename SomeOutputType>

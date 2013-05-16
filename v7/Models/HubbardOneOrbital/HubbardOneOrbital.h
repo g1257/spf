@@ -87,7 +87,7 @@ namespace Spf {
 		
 		ConcurrencyType& concurrency() { return concurrency_; }
 
-		RealType deltaDirect(size_t i) const
+		RealType deltaDirect(size_t i,ContVarFiniteOperationsType& ops,size_t n) const
 		{
 			return 0.0;
 		}
@@ -176,14 +176,10 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("setTpemThings unimplemented\n");
 		}
 
-		void accept(size_t i) 
+		template<typename SomeOperationsType>
+		RealType integrationMeasure(size_t i,SomeOperationsType& ops,int n)
 		{
-			chargeOperations_.accept(i);
-		}
-
-		RealType integrationMeasure(size_t i)
-		{
-			return chargeOperations_.sineUpdate(i);
+			return 1.0;
 		}
 
 		template<typename SomeOutputType>

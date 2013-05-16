@@ -91,13 +91,29 @@ namespace Spf {
 
 		ConcurrencyType& concurrency() { return concurrency_; }
 
-		RealType deltaDirect(size_t i) const 
+		RealType deltaDirect(size_t i,SpinOperationsType& ops,int n) const
 		{
-			return spinOperations_.deltaDirect(i,mp_.jaf,0);
+			assert(n == 0);
+			return ops.deltaDirect(i,mp_.jaf,0);
 		}
 
-		template<typename RandomNumberGeneratorType>
-		void propose(size_t i,RandomNumberGeneratorType& rng) { spinOperations_.propose(i,rng); }
+		RealType deltaDirect(size_t i,PhononOperationsType& ops,int n) const
+		{
+			assert(n == 1);
+			return 0.0;
+		}
+
+		RealType integrationMeasure(size_t i,SpinOperationsType& ops,int n)
+		{
+			assert(n == 0);
+			return ops.sineUpdate(i);
+		}
+
+		RealType integrationMeasure(size_t i,PhononOperationsType& ops,int n)
+		{
+			assert(n == 1);
+			return 1.0;
+		}
 				
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
@@ -177,16 +193,6 @@ namespace Spf {
 				
 		}
 		
-		void accept(size_t i) 
-		{
-			return spinOperations_.accept(i);
-		}
-		
-		RealType integrationMeasure(size_t i)
-		{
-			return spinOperations_.sineUpdate(i);
-		}
-		
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout,CommType comm)
 		{
@@ -209,7 +215,7 @@ namespace Spf {
 			size_t volume = geometry_.volume();
 
 			const SpinType* spinPartPtr = 0;
-			dynVars_.getField(&spinPartPtr,1);
+			dynVars_.getField(&spinPartPtr,0);
 			const SpinType& spinPart = *spinPartPtr;
 
 			const PhononType* phononPartPtr = 0;

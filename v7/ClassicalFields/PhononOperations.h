@@ -73,7 +73,7 @@ namespace Spf {
 		
 		void accept(size_t i)
 		{
-			dynVars_->phonons[i]=dynVars2_.phonons[i];
+			dynVars_->phonon[i]=dynVars2_.phonon[i];
 		}
 	
 		FieldType calcPhononDiff(size_t direction,size_t ind,const PhononType& dynVars) const

@@ -6,5 +6,7 @@ List of Standard Tests for SPFv7
 210) Pnictides two orbitals on a square45degrees geometry
 400) Pnictides three orbitals on a square geometry
 420) Pnictides three orbitals with TPEM
+450) PhononsTwoOrbitals
+500) Hubbard Model
 #TAGEND DO NOT REMOVE THIS TAG
 

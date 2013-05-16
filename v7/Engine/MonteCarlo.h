@@ -10,11 +10,14 @@
 #ifndef MONTE_CARLO_H
 #define MONTE_CARLO_H
 #include "ProgressIndicator.h"
+#include <loki/Typelist.h>
 
 namespace Spf {
-	template<typename EngineParamsType,typename OperationsType,typename AlgorithmType,typename RandomNumberGeneratorType,
- typename DynVarsType>
+	template<typename EngineParamsType,typename OperationsList,typename AlgorithmType,typename RandomNumberGeneratorType,int n>
 	class MonteCarlo {
+
+		typedef typename Loki::TL::TypeAt<OperationsList,n>::Result OperationsType;
+		typedef typename OperationsType::DynVarsType DynVarsType;
 		typedef std::pair<size_t,size_t> PairType;
 		
 	public:
@@ -38,15 +41,15 @@ namespace Spf {
 			algorithm_.init();
 			//std::cerr<<"F:"<<rng_()<<"\n";
 			for (size_t j=0;j<dynVars.size;j++) {
-				size_t i = ops_.proposeSite(j,rng_);	
+				size_t i = ops_.proposeSite(j,rng_);
 				ops_.proposeChange(i,rng_);
 				//RealType oldmu = engineParams_.mu;
-				bool flag= algorithm_.isAccepted(i,rng_);
+				bool flag= algorithm_.isAccepted(i,rng_,ops_,n);
 // 				concurrency.broadcast(flag,comm);
 				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
 				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted
-					algorithm_.accept(i);
+					algorithm_.accept(i,ops_);
 					acc.first++;
 				} else { // not accepted
 					//engineParams_.mu=oldmu;
@@ -65,6 +68,80 @@ namespace Spf {
 		AlgorithmType& algorithm_;
 		
 	}; // MonteCarlo
+
+	template<typename RngType,
+	         typename ParametersType,
+	         typename ModelType,
+	         typename AlgorithmFactoryType,
+	         typename ListType,
+	         int n>
+	class MonteCarloLoop
+	{
+		typedef std::pair<size_t,size_t> PairType;
+		typedef typename Loki::TL::TypeAt<ListType,n>::Result OperationsType;
+		typedef typename OperationsType::DynVarsType Type0;
+		typedef MonteCarlo<ParametersType,ListType,AlgorithmFactoryType,
+		                   RngType,n> MonteCarloType0;
+		typedef typename ModelType::DynVarsType DynVarsType;
+
+	public:
+
+		static void loop(RngType& rng,
+		                 const ParametersType& params,
+		                 AlgorithmFactoryType& algorithm,
+		                 ModelType& model,
+		                 DynVarsType& dynVars,
+		                 PsimagLite::Vector<PairType>::Type& accepted,
+		                 size_t iter)
+		{
+
+			OperationsType* op = 0;
+			model.setOperation(&op,n);
+			MonteCarloType0 monteCarlo0(params,*op,algorithm,rng);
+			Type0* spinPart = 0;
+			dynVars.getField(&spinPart,n);
+			PairType res= monteCarlo0(*spinPart,iter);
+			accepted[n].first += res.first;
+			accepted[n].second += res.second;
+			MonteCarloLoop<RngType,ParametersType,ModelType,AlgorithmFactoryType,ListType,n-1>
+			        ::loop(rng,params,algorithm,model,dynVars,accepted,iter);
+	//			if (dynVars.size()==1) return;
+
+	//			typedef typename DynVarsType::template Operations<1>::Type OperationsType1;
+	//			typedef typename OperationsType1::DynVarsType Type1;
+	//			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmFactoryType,RngType,
+	//   				Type1> MonteCarloType1;
+
+	//			MonteCarloType1 monteCarlo1(params_,model_.ops(1),algorithm,rng_);
+	//			Type1& phononPart = dynVars.getMcField(1);
+	//			res= monteCarlo1(phononPart,iter); //concurrency_,comm_.second);
+	//			accepted[1].first += res.first;
+	//			accepted[1].second += res.second;
+		}
+	};
+
+	template<typename RngType,
+	         typename ParametersType,
+	         typename ModelType,
+	         typename AlgorithmFactoryType,
+	         typename ListType>
+	class MonteCarloLoop<RngType,ParametersType,ModelType,AlgorithmFactoryType,ListType,-1>
+	{
+		typedef std::pair<size_t,size_t> PairType;
+		typedef typename ModelType::DynVarsType DynVarsType;
+
+	public:
+
+		static void loop(RngType& rng,
+		                 const ParametersType& params,
+		                 AlgorithmFactoryType& algorithm,
+		                 ModelType& model,
+		                 DynVarsType& dynVars,
+		                 PsimagLite::Vector<PairType>::Type& accepted,
+		                 size_t iter)
+		{}
+	};
+
 } // namespace Spf
 
 /*@}*/

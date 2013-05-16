@@ -1,4 +1,5 @@
-/* Copyright (c) 2009-2013, UT-Battelle, LLC
+/*
+ *Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
 [SPF, Version 7.0]
@@ -88,7 +89,7 @@ namespace Spf {
 		                            const ParametersEngineType& engineParams)
 		{
 			io.readline(hopping,"Hopping=");
-			io.read(U,"HubbardU=");
+			io.read(U,"HubbardU");
 			io.read(potentialV,"PotentialV");
 		}
 

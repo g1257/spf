@@ -55,7 +55,8 @@ namespace Spf {
 
 		size_t hilbertSize() const { return hilbertSize_; }
 
-		bool isAccepted(size_t i,RngType& rng)
+		template<typename OperationsType>
+		bool isAccepted(size_t i,RngType& rng,OperationsType& ops,int n)
 		{
 			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
 			diagonalize(matrixNew_,eigNew_,'N');
@@ -69,16 +70,17 @@ namespace Spf {
 				}
 			}
 
-			RealType integrationMeasure = model_.integrationMeasure(i);
+			RealType integrationMeasure = model_.integrationMeasure(i,ops,n);
 				
 			RealType X = computeDeltaAction(integrationMeasure);
-			X *= exp(-engineParams_.beta*model_.deltaDirect(i));
+			X *= exp(-engineParams_.beta*model_.deltaDirect(i,ops,n));
 			return metropolisOrGlauber_(X,rng);
 		}
 
-		void accept(size_t i)
+		template<typename OperationsType>
+		void accept(size_t i,OperationsType& ops)
 		{
-			model_.accept(i);
+			ops.accept(i);
 			eigOld_ = eigNew_;
 		}
 

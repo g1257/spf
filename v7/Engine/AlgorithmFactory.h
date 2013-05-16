@@ -28,17 +28,18 @@ namespace Spf {
 			(t1_) ? t1_->algorithm().init() : t2_->algorithm().init();
 		}
 
-		template<typename SomeRngType>
-		bool isAccepted(size_t i,SomeRngType& rng)
+		template<typename SomeRngType,typename SomeOperationsType>
+		bool isAccepted(size_t i,SomeRngType& rng,SomeOperationsType& ops,int n)
 		{
-			return (t1_) ? t1_->algorithm().isAccepted(i,rng) 
-			             : t2_->algorithm().isAccepted(i,rng);
+			return (t1_) ? t1_->algorithm().isAccepted(i,rng,ops,n)
+			             : t2_->algorithm().isAccepted(i,rng,ops,n);
 		}
 
-		void accept(size_t i)
+		template<typename SomeOperationsType>
+		void accept(size_t i,SomeOperationsType& ops)
 		{
-			return (t1_) ? t1_->algorithm().accept(i) 
-			             : t2_->algorithm().accept(i);
+			return (t1_) ? t1_->algorithm().accept(i,ops)
+			             : t2_->algorithm().accept(i,ops);
 		}
 
 	private:

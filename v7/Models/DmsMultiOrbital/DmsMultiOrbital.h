@@ -84,11 +84,16 @@ namespace Spf {
 
 		ConcurrencyType& concurrency() { return concurrency_; }
 
-		RealType deltaDirect(size_t i) const
+		RealType deltaDirect(size_t i,const SpinOperationsType& ops,int n) const
 		{
-			// don't use line below, unless geometry has nnn:
-			//return spinOperations_.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+			assert(n == 0);
 			return 0.0;
+		}
+
+		RealType integrationMeasure(size_t i,const SpinOperationsType& ops,int n)
+		{
+			assert(n == 0);
+			return ops.sineUpdate(i);
 		}
 		
 		void set(typename DynVarsType::SpinType& dynVars)
@@ -183,16 +188,6 @@ namespace Spf {
 				std::cerr<<e.what()<<"\n";
 			}
 				
-		}
-		
-		void accept(size_t i) 
-		{
-			spinOperations_.accept(i);
-		}
-		
-		RealType integrationMeasure(size_t i)
-		{
-			return spinOperations_.sineUpdate(i);
 		}
 		
 		template<typename SomeOutputType>
