@@ -163,31 +163,33 @@ namespace Spf {
 
 		void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,DynVarsType& dynVars, size_t iter)
 		{
-			typedef typename DynVarsType::OperationsType0 OperationsType0;
-			typedef typename DynVarsType::Type0 Type0;
+			typedef typename DynVarsType::OperationsList::Head OperationsType0;
+			typedef typename OperationsType0::DynVarsType Type0;
 			typedef MonteCarlo<ParametersType,OperationsType0,AlgorithmFactoryType,
 			                   RngType,Type0> MonteCarloType0;
 			AlgorithmFactoryType algorithm(gfDiag_,gfTpem_);
 
-			MonteCarloType0 monteCarlo0(params_,model_.ops((OperationsType0*)0),algorithm,rng_);
-			Type0& spinPart = dynVars.getField((Type0*)0);
-			PairType res= monteCarlo0(spinPart,iter); //concurrency_,comm_.second);
+			OperationsType0* op = 0;
+			model_.setOperation(&op,0);
+			MonteCarloType0 monteCarlo0(params_,*op,algorithm,rng_);
+			Type0* spinPart = 0;
+			dynVars.getField(&spinPart,0);
+			PairType res= monteCarlo0(*spinPart,iter);
 			accepted[0].first += res.first;
 			accepted[0].second += res.second;
 			
-			if (dynVars.size()==1) return;
+//			if (dynVars.size()==1) return;
 			
-			typedef typename DynVarsType::OperationsType1 OperationsType1;
-			typedef typename DynVarsType::Type1 Type1;
-			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmFactoryType,RngType,
-   				Type1> MonteCarloType1;
+//			typedef typename DynVarsType::template Operations<1>::Type OperationsType1;
+//			typedef typename OperationsType1::DynVarsType Type1;
+//			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmFactoryType,RngType,
+//   				Type1> MonteCarloType1;
 			
-			MonteCarloType1 monteCarlo1(params_,model_.ops((OperationsType1*)0),algorithm,rng_);
-			Type1& phononPart = dynVars.getField((Type1*)0);
-			res= monteCarlo1(phononPart,iter); //concurrency_,comm_.second);
-			accepted[1].first += res.first;
-			accepted[1].second += res.second;
-			
+//			MonteCarloType1 monteCarlo1(params_,model_.ops(1),algorithm,rng_);
+//			Type1& phononPart = dynVars.getMcField(1);
+//			res= monteCarlo1(phononPart,iter); //concurrency_,comm_.second);
+//			accepted[1].first += res.first;
+//			accepted[1].second += res.second;
 		}
 
 		void printProgress(const PsimagLite::Vector<PairType>::Type& accepted,

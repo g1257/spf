@@ -1,9 +1,8 @@
-// BEGIN LICENSE BLOCK
 /*
-Copyright (c) 2009 , UT-Battelle, LLC
+Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SPF, Version 7.0]
 [by G.A., Oak Ridge National Laboratory]
 
 UT Battelle Open Source Software License 11242008
@@ -68,9 +67,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 *********************************************************
 
-
 */
-// END LICENSE BLOCK
 /** \ingroup SPF */
 /*@{*/
 
@@ -82,6 +79,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef PNICTIDES_2ORB_FIELDS_H
 #define PNICTIDES_2ORB_FIELDS_H
 #include "SpinOperations.h"
+#include <loki/Typelist.h>
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
@@ -91,11 +89,8 @@ namespace Spf {
 
 		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
 		typedef typename SpinOperationsType::SpinType SpinType;
-		typedef SpinType Type0;
-		typedef SpinType Type1; //bogus
-		typedef SpinOperationsType OperationsType0;
-		typedef SpinOperationsType OperationsType1; // bogus
-		
+		typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
+
 		template<typename SomeParamsType>
 		PnictidesTwoOrbitalsFields(size_t vol,const SomeParamsType& params)
 		: spin_(vol,params)
@@ -105,10 +100,16 @@ namespace Spf {
 		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		
-		
-		SpinType& getField(SpinType*)
+		void getField(SpinType** field,size_t i)
 		{
-			return spin_;
+			assert(i == 0);
+			*field = &spin_;
+		}
+
+		void getField(SpinType const** field,size_t i) const
+		{
+			assert(i == 0);
+			*field = &spin_;
 		}
 		
 		template<typename FieldType2,typename GeometryType2>

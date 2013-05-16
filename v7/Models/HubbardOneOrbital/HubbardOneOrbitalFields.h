@@ -78,7 +78,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef HUBBARD_ONE_ORB_FIELDS_H
 #define HUBBARD_ONE_ORB_FIELDS_H
-
+#include <loki/Typelist.h>
 #include "ContVarFiniteOperations.h"
 
 namespace Spf {
@@ -90,18 +90,17 @@ namespace Spf {
 		typedef ContVarFiniteOperations<GeometryType,FieldType> ContVarFiniteOperationsType;
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
-		typedef ContVarFiniteType Type0;
-		typedef ContVarFiniteType Type1; //bogus
-		typedef ContVarFiniteOperationsType OperationsType0;
-		typedef ContVarFiniteOperationsType OperationsType1; // bogus
 		
+		typedef LOKI_TYPELIST_1(ContVarFiniteOperationsType) OperationsList;
+//		typedef LOKI_TYPELIST_2(ContVarFiniteOperationsType,ContVarFiniteOperationsType) OperationsList;
+
 		template<typename SomeParamsType>
 		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
 		    : charge_(vol,params.dynvarsfile,PairRealType(0,2))
 //		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
 		{}
 		
-		HubbardOneOrbitalFields(const Type0& charge) //,const Type1& mag)
+		HubbardOneOrbitalFields(const ContVarFiniteType& charge) //,const ContVarFiniteType& mag)
 		    : charge_(charge)//,mag_(mag)
 		{}
 
@@ -109,23 +108,31 @@ namespace Spf {
 		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		
-		Type0& getField(Type0*)
+		void getField(ContVarFiniteType const** field,size_t i) const
 		{
-			return charge_;
+			assert(i == 0 || i == 1);
+			if (i==0)
+				*field = &charge_;
+//			else
+//				*field = &mag_;
 		}
 
-//		Type1& getField(Type1*)
-//		{
-//			return mag_;
-//		}
+		void getField(ContVarFiniteType** field,size_t i)
+		{
+			assert(i == 0 || i == 1);
+			if (i==0)
+				*field = &charge_;
+//			else
+//				*field = &mag_;
+		}
 		
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType2,GeometryType2>& f);
 		
 	private:
 		static const PsimagLite::String name_;
-		Type0 charge_;
-//		Type1 mag_;
+		ContVarFiniteType charge_;
+//		ContVarFiniteType mag_;
 		
 	}; // HubbardOneOrbitalFields
 	

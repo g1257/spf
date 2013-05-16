@@ -1,5 +1,4 @@
-/*
-Copyright (c) 2009-2013, UT-Battelle, LLC
+/* Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
 [SPF, Version 7.0]
@@ -79,6 +78,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef DMS_MULTI_ORB_FIELDS_H
 #define DMS_MULTI_ORB_FIELDS_H
 #include "SpinOperations.h"
+#include <loki/Typelist.h>
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
@@ -88,11 +88,9 @@ namespace Spf {
 
 		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
 		typedef typename SpinOperationsType::SpinType SpinType;
-		typedef SpinType Type0;
-		typedef SpinType Type1; //bogus
-		typedef SpinOperationsType OperationsType0;
-		typedef SpinOperationsType OperationsType1; // bogus
 		
+		typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
+
 		template<typename SomeParamsType>
 		DmsMultiOrbitalFields(size_t vol,const SomeParamsType& params)
 		: spin_(vol,params)
@@ -103,9 +101,16 @@ namespace Spf {
 		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		
-		SpinType& getField(SpinType*)
+		void getField(SpinType** field,size_t i)
 		{
-			return spin_;
+			assert(i == 0);
+			*field = &spin_;
+		}
+
+		void getField(SpinType const** field,size_t i) const
+		{
+			assert(i == 0);
+			*field = &spin_;
 		}
 		
 		template<typename FieldType2,typename GeometryType2>

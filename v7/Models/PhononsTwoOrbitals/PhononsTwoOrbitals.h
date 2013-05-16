@@ -73,12 +73,20 @@ namespace Spf {
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		
+		void setOperation(SpinOperationsType** op,size_t i)
+		{
+			assert(i == 0);
+			*op = &spinOperations_;
+		}
+
+		void setOperation(PhononOperationsType** op,size_t i)
+		{
+			assert(i == 1);
+			*op = &phononOperations_;
+		}
+
 		size_t totalFlips() const { return geometry_.volume(); }
-		
-		PhononOperationsType& ops(PhononOperationsType*) { return phononOperations_; }
-		
-		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
-		
+
 		size_t hilbertSize() const { return hilbertSize_; }
 
 		ConcurrencyType& concurrency() { return concurrency_; }
@@ -94,9 +102,9 @@ namespace Spf {
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
-			typedef typename DynVarsType::Type0 Type0;
-			const SpinType& spinPart = dynVars_.getField((Type0*)0);
-			//const PhononType& phononPart = dynVars_.template getField<1,typename DynVarsType::Type1>();
+			SpinType* dynVarsPtr = 0;
+			dynVars_.getField(&dynVarsPtr,0);
+			const SpinType& spinPart = *dynVarsPtr;
 
 			packer.pack("iter=",iter);
 
@@ -133,10 +141,12 @@ namespace Spf {
 
 		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
 		{
-			typedef typename DynVarsType::Type1 Type1;
-			DynVarsType newDynVars(spinOperations_.dynVars2(),
-					       dynVars_.getField((Type1*)0));
-			
+
+			PhononType* phononPartPtr = 0;
+			dynVars_.getField(&phononPartPtr,1);
+			const PhononType& phononPart = *phononPartPtr;
+
+			DynVarsType newDynVars(spinOperations_.dynVars2(),phononPart);
 			
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
 			 else createHamiltonian(dynVars_,matrix);
@@ -197,8 +207,14 @@ namespace Spf {
 		void createHamiltonian(DynVarsType& dynVars,MatrixType& matrix) const
 		{
 			size_t volume = geometry_.volume();
-			const SpinType& spinPart = dynVars.getField((SpinType*)0);
-			const PhononType& phononPart = dynVars.getField((PhononType*)0);
+
+			const SpinType* spinPartPtr = 0;
+			dynVars_.getField(&spinPartPtr,1);
+			const SpinType& spinPart = *spinPartPtr;
+
+			const PhononType* phononPartPtr = 0;
+			dynVars_.getField(&phononPartPtr,1);
+			const PhononType& phononPart = *phononPartPtr;
 			
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 

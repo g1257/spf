@@ -1,9 +1,8 @@
-// BEGIN LICENSE BLOCK
 /*
-Copyright (c) 2009 , UT-Battelle, LLC
+Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SPF, Version 7.0]
 [by G.A., Oak Ridge National Laboratory]
 
 UT Battelle Open Source Software License 11242008
@@ -68,9 +67,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 *********************************************************
 
-
 */
-// END LICENSE BLOCK
 /** \ingroup SPF */
 /*@{*/
 
@@ -83,6 +80,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #define PHONONS_2ORB_FIELDS_H
 #include "SpinOperations.h"
 #include "PhononOperations.h"
+#include <loki/Typelist.h>
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
@@ -94,11 +92,9 @@ namespace Spf {
 		typedef typename SpinOperationsType::SpinType SpinType;
 		typedef PhononOperations<GeometryType,FieldType> PhononOperationsType;
 		typedef typename PhononOperationsType::PhononType PhononType;
-		typedef SpinType Type0;
-		typedef PhononType Type1;
-		typedef SpinOperationsType OperationsType0;
-		typedef PhononOperationsType OperationsType1;
-		
+
+		typedef LOKI_TYPELIST_2(SpinOperationsType, PhononOperationsType) OperationsList;
+
 		template<typename SomeParamsType>
 		PhononsTwoOrbitalsFields(size_t vol,const SomeParamsType& params) :
 				spin_(vol,params),phonon_(vol,params.dynvarsfile)
@@ -113,16 +109,30 @@ namespace Spf {
 		
 		const PsimagLite::String& name(size_t i) const { return name_[i]; }
 		
-		SpinType& getField(SpinType*)
+		void getField(SpinType const** field,size_t i) const
 		{
-			return spin_;
+			assert(i == 0);
+			*field = &spin_;
 		}
 		
-		PhononType& getField(PhononType*)
+		void getField(PhononType const** field,size_t i) const
 		{
-			return phonon_;
+			assert(i == 1);
+			*field = &phonon_;
 		}
-		
+
+		void getField(SpinType** field,size_t i)
+		{
+			assert(i == 0);
+			*field = &spin_;
+		}
+
+		void getField(PhononType** field,size_t i)
+		{
+			assert(i == 1);
+			*field = &phonon_;
+		}
+
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		          const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);

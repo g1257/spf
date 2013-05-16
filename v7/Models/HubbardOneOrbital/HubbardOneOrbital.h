@@ -12,7 +12,6 @@
 #include "HubbardOneOrbitalFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
-#include "ContVarFinite.h"
 #include "ContVarFiniteOperations.h"
 #include "ModelBase.h"
 #include "ThreeOrbitalTerms.h"
@@ -46,8 +45,8 @@ namespace Spf {
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersHubbardOneOrbital<EngineParamsType,IoInType> ParametersModelType;
 		typedef HubbardOneOrbitalFields<RealType,GeometryType> DynVarsType;
-		typedef ContVarFinite<RealType> ContVarFiniteType;
 		typedef ContVarFiniteOperations<GeometryType,RealType> ContVarFiniteOperationsType;
+		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 //		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,ComplexType,
 //				ParametersModelType,ConcurrencyType> HubbardOneOrbitalObsStoredType;
@@ -74,8 +73,15 @@ namespace Spf {
 		DynVarsType& dynVars() { return dynVars_; }
 		
 		size_t totalFlips() const { return geometry_.volume(); }
-		
-		ContVarFiniteOperationsType& ops(ContVarFiniteOperationsType*) { return chargeOperations_; }
+
+		void setOperation(ContVarFiniteOperationsType** op,size_t i)
+		{
+			assert(i == 0 || i == 1);
+			if (i==0)
+				*op = &chargeOperations_;
+//			else
+//				op = &magOperations_;
+		}
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 		
@@ -91,7 +97,9 @@ namespace Spf {
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
-			const ContVarFiniteType& dynVars = dynVars_.getField((ContVarFiniteType*)0);
+			ContVarFiniteType* dynVarsPtr = 0;
+			dynVars_.getField(&dynVarsPtr,0);
+			const ContVarFiniteType& dynVars = *dynVarsPtr;
 			
 			packer.pack("iter=",iter);
 
@@ -139,7 +147,6 @@ namespace Spf {
 
 		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
-			typedef typename DynVarsType::Type1 Type1;
 			DynVarsType newDynVars(chargeOperations_.dynVars2()); //,magOperations_.dynVars2());
 
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);

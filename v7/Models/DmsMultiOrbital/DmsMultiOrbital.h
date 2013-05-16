@@ -74,7 +74,11 @@ namespace Spf {
 		
 		size_t totalFlips() const { return geometry_.volume(); }
 		
-		SpinOperationsType& ops(SpinOperationsType*) { return spinOperations_; }
+		void setOperation(SpinOperationsType** op,size_t i)
+		{
+			assert(i == 0);
+			*op = &spinOperations_;
+		}
 		
 		size_t hilbertSize() const { return hilbertSize_; }
 
@@ -98,7 +102,9 @@ namespace Spf {
 				size_t iter,
 				SomePackerType& packer)
 		{
-			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
+			SpinType* dynVarsPtr = 0;
+			dynVars_.getField(&dynVarsPtr,0);
+			const SpinType& dynVars = *dynVarsPtr;
 			
 			packer.pack("iter=",iter);
 
@@ -144,7 +150,10 @@ namespace Spf {
 				PsimagLite::Matrix<ComplexType>& matrix,
 				size_t oldOrNewDynVars)
 		{
-			const SpinType& dynVars = dynVars_.getField((SpinType*)0);
+			SpinType* dynVarsPtr = 0;
+			dynVars_.getField(&dynVarsPtr,0);
+			const SpinType& dynVars = *dynVarsPtr;
+
 			if (oldOrNewDynVars==NEWFIELDS)
 				createHamiltonian(spinOperations_.dynVars2(),matrix);
 			else
