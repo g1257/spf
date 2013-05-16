@@ -91,17 +91,16 @@ namespace Spf {
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 		
-		typedef LOKI_TYPELIST_1(ContVarFiniteOperationsType) OperationsList;
-//		typedef LOKI_TYPELIST_2(ContVarFiniteOperationsType,ContVarFiniteOperationsType) OperationsList;
+		typedef LOKI_TYPELIST_2(ContVarFiniteOperationsType,ContVarFiniteOperationsType) OperationsList;
 
 		template<typename SomeParamsType>
 		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
-		    : charge_(vol,params.dynvarsfile,PairRealType(0,2))
-//		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
+		    : charge_(vol,params.dynvarsfile,PairRealType(0,2)),
+		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
 		{}
 		
-		HubbardOneOrbitalFields(const ContVarFiniteType& charge) //,const ContVarFiniteType& mag)
-		    : charge_(charge)//,mag_(mag)
+		HubbardOneOrbitalFields(const ContVarFiniteType& charge,const ContVarFiniteType& mag)
+		    : charge_(charge),mag_(mag)
 		{}
 
 		size_t size() const { return 2; } // spin and mag for this model need MC simulation
@@ -111,10 +110,12 @@ namespace Spf {
 		void getField(ContVarFiniteType const** field,size_t i) const
 		{
 			assert(i == 0 || i == 1);
-			if (i==0)
+			if (i == 0)
 				*field = &charge_;
-//			else
-//				*field = &mag_;
+			else if (i == 1)
+				*field = &mag_;
+			else
+				throw PsimagLite::RuntimeError("HubbardOneOrbitalFields::getField()\n");
 		}
 
 		void getField(ContVarFiniteType** field,size_t i)
@@ -122,8 +123,10 @@ namespace Spf {
 			assert(i == 0 || i == 1);
 			if (i==0)
 				*field = &charge_;
-//			else
-//				*field = &mag_;
+			else if (i == 1)
+				*field = &mag_;
+			else
+				throw PsimagLite::RuntimeError("HubbardOneOrbitalFields::getField()\n");
 		}
 		
 		template<typename FieldType2,typename GeometryType2>
@@ -132,7 +135,7 @@ namespace Spf {
 	private:
 		static const PsimagLite::String name_;
 		ContVarFiniteType charge_;
-//		ContVarFiniteType mag_;
+		ContVarFiniteType mag_;
 		
 	}; // HubbardOneOrbitalFields
 	
@@ -140,7 +143,7 @@ namespace Spf {
 	std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType,GeometryType>& f)
 	{
 		os<<f.charge_;
-//		os<<f.mag_;
+		os<<f.mag_;
 		return os;
 	}
 	template<typename FieldType,typename GeometryType>

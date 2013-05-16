@@ -69,7 +69,9 @@ namespace Spf {
 		  progress_("PhononsTwoOrbitals",0),
 		  spinOperations_(geometry_,engineParams_),
 		  phononOperations_(geometry_,engineParams.mcWindow["Phonon"]) // should be window for phonons
-		{}
+		{
+			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Phonon");
+		}
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		

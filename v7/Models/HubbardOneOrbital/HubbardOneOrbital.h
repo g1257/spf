@@ -33,7 +33,6 @@ namespace Spf {
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
-		//typedef RandomNumberGenerator<RealType> RandomNumberGeneratorType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 
@@ -55,9 +54,9 @@ namespace Spf {
 		enum {SPIN_UP,SPIN_DOWN};
 		
 		HubbardOneOrbital(const EngineParamsType& engineParams,
-		                       IoInType& io,
-		                       const GeometryType& geometry,
-		                       ConcurrencyType& concurrency)
+		                  IoInType& io,
+		                  const GeometryType& geometry,
+		                  ConcurrencyType& concurrency)
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
@@ -65,9 +64,12 @@ namespace Spf {
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*geometry.volume()),
 		  progress_("HubbardOneOrbital",0),
-		  chargeOperations_(geometry,engineParams.mcWindow.find("Charge")->second,PairRealType(0,2))
+		  chargeOperations_(geometry,engineParams.mcWindow.find("Charge")->second,PairRealType(0,2)),
+		  magOperations_(geometry,engineParams.mcWindow.find("Mag")->second,PairRealType(-1,1))
 //		  HubbardOneOrbitalObsStored_(chargeOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
 		{
+			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Mag");
+			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Charge");
 		}
 		
 		DynVarsType& dynVars() { return dynVars_; }
@@ -77,10 +79,12 @@ namespace Spf {
 		void setOperation(ContVarFiniteOperationsType** op,size_t i)
 		{
 			assert(i == 0 || i == 1);
-			if (i==0)
+			if (i == 0)
 				*op = &chargeOperations_;
-//			else
-//				op = &magOperations_;
+			else if (i == 1)
+				*op = &magOperations_;
+			else
+				throw PsimagLite::RuntimeError("HubbardOneOrbital::setOperation()\n");
 		}
 		
 		size_t hilbertSize() const { return hilbertSize_; }
@@ -91,8 +95,6 @@ namespace Spf {
 		{
 			return 0.0;
 		}
-		
-//		void set(typename DynVarsType::SpinType& dynVars) { chargeOperations_.set(dynVars); }
 		
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
@@ -147,7 +149,7 @@ namespace Spf {
 
 		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
 		{
-			DynVarsType newDynVars(chargeOperations_.dynVars2()); //,magOperations_.dynVars2());
+			DynVarsType newDynVars(chargeOperations_.dynVars2(),magOperations_.dynVars2());
 
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
 			 else createHamiltonian(dynVars_,matrix);
@@ -242,6 +244,7 @@ namespace Spf {
 		size_t hilbertSize_;
 		ProgressIndicatorType progress_;
 		ContVarFiniteOperationsType chargeOperations_;
+		ContVarFiniteOperationsType magOperations_;
 //		HubbardOneOrbitalObsStoredType HubbardOneOrbitalObsStored_;
 	}; // HubbardOneOrbital
 
