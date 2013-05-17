@@ -89,12 +89,18 @@ namespace Spf {
 		                            const ParametersEngineType& engineParams)
 		{
 			io.readline(hopping,"Hopping=");
-			io.read(U,"HubbardU");
+			io.readline(dampingCharge,"DampingCharge=");
+			io.readline(dampingMag,"DampingMag=");
+			io.readline(interactionCharge,"InteractionCharge=");
+			io.readline(interactionMag,"InteractionMag=");
 			io.read(potentialV,"PotentialV");
 		}
 
 		RealType hopping;
-		typename PsimagLite::Vector<RealType>::Type U;
+		RealType dampingCharge;
+		RealType dampingMag;
+		RealType interactionCharge;
+		RealType interactionMag;
 		typename PsimagLite::Vector<RealType>::Type potentialV;
 		
 	}; //struct ParametersHubbardOneOrbital
@@ -104,14 +110,15 @@ namespace Spf {
 	std::ostream& operator<<(std::ostream &os,
 	                         const ParametersHubbardOneOrbital<ParametersEngineType,IoInType>& parameters)
 	{
-
 		os<<"parameters.hopping="<<parameters.hopping<<"\n";
+
+		os<<"parameters.dampingCharge="<<parameters.dampingCharge<<"\n";
+		os<<"parameters.dampingMag="<<parameters.dampingMag<<"\n";
+		os<<"parameters.interactionCharge="<<parameters.interactionCharge<<"\n";
+		os<<"parameters.interactionMag="<<parameters.interactionMag<<"\n";
 
 		os<<"parameters.potentialV\n";
 		os<<parameters.potentialV;
-
-		os<<"parameters.HubbardU";
-		os<<parameters.U;
 
 		return os;
 	}

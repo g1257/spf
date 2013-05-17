@@ -93,15 +93,14 @@ namespace Spf {
 
 		RealType deltaDirect(size_t i,ContVarFiniteOperationsType& ops,size_t n) const
 		{
-			return 0.0;
+			const RealType& coupling = (n==DynVarsType::CHARGE) ? mp_.dampingCharge : mp_.dampingMag;
+			return ops.deltaDirect(i,coupling);
 		}
 		
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
-			ContVarFiniteType* dynVarsPtr = 0;
-			dynVars_.getField(&dynVarsPtr,0);
-			const ContVarFiniteType& dynVars = *dynVarsPtr;
+			const ContVarFiniteType& dynVars = dynVars_.getField(DynVarsType::CHARGE);
 			
 			packer.pack("iter=",iter);
 
@@ -234,6 +233,14 @@ namespace Spf {
 					}
 				}
 			}
+		}
+
+		RealType calcVolume2(const ContVarFiniteType& v) const
+		{
+			RealType sum=0;
+			for (size_t i=0;i<v.value.size();i++)
+				sum += square(v.value[i]);
+			return sum;
 		}
 
 		const EngineParamsType& engineParams_;

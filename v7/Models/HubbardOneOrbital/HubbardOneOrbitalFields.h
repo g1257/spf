@@ -85,7 +85,9 @@ namespace Spf {
 	template<typename FieldType,typename GeometryType>
 	class HubbardOneOrbitalFields {
 
-	public:	
+	public:
+
+		enum {CHARGE, MAG};
 
 		typedef ContVarFiniteOperations<GeometryType,FieldType> ContVarFiniteOperationsType;
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
@@ -128,6 +130,12 @@ namespace Spf {
 			else
 				throw PsimagLite::RuntimeError("HubbardOneOrbitalFields::getField()\n");
 		}
+
+		const ContVarFiniteType& getField(size_t what) const
+		{
+			return (what==CHARGE) ? charge_ : mag_;
+		}
+
 		
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType2,GeometryType2>& f);

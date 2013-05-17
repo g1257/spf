@@ -30,6 +30,11 @@ public:
 			throw PsimagLite::RuntimeError(str);
 	}
 
+	template<typename T>
+	static T square(const T& t)
+	{
+		return t*t;
+	}
 }; // ProgramGlobals
 } // namespace Spf
 
