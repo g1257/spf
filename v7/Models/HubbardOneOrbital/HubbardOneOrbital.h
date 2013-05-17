@@ -52,6 +52,7 @@ namespace Spf {
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
+		enum {CHARGE = DynVarsType::CHARGE, MAG = DynVarsType::MAG};
 		
 		HubbardOneOrbital(const EngineParamsType& engineParams,
 		                  IoInType& io,
@@ -106,18 +107,26 @@ namespace Spf {
 			packer.pack("Number_Of_Electrons=",temp);
 			
 			temp=greenFunction.calcElectronicEnergy();
-			packer.pack("Electronic Energy=",temp);
+			packer.pack("EnergyElectronic=",temp);
 			
-			RealType temp2 = chargeOperations_.volume2() * mp_.dampingCharge;
-			packer.pack("DampingEnergyCharge=",temp2);
-			
+			RealType temp2 = chargeOperations_.sum2() * mp_.dampingCharge;
+			packer.pack("EnergyDampingCharge=",temp2);
 			temp += temp2;
 
-			temp2 = magOperations_.volume2() * mp_.dampingMag;
-			packer.pack("DampingEnergyMag=",temp2);
+			temp2 = magOperations_.sum2() * mp_.dampingMag;
+			packer.pack("EnergyDampingMag=",temp2);
+			temp += temp2;
+
+			temp2 = chargeOperations_.sum() * mp_.interactionCharge;
+			packer.pack("EnergyInteractionCharge=",temp2);
+			temp += temp2;
+
+			temp2 = magOperations_.sum() * mp_.interactionMag;
+			packer.pack("EnergyInteractionMag=",temp2);
+			temp += temp2;
 
 			//! total energy = electronic energy + superexchange + phonon energy
-			packer.pack("TotalEnergy=",temp);
+			packer.pack("EnergyTotal=",temp);
 
 			packer.pack("Adjustments: mu=",engineParams_.mu);
 
@@ -183,7 +192,6 @@ namespace Spf {
 		{
 			size_t volume = geometry_.volume();
 			size_t dof = 2; // the 2 comes because of the spin
-			typename PsimagLite::Vector<RealType>::Type jmatrix(2*2,0);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++)
 				for (size_t p = 0; p < matrix.n_col(); p++)
@@ -192,7 +200,7 @@ namespace Spf {
 			for (size_t p = 0; p < volume; p++) {
 				for (size_t spin1=0;spin1<dof;spin1++) {
 					matrix(p+spin1*volume,p+spin1*volume) =
-					        std::real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
+					        interaction(p,spin1) + mp_.potentialV[p];
 					for (size_t j = 0; j <  geometry_.z(1); j++) {
 						if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j);
@@ -202,23 +210,15 @@ namespace Spf {
 						matrix(k+spin1*volume,p+spin1*volume) = std::conj(matrix(p+spin1*volume,k+spin1*volume));
 
 					}
-
-					for (size_t spin2=0;spin2<2;spin2++) {
-						if (spin1==spin2) continue; // diagonal term already taken into account
-						matrix(p+spin1*volume,p + spin2*volume)=jmatrix[spin1+2*spin2];
-						matrix(p + spin2*volume,p+spin1*volume) =
-						        std::conj(matrix(p+spin1*volume,p + spin2*volume));
-					}
 				}
 			}
 		}
 
-		RealType calcVolume2(const ContVarFiniteType& v) const
+		RealType interaction(size_t i,size_t spin) const
 		{
-			RealType sum=0;
-			for (size_t i=0;i<v.value.size();i++)
-				sum += square(v.value[i]);
-			return sum;
+			RealType ni = dynVars_.getField(CHARGE).value[i] * mp_.interactionCharge;
+			RealType mi = dynVars_.getField(MAG).value[i] * mp_.interactionMag;
+			return (spin==SPIN_UP) ? ni+mi : ni-mi;
 		}
 
 		const EngineParamsType& engineParams_;
