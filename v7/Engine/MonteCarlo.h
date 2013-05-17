@@ -13,7 +13,11 @@
 #include <loki/Typelist.h>
 
 namespace Spf {
-	template<typename EngineParamsType,typename OperationsList,typename AlgorithmType,typename RandomNumberGeneratorType,int n>
+	template<typename EngineParamsType,
+             typename OperationsList,
+             typename AlgorithmType,
+             typename RandomNumberGeneratorType,
+             int n>
 	class MonteCarlo {
 
 		typedef typename Loki::TL::TypeAt<OperationsList,n>::Result OperationsType;
@@ -28,32 +32,20 @@ namespace Spf {
 		           AlgorithmType& algorithm,
 		           RandomNumberGeneratorType& rng) 
 		 : engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
-		
-		//template<typename SomeConcurrencyType>
-		PairType operator()(DynVarsType& dynVars,
-		                    size_t iter)
-// 		                    SomeConcurrencyType& concurrency,
-// 		                    typename SomeConcurrencyType::CommType comm)
 
+		PairType operator()(DynVarsType& dynVars,size_t iter)
 		{
 			PairType acc = PairType(0,0);
 			ops_.set(dynVars);
 			algorithm_.init();
-			//std::cerr<<"F:"<<rng_()<<"\n";
 			for (size_t j=0;j<dynVars.size;j++) {
 				size_t i = ops_.proposeSite(j,rng_);
 				ops_.proposeChange(i,rng_);
-				//RealType oldmu = engineParams_.mu;
 				bool flag= algorithm_.isAccepted(i,rng_,ops_,n);
-// 				concurrency.broadcast(flag,comm);
-				//std::cerr<<"New mu="<<engineParams_.mu<<"\n";
-				//std::cerr<<"flag="<<flag<<"\n";
 				if (flag && !dynVars.isFrozen) { // Accepted
 					algorithm_.accept(i,ops_);
 					acc.first++;
 				} else { // not accepted
-					//engineParams_.mu=oldmu;
-					//std::cerr<<"Not accepted: oldmu="<<oldmu<<"\n";
 				}
 				acc.second++;
 			} // lattice sweep
@@ -105,18 +97,6 @@ namespace Spf {
 			accepted[n].second += res.second;
 			MonteCarloLoop<RngType,ParametersType,ModelType,AlgorithmFactoryType,ListType,n-1>
 			        ::loop(rng,params,algorithm,model,dynVars,accepted,iter);
-	//			if (dynVars.size()==1) return;
-
-	//			typedef typename DynVarsType::template Operations<1>::Type OperationsType1;
-	//			typedef typename OperationsType1::DynVarsType Type1;
-	//			typedef MonteCarlo<ParametersType,OperationsType1,AlgorithmFactoryType,RngType,
-	//   				Type1> MonteCarloType1;
-
-	//			MonteCarloType1 monteCarlo1(params_,model_.ops(1),algorithm,rng_);
-	//			Type1& phononPart = dynVars.getMcField(1);
-	//			res= monteCarlo1(phononPart,iter); //concurrency_,comm_.second);
-	//			accepted[1].first += res.first;
-	//			accepted[1].second += res.second;
 		}
 	};
 
