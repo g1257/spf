@@ -97,17 +97,25 @@ namespace Spf {
 
 		template<typename SomeParamsType>
 		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
-		    : charge_(vol,params.dynvarsfile,PairRealType(0,2)),
+		    : name_(2),
+		      charge_(vol,params.dynvarsfile,PairRealType(0,2)),
 		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
-		{}
+		{
+			setNames();
+		}
 		
 		HubbardOneOrbitalFields(const ContVarFiniteType& charge,const ContVarFiniteType& mag)
-		    : charge_(charge),mag_(mag)
-		{}
+		    : name_(2),charge_(charge),mag_(mag)
+		{
+			setNames();
+		}
 
 		size_t size() const { return 2; } // spin and mag for this model need MC simulation
 		
-		const PsimagLite::String& name(size_t i) const { return name_; }
+		const PsimagLite::String& name(size_t i) const
+		{
+			return name_[i];
+		}
 		
 		void getField(ContVarFiniteType const** field,size_t i) const
 		{
@@ -141,7 +149,15 @@ namespace Spf {
 		friend std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType2,GeometryType2>& f);
 		
 	private:
-		static const PsimagLite::String name_;
+
+		void setNames()
+		{
+			assert(name_.size()==2);
+			name_[CHARGE] = "Charge";
+			name_[MAG] = "Mag";
+		}
+
+		PsimagLite::Vector<PsimagLite::String>::Type name_;
 		ContVarFiniteType charge_;
 		ContVarFiniteType mag_;
 		
@@ -154,9 +170,7 @@ namespace Spf {
 		os<<f.mag_;
 		return os;
 	}
-	template<typename FieldType,typename GeometryType>
-	const PsimagLite::String HubbardOneOrbitalFields<FieldType,GeometryType>::name_="ChargeAndMagnetization";
-	
+
 } // namespace Spf
 
 /*@}*/

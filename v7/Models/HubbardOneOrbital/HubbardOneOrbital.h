@@ -100,48 +100,26 @@ namespace Spf {
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
 		{
-			const ContVarFiniteType& dynVars = dynVars_.getField(DynVarsType::CHARGE);
-			
 			packer.pack("iter=",iter);
 
 			RealType temp=greenFunction.calcNumber();
-// 			s ="Number_Of_Electrons="+ttos(temp);
 			packer.pack("Number_Of_Electrons=",temp);
 			
-			//s = "rankGlobal=";
-			
 			temp=greenFunction.calcElectronicEnergy();
-// 			s="Electronic Energy="+ttos(temp);
 			packer.pack("Electronic Energy=",temp);
 			
-			RealType temp2=0; //chargeOperations_.calcSuperExchange(dynVars,mp_.jafNn);
-			packer.pack("Superexchange=",temp2);
+			RealType temp2 = chargeOperations_.volume2() * mp_.dampingCharge;
+			packer.pack("DampingEnergyCharge=",temp2);
 			
 			temp += temp2;
+
+			temp2 = magOperations_.volume2() * mp_.dampingMag;
+			packer.pack("DampingEnergyMag=",temp2);
 
 			//! total energy = electronic energy + superexchange + phonon energy
 			packer.pack("TotalEnergy=",temp);
 
 			packer.pack("Adjustments: mu=",engineParams_.mu);
-	
-			typename PsimagLite::Vector<RealType>::Type magVector(3,0);
-//			chargeOperations_.calcMagVector(magVector,dynVars);
-			packer.pack("ClassicalMagnetizationSquared=",magVector*magVector);
-
-			typename PsimagLite::Vector<ComplexType>::Type electronSpinVector(3,0);
-			greenFunction.electronSpin(electronSpinVector,1,dynVars.size);
-			typename PsimagLite::Vector<ComplexType>::Type combinedVector(3,0);
-			combinedVector =  electronSpinVector + magVector;
-// 			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
-// 			progress_.printline(s,fout);
-			packer.pack("CombinedMagnetizationSquared=",
-						std::real(combinedVector*combinedVector));
-
-			for (size_t i = 0;i<combinedVector.size();i++) {
-// 				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
-				packer.pack("CombinedMagnetization"+ttos(i)+"=",combinedVector[i]);
-// 				progress_.printline(s,fout);
-			}
 
 //			HubbardOneOrbitalObsStored_(dynVars,greenFunction);
 		} // doMeasurements
