@@ -21,7 +21,8 @@ namespace Spf {
 		typedef AlgorithmDiag<EngineParametersType,ModelType_,RngType>
 		AlgorithmType;
 		typedef typename AlgorithmType::RealType RealType;
-		typedef typename AlgorithmType::ComplexType ComplexType;
+		typedef typename AlgorithmType::ComplexOrRealType ComplexOrRealType;
+		typedef std::complex<RealType> ComplexType;
 		typedef RngType RandomNumberGeneratorType;
 		typedef typename EngineParametersType::IoInType IoInType;
 
@@ -49,7 +50,7 @@ namespace Spf {
 
 		ModelType& model() { return algorithm_.model(); } // should be const
 
-		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
+		const ComplexOrRealType& operator()(size_t lambda1,size_t lambda2) const
 		{
 			return data_(lambda1,lambda2);
 		}
@@ -81,7 +82,7 @@ namespace Spf {
 			//checkLevels();
 			for (size_t i=0;i<hilbertSize_;i++) {
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
+					ComplexOrRealType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
 					RealType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
 							(algorithm_.e(lambda)-engineParams_.mu));
@@ -117,7 +118,7 @@ namespace Spf {
 			es[1] *= ComplexType(0,1);
 		}
 
-		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
+		const ComplexOrRealType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return algorithm_.matrix(lambda1,lambda2);
 		}
@@ -140,9 +141,9 @@ namespace Spf {
 
 	private:
 		
-		ComplexType greenFunction(size_t lambda1,size_t lambda2) const
+		ComplexOrRealType greenFunction(size_t lambda1,size_t lambda2) const
 		{
-			ComplexType sum = 0;
+			ComplexOrRealType sum = 0;
 			RealType beta = engineParams_.beta;
 			RealType mu = engineParams_.mu;
 
@@ -156,9 +157,9 @@ namespace Spf {
 		void checkUs() const
 		{
 			for (size_t i=0;i<hilbertSize_;i++) {
-				ComplexType s = 0;
+				ComplexOrRealType s = 0;
 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
-					ComplexType tmp =conj(algorithm_.matrix(lambda,i))*algorithm_.matrix(lambda,i);
+					ComplexOrRealType tmp =conj(algorithm_.matrix(lambda,i))*algorithm_.matrix(lambda,i);
 					s += tmp;
 				}
 				std::cerr<<"i="<<i<<" sum_lambda U*_{lambda,i} U_{lambda,i} = "<<s<<"\n";
@@ -179,7 +180,7 @@ namespace Spf {
 		
 		AlgorithmType algorithm_;
 		size_t hilbertSize_;
-		PsimagLite::Matrix<ComplexType> data_;
+		PsimagLite::Matrix<ComplexOrRealType> data_;
 		
 	}; // GreenFunctionDiag
 	

@@ -24,8 +24,8 @@ namespace Spf {
 	public:
 		typedef typename EngineParametersType::RealType RealType;
 		typedef typename EngineParametersType::IoInType IoInType;
-		typedef std::complex<RealType> ComplexType;
-		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef typename ModelType::MatrixType MatrixType;
+		typedef typename MatrixType::value_type ComplexOrRealType;
 		typedef MetropolisOrGlauber<RealType,RngType> MetropolisOrGlauberType;
 
 		AlgorithmDiag(const EngineParametersType& engineParams,
@@ -89,7 +89,7 @@ namespace Spf {
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 		}
 
-		const ComplexType& matrix(size_t lambda1,size_t lambda2) const
+		const ComplexOrRealType& matrix(size_t lambda1,size_t lambda2) const
 		{
 			return matrixNew_(lambda1,lambda2);
 		}
@@ -99,11 +99,10 @@ namespace Spf {
 			return eigNew_[i];
 		}
 
-		void diagonalize(
-				MatrixType& matrix,
-				typename PsimagLite::Vector<RealType>::Type& eigs,
-				char jobz='N',
-				size_t fields=ModelType::NEWFIELDS) const
+		void diagonalize(MatrixType& matrix,
+		                 typename PsimagLite::Vector<RealType>::Type& eigs,
+		                 char jobz='N',
+		                 size_t fields=ModelType::NEWFIELDS) const
 		{
 			model_.createHamiltonian(matrix,fields);
 			diag(matrix,eigs,jobz);
@@ -199,7 +198,7 @@ namespace Spf {
 		
 		typedef typename EngineParametersType::RealType RealType;
 		typename PsimagLite::Vector<RealType>::Type eigNew(a.hilbertSize_);
-		PsimagLite::Matrix<std::complex<RealType> > matrix(a.hilbertSize_,a.hilbertSize_);
+		typename ModelType::MatrixType matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
 		os<<"Eigenvalues\n";
 		os<<eigNew;

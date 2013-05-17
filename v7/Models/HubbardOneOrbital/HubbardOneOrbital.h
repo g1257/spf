@@ -31,8 +31,7 @@ namespace Spf {
 	  ConcurrencyType_> {
 
 		typedef typename EngineParamsType::RealType RealType;
-		typedef std::complex<RealType> ComplexType;
-		typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
+		typedef PsimagLite::CrsMatrix<RealType> SparseMatrixType;
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 
@@ -40,14 +39,15 @@ namespace Spf {
 
 		typedef ConcurrencyType_ ConcurrencyType;
 		typedef typename ConcurrencyType::CommType CommType;
-		typedef PsimagLite::Matrix<ComplexType> MatrixType;
+		typedef std::complex<RealType> ComplexType;
+		typedef PsimagLite::Matrix<RealType> MatrixType;
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersHubbardOneOrbital<EngineParamsType,IoInType> ParametersModelType;
 		typedef HubbardOneOrbitalFields<RealType,GeometryType> DynVarsType;
 		typedef ContVarFiniteOperations<GeometryType,RealType> ContVarFiniteOperationsType;
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
-//		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,ComplexType,
+//		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,RealType,
 //				ParametersModelType,ConcurrencyType> HubbardOneOrbitalObsStoredType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
@@ -206,7 +206,7 @@ namespace Spf {
 		{
 			size_t volume = geometry_.volume();
 			size_t dof = 2; // the 2 comes because of the spin
-			typename PsimagLite::Vector<ComplexType>::Type jmatrix(2*2,0);
+			typename PsimagLite::Vector<RealType>::Type jmatrix(2*2,0);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++)
 				for (size_t p = 0; p < matrix.n_col(); p++)
@@ -215,14 +215,14 @@ namespace Spf {
 			for (size_t p = 0; p < volume; p++) {
 				for (size_t spin1=0;spin1<dof;spin1++) {
 					matrix(p+spin1*volume,p+spin1*volume) =
-					        real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
+					        std::real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p];
 					for (size_t j = 0; j <  geometry_.z(1); j++) {
 						if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j);
 						size_t k = tmpPair.first;
 
 						matrix(p+spin1*volume,k+spin1*volume) = mp_.hopping;
-						matrix(k+spin1*volume,p+spin1*volume) = conj(matrix(p+spin1*volume,k+spin1*volume));
+						matrix(k+spin1*volume,p+spin1*volume) = std::conj(matrix(p+spin1*volume,k+spin1*volume));
 
 					}
 
@@ -230,7 +230,7 @@ namespace Spf {
 						if (spin1==spin2) continue; // diagonal term already taken into account
 						matrix(p+spin1*volume,p + spin2*volume)=jmatrix[spin1+2*spin2];
 						matrix(p + spin2*volume,p+spin1*volume) =
-						        conj(matrix(p+spin1*volume,p + spin2*volume));
+						        std::conj(matrix(p+spin1*volume,p + spin2*volume));
 					}
 				}
 			}
