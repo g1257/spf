@@ -78,7 +78,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef DMS_MULTI_ORB_FIELDS_H
 #define DMS_MULTI_ORB_FIELDS_H
 #include "SpinOperations.h"
-#include <loki/Typelist.h>
+#include "loki/Typelist.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>

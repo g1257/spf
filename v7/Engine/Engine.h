@@ -22,7 +22,7 @@
 #include "GreenFunctionTpem.h"
 #include "GreenFunctionDiag.h"
 #include <time.h>
-#include <loki/Typelist.h>
+#include "loki/Typelist.h"
 
 namespace Spf {
 

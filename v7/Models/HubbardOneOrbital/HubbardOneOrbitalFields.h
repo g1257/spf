@@ -78,7 +78,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef HUBBARD_ONE_ORB_FIELDS_H
 #define HUBBARD_ONE_ORB_FIELDS_H
-#include <loki/Typelist.h>
+#include "loki/Typelist.h"
 #include "ContVarFiniteOperations.h"
 
 namespace Spf {

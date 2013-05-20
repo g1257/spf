@@ -80,7 +80,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #define PHONONS_2ORB_FIELDS_H
 #include "SpinOperations.h"
 #include "PhononOperations.h"
-#include <loki/Typelist.h>
+#include "loki/Typelist.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>

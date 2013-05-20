@@ -50,7 +50,7 @@ print FOUT<<EOF;
 # MPI: $mpi
 LDFLAGS = $blasAndLapack -lm $gslLibs
 EXENAME = spf
-CPPFLAGS =  -Werror -Wall -I${PsimagLiteDir}/src   -IGeometries -IModels/PnictidesMultiOrbitals -IModels/PhononsTwoOrbitals \\
+CPPFLAGS =  -Werror -Wall -I${PsimagLiteDir} -I${PsimagLiteDir}/src   -IGeometries -IModels/PnictidesMultiOrbitals -IModels/PhononsTwoOrbitals \\
  -IModels/DmsMultiOrbital -IModels/HubbardOneOrbital -IEngine -IClassicalFields -I../Tpem $gslDefine
 CXX = $compiler -DNDEBUG -O3 
 #comment out this one for debugging

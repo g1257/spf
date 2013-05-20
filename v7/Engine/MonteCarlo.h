@@ -10,7 +10,7 @@
 #ifndef MONTE_CARLO_H
 #define MONTE_CARLO_H
 #include "ProgressIndicator.h"
-#include <loki/Typelist.h>
+#include "loki/Typelist.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
