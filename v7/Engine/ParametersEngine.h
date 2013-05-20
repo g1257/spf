@@ -1,7 +1,7 @@
 /* Copyright (c) 2009-2013, UT-Battelle, LLC
 All rights reserved
 
-[DMRG++, Version 2.0.0]
+[SPF, Version 7.0]
 [by G.A., Oak Ridge National Laboratory]
 
 UT Battelle Open Source Software License 11242008
@@ -134,11 +134,11 @@ namespace Spf {
 			}
 			saveEach=0;
 				
-			io.rewind();
+//			io.rewind();
 			try {
 				io.readline(saveEach,"SaveEach=");
 			} catch (std::exception& e) {
-				io.rewind();
+//				io.rewind();
 			}
 			detailedBalance = "glauber";
 			try {
@@ -149,7 +149,7 @@ namespace Spf {
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
 			}
-			io.rewind();
+//			io.rewind();
 
 			adjustEach = 0;
 			try {
@@ -160,7 +160,7 @@ namespace Spf {
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
 			}
-			io.rewind();
+//			io.rewind();
 			
 		}
 

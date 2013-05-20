@@ -42,24 +42,24 @@ typedef PsimagLite::ConcurrencyMpi<FieldType> MyConcurrencyType;
 #include "GeometryFcc.h"
 #include "GeometrySquare45Degrees.h"
 #include "Random48.h"
+#include "InputCheck.h"
+#include "InputNg.h"
 
-typedef PsimagLite::IoSimple::In IoInType;
-typedef Spf::ParametersEngine<FieldType,IoInType,MyConcurrencyType> ParametersEngineType;
 typedef Spf::GeometrySquare<FieldType> GeometrySquareType;
 typedef Spf::GeometryCubic<FieldType> GeometryCubicType;
 typedef Spf::GeometryFcc<FieldType> GeometryFccType;
 typedef Spf::GeometrySquare45Degrees<FieldType> GeometrySquare45DegreesType;
-
-//typedef ModelType::DynVarsType DynVarsType;
+typedef PsimagLite::InputNg<Spf::InputCheck> InputNgType;
+typedef Spf::ParametersEngine<FieldType,InputNgType::Readable,MyConcurrencyType> ParametersEngineType;
 typedef PsimagLite::Random48<FieldType> RandomNumberGeneratorType;
 
 template<typename GeometryType,typename ModelType>
 void mainLoop2(ParametersEngineType& engineParams,
-               IoInType& io,
+               InputNgType::Readable& io,
                const GeometryType& geometry,
                MyConcurrencyType& concurrency)
 {
-	typedef Spf::Engine<ParametersEngineType,ModelType,IoInType,RandomNumberGeneratorType> EngineType;
+	typedef Spf::Engine<ParametersEngineType,ModelType,InputNgType::Readable,RandomNumberGeneratorType> EngineType;
 
 	ModelType model(engineParams,io,geometry,concurrency);
 
@@ -70,7 +70,7 @@ void mainLoop2(ParametersEngineType& engineParams,
 
 template<typename GeometryType>
 void mainLoop(ParametersEngineType& engineParams,
-              IoInType& io,
+              InputNgType::Readable& io,
               MyConcurrencyType& concurrency)
 {
 	typedef Spf::PnictidesMultiOrbitals<ParametersEngineType,GeometryType,MyConcurrencyType> PnictidesMultiOrbitalsType;
@@ -96,16 +96,37 @@ void mainLoop(ParametersEngineType& engineParams,
 
 int main(int argc,char *argv[])
 {
-	MyConcurrencyType concurrency(argc,argv);
-	if (argc<2) {
-		PsimagLite::String s = "Usage is: ./" + PsimagLite::String(argv[0]) +
-		" input_file\n";
-		throw PsimagLite::RuntimeError(s.c_str());
+	Spf::InputCheck inputCheck;
+	PsimagLite::String filename="";
+	int opt = 0;
+	PsimagLite::String strUsage(argv[0]);
+	strUsage += " -f filename";
+	while ((opt = getopt(argc, argv,"f:")) != -1) {
+		switch (opt) {
+		case 'f':
+			filename = optarg;
+			break;
+		default:
+			inputCheck.usageMain(strUsage);
+			return 1;
+		}
 	}
-	PsimagLite::IoSimple::In io(argv[1]);
-	ParametersEngineType engineParams(io,concurrency);
-	
+
+	// sanity checks here
+	if (filename=="") {
+		inputCheck.usageMain(strUsage);
+		return 1;
+	}
+
+	MyConcurrencyType concurrency(argc,argv);
+
 	if (concurrency.root()) printLicense();
+
+	InputNgType::Writeable ioWriteable(filename,inputCheck);
+	InputNgType::Readable io(ioWriteable);
+
+	ParametersEngineType engineParams(io,concurrency);
+
 	if (engineParams.geometry=="square") {
 		mainLoop<GeometrySquareType>(engineParams,io,concurrency);
 	} else if (engineParams.geometry=="cubic") {

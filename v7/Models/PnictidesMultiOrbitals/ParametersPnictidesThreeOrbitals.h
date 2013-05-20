@@ -112,7 +112,7 @@ namespace Spf {
 				jafNn.resize(jafSize,x);
 			} catch (std::exception& e) {
 				// must rewind because exception consumed file:
-				io.rewind();
+//				io.rewind();
 				io.read(jafNn,"JAFNN");
 			}
 			io.readline(jafNnn,"JAFNNN=");
