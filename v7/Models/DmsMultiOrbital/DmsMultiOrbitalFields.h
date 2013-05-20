@@ -96,9 +96,6 @@ namespace Spf {
 		: spin_(vol,params)
 		{}
 		
-		//! only spin for this model needs MC simulation
-		size_t size() const { return 1; }
-		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		
 		void getField(SpinType** field,size_t i)

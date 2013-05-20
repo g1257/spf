@@ -31,6 +31,7 @@ namespace Spf {
 		
 		typedef typename ParametersType::RealType RealType;
 		typedef typename ModelType::DynVarsType DynVarsType;
+		typedef typename DynVarsType::OperationsList OperationsListType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
 		typedef typename ModelType::ConcurrencyType ConcurrencyType;
@@ -89,7 +90,8 @@ namespace Spf {
 		
 		void thermalize()
 		{
-			PsimagLite::Vector<PairType>::Type accepted(dynVars_.size());
+			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
+			PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
 				printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
 				doMonteCarlo(accepted,dynVars_,iter);
@@ -100,7 +102,9 @@ namespace Spf {
 
 		void measure()
 		{
-			typename PsimagLite::Vector<std::pair<size_t,size_t> >::Type accepted(dynVars_.size());
+			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
+			typedef std::pair<size_t,size_t> PairType;
+			typename PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
 
 			bool isStrict = true;
 			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,
@@ -162,12 +166,18 @@ namespace Spf {
 			}
 		}
 
-		void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,DynVarsType& dynVars, size_t iter)
+		void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,
+		                  DynVarsType& dynVars, size_t iter)
 		{
 			typedef typename DynVarsType::OperationsList OperationsListType;
 			AlgorithmFactoryType algorithm(gfDiag_,gfTpem_);
 
-			MonteCarloLoop<RngType,ParametersType,ModelType,AlgorithmFactoryType,OperationsListType,Loki::TL::Length<OperationsListType>::value-1>
+			MonteCarloLoop<RngType,
+			        ParametersType,
+			        ModelType,
+			        AlgorithmFactoryType,
+			        OperationsListType,
+			        Loki::TL::Length<OperationsListType>::value-1>
 			        ::loop(rng_,params_,algorithm,model_,dynVars,accepted,iter);
 		}
 
@@ -175,7 +185,8 @@ namespace Spf {
 		                   const PsimagLite::String& algorithmicError = "DISABLED",
 		                   PackerType* packer = 0)
 		{
-			for (size_t i=0;i<dynVars_.size();i++) {
+			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
+			for (size_t i=0;i<fieldsToIntegrate;i++) {
 				if (accepted[i].second==0) continue;
 				PsimagLite::String s1=  "Acceptance " + dynVars_.name(i) + "=";
 				size_t pp = 100*accepted[i].first/accepted[i].second;

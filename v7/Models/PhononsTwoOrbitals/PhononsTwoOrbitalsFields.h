@@ -104,9 +104,7 @@ namespace Spf {
 				spin_(spin),phonon_(phonon)
 		{
 		}
-		
-		size_t size() const { return 2; } //  spins and phonons for this model need MC simulation
-		
+
 		const PsimagLite::String& name(size_t i) const { return name_[i]; }
 		
 		void getField(SpinType const** field,size_t i) const

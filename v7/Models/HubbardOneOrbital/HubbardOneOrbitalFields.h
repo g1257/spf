@@ -109,8 +109,6 @@ namespace Spf {
 		{
 			setNames();
 		}
-
-		size_t size() const { return 2; } // spin and mag for this model need MC simulation
 		
 		const PsimagLite::String& name(size_t i) const
 		{
