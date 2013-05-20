@@ -98,8 +98,8 @@ namespace Spf {
 		template<typename SomeParamsType>
 		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
 		    : name_(2),
-		      charge_(vol,params.dynvarsfile,PairRealType(0,2)),
-		      mag_(vol,params.dynvarsfile,PairRealType(-1,1))
+		      charge_(vol,params.dynvarsfile,0,PairRealType(0,2)),
+		      mag_(vol,params.dynvarsfile,1,PairRealType(-1,1))
 		{
 			setNames();
 		}

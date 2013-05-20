@@ -117,13 +117,11 @@ namespace Spf {
 			packer.pack("EnergyDampingMag=",temp2);
 			temp += temp2;
 
-			temp2 = chargeOperations_.sum() * mp_.interactionCharge;
-			packer.pack("EnergyInteractionCharge=",temp2);
-			temp += temp2;
+			temp2 = chargeOperations_.sum();
+			packer.pack("AverageCharge=",temp2);
 
-			temp2 = magOperations_.sum() * mp_.interactionMag;
-			packer.pack("EnergyInteractionMag=",temp2);
-			temp += temp2;
+			temp2 = magOperations_.sum();
+			packer.pack("AverageMag=",temp2);
 
 			//! total energy = electronic energy + superexchange + phonon energy
 			packer.pack("EnergyTotal=",temp);

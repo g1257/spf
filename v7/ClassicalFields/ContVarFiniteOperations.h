@@ -30,7 +30,7 @@ public:
 	                        const PairRealType& bounds)
 	    : geometry_(geometry),
 	      mcwindow_(mcwindow),
-	      dynVars2_(0,"none",bounds)
+	      dynVars2_(0,"none",0,bounds)
 	{
 	}
 
