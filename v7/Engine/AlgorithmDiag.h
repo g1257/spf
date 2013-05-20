@@ -16,6 +16,7 @@
 #include "Complex.h" // in PsimagLite
 #include "MetropolisOrGlauber.h"
 #include "Adjustments.h"
+#include "Sort.h"
 
 namespace Spf {
 	template<typename EngineParametersType,typename ModelType,typename RngType>
@@ -47,7 +48,13 @@ namespace Spf {
 		void init()
 		{
 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
-			diag(matrixOld_,eigOld_,'N');
+
+			if (engineParams_.options.find("matrixBlocked")!=PsimagLite::String::npos) {
+				diagBlocked(matrixOld_,eigOld_,'N');
+			} else {
+				diag(matrixOld_,eigOld_,'N');
+			}
+
 			sort(eigOld_.begin(), eigOld_.end(), std::less<RealType>());
 		}
 
@@ -105,7 +112,11 @@ namespace Spf {
 		                 size_t fields=ModelType::NEWFIELDS) const
 		{
 			model_.createHamiltonian(matrix,fields);
-			diag(matrix,eigs,jobz);
+			if (engineParams_.options.find("matrixBlocked")!=PsimagLite::String::npos) {
+				diagBlocked(matrix,eigs,jobz);
+			} else {
+				diag(matrix,eigs,jobz);
+			}
 			if (jobz!='V')
 				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
 		}
@@ -179,6 +190,73 @@ namespace Spf {
 				}
 			}
 			throw std::runtime_error("Matrix are equal!!\n");
+		}
+
+		void diagBlocked(MatrixType& matrix,
+		                 typename PsimagLite::Vector<RealType>::Type& eigs,
+		                 char jobz) const
+		{
+			size_t n = matrix.n_row();
+			assert(!(n&1));
+			n = size_t(n/2);
+
+			MatrixType m(n,n);
+			for (size_t i=0;i<n;i++)
+				for (size_t j=0;j<n;j++)
+					m(i,j) = matrix(i,j);
+
+			typename PsimagLite::Vector<RealType>::Type eigs1(n);
+			diag(m,eigs1,jobz);
+
+			MatrixType m2(n,n);
+			for (size_t i=0;i<n;i++)
+				for (size_t j=0;j<n;j++)
+					m2(i,j) = matrix(i+n,j+n);
+
+			typename PsimagLite::Vector<RealType>::Type eigs2(n);
+			diag(m2,eigs2,jobz);
+			combine(matrix,eigs,m,eigs1,m2,eigs2,jobz);
+		}
+
+		void combine(MatrixType& matrix,
+		             typename PsimagLite::Vector<RealType>::Type& eigs,
+		             MatrixType& m1,
+		             typename PsimagLite::Vector<RealType>::Type& eigs1,
+		             MatrixType& m2,
+		             typename PsimagLite::Vector<RealType>::Type& eigs2,
+		             char jobz) const
+		{
+			size_t n = eigs1.size();
+			assert(n==eigs2.size());
+			assert(eigs.size()==2*n);
+			assert(matrix.n_row()==2*n);
+			assert(m1.n_row()==n);
+			assert(m2.n_row()==n);
+
+			for (size_t i=0;i<n;i++) {
+				eigs[i] = eigs1[i];
+				eigs[i+n] = eigs2[i];
+			}
+
+			PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
+			PsimagLite::Vector<size_t>::Type iperm(eigs.size());
+
+			sort.sort(eigs,iperm);
+
+			if (jobz!='v' || jobz!='V') return;
+
+			MatrixType m3(2*n,2*n);
+			for (size_t i=0;i<n;i++) {
+				for (size_t j=0;j<n;j++) {
+					m3(i,j) = m1(i,j);
+					m3(i+n,j+n) = m2(i,j);
+				}
+			}
+			for (size_t i=0;i<2*n;i++) {
+				for (size_t j=0;j<2*n;j++) {
+					matrix(i,j) = m3(iperm[i],iperm[j]);
+				}
+			}
 		}
 
 		const EngineParametersType& engineParams_;
