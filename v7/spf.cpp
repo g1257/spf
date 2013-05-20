@@ -127,15 +127,15 @@ int main(int argc,char *argv[])
 
 	ParametersEngineType engineParams(io,concurrency);
 
-	if (engineParams.geometry=="square") {
+	if (engineParams.geometry=="ladder") {
 		mainLoop<GeometrySquareType>(engineParams,io,concurrency);
-	} else if (engineParams.geometry=="cubic") {
+	} /*else if (engineParams.geometry=="cubic") {
 		mainLoop<GeometryCubicType>(engineParams,io,concurrency);
 	} else if (engineParams.geometry=="fcc") {
 		mainLoop<GeometryFccType>(engineParams,io,concurrency);
 	} else if (engineParams.geometry=="square45Degrees") {
 		mainLoop<GeometrySquare45DegreesType>(engineParams,io,concurrency);
-	} else {
+	}*/ else {
 		std::cerr<<"geometry="<<engineParams.geometry<<"\n";
 		throw PsimagLite::RuntimeError("Unknown geometry\n");
 	}

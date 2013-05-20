@@ -93,7 +93,7 @@ namespace Spf {
 			io.readline(dampingMag,"DampingMag=");
 			io.readline(interactionCharge,"InteractionCharge=");
 			io.readline(interactionMag,"InteractionMag=");
-			io.read(potentialV,"PotentialV");
+			io.read(potentialV,"potentialV");
 		}
 
 		RealType hopping;

@@ -95,11 +95,15 @@ namespace Spf {
 		ParametersEngine(IoInType& io,ConcurrencyType& concurrency)
 		{
 			io.readline(options,"EngineOptions=");
-			io.readline(geometry,"Geometry=");
+			io.readline(geometry,"GeometryKind=");
 			io.readline(model,"Model=");
 			io.readline(version,"Version=");
 			io.readline(filename,"OutputFilename=");
-			io.readline(carriers,"Carriers=");
+			int temp = 0;
+			io.readline(temp,"TargetElectronsUp=");
+			carriers = temp;
+			io.readline(temp,"TargetElectronsDown=");
+			carriers += temp;
 			io.readline(mu,"ChemicalPotential=");
 			io.readline(beta,"Beta=");
 			io.readline(iterTherm,"MonteCarloThermalizations=");
@@ -115,7 +119,7 @@ namespace Spf {
 			if (s == "TIME" || s == "time")
 				randomSeed = -1;
 			else    randomSeed = atoi(s.c_str());
-			io.readline(latticeLength,"LatticeLength=");
+			io.readline(latticeLength,"LadderLeg=");
 			
 			coresForKernel = 1;
 			try {
