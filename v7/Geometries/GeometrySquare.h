@@ -71,7 +71,7 @@ namespace Spf {
 		PsimagLite::String name() const { return "square"; }
 
 		template<typename SomeVectorType>
-		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
 		indexToCoor(SomeVectorType& v,size_t i) const
 		{
 			size_t lx = l_;
@@ -118,7 +118,7 @@ namespace Spf {
 		}
 
 		template<typename SomeVectorType>
-		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
 		coor2Index(const SomeVectorType& v) const
 		{
 			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");

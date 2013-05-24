@@ -20,7 +20,7 @@ public:
 	enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3,DIRZ=0};
 
 	template<typename MapType>
-	static typename PsimagLite::HasType<PsimagLite::IsMapLike<MapType>::True,void>::Type
+	static typename PsimagLite::EnableIf<PsimagLite::IsMapLike<MapType>::True,void>::Type
 	checkMcWindow(const MapType& mcWindow,const PsimagLite::String& arg)
 	{
 		if (mcWindow.find(arg.c_str()) != mcWindow.end()) return;

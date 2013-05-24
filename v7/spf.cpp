@@ -21,8 +21,12 @@ void printLicense()
 	        "\n";
 	std::cout<<license_;
 }
-
+#ifndef USE_FLOAT
 typedef double FieldType;
+#else
+typedef float FieldType;
+#endif
+
 #include "ParametersEngine.h"
 #include "Engine.h"
 #include <algorithm>

@@ -59,7 +59,7 @@ namespace Spf {
 		size_t length() const { return l_; }
 		
 		template<typename SomeVectorType>
-		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
 		indexToCoor(SomeVectorType& v,size_t i) const
 		{
 			size_t lx = l_, ly = l_;
@@ -70,7 +70,7 @@ namespace Spf {
 		}
 
 		template<typename SomeVectorType>
-		typename PsimagLite::HasType<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
 		coor2Index(const SomeVectorType& v) const
 		{
 			SomeVectorType length(3,l_);

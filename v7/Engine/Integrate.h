@@ -11,6 +11,7 @@
 #define INTEGRATE_SPF_H
 #include "GslWrapper.h"
 #include "Vector.h"
+#include "loki/TypeTraits.h"
 
 namespace Spf {
 

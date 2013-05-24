@@ -135,7 +135,7 @@ namespace Spf {
 		FieldType dSDirect(const PhononType& dynVars,const PhononType& dynVars2, size_t i,
 				  const OnePhononType& coupling) const
 		{
-			double dS=0;
+			FieldType dS=0;
 
 			for (size_t alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
 				FieldType tmp = square(calcPhonon(i,dynVars2,alpha))

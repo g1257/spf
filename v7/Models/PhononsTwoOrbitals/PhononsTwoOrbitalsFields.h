@@ -152,20 +152,7 @@ namespace Spf {
 	}
 	template<typename FieldType,typename GeometryType>
 	PsimagLite::Vector<PsimagLite::String>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
-	
-	/*template<>
-	template<>
-	PhononsTwoOrbitalsFields<double>::SpinType& PhononsTwoOrbitalsFields<double>::getField<0, PhononsTwoOrbitalsFields<double>::SpinType>()	
-	{
-		return spin_;
-	}
 
-	template<>
-	template<>
-	PhononsTwoOrbitalsFields<double>::PhononType& PhononsTwoOrbitalsFields<double>::getField<1,PhononsTwoOrbitalsFields<double>::PhononType>()
-	{
-		return phonon_;
-	}*/
 } // namespace Spf
 
 /*@}*/
