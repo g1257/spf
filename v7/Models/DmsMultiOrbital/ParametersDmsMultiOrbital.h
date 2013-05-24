@@ -102,15 +102,15 @@ namespace Spf {
 			typename PsimagLite::Vector<RealType>::Type tmpReal;
 			io.read(tmpReal,"Hoppings");
 			hoppings.resize(tmpReal.size()/2);
-			for (size_t i=0;i<hoppings.size();i++)
+			for (SizeType i=0;i<hoppings.size();i++)
 				hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
 
 			io.readline(J,"CouplingJ=");
 
 			io.read(potentialV,"PotentialV");
-			size_t n = potentialV.size();
+			SizeType n = potentialV.size();
 			//parameters.potentialV.resize(parameters.linSize);
-			//for (size_t i=0;i<parameters.potentialV.size();i++)
+			//for (SizeType i=0;i<parameters.potentialV.size();i++)
 			//	parameters.potentialV[i] = 0;
 
 			io.readline(jafNn,"PARAMETERSJ_AF=");
@@ -119,12 +119,12 @@ namespace Spf {
 
 			io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
 
-			PsimagLite::Vector<size_t>::Type tmp;
+			PsimagLite::Vector<SizeType>::Type tmp;
 			io.read(tmp,"MODULUS");
 
 			modulus.resize(n);
-			for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
-			for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+			for (SizeType i=0;i<modulus.size();i++) modulus[i] = 0;
+			for (SizeType i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
 
 			io.read(histogramParams,"HISTOGRAM");
 		}
@@ -150,7 +150,7 @@ namespace Spf {
 		RealType spinOrbitCoupling; // =0.34
 
 		// Modulus (FIXME: use less storage here it should be either 0 or 1)
-		PsimagLite::Vector<size_t>::Type modulus;
+		PsimagLite::Vector<SizeType>::Type modulus;
 
 		typename PsimagLite::Vector<RealType>::Type histogramParams;
 	}; // struct ParametersDmsMultiOrbital
@@ -171,7 +171,7 @@ namespace Spf {
 		os<<parameters.hoppings;
 		os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
 		os<<"modulus\n";
-		for (size_t i=0;i<parameters.modulus.size();i++)
+		for (SizeType i=0;i<parameters.modulus.size();i++)
 			if (parameters.modulus[i]!=0) os<<i<<" ";
 		os<<"\n";
 		os<<"histogramParams\n";

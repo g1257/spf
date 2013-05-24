@@ -96,7 +96,7 @@ namespace Spf {
 		typedef LOKI_TYPELIST_2(SpinOperationsType, PhononOperationsType) OperationsList;
 
 		template<typename SomeParamsType>
-		PhononsTwoOrbitalsFields(size_t vol,const SomeParamsType& params) :
+		PhononsTwoOrbitalsFields(SizeType vol,const SomeParamsType& params) :
 				spin_(vol,params),phonon_(vol,params.dynvarsfile)
 		{}
 		
@@ -105,27 +105,27 @@ namespace Spf {
 		{
 		}
 
-		const PsimagLite::String& name(size_t i) const { return name_[i]; }
+		const PsimagLite::String& name(SizeType i) const { return name_[i]; }
 		
-		void getField(SpinType const** field,size_t i) const
+		void getField(SpinType const** field,SizeType i) const
 		{
 			assert(i == 0);
 			*field = &spin_;
 		}
 		
-		void getField(PhononType const** field,size_t i) const
+		void getField(PhononType const** field,SizeType i) const
 		{
 			assert(i == 1);
 			*field = &phonon_;
 		}
 
-		void getField(SpinType** field,size_t i)
+		void getField(SpinType** field,SizeType i)
 		{
 			assert(i == 0);
 			*field = &spin_;
 		}
 
-		void getField(PhononType** field,size_t i)
+		void getField(PhononType** field,SizeType i)
 		{
 			assert(i == 1);
 			*field = &phonon_;

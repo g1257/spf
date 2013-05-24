@@ -35,22 +35,22 @@ namespace Spf {
 
 		//! How to sweep the lattice
 		template<typename RngType>
-		size_t proposeSite(size_t i,RngType& rng) const
+		SizeType proposeSite(SizeType i,RngType& rng) const
 		{
 			return i; //<-- zig-zag horizontal
 			// zig-zag vertical:
-			/*size_t l = geometry_.length();
-			size_t x = i % l;
-			size_t y = i / l;
+			/*SizeType l = geometry_.length();
+			SizeType x = i % l;
+			SizeType y = i / l;
 			return y + x*l;*/
 			// random:
-			//return size_t(rng()*geometry_.volume());
+			//return SizeType(rng()*geometry_.volume());
 			
 		}
 		
 		
 		template<typename RngType>
-		void proposeChange(size_t i,RngType& rng)
+		void proposeChange(SizeType i,RngType& rng)
 		{
 			OnePhononType phononsOld = dynVars_->phonon[i];
 			
@@ -61,29 +61,29 @@ namespace Spf {
 		
 		const PhononType& dynVars2() const { return dynVars2_; }
 		
-		FieldType deltaDirect(size_t i,const OnePhononType& coupling) const
+		FieldType deltaDirect(SizeType i,const OnePhononType& coupling) const
 		{
 			return dSDirect(*dynVars_,dynVars2_,i,coupling);
 		}
 
-		FieldType sineUpdate(size_t i) const
+		FieldType sineUpdate(SizeType i) const
 		{
 			return 1.0; // no measure for phonons
 		}
 		
-		void accept(size_t i)
+		void accept(SizeType i)
 		{
 			dynVars_->phonon[i]=dynVars2_.phonon[i];
 		}
 	
-		FieldType calcPhononDiff(size_t direction,size_t ind,const PhononType& dynVars) const
+		FieldType calcPhononDiff(SizeType direction,SizeType ind,const PhononType& dynVars) const
 		{
 			if (direction >= geometry_.dim()) return 0; 
-			size_t j = geometry_.neighbor(ind,2*direction+1).first;
+			SizeType j = geometry_.neighbor(ind,2*direction+1).first;
 			return  (dynVars.phonon[ind][direction]-dynVars.phonon[j][direction]);
 		}
 		
-		FieldType calcPhonon(size_t ind,const PhononType& dynVars,size_t what) const
+		FieldType calcPhonon(SizeType ind,const PhononType& dynVars,SizeType what) const
 		{
 			FieldType ret=0;
 			FieldType sqrt3=1.732050807569;
@@ -106,11 +106,11 @@ namespace Spf {
 			return ret;
 		}
 
-		void calcQvector(typename PsimagLite::Vector<FieldType>::Type& v,size_t p,const PhononType& dynVars) const
+		void calcQvector(typename PsimagLite::Vector<FieldType>::Type& v,SizeType p,const PhononType& dynVars) const
 		{
-			size_t numberOfNormalModes = 3;
+			SizeType numberOfNormalModes = 3;
 			v.resize(numberOfNormalModes);
-			for (size_t i=0;i<numberOfNormalModes;i++)
+			for (SizeType i=0;i<numberOfNormalModes;i++)
 				v[i]=calcPhonon(p,dynVars,i);
 		}
 		
@@ -126,22 +126,22 @@ namespace Spf {
 				OnePhononType& phononsNew,
 				RngType& rng)
 		{
-			for (size_t i=0;i<phononsNew.size();i++) {
+			for (SizeType i=0;i<phononsNew.size();i++) {
 				phononsNew[i]=phononsOld[i] + (rng.random()- 0.5)*mcwindow_;
 				//if (fabs(phononsNew[i]) > ether.maxPhonons) phononsNew[i]= 0.9*ether.maxPhonons;
 			}
 		}
 
-		FieldType dSDirect(const PhononType& dynVars,const PhononType& dynVars2, size_t i,
+		FieldType dSDirect(const PhononType& dynVars,const PhononType& dynVars2, SizeType i,
 				  const OnePhononType& coupling) const
 		{
 			FieldType dS=0;
 
-			for (size_t alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
+			for (SizeType alpha=0;alpha<dynVars.phonons[i].size();alpha++) {
 				FieldType tmp = square(calcPhonon(i,dynVars2,alpha))
 				- square(calcPhonon(i,dynVars,alpha));
-				for (size_t k=0;k<geometry_.z(1);k++) {
-					size_t j = geometry_.neighbor(i,k).first;
+				for (SizeType k=0;k<geometry_.z(1);k++) {
+					SizeType j = geometry_.neighbor(i,k).first;
 					tmp += square(calcPhonon(j,dynVars2,alpha));
 					tmp -= square(calcPhonon(j,dynVars,alpha));
 				}

@@ -40,7 +40,7 @@ typename SomeFunctorType::RealType integrate(SomeFunctorType& functor1,
 
 	GslWrapperType gslWrapper;
 
-	size_t limit = 1000000;
+	SizeType limit = 1000000;
 	GslWrapperType::gsl_integration_workspace *workspace =
 	        gslWrapper.gsl_integration_workspace_alloc(limit+2);
 

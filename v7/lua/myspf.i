@@ -50,9 +50,9 @@ namespace Spf {
 template<typename T>
 class GeometrySquare {
 	public:
-	GeometrySquare(size_t l);
+	GeometrySquare(SizeType l);
 
-	size_t length() const;
+	SizeType length() const;
 
 					};//Class GeometrySquare
 
@@ -73,7 +73,7 @@ template<typename FieldType_,typename IoInType>
 		//! Read Dmrg parameters from inp file
 		ParametersEngine(IoInType& io);
 		
-		size_t latticeLength;
+		SizeType latticeLength;
 	
 							};//Struct ParametersEngine
 
@@ -131,7 +131,7 @@ template<typename EngineParametersType,typename AlgorithmType>
 		typedef typename AlgorithmType::FieldType FieldType;
 		typedef typename AlgorithmType::ComplexType ComplexType;
 
-		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,size_t hilbertSize) :
+		GreenFunction(const EngineParametersType& engineParams,AlgorithmType& algorithm,SizeType hilbertSize) :
 			engineParams_(engineParams),algorithm_(algorithm),hilbertSize_(hilbertSize),data_(hilbertSize,hilbertSize);
 
 						};//Class GreenFunction
@@ -152,7 +152,7 @@ template<typename ParametersType,typename AlgorithmType,typename ModelType,
 		typedef typename ParametersType::FieldType FieldType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef Dmrg::ProgressIndicator ProgressIndicatorType;
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		
 		public:
 			
