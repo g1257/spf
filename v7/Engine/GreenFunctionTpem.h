@@ -32,10 +32,9 @@ namespace Spf {
 
 		GreenFunctionTpem(const EngineParametersType& engineParams,
 		                  ModelType& model,
-		                  IoInType& io,
-						  typename ModelType::ConcurrencyType::CommType comm)
+		                  IoInType& io)
 		: engineParams_(engineParams),
-		  algorithm_(engineParams,model,io,comm),
+		  algorithm_(engineParams,model,io),
 		  hilbertSize_(model.hilbertSize()),
 		  tpem_(algorithm_.tpem()),
 		  data_(hilbertSize_,hilbertSize_),

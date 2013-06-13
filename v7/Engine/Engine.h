@@ -23,6 +23,7 @@
 #include "GreenFunctionDiag.h"
 #include <time.h>
 #include "loki/Typelist.h"
+#include "Concurrency.h"
 
 namespace Spf {
 
@@ -34,39 +35,36 @@ namespace Spf {
 		typedef typename DynVarsType::OperationsList OperationsListType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef std::pair<size_t,size_t> PairType;
-		typedef typename ModelType::ConcurrencyType ConcurrencyType;
-		typedef typename ConcurrencyType::CommType CommType;
-		typedef Packer<RealType,PsimagLite::IoSimple::Out,ConcurrencyType> PackerType;
+		typedef Packer<RealType,PsimagLite::IoSimple::Out> PackerType;
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 		typedef Spf::GreenFunctionTpem<ParametersType,ModelType,RngType> GreenFunctionTpemType;
 		typedef Spf::GreenFunctionDiag<ParametersType,ModelType,RngType> GreenFunctionDiagType;
 		typedef AlgorithmFactory<GreenFunctionDiagType,GreenFunctionTpemType> AlgorithmFactoryType;
 
+		static const SizeType CONCURRENCY_RANK = 0;
+
 	public:
 
 		Engine(const ParametersType& params,
 		       ModelType& model,
-		       IoInType& io,
-		       ConcurrencyType& concurrency) 
+		       IoInType& io)
 		: params_(params),
 		  model_(model),
-		  concurrency_(concurrency),
-		  comm_(concurrency_.newCommFromSegments(params_.coresForKernel)),
 		  gfTpem_(0),
 		  gfDiag_(0),
 		  dynVars_(model_.dynVars()),
 		  ioOut_(params_.filename,
-		  concurrency_.rank()),
-		  progress_("Engine",concurrency.rank()),
-		  rng_(params.randomSeed,concurrency_.rank(comm_.second),concurrency_.nprocs(comm_.second)),
-		  saveConfigs_(params_,dynVars_,concurrency.rank(comm_.first))
+		  CONCURRENCY_RANK),
+		  progress_("Engine",PsimagLite::Concurrency::rank()),
+		  rng_(params.randomSeed,PsimagLite::Concurrency::rank(comm_.second),PsimagLite::Concurrency::nprocs(comm_.second)),
+		  saveConfigs_(params_,dynVars_,PsimagLite::Concurrency::rank(comm_.first))
 		{
 			const PsimagLite::String opts = params.options;
 			bool tpem = (opts.find("tpem")!=PsimagLite::String::npos);
 			if (tpem) {
-				gfTpem_ = new GreenFunctionTpemType(params,model,io,comm_.first);
+				gfTpem_ = new GreenFunctionTpemType(params,model,io);
 			} else {
-				gfDiag_ = new GreenFunctionDiagType(params,model,io,comm_.first);
+				gfDiag_ = new GreenFunctionDiagType(params,model,io);
 			}
 			writeHeader();
 		}
@@ -93,7 +91,7 @@ namespace Spf {
 			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
 			PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
-				printProgress(iter,params_.iterTherm,10,'*',concurrency_.rank());
+				printProgress(iter,params_.iterTherm,10,'*',CONCURRENCY_RANK);
 				doMonteCarlo(accepted,dynVars_,iter);
 			}
 			std::cerr<<"\n";
@@ -106,18 +104,16 @@ namespace Spf {
 			typedef std::pair<size_t,size_t> PairType;
 			typename PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
 
-			bool isStrict = true;
-			PsimagLite::Range<ConcurrencyType> range(0,params_.iterEffective,
-			             concurrency_,comm_.second,isStrict);
+			PsimagLite::Range range(0,params_.iterEffective);
 						 
 			for (;!range.end();range.next()) {
 				size_t iter=range.index();
 				printProgress(iter,params_.iterEffective,10,'*',
-				         concurrency_.rank(comm_.second));
+				         PsimagLite::Concurrency::rank(comm_.second));
 				for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 					doMonteCarlo(accepted,dynVars_,iter);
 				}
-				PackerType packer(ioOut_,concurrency_,comm_.second);
+				PackerType packer(ioOut_);
 				PsimagLite::String algorithmicError = "DISABLED";
 				if (gfDiag_) {
 					gfDiag_->measure();
@@ -145,7 +141,7 @@ namespace Spf {
 
 		void finalize()
 		{
-			model_.finalize(ioOut_,comm_.second);
+			model_.finalize(ioOut_);
 			ioOut_<<"#FinalClassicalFieldConfiguration:\n";
 			ioOut_<<dynVars_;
 			bool printgf = (params_.options.find("printgf")!=PsimagLite::String::npos);
@@ -219,14 +215,13 @@ namespace Spf {
 
 		const ParametersType& params_;
 		ModelType& model_;
-		ConcurrencyType& concurrency_;
 		/** comm_ is a pair of communicators that the Engine owns
 		  * comm_.first is the communicator for the kernel, which
 		  *   means either parallel TPEM or parallel diagonalization
 		  * comm_.second is the communicator for the Monte Carlo
 		  *  meaning that MC measurements are parallel over comm_.second
 		  */ 
-		std::pair<CommType,CommType> comm_;
+		std::pair<int,int> comm_;
 		GreenFunctionTpemType* gfTpem_; // we own it, we new it, and we delete it
 		GreenFunctionDiagType* gfDiag_; // we own it, we new it, and we delete it
 		DynVarsType& dynVars_;

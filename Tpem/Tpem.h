@@ -23,16 +23,12 @@
 
 namespace Tpem {
 
-	template<typename TpemParametersType_,typename RealOrComplexType,typename ConcurrencyType>
+	template<typename TpemParametersType_,typename RealOrComplexType>
 	class Tpem {
-
-		typedef typename ConcurrencyType::CommType CommType;
-
-		static const CommType COMM_WORLD;
 
 	public:
 
-		typedef PsimagLite::Range<ConcurrencyType> RangeType;
+		typedef PsimagLite::Range RangeType;
 		typedef TpemParametersType_ TpemParametersType;
 		typedef typename TpemParametersType::RealType RealType;
 		typedef BaseFunctor<TpemParametersType> BaseFunctorType;
@@ -60,12 +56,8 @@ namespace Tpem {
 
 		typedef MyFunctionParams MyFunctionParamsType;
 
-		Tpem(const TpemParametersType& tpemParameters,
-		     ConcurrencyType& concurrency,
-		     CommType comm = COMM_WORLD)
-		: tpemParameters_(tpemParameters),
-		  concurrency_(concurrency),
-		  comm_(comm)
+		Tpem(const TpemParametersType& tpemParameters)
+		: tpemParameters_(tpemParameters)
 		{
 			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
@@ -87,11 +79,11 @@ namespace Tpem {
 			RealType result = 0,abserr = 0;
 
 			GslWrapperType::gsl_function f;
-			f.function= &Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::myFunction;
+			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
 			MyFunctionParamsType params(obsFunc);
 			f.params = &params;
 			//int key = GSL_INTEG_GAUSS61;
-			RangeType range(0,tpemParameters_.cutoff,concurrency_,comm_);
+			RangeType range(0,tpemParameters_.cutoff);
 			for (;!range.end();range.next()) {
 				params.m = range.index();
 				gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
@@ -104,7 +96,7 @@ namespace Tpem {
 				}
 				vobs[params.m] = result;
 			}
-			concurrency_.reduce(vobs,comm_);
+//			concurrency_.reduce(vobs,comm_);
 			gslWrapper_.gsl_integration_workspace_free (workspace);
 		}
 
@@ -118,12 +110,12 @@ namespace Tpem {
 			assert(matrix.row()==matrix.col());
 			moment[0] = matrix.row();
 			
-			RangeType range(0,matrix.row(),concurrency_,comm_);
+			RangeType range(0,matrix.row());
 			for (;!range.end();range.next()) {
 				size_t i = range.index();
 				diagonalElement(matrix, moment, i);
 			}
-			concurrency_.reduce(moment,comm_);
+//			concurrency_.reduce(moment,comm_);
 			moment[0] = matrix.row();
 
 			for (size_t i = 2; i < n; i += 2)
@@ -153,15 +145,15 @@ namespace Tpem {
 			assert(matrix0.row()==matrix0.col());
 			moment0[0] = moment1[0] =  matrix0.row();
 
-			RangeType range(0,info.top(),concurrency_,comm_);
+			RangeType range(0,info.top());
 			// FIXME: we could use twice as many procs here
 			for (;!range.end();range.next()) {
 				size_t p= info(range.index());
 				diagonalElement(matrix0, moment0, p);
 				diagonalElement(matrix1, moment1, p);
 			}
-			concurrency_.reduce(moment0,comm_);
-			concurrency_.reduce(moment1,comm_);
+//			concurrency_.reduce(moment0,comm_);
+//			concurrency_.reduce(moment1,comm_);
 			moment0[0] = moment1[0] = matrix0.row();
 
 			for (size_t i = 2; i < n; i += 2) {
@@ -196,7 +188,7 @@ namespace Tpem {
 				ret += moments[i] * coeffs[i];
 			*/
 			assert(!std::isinf(ret) && !std::isnan(ret));
-			concurrency_.broadcast(ret,comm_);
+//			concurrency_.broadcast(ret,comm_);
 			return ret;
 		}
 
@@ -385,19 +377,13 @@ namespace Tpem {
 		}
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
-		ConcurrencyType& concurrency_;
-		CommType comm_;
 		GslWrapperType gslWrapper_;
 		static ChebyshevFunctionType chebyshev_;
 	}; // class Tpem
 
-	template<typename TpemParametersType,typename RealOrComplexType,typename ConcurrencyType>
-	const typename ConcurrencyType::CommType
-	Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::COMM_WORLD = 
-	ConcurrencyType::COMM_WORLD; 
-
-	template<typename TpemParametersType,typename RealOrComplexType,typename ConcurrencyType>
-	typename Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::ChebyshevFunctionType Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType>::chebyshev_;
+	template<typename TpemParametersType,typename RealOrComplexType>
+	typename Tpem<TpemParametersType,RealOrComplexType>::ChebyshevFunctionType
+	Tpem<TpemParametersType,RealOrComplexType>::chebyshev_;
 } // namespace Tpem
 
 /*@}*/

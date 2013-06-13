@@ -20,13 +20,11 @@
 
 namespace Spf {
 	template<typename EngineParamsType,
-	         typename GeometryType,
-			 typename ConcurrencyType_>
+	         typename GeometryType>
 	class PhononsTwoOrbitals : public ModelBase<
 	  Spin<typename EngineParamsType::RealType>,
 	  EngineParamsType,
-	  GeometryType,
-	  ConcurrencyType_> {
+	  GeometryType> {
 
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -35,16 +33,13 @@ namespace Spf {
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
 		typedef PhononsTwoOrbitals<EngineParamsType,
-		                           GeometryType,
-		                           ConcurrencyType_> ThisType;
+		                           GeometryType> ThisType;
 
 		static const size_t nbands_ = 2;
 
 	public:
 
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
-		typedef ConcurrencyType_ ConcurrencyType;
-		typedef typename ConcurrencyType::CommType CommType;
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersPhononsTwoOrbitals<EngineParamsType,IoInType> ParametersModelType;
 		typedef PhononsTwoOrbitalsFields<RealType,GeometryType> DynVarsType;
@@ -57,12 +52,10 @@ namespace Spf {
 		
 		PhononsTwoOrbitals(EngineParamsType& engineParams,
 		                   IoInType& io,
-		                   const GeometryType& geometry,
-		                   ConcurrencyType& concurrency)
+		                   const GeometryType& geometry)
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
-		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(nbands_*geometry_.volume()), // there's no spin here
 		  adjustments_(engineParams),
@@ -90,8 +83,6 @@ namespace Spf {
 		size_t totalFlips() const { return geometry_.volume(); }
 
 		size_t hilbertSize() const { return hilbertSize_; }
-
-		ConcurrencyType& concurrency() { return concurrency_; }
 
 		RealType deltaDirect(size_t i,SpinOperationsType& ops,int n) const
 		{
@@ -196,19 +187,16 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
-			
 		}
 		
 		template<typename EngineParamsType2,
-		         typename GeometryType2,
-		         typename ConcurrencyType2>
+		         typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		  const PhononsTwoOrbitals<
 		           EngineParamsType2,
-		           GeometryType2,
-		           ConcurrencyType2>& model);
+		           GeometryType2>& model);
 		
 		private:
 		
@@ -311,7 +299,6 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
-		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;
@@ -322,13 +309,11 @@ namespace Spf {
 	}; // PhononsTwoOrbitals
 
 	template<typename EngineParamsType,
-	         typename GeometryType,
-	         typename ConcurrencyType>
+	         typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,
       const PhononsTwoOrbitals<
                   EngineParamsType,
-                  GeometryType,
-                  ConcurrencyType>& model)
+                  GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

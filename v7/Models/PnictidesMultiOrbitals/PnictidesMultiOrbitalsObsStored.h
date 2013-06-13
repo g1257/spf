@@ -14,7 +14,7 @@
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
-	typename ParametersModelType,typename ConcurrencyType>
+	typename ParametersModelType>
 	class PnictidesMultiOrbitalsObsStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
@@ -23,7 +23,6 @@ namespace Spf {
 		typedef typename PsimagLite::Vector<ComplexType>::Type ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
 		typedef PsimagLite::Matrix<FieldType> MatrixType;
-		typedef typename ConcurrencyType::CommType CommType;
 
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
 		enum {ORBITAL_XZ,ORBITAL_YZ};
@@ -36,13 +35,11 @@ namespace Spf {
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
-				size_t dof,
-				ConcurrencyType& concurrency) :
+				size_t dof) :
 			spinOperations_(spinOperations),
 			geometry_(geometry),
 			mp_(mp),
 			dof_(dof),
-			concurrency_(concurrency),
 			lc_(dof*geometry.volume(),0),
 			chargeCor_(geometry.volume(),0),
 			mc_(geometry.volume(),DIRECTIONS),
@@ -72,15 +69,15 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
 			if (counter_==0) return;
-			divideAndPrint(fout,comm,lc_,"#LocalCharge:");
-			divideAndPrint(fout,comm,chargeCor_,"#ChargeCorrelations:");
-			divideAndPrint(fout,comm,mc_,"#MCorrelations");
-			divideAndPrint(fout,comm,tc_,"#TCorrelations");
-			divideAndPrint(fout,comm,cs_,"#ClassicalSpinCorrelations");
-			divideAndPrint(fout,comm,qs_,"#ItinerantSpinCorrelations");
+			divideAndPrint(fout,lc_,"#LocalCharge:");
+			divideAndPrint(fout,chargeCor_,"#ChargeCorrelations:");
+			divideAndPrint(fout,mc_,"#MCorrelations");
+			divideAndPrint(fout,tc_,"#TCorrelations");
+			divideAndPrint(fout,cs_,"#ClassicalSpinCorrelations");
+			divideAndPrint(fout,qs_,"#ItinerantSpinCorrelations");
 		}
 
 	private:
@@ -268,31 +265,29 @@ namespace Spf {
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    CommType comm,
 		                    VectorType& v,
 		                    const PsimagLite::String& label)
 		{
-			concurrency_.reduce(v,comm);
+//			concurrency_.reduce(v,comm);
 			v /= counter_;
 			//! No comm below, only world root prints:
-			if (!concurrency_.root()) return;
+			if (!PsimagLite::Concurrency::root()) return;
 			fout<<label<<"\n";
 			fout<<v;
 		}
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    CommType comm,
 		                    MatrixType& m,
 		                    const PsimagLite::String& label)
 		{
 			//concurrency_.reduce(m);
-			//if (!concurrency_.root()) return;
+			//if (!PsimagLite::Concurrency::root()) return;
 			VectorType v(m.n_row(),0);
 			for (size_t dir=0;dir<m.n_col();dir++) {
 				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
 				PsimagLite::String newlabel = label+ttos(dir);
-				divideAndPrint(fout,comm,v,newlabel);
+				divideAndPrint(fout,v,newlabel);
 			}
 		}
 
@@ -300,7 +295,6 @@ namespace Spf {
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
 		size_t dof_;
-		ConcurrencyType& concurrency_;
 		VectorType lc_;
 		VectorType chargeCor_;
 		MatrixType mc_;

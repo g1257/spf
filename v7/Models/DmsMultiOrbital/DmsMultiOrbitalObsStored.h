@@ -17,20 +17,17 @@
 
 namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
-	         typename ParametersModelType,typename EngineParamsType,
-	         typename ConcurrencyType>
+	         typename ParametersModelType,typename EngineParamsType>
 	class DmsMultiOrbitalObsStored {
 		
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType RealType;
-//		typedef PsimagLite::Vector<FieldType> VectorType;
 		typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
 		typedef typename SpinOperationsType::GeometryType GeometryType;
 		typedef PsimagLite::Matrix<RealType> MatrixType;
 
 		typedef Histogram<RealType,ComplexType> HistogramComplexType;
 		typedef Histogram<RealType,RealType> HistogramRealType;
-		typedef typename ConcurrencyType::CommType CommType;
 
 	public:
 		static size_t const ORBITALS = 3;
@@ -39,13 +36,11 @@ namespace Spf {
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
-				const EngineParamsType& pe,
-				ConcurrencyType& concurrency)
+				const EngineParamsType& pe)
  		: spinOperations_(spinOperations),
 		 geometry_(geometry),
 		 mp_(mp),
 		 pe_(pe),
-		 concurrency_(concurrency),
 		 arw_(geometry.volume()*ORBITALS*2,HistogramComplexType(
 		       mp.histogramParams[0],mp.histogramParams[1],
 		       size_t(mp.histogramParams[2]))),
@@ -66,20 +61,20 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
-			reduce(arw_,comm);
-			optical_.reduce(concurrency_,comm);
-			if (!concurrency_.root(comm)) return;
+			reduce(arw_);
+			optical_.reduce();
+			if (!PsimagLite::Concurrency::root()) return;
 			divideAndPrint(fout,arw_,"#Arw:");
 			divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
 
-		void reduce(typename PsimagLite::Vector<HistogramComplexType>::Type& h,CommType comm)
+		void reduce(typename PsimagLite::Vector<HistogramComplexType>::Type& h)
 		{
-			for (size_t i=0;i<h.size();i++) h[i].reduce(concurrency_,comm);
+			for (size_t i=0;i<h.size();i++) h[i].reduce();
 		}
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma
@@ -198,7 +193,6 @@ namespace Spf {
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
 		const EngineParamsType& pe_;
-		ConcurrencyType& concurrency_;
 		typename PsimagLite::Vector<HistogramComplexType>::Type arw_;
 		HistogramRealType optical_;
 		size_t counter_;

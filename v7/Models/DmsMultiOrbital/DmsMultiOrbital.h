@@ -21,11 +21,10 @@
 namespace Spf {
 	template<
 		typename EngineParamsType,
-		typename GeometryType,
-		typename ConcurrencyType_>
+		typename GeometryType>
 	class DmsMultiOrbital : public ModelBase<Spin<
 	     typename EngineParamsType::RealType>,
-		 EngineParamsType,GeometryType,ConcurrencyType_> {
+		 EngineParamsType,GeometryType> {
 		
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -34,12 +33,10 @@ namespace Spf {
 		typedef typename GeometryType::PairType PairType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
 		typedef Adjustments<EngineParamsType> AdjustmentsType;
-		typedef DmsMultiOrbital<EngineParamsType,GeometryType,ConcurrencyType_> ThisType;
+		typedef DmsMultiOrbital<EngineParamsType,GeometryType> ThisType;
 
 	public:
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
-		typedef ConcurrencyType_ ConcurrencyType;
-		typedef typename ConcurrencyType::CommType CommType;
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersDmsMultiOrbital<EngineParamsType,IoInType> ParametersModelType;
 		typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
@@ -47,26 +44,23 @@ namespace Spf {
 		typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
 		typedef DmsMultiOrbitalObsStored<SpinOperationsType,ComplexType,
 		                          ParametersModelType,
-		                          EngineParamsType,
-		                          ConcurrencyType> DmsMultiOrbitalObsStoredType;
+		                          EngineParamsType> DmsMultiOrbitalObsStoredType;
 		static const size_t ORBITALS = DmsMultiOrbitalObsStoredType::ORBITALS;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		
 		DmsMultiOrbital(const EngineParamsType& engineParams,
 		                IoInType& io,
-		                const GeometryType& geometry,
-		                ConcurrencyType& concurrency)
+		                const GeometryType& geometry)
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
-		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*ORBITALS*geometry.volume()),
 		  adjustments_(engineParams),
 		  progress_("PnictidesTwoOrbitals",0),
 		  spinOperations_(geometry,engineParams),
-		  DmsMultiOrbitalObsStored_(spinOperations_,geometry,mp_,engineParams_,concurrency)
+		  DmsMultiOrbitalObsStored_(spinOperations_,geometry,mp_,engineParams_)
 		{
 		}
 		
@@ -81,8 +75,6 @@ namespace Spf {
 		}
 		
 		size_t hilbertSize() const { return hilbertSize_; }
-
-		ConcurrencyType& concurrency() { return concurrency_; }
 
 		RealType deltaDirect(size_t i,const SpinOperationsType& ops,int n) const
 		{
@@ -191,19 +183,18 @@ namespace Spf {
 		}
 		
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
-			DmsMultiOrbitalObsStored_.finalize(fout,comm);
+			DmsMultiOrbitalObsStored_.finalize(fout);
 		}
 		
 		template<
 		         typename EngineParamsType2,
-		         typename GeometryType2,
-		         typename ConcurrencyType2>
+		         typename GeometryType2>
 		friend std::ostream& operator<<(
 		           std::ostream& os,
 		           const DmsMultiOrbital<EngineParamsType2,
-		           GeometryType2,ConcurrencyType2>& model);
+		           GeometryType2>& model);
 		
 	private:
 		
@@ -429,7 +420,6 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
-		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		AdjustmentsType adjustments_;
@@ -440,11 +430,9 @@ namespace Spf {
 	}; // PnictidesTwoOrbitals
 
 	template<typename EngineParamsType,
-	         typename GeometryType,
-	         typename ConcurrencyType>
+	         typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,
-	                         const DmsMultiOrbital<EngineParamsType,
-	                         GeometryType,ConcurrencyType>& model)
+	                         const DmsMultiOrbital<EngineParamsType,GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

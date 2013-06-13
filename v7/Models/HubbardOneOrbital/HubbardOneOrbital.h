@@ -22,13 +22,11 @@
 
 namespace Spf {
 	template<typename EngineParamsType,
-	           typename GeometryType,
-	           typename ConcurrencyType_>
+	           typename GeometryType>
 	class HubbardOneOrbital : public ModelBase<Spin<
 	  typename EngineParamsType::RealType>,
 	  EngineParamsType,
-	  GeometryType,
-	  ConcurrencyType_> {
+	  GeometryType> {
 
 		typedef typename EngineParamsType::RealType RealType;
 		typedef PsimagLite::CrsMatrix<RealType> SparseMatrixType;
@@ -37,8 +35,6 @@ namespace Spf {
 
 	public:
 
-		typedef ConcurrencyType_ ConcurrencyType;
-		typedef typename ConcurrencyType::CommType CommType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<RealType> MatrixType;
 		typedef typename EngineParamsType::IoInType IoInType;
@@ -48,7 +44,7 @@ namespace Spf {
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 //		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,RealType,
-//				ParametersModelType,ConcurrencyType> HubbardOneOrbitalObsStoredType;
+//				ParametersModelType> HubbardOneOrbitalObsStoredType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
@@ -56,18 +52,16 @@ namespace Spf {
 		
 		HubbardOneOrbital(const EngineParamsType& engineParams,
 		                  IoInType& io,
-		                  const GeometryType& geometry,
-		                  ConcurrencyType& concurrency)
+		                  const GeometryType& geometry)
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
-		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*geometry.volume()),
 		  progress_("HubbardOneOrbital",0),
 		  chargeOperations_(geometry,engineParams.mcWindow.find("Charge")->second,PairRealType(0,2)),
 		  magOperations_(geometry,engineParams.mcWindow.find("Mag")->second,PairRealType(-1,1))
-//		  HubbardOneOrbitalObsStored_(chargeOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
+//		  HubbardOneOrbitalObsStored_(chargeOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Mag");
 			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Charge");
@@ -89,8 +83,6 @@ namespace Spf {
 		}
 		
 		size_t hilbertSize() const { return hilbertSize_; }
-		
-		ConcurrencyType& concurrency() { return concurrency_; }
 
 		RealType deltaDirect(size_t i,ContVarFiniteOperationsType& ops,size_t n) const
 		{
@@ -169,18 +161,16 @@ namespace Spf {
 		}
 
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
-//			HubbardOneOrbitalObsStored_.finalize(fout,comm);
+//			HubbardOneOrbitalObsStored_.finalize(fout);
 		}
 
 		template<typename EngineParamsType2,
-		         typename GeometryType2,
-		         typename ConcurrencyType2>
+		         typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		  const HubbardOneOrbital<EngineParamsType2,
-		                               GeometryType2,
-		                               ConcurrencyType2>& model);
+		                               GeometryType2>& model);
 
 	private:
 
@@ -222,7 +212,6 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
-		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		ProgressIndicatorType progress_;
@@ -232,13 +221,11 @@ namespace Spf {
 	}; // HubbardOneOrbital
 
 	template<typename EngineParamsType,
-	         typename GeometryType,
-	         typename ConcurrencyType>
+	         typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,
 	                         const HubbardOneOrbital<
 	                           EngineParamsType,
-	                           GeometryType,
-	                           ConcurrencyType>& model)
+	                           GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

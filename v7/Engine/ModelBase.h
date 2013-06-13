@@ -16,8 +16,7 @@
 namespace Spf {
 	template<typename DynVarsType,
 	         typename EngineParamsType,
-	         typename GeometryType,
-	         typename ConcurrencyType>
+	         typename GeometryType>
 	class ModelBase {
 		typedef typename EngineParamsType::RealType RealType;
 

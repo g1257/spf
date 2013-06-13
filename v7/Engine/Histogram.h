@@ -61,11 +61,9 @@ namespace Spf {
 				histY_[i] /= div1;
 		}
 		
-		template<typename SomeConcurrencyType>
-		void reduce(SomeConcurrencyType& concurrency,
-					typename SomeConcurrencyType::CommType comm)
+		void reduce()
 		{
-			concurrency.reduce(histY_,comm);
+			PsimagLite::Concurrency::reduce(histY_);
 		}
 
 		const RealType& x(size_t i) const  { return histX_[i]; }

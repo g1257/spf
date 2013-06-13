@@ -22,13 +22,11 @@
 
 namespace Spf {
 	template<typename EngineParamsType,
-	           typename GeometryType,
-	           typename ConcurrencyType_>
+	           typename GeometryType>
 	class PnictidesMultiOrbitals : public ModelBase<Spin<
 	  typename EngineParamsType::RealType>,
 	  EngineParamsType,
-	  GeometryType,
-	  ConcurrencyType_> {
+	  GeometryType> {
 
 		typedef typename EngineParamsType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
@@ -39,8 +37,6 @@ namespace Spf {
 
 	public:
 
-		typedef ConcurrencyType_ ConcurrencyType;
-		typedef typename ConcurrencyType::CommType CommType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
 		typedef typename EngineParamsType::IoInType IoInType;
 		typedef ParametersPnictidesThreeOrbitals<EngineParamsType,IoInType> ParametersModelType;
@@ -50,25 +46,23 @@ namespace Spf {
 		typedef ThreeOrbitalTerms<MatrixType,ParametersModelType,
 				GeometryType> ThreeOrbitalTermsType;
 		typedef PnictidesMultiOrbitalsObsStored<SpinOperationsType,ComplexType,
-				ParametersModelType,ConcurrencyType> PnictidesMultiOrbitalsObsStoredType;
+				ParametersModelType> PnictidesMultiOrbitalsObsStoredType;
 		
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		
 		PnictidesMultiOrbitals(const EngineParamsType& engineParams,
 		                       IoInType& io,
-		                       const GeometryType& geometry,
-		                       ConcurrencyType& concurrency)
+		                       const GeometryType& geometry)
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
-		  concurrency_(concurrency),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*mp_.numberOfOrbitals*geometry.volume()),
 		  progress_("PnictidesTwoOrbitals",0),
 		  spinOperations_(geometry,engineParams),
 		  threeOrbitalTerms_(mp_,geometry),
-		  PnictidesMultiOrbitalsObsStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals,concurrency)
+		  PnictidesMultiOrbitalsObsStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 		}
 		
@@ -83,8 +77,6 @@ namespace Spf {
 		}
 
 		size_t hilbertSize() const { return hilbertSize_; }
-		
-		ConcurrencyType& concurrency() { return concurrency_; }
 
 		RealType deltaDirect(size_t i,const SpinOperationsType& ops,int n) const
 		{
@@ -252,18 +244,16 @@ namespace Spf {
 		}
 
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout,CommType comm)
+		void finalize(SomeOutputType& fout)
 		{
-			PnictidesMultiOrbitalsObsStored_.finalize(fout,comm);
+			PnictidesMultiOrbitalsObsStored_.finalize(fout);
 		}
 
 		template<typename EngineParamsType2,
-		         typename GeometryType2,
-		         typename ConcurrencyType2>
+		         typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		  const PnictidesMultiOrbitals<EngineParamsType2,
-		                               GeometryType2,
-		                               ConcurrencyType2>& model);
+		                               GeometryType2>& model);
 
 	private:
 
@@ -435,7 +425,6 @@ namespace Spf {
 		const EngineParamsType& engineParams_;
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
-		ConcurrencyType& concurrency_;
 		DynVarsType dynVars_;
 		size_t hilbertSize_;
 		ProgressIndicatorType progress_;
@@ -445,13 +434,11 @@ namespace Spf {
 	}; // PnictidesMultiOrbitals
 
 	template<typename EngineParamsType,
-	         typename GeometryType,
-	         typename ConcurrencyType>
+	         typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,
 	                         const PnictidesMultiOrbitals<
 	                           EngineParamsType,
-	                           GeometryType,
-	                           ConcurrencyType>& model)
+	                           GeometryType>& model)
 	{
 		os<<"ModelParameters\n";
 		os<<model.mp_;

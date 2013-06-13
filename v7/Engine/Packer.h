@@ -24,35 +24,34 @@ Please see full open source license included in file LICENSE.
 #include <iostream>
 #include <fstream>
 #include "TypeToString.h"
+#include "Concurrency.h"
 
 // FIXME: values_ should be a string here
 namespace Spf {
-	template<typename RealType,typename IoOutputType,typename ConcurrencyType>
+	template<typename RealType,typename IoOutputType>
 	class  Packer {
-
-		typedef typename ConcurrencyType::CommType CommType;
 
 		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T,TYPE_STRING};
 
 	public:
 		
-		Packer(IoOutputType& fout,ConcurrencyType& concurrency,CommType comm)
-		: fout_(fout),concurrency_(concurrency),comm_(comm),progress_("Packer",0)
+		Packer(IoOutputType& fout)
+		: fout_(fout),comm_(0),progress_("Packer",0)
 		{}
 		
 		~Packer()
 		{
-			size_t nprocs = concurrency_.nprocs(comm_);
-			size_t r = concurrency_.rank(comm_);
+			size_t nprocs = PsimagLite::Concurrency::nprocs(comm_);
+			size_t r = PsimagLite::Concurrency::rank(comm_);
 			typename PsimagLite::Vector<RealType>::Type values(values_.size()*nprocs,0);
 			for (size_t i=0;i<values_.size();i++) {
 				values[r+i*nprocs] = values_[i];
 			}
 			values_.clear();
 			
-			concurrency_.reduce(values,comm_);
+			PsimagLite::Concurrency::reduce(values,comm_);
 			
-			if (!concurrency_.root(comm_)) return;
+			if (!PsimagLite::Concurrency::root(comm_)) return;
 			
 			bool flag = false;
 			RealType prev = 0;
@@ -115,8 +114,7 @@ namespace Spf {
 	private:
 
 		IoOutputType& fout_;
-		ConcurrencyType& concurrency_;
-		CommType comm_;
+		int comm_;
 		PsimagLite::ProgressIndicator progress_;
 		PsimagLite::Vector<PsimagLite::String>::Type labels_;
 		typename PsimagLite::Vector<RealType>::Type values_;

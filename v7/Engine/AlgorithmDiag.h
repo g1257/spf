@@ -31,8 +31,7 @@ namespace Spf {
 
 		AlgorithmDiag(const EngineParametersType& engineParams,
 		              ModelType& model,
-		              IoInType& io,
-		              typename ModelType::ConcurrencyType::CommType comm)
+		              IoInType& io)
 		: engineParams_(engineParams),
 		  model_(model),
 		  metropolisOrGlauber_(engineParams.detailedBalance),

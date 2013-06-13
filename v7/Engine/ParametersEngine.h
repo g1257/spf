@@ -84,15 +84,16 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "Map.h"
 #include "TypeToString.h"
 #include "IoSimple.h"
+#include "Concurrency.h"
 
 namespace Spf {
 	
 	//! Structure that contains the Engine parameters
-	template<typename RealType_,typename IoInType_,typename ConcurrencyType>
+	template<typename RealType_,typename IoInType_>
 	struct ParametersEngine {
 		typedef RealType_ RealType;
 		typedef IoInType_ IoInType;
-		ParametersEngine(IoInType& io,ConcurrencyType& concurrency)
+		ParametersEngine(IoInType& io)
 		{
 			io.readline(options,"EngineOptions=");
 			io.readline(geometry,"GeometryKind=");
@@ -126,12 +127,12 @@ namespace Spf {
 				io.readline(coresForKernel,"CoresForKernel=");
 			} catch (std::exception& e) {
 
-				if (concurrency.nprocs()>1) {
+				if (PsimagLite::Concurrency::nprocs()>1) {
 					std::cerr<<"Did you forget CoresForKernel= line in the input file?\n";
 					throw e;
 				}
 			}
-			if (size_t(concurrency.nprocs())<coresForKernel) {
+			if (size_t(PsimagLite::Concurrency::nprocs())<coresForKernel) {
 				s= PsimagLite::String(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
 				s += PsimagLite::String(": nprocs<coresForKernel is an error\n");
 				throw PsimagLite::RuntimeError(s.c_str());
@@ -191,9 +192,9 @@ namespace Spf {
 	};
 
 	//! print dmrg parameters
-	template<typename RealType,typename IoInType,typename ConcurrencyType>
+	template<typename RealType,typename IoInType>
 	std::ostream &operator<<(std::ostream &os,
-		ParametersEngine<RealType,IoInType,ConcurrencyType> const &parameters)
+		ParametersEngine<RealType,IoInType> const &parameters)
 	{
 		os<<"#This is SPF\n";
 		os<<"parameters.version="<<parameters.version<<"\n";
