@@ -115,14 +115,14 @@ int main(int argc,char *argv[])
 		return 1;
 	}
 
-	MyConcurrencyType concurrency(argc,argv);
-
 	if (PsimagLite::Concurrency::root()) printLicense();
 
 	InputNgType::Writeable ioWriteable(filename,inputCheck);
 	InputNgType::Readable io(ioWriteable);
 
 	ParametersEngineType engineParams(io);
+
+	MyConcurrencyType concurrency(argc,argv,engineParams.npthreads);
 
 	if (engineParams.geometry=="ladder") {
 		mainLoop<GeometrySquareType>(engineParams,io);

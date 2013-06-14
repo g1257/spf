@@ -261,9 +261,8 @@ namespace Spf {
 		void measure()
 		{
 			typedef PsimagLite::Parallelizer<MyLoop> ParallelizerType;
-			ParallelizerType threadObject;
-
-			ParallelizerType::setThreads(params_.npthreads);
+			ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
+			                              PsimagLite::MPI::COMM_WORLD);
 
 			threadObject.loopCreate(params_.iterEffective,helper_);
 

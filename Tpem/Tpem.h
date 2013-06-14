@@ -265,9 +265,8 @@ namespace Tpem {
 		{
 			typedef MyLoop HelperType;
 			typedef PsimagLite::Parallelizer<HelperType> ParallelizerType;
-			ParallelizerType threadObject;
-
-			ParallelizerType::setThreads(npthreads_);
+			ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
+			                              PsimagLite::MPI::COMM_WORLD);
 
 			HelperType helper(vobs,obsFunc,gslWrapper_);
 
@@ -281,9 +280,8 @@ namespace Tpem {
 		{
 			typedef MyLoop2 Helper2Type;
 			typedef PsimagLite::Parallelizer<Helper2Type> Parallelizer2Type;
-			Parallelizer2Type threadObject;
-
-			Parallelizer2Type::setThreads(npthreads_);
+			Parallelizer2Type threadObject(PsimagLite::Concurrency::npthreads,
+			        PsimagLite::MPI::COMM_WORLD);
 
 			Helper2Type helper(matrix,moment,tpemParameters_);
 
@@ -314,9 +312,8 @@ namespace Tpem {
 
 			typedef MyLoop3 Helper3Type;
 			typedef PsimagLite::Parallelizer<Helper3Type> Parallelizer3Type;
-			Parallelizer3Type threadObject;
-
-			Parallelizer3Type::setThreads(npthreads_);
+			Parallelizer3Type threadObject(PsimagLite::Concurrency::npthreads,
+			                               PsimagLite::MPI::COMM_WORLD);
 
 			Helper3Type helper(matrix0,moment0,matrix1,moment1,info,tpemParameters_);
 
