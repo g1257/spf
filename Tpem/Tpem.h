@@ -17,9 +17,10 @@
 #include <cassert>
 #include "GslWrapper.h"
 #include "ChebyshevFunctionExplicit.h"
-#include "Range.h"
 #include <cmath>
 #include "BLAS.h"
+#include "Concurrency.h"
+#include "Parallelizer.h"
 
 namespace Tpem {
 
@@ -28,7 +29,6 @@ namespace Tpem {
 
 	public:
 
-		typedef PsimagLite::Range RangeType;
 		typedef TpemParametersType_ TpemParametersType;
 		typedef typename TpemParametersType::RealType RealType;
 		typedef BaseFunctor<TpemParametersType> BaseFunctorType;
@@ -45,7 +45,7 @@ namespace Tpem {
 		
 		enum {NO_VERBOSE,YES_VERBOSE};
 		static const size_t verbose_ = NO_VERBOSE;
-		
+
 		struct MyFunctionParams {
 			MyFunctionParams(const BaseFunctorType& functor1)
 			: functor(functor1) { }
@@ -56,8 +56,206 @@ namespace Tpem {
 
 		typedef MyFunctionParams MyFunctionParamsType;
 
-		Tpem(const TpemParametersType& tpemParameters)
-		: tpemParameters_(tpemParameters)
+		class MyLoop {
+
+			typedef PsimagLite::Concurrency ConcurrencyType;
+
+		public:
+
+			MyLoop(std::vector<RealType> &vobs1,
+			       const BaseFunctorType& obsFunc,
+			       const GslWrapperType& gslWrapper)
+			    : vobs(vobs1),
+			      gslWrapper_(gslWrapper),
+			      pts(2),
+			      epsabs(1e-9),
+			      epsrel(1e-9),
+			      limit(1000000),
+			      workspace(gslWrapper_.gsl_integration_workspace_alloc(limit+2)),
+			      result(0),
+			      abserr(0),
+			      params(obsFunc)
+			{
+				pts[0]= -1.0;
+				pts[1] = 1.0;
+
+				f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
+
+				f.params = &params;
+			}
+
+			~MyLoop()
+			{
+				gslWrapper_.gsl_integration_workspace_free (workspace);
+			}
+
+			void thread_function_(SizeType threadNum,
+			                      SizeType blockSize,
+			                      SizeType total,
+			                      typename ConcurrencyType::MutexType* myMutex)
+			{
+				for (SizeType p=0;p<blockSize;p++) {
+					SizeType taskNumber = threadNum*blockSize + p;
+					if (taskNumber>=total) break;
+
+					std::cout<<"This is thread number "<<threadNum;
+					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+
+					params.m = taskNumber;
+					gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
+					//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
+					//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
+
+					if (std::isinf(result) || std::isnan(result)) {
+						vobs[params.m] = 0;
+						continue;
+					}
+					vobs[params.m] = result;
+				}
+			}
+
+			template<typename SomeParallelType>
+			const void gather(SomeParallelType& p)
+			{
+				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
+					p.allGather(vobs);
+				}
+			}
+
+		private:
+
+			typename PsimagLite::Vector<RealType>::Type &vobs;
+			const GslWrapperType& gslWrapper_;
+			typename PsimagLite::Vector<RealType>::Type pts;
+			RealType epsabs;
+			RealType epsrel;
+			size_t limit;
+			GslWrapperType::gsl_integration_workspace *workspace;
+			RealType result;
+			RealType abserr;
+			GslWrapperType::gsl_function f;
+			MyFunctionParamsType params;
+		};
+
+		class MyLoop2 {
+
+			typedef PsimagLite::Concurrency ConcurrencyType;
+
+		public:
+
+			MyLoop2(TpemSparseType& matrix1,
+			        std::vector<RealType>& moment1,
+			        const TpemParametersType& tpemParameters)
+			    : matrix(matrix1),moment(moment1),tpemParameters_(tpemParameters)
+			{
+				size_t n=moment.size();
+
+				for (size_t i = 0; i < n; i++) moment[i] = 0.0;
+				assert(matrix.row()==matrix.col());
+				moment[0] = matrix.row();
+			}
+
+			void thread_function_(SizeType threadNum,
+			                      SizeType blockSize,
+			                      SizeType total,
+			                      typename ConcurrencyType::MutexType* myMutex)
+			{
+				for (SizeType p=0;p<blockSize;p++) {
+					SizeType taskNumber = threadNum*blockSize + p;
+					if (taskNumber>=total) break;
+
+					std::cout<<"This is thread number "<<threadNum;
+					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+
+					diagonalElement(matrix, moment, taskNumber, tpemParameters_);
+				}
+			}
+
+			template<typename SomeParallelType>
+			const void gather(SomeParallelType& p)
+			{
+				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
+					p.allGather(moment);
+				}
+
+				moment[0] = matrix.row();
+
+				size_t n=moment.size();
+
+				for (size_t i = 2; i < n; i += 2)
+					moment[i] = 2.0 * moment[i] - moment[0];
+
+				for (size_t i = 3; i < n - 1; i += 2)
+					moment[i] = 2.0 * moment[i] - moment[1];
+			}
+
+		private:
+
+			TpemSparseType& matrix;
+			typename PsimagLite::Vector<RealType>::Type& moment;
+			const TpemParametersType& tpemParameters_;
+		};
+
+		class MyLoop3 {
+
+			typedef PsimagLite::Concurrency ConcurrencyType;
+
+		public:
+
+			MyLoop3(const TpemSparseType& matrix0,
+			        std::vector<RealType>& moment0,
+			        const TpemSparseType& matrix1,
+			        std::vector<RealType>& moment1,
+			        TpemSubspaceType& info,
+			        const TpemParametersType& tpemParameters)
+			    : matrix0_(matrix0),
+			      moment0_(moment0),
+			      matrix1_(matrix1),
+			      moment1_(moment1),
+			      info_(info),
+			      tpemParameters_(tpemParameters)
+			{
+
+			}
+
+			void thread_function_(SizeType threadNum,
+			                      SizeType blockSize,
+			                      SizeType total,
+			                      typename ConcurrencyType::MutexType* myMutex)
+			{
+				for (SizeType p=0;p<blockSize;p++) {
+					SizeType taskNumber = threadNum*blockSize + p;
+					if (taskNumber>=total) break;
+
+					std::cout<<"This is thread number "<<threadNum;
+					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+
+					diagonalElement(matrix0_, moment0_, taskNumber,tpemParameters_);
+					diagonalElement(matrix1_, moment1_, taskNumber,tpemParameters_);
+				}
+			}
+
+			template<typename SomeParallelType>
+			const void gather(SomeParallelType& p)
+			{
+				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
+					p.allGather(moment0_);
+					p.allGather(moment1_);
+				}
+			}
+
+		private:
+
+			const TpemSparseType& matrix0_;
+			std::vector<RealType>& moment0_;
+			const TpemSparseType& matrix1_;
+			std::vector<RealType>& moment1_;
+			TpemSubspaceType& info_;
+			const TpemParametersType& tpemParameters_;
+		};
+
+		Tpem(const TpemParametersType& tpemParameters,SizeType npthreads)
+		    : tpemParameters_(tpemParameters),npthreads_(npthreads)
 		{
 			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
@@ -65,77 +263,46 @@ namespace Tpem {
 		void calcCoeffs(std::vector<RealType> &vobs,
 		                const BaseFunctorType& obsFunc) const
 		{
-			std::vector<RealType> pts(2);
-			pts[0]= -1.0;
-			pts[1] = 1.0;
-			//size_t npts = pts.size();
-			RealType epsabs=1e-9;
-			RealType epsrel=1e-9;
+			typedef MyLoop HelperType;
+			typedef PsimagLite::Parallelizer<HelperType> ParallelizerType;
+			ParallelizerType threadObject;
 
-			size_t limit = 1000000;
-			GslWrapperType::gsl_integration_workspace *workspace = 
-			                   gslWrapper_.gsl_integration_workspace_alloc(limit+2);
+			ParallelizerType::setThreads(npthreads_);
 
-			RealType result = 0,abserr = 0;
+			HelperType helper(vobs,obsFunc,gslWrapper_);
 
-			GslWrapperType::gsl_function f;
-			f.function= &Tpem<TpemParametersType,RealOrComplexType>::myFunction;
-			MyFunctionParamsType params(obsFunc);
-			f.params = &params;
-			//int key = GSL_INTEG_GAUSS61;
-			RangeType range(0,tpemParameters_.cutoff);
-			for (;!range.end();range.next()) {
-				params.m = range.index();
-				gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
-				//gsl_integration_qag(&f,pts[0],pts[1],epsabs,epsrel,limit,key,workspace,&result,&abserr);
-				//gsl_integration_qags(&f,pts[0],pts[1],epsabs,epsrel,limit,workspace,&result,&abserr);
-				
-				if (std::isinf(result) || std::isnan(result)) {
-					vobs[params.m] = 0;
-					continue;
-				}
-				vobs[params.m] = result;
-			}
-//			concurrency_.reduce(vobs,comm_);
-			gslWrapper_.gsl_integration_workspace_free (workspace);
+			threadObject.loopCreate(tpemParameters_.cutoff,helper);
+
+			helper.gather(threadObject);
 		}
 
 		void calcMoments(TpemSparseType& matrix,
 		                 std::vector<RealType>& moment) const
 		{
-			size_t n=moment.size();
-			std::vector<RealType> buf(n,0);
+			typedef MyLoop2 Helper2Type;
+			typedef PsimagLite::Parallelizer<Helper2Type> Parallelizer2Type;
+			Parallelizer2Type threadObject;
 
-			for (size_t i = 0; i < n; i++) moment[i] = 0.0;
-			assert(matrix.row()==matrix.col());
-			moment[0] = matrix.row();
-			
-			RangeType range(0,matrix.row());
-			for (;!range.end();range.next()) {
-				size_t i = range.index();
-				diagonalElement(matrix, moment, i);
-			}
-//			concurrency_.reduce(moment,comm_);
-			moment[0] = matrix.row();
+			Parallelizer2Type::setThreads(npthreads_);
 
-			for (size_t i = 2; i < n; i += 2)
-				moment[i] = 2.0 * moment[i] - moment[0];
-				
-			for (size_t i = 3; i < n - 1; i += 2)
-				moment[i] = 2.0 * moment[i] - moment[1];
+			Helper2Type helper(matrix,moment,tpemParameters_);
+
+			threadObject.loopCreate(matrix.row(),helper);
+
+			helper.gather(threadObject);
 		}
 
 		void calcMomentsDiff(std::vector<RealType> &moments,
 		                     const TpemSparseType& matrix0,
 		                     const TpemSparseType& matrix1) const
-		{	
+		{
 			assert(matrix0.row()==matrix0.col());
 			TpemSubspaceType info(matrix0.row());
 			size_t n=moments.size();
 			std::vector<RealType>  moment0(n,0.0), moment1(n,0.0);
 
 			if (tpemParameters_.algorithm==TpemParametersType::TPEM) {
-				subspaceForTrace(info,matrix0, matrix1, moment0, moment1);
+				subspaceForTrace(info,matrix0, matrix1, moment0, moment1,tpemParameters_);
 				// reset all moments to zero because the subspace for trace changes them
 				for (size_t i = 0; i < n; i++) moment0[i] = moment1[i] = 0.0;
 			} else {
@@ -145,15 +312,18 @@ namespace Tpem {
 			assert(matrix0.row()==matrix0.col());
 			moment0[0] = moment1[0] =  matrix0.row();
 
-			RangeType range(0,info.top());
-			// FIXME: we could use twice as many procs here
-			for (;!range.end();range.next()) {
-				size_t p= info(range.index());
-				diagonalElement(matrix0, moment0, p);
-				diagonalElement(matrix1, moment1, p);
-			}
-//			concurrency_.reduce(moment0,comm_);
-//			concurrency_.reduce(moment1,comm_);
+			typedef MyLoop3 Helper3Type;
+			typedef PsimagLite::Parallelizer<Helper3Type> Parallelizer3Type;
+			Parallelizer3Type threadObject;
+
+			Parallelizer3Type::setThreads(npthreads_);
+
+			Helper3Type helper(matrix0,moment0,matrix1,moment1,info,tpemParameters_);
+
+			threadObject.loopCreate(info.top(),helper);
+
+			helper.gather(threadObject);
+
 			moment0[0] = moment1[0] = matrix0.row();
 
 			for (size_t i = 2; i < n; i += 2) {
@@ -217,41 +387,43 @@ namespace Tpem {
 
 	private:
 
-		void diagonalElement(const TpemSparseType& matrix,
-		                     std::vector<RealType> &moment,
-		                     size_t ket) const
+		static void diagonalElement(const TpemSparseType& matrix,
+		                            std::vector<RealType> &moment,
+		                            size_t ket,
+		                            const TpemParametersType& tpemParameters)
 		{
 			TpemSubspaceType work(matrix.row());
-			if (tpemParameters_.algorithm == TpemParametersType::TPEM) {
-				diagonalElementTpem(matrix,moment,ket,work,tpemParameters_.epsForProduct);
-			} else if (tpemParameters_.algorithm == TpemParametersType::PEM) {
+			if (tpemParameters.algorithm == TpemParametersType::TPEM) {
+				diagonalElementTpem(matrix,moment,ket,work,tpemParameters.epsForProduct);
+			} else if (tpemParameters.algorithm == TpemParametersType::PEM) {
 				diagonalElementPem(matrix,moment,ket);
 			} else {
 				std::string s("tpem_diagonal_element: Unknown type: ");
-				s += ttos(tpemParameters_.algorithm) + "\n";
+				s += ttos(tpemParameters.algorithm) + "\n";
 				throw std::runtime_error(s.c_str());
 			}
 		}
 
-		void diagonalElement(const TpemSparseType& matrix,
-		                     std::vector<RealType> &moment,
-		                     size_t ket,
-		                     TpemSubspaceType& info) const
+		static void diagonalElement(const TpemSparseType& matrix,
+		                            std::vector<RealType> &moment,
+		                            size_t ket,
+		                            TpemSubspaceType& info,
+		                            const TpemParametersType& tpemParameters)
 		{
-			if (tpemParameters_.algorithm != TpemParametersType::TPEM) {
+			if (tpemParameters.algorithm != TpemParametersType::TPEM) {
 				std::string s("tpem_diagonal_element: Expected algorithm==tpem");
 				s += std::string("but found tpemType==");
-				s += ttos(tpemParameters_.algorithm) + "\n";
+				s += ttos(tpemParameters.algorithm) + "\n";
 				throw std::runtime_error(s.c_str());
 			}
-			diagonalElementTpem(matrix,moment,ket,info,tpemParameters_.epsForTrace);
+			diagonalElementTpem(matrix,moment,ket,info,tpemParameters.epsForTrace);
 		}
 
-		void diagonalElementTpem(const TpemSparseType& matrix,
-		                         std::vector<RealType> &moment,
-		                         size_t ket,
-		                         TpemSubspaceType& info,
-		                         const RealType& eps) const
+		static void diagonalElementTpem(const TpemSparseType& matrix,
+		                                std::vector<RealType> &moment,
+		                                size_t ket,
+		                                TpemSubspaceType& info,
+		                                const RealType& eps)
 		{
 			assert(matrix.row()==matrix.col());
 			std::vector<RealOrComplexType> tmp(matrix.row(),0.0);
@@ -305,9 +477,9 @@ namespace Tpem {
 			}
 		}
 
-		void  diagonalElementPem(const TpemSparseType& matrix,
-		                         std::vector<RealType> &moment,
-		                         size_t ket) const
+		static void  diagonalElementPem(const TpemSparseType& matrix,
+		                                std::vector<RealType> &moment,
+		                                size_t ket)
 		{
 			assert(matrix.row()==matrix.col());
 			std::vector<RealOrComplexType> tmp(matrix.row(),0.0);
@@ -356,27 +528,29 @@ namespace Tpem {
 			}
 		}
 
-		void subspaceForTrace(TpemSubspaceType& info,
+		static void subspaceForTrace(TpemSubspaceType& info,
 		                      const TpemSparseType& matrix0,
 		                      const TpemSparseType& matrix1,
 		                      std::vector<RealType>& moment0,
-		                      std::vector<RealType>& moment1) const
+		                      std::vector<RealType>& moment1,
+		                      const TpemParametersType& tpemParameters)
 		{
-			const std::vector<size_t>& support = tpemParameters_.support;
+			const std::vector<size_t>& support = tpemParameters.support;
 			info.clear();
 
 			assert(matrix0.row()==matrix0.col());
 			TpemSubspaceType work(matrix0.row());
 			for (size_t i = 0; i < support.size(); i++) {
 				size_t j = support[i];
-				diagonalElement(matrix0, moment0, j,work);
+				diagonalElement(matrix0, moment0, j,work,tpemParameters);
 				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
-				diagonalElement (matrix1, moment1, j,work);
+				diagonalElement (matrix1, moment1, j,work,tpemParameters);
 				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
 			}
 		}
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
+		SizeType npthreads_;
 		GslWrapperType gslWrapper_;
 		static ChebyshevFunctionType chebyshev_;
 	}; // class Tpem

@@ -165,6 +165,7 @@ namespace Spf {
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
 			}
+			npthreads = 1;
 //			io.rewind();
 			
 		}
@@ -189,6 +190,7 @@ namespace Spf {
 		size_t saveEach;
 		PsimagLite::String detailedBalance;
 		size_t adjustEach;
+		size_t npthreads;
 	};
 
 	//! print dmrg parameters

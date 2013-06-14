@@ -71,7 +71,7 @@ Makefile.dep: spf.cpp  Makefile
 	g++ \$(CPPFLAGS) -MM spf.cpp  > Makefile.dep
 
 clean:
-	rm -f core* \$(EXENAME) *.o *.ii *.tt
+	rm -f core* \$(EXENAME) *.o *.ii *.tt Makefile.dep
 
 include Makefile.dep
 ######## End of $thisFile ########
