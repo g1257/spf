@@ -213,7 +213,7 @@ namespace Spf {
 			  * comm_.second is the communicator for the Monte Carlo
 			  *  meaning that MC measurements are parallel over comm_.second
 			  */
-			std::pair<int,int> comm_;
+			std::pair<ConcurrencyType::CommType,ConcurrencyType::CommType> comm_;
 			GreenFunctionTpemType* gfTpem_; // we own it, we new it, and we delete it
 			GreenFunctionDiagType* gfDiag_; // we own it, we new it, and we delete it
 			DynVarsType& dynVars_;
