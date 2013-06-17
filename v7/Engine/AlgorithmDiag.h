@@ -242,7 +242,7 @@ namespace Spf {
 
 			sort.sort(eigs,iperm);
 
-			if (jobz!='v' || jobz!='V') return;
+			if (jobz!='v' && jobz!='V') return;
 
 			MatrixType m3(2*n,2*n);
 			for (size_t i=0;i<n;i++) {
