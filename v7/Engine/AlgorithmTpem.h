@@ -53,7 +53,7 @@ namespace Spf {
 		  adjustments_(engineParams),
 		  adjustTpemBounds_(false),
 		  tpemParameters_(io,engineParams.mu,engineParams.beta,&model),
-		  tpem_(tpemParameters_,engineParams.npthreads),
+		  tpem_(tpemParameters_),
 		  actionFunc_(tpemParameters_),
 		  matrixOld_(model.hilbertSize(),model.hilbertSize()),
 		  curMoments_(tpemParameters_.cutoff),

@@ -111,11 +111,10 @@ namespace Spf {
 				}
 			}
 
-			template<typename SomeParallelType>
-			void gather(SomeParallelType& p)
+			void gather()
 			{
-				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
-					p.allGather(accepted);
+				if (ConcurrencyType::hasMpi()) {
+					PsimagLite::MPI::allGather(accepted);
 				}
 			}
 
@@ -266,7 +265,7 @@ namespace Spf {
 
 			threadObject.loopCreate(params_.iterEffective,helper_);
 
-			helper_.gather(threadObject);
+			helper_.gather();
 
 			std::cerr<<"\n";
 		}

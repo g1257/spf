@@ -94,8 +94,10 @@ namespace Tpem {
 			                      SizeType total,
 			                      typename ConcurrencyType::MutexType* myMutex)
 			{
+				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
+				SizeType npthreads = ConcurrencyType::npthreads;
 				for (SizeType p=0;p<blockSize;p++) {
-					SizeType taskNumber = threadNum*blockSize + p;
+					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
 					std::cout<<"This is thread number "<<threadNum;
@@ -114,11 +116,10 @@ namespace Tpem {
 				}
 			}
 
-			template<typename SomeParallelType>
-			const void gather(SomeParallelType& p)
+			const void gather()
 			{
-				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
-					p.allGather(vobs);
+				if (ConcurrencyType::hasMpi()) {
+					PsimagLite::MPI::allGather(vobs);
 				}
 			}
 
@@ -160,8 +161,10 @@ namespace Tpem {
 			                      SizeType total,
 			                      typename ConcurrencyType::MutexType* myMutex)
 			{
+				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
+				SizeType npthreads = ConcurrencyType::npthreads;
 				for (SizeType p=0;p<blockSize;p++) {
-					SizeType taskNumber = threadNum*blockSize + p;
+					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
 					std::cout<<"This is thread number "<<threadNum;
@@ -171,11 +174,10 @@ namespace Tpem {
 				}
 			}
 
-			template<typename SomeParallelType>
-			const void gather(SomeParallelType& p)
+			const void gather()
 			{
-				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
-					p.allGather(moment);
+				if (ConcurrencyType::hasMpi()) {
+					PsimagLite::MPI::allGather(moment);
 				}
 
 				moment[0] = matrix.row();
@@ -223,8 +225,10 @@ namespace Tpem {
 			                      SizeType total,
 			                      typename ConcurrencyType::MutexType* myMutex)
 			{
+				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
+				SizeType npthreads = ConcurrencyType::npthreads;
 				for (SizeType p=0;p<blockSize;p++) {
-					SizeType taskNumber = threadNum*blockSize + p;
+					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
 					std::cout<<"This is thread number "<<threadNum;
@@ -235,12 +239,11 @@ namespace Tpem {
 				}
 			}
 
-			template<typename SomeParallelType>
-			const void gather(SomeParallelType& p)
+			const void gather()
 			{
-				if (ConcurrencyType::mode == ConcurrencyType::MPI) {
-					p.allGather(moment0_);
-					p.allGather(moment1_);
+				if (ConcurrencyType::hasMpi()) {
+					PsimagLite::MPI::allGather(moment0_);
+					PsimagLite::MPI::allGather(moment1_);
 				}
 			}
 
@@ -254,8 +257,8 @@ namespace Tpem {
 			const TpemParametersType& tpemParameters_;
 		};
 
-		Tpem(const TpemParametersType& tpemParameters,SizeType npthreads)
-		    : tpemParameters_(tpemParameters),npthreads_(npthreads)
+		Tpem(const TpemParametersType& tpemParameters)
+		    : tpemParameters_(tpemParameters)
 		{
 			gslWrapper_.gsl_set_error_handler(&my_handler);
 		}
@@ -272,7 +275,7 @@ namespace Tpem {
 
 			threadObject.loopCreate(tpemParameters_.cutoff,helper);
 
-			helper.gather(threadObject);
+			helper.gather();
 		}
 
 		void calcMoments(TpemSparseType& matrix,
@@ -287,7 +290,7 @@ namespace Tpem {
 
 			threadObject.loopCreate(matrix.row(),helper);
 
-			helper.gather(threadObject);
+			helper.gather();
 		}
 
 		void calcMomentsDiff(std::vector<RealType> &moments,
@@ -319,7 +322,7 @@ namespace Tpem {
 
 			threadObject.loopCreate(info.top(),helper);
 
-			helper.gather(threadObject);
+			helper.gather();
 
 			moment0[0] = moment1[0] = matrix0.row();
 
@@ -547,7 +550,6 @@ namespace Tpem {
 		}
 
 		const TpemParametersType& tpemParameters_; // not the owner, just a ref
-		SizeType npthreads_;
 		GslWrapperType gslWrapper_;
 		static ChebyshevFunctionType chebyshev_;
 	}; // class Tpem

@@ -63,7 +63,7 @@ namespace Spf {
 		
 		void reduce()
 		{
-			PsimagLite::Concurrency::reduce(histY_);
+			PsimagLite::MPI::reduce(histY_);
 		}
 
 		const RealType& x(size_t i) const  { return histX_[i]; }

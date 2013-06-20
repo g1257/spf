@@ -49,7 +49,7 @@ namespace Spf {
 			}
 			values_.clear();
 			
-			PsimagLite::Concurrency::reduce(values,comm_);
+			PsimagLite::MPI::reduce(values,PsimagLite::MPI::SUM,0,comm_);
 			
 			if (!PsimagLite::Concurrency::root(comm_)) return;
 			
