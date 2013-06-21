@@ -118,9 +118,7 @@ namespace Tpem {
 
 			const void gather()
 			{
-				if (ConcurrencyType::hasMpi()) {
-					PsimagLite::MPI::allGather(vobs);
-				}
+				PsimagLite::MPI::pointByPointGather(vobs);
 			}
 
 		private:
@@ -176,9 +174,7 @@ namespace Tpem {
 
 			const void gather()
 			{
-				if (ConcurrencyType::hasMpi()) {
-					PsimagLite::MPI::allGather(moment);
-				}
+				PsimagLite::MPI::pointByPointGather(moment);
 
 				moment[0] = matrix.row();
 
@@ -241,10 +237,8 @@ namespace Tpem {
 
 			const void gather()
 			{
-				if (ConcurrencyType::hasMpi()) {
-					PsimagLite::MPI::allGather(moment0_);
-					PsimagLite::MPI::allGather(moment1_);
-				}
+				PsimagLite::MPI::pointByPointGather(moment0_);
+				PsimagLite::MPI::pointByPointGather(moment1_);
 			}
 
 		private:

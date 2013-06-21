@@ -113,9 +113,7 @@ namespace Spf {
 
 			void gather()
 			{
-				if (ConcurrencyType::hasMpi()) {
-					PsimagLite::MPI::allGather(accepted);
-				}
+				PsimagLite::MPI::pointByPointGather(accepted);
 			}
 
 			void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,

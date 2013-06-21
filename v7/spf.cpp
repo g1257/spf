@@ -122,7 +122,7 @@ int main(int argc,char *argv[])
 
 	ParametersEngineType engineParams(io);
 
-	MyConcurrencyType concurrency(argc,argv,engineParams.npthreads);
+	MyConcurrencyType concurrency(&argc,&argv,engineParams.npthreads);
 
 	if (engineParams.geometry=="ladder") {
 		mainLoop<GeometrySquareType>(engineParams,io);
