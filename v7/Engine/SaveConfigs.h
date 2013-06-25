@@ -25,7 +25,7 @@ namespace Spf {
 		: params_(params),
 		  dynVars_(dynvars),
 		  enabled_(parallelRank==0 && params_.saveEach>0),
-		  ioOut_(params_.filename+".configs",(enabled_) ? parallelRank: 1)
+		  ioOut_(params_.filename+".configs")
 		{
 			if (!enabled_) return;
 			writeHeader();

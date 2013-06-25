@@ -40,8 +40,6 @@ namespace Spf {
 		typedef Spf::GreenFunctionDiag<ParametersType,ModelType,RngType> GreenFunctionDiagType;
 		typedef AlgorithmFactory<GreenFunctionDiagType,GreenFunctionTpemType> AlgorithmFactoryType;
 
-		static const SizeType CONCURRENCY_RANK = 0;
-
 		class MyLoop {
 
 			typedef PsimagLite::Concurrency ConcurrencyType;
@@ -57,8 +55,7 @@ namespace Spf {
 			  gfTpem_(0),
 			  gfDiag_(0),
 			  dynVars_(model_.dynVars()),
-			  ioOut_(params_.filename,
-			  CONCURRENCY_RANK),
+			  ioOut_(params_.filename),
 			  progress_("Engine"),
 			  rng_(params.randomSeed,PsimagLite::Concurrency::rank(comm_.second),PsimagLite::Concurrency::nprocs(comm_.second)),
 			  saveConfigs_(params_,dynVars_,PsimagLite::Concurrency::rank(comm_.first)),
@@ -91,8 +88,7 @@ namespace Spf {
 					if (taskNumber>=total) break;
 
 					size_t iter = taskNumber;
-					printProgress(iter,params_.iterEffective,10,'*',
-					         PsimagLite::Concurrency::rank(comm_.second));
+					printProgress(iter,params_.iterEffective,10,'*');
 					for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 						doMonteCarlo(accepted,iter);
 					}
@@ -190,7 +186,7 @@ namespace Spf {
 				}
 			}
 
-			void printProgress(int i,int total,int nMarks,char mark,int option)
+			void printProgress(int i,int total,int nMarks,char mark)
 			{
 				int every=total/nMarks;
 				if (every<=0 || i<=0) return;
@@ -248,7 +244,7 @@ namespace Spf {
 			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
 			PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
 			for (size_t iter=0;iter<params_.iterTherm;iter++) {
-				helper_.printProgress(iter,params_.iterTherm,10,'*',CONCURRENCY_RANK);
+				helper_.printProgress(iter,params_.iterTherm,10,'*');
 				helper_.doMonteCarlo(accepted,iter);
 			}
 			std::cerr<<"\n";
