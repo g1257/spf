@@ -59,7 +59,7 @@ namespace Spf {
 			  dynVars_(model_.dynVars()),
 			  ioOut_(params_.filename,
 			  CONCURRENCY_RANK),
-			  progress_("Engine",PsimagLite::Concurrency::rank()),
+			  progress_("Engine"),
 			  rng_(params.randomSeed,PsimagLite::Concurrency::rank(comm_.second),PsimagLite::Concurrency::nprocs(comm_.second)),
 			  saveConfigs_(params_,dynVars_,PsimagLite::Concurrency::rank(comm_.first)),
 			  fieldsToIntegrate(Loki::TL::Length<OperationsListType>::value),

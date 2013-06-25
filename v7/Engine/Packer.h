@@ -36,7 +36,7 @@ namespace Spf {
 	public:
 		
 		Packer(IoOutputType& fout)
-		: fout_(fout),comm_(0),progress_("Packer",0)
+		: fout_(fout),comm_(0),progress_("Packer")
 		{}
 		
 		~Packer()

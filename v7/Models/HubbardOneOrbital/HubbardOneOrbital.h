@@ -58,7 +58,7 @@ namespace Spf {
 		  geometry_(geometry),
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*geometry.volume()),
-		  progress_("HubbardOneOrbital",0),
+		  progress_("HubbardOneOrbital"),
 		  chargeOperations_(geometry,engineParams.mcWindow.find("Charge")->second,PairRealType(0,2)),
 		  magOperations_(geometry,engineParams.mcWindow.find("Mag")->second,PairRealType(-1,1))
 //		  HubbardOneOrbitalObsStored_(chargeOperations_,geometry,mp_,2*mp_.numberOfOrbitals)

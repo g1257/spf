@@ -58,7 +58,7 @@ namespace Spf {
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*ORBITALS*geometry.volume()),
 		  adjustments_(engineParams),
-		  progress_("PnictidesTwoOrbitals",0),
+		  progress_("PnictidesTwoOrbitals"),
 		  spinOperations_(geometry,engineParams),
 		  DmsMultiOrbitalObsStored_(spinOperations_,geometry,mp_,engineParams_)
 		{
