@@ -1,13 +1,16 @@
 EngineOptions=none
 
-Geometry=square
+GeometryKind=ladder
+LadderLeg=12
 Model=PnictidesMultiOrbitals
 Orbitals=2
 
 Version=SPFv7
 OutputFilename=data200
-Carriers=144
+TargetElectronsUp=72
+TargetElectronsDown=72
 ChemicalPotential=-0.95
+AdjustEach=1
 Beta=1000
 MonteCarloThermalizations=0
 MonteCarloEffectiveIteractions=20
@@ -18,7 +21,6 @@ MonteCarloStartLevel=0
 HistogramSteps=1000
 BoundaryConditions=periodic
 RandomSeed=34898
-LatticeLength=12
 Hoppings
 16
 -0.4 0
