@@ -1,7 +1,12 @@
 EngineOptions=none
+GeometryKind=ladder
+Model=DmsMultiOrbital
+Orbitals=6
+TargetElectronsUp=4
+TargetElectronsDown=4
+LadderLeg=4
 Version=SPFv7
 OutputFilename=output30
-Carriers=0 
 ChemicalPotential=0.0
 Beta=100
 MonteCarloThermalizations=0
@@ -13,7 +18,6 @@ MonteCarloStartLevel=0
 HistogramSteps=1000
 BoundaryConditions=periodic
 RandomSeed=348989861
-LatticeLength=4 
 SaveEach=2
 Hoppings
 864
