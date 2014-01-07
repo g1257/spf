@@ -1,5 +1,5 @@
 EngineOptions=none
-GeometryKind=ladder
+GeometryKind=fcc
 Model=DmsMultiOrbital
 Orbitals=6
 TargetElectronsUp=4

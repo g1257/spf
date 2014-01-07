@@ -277,7 +277,7 @@ namespace Spf {
 		typename PsimagLite::Vector<RealType>::Type eigNew(a.hilbertSize_);
 		typename ModelType::MatrixType matrix(a.hilbertSize_,a.hilbertSize_);
 		a.diagonalize(matrix,eigNew,'V',ModelType::OLDFIELDS);
-		os<<"Eigenvalues\n";
+		os<<"#Eigenvalues\n";
 		os<<eigNew;
 		return os;
 	}

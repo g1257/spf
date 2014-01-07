@@ -1,5 +1,5 @@
-EngineOptions=none,akw
-GeometryKind=ladder
+EngineOptions=none,akw,printgf
+GeometryKind=fcc
 Model=DmsMultiOrbital
 Orbitals=6
 TargetElectronsUp=4
