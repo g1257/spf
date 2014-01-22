@@ -140,7 +140,7 @@ namespace Spf {
 				                              const RealType& coupling)
 					const
 		{
-			size_t z = geometry_.z(1)/2;
+			size_t z = geometry_.z(1);
 			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling);
 			return calcSuperExchange(dynVars,coupling1v);
 
@@ -161,6 +161,7 @@ namespace Spf {
 					RealType p1=dynVars.phi[i];
 					RealType p2=dynVars.phi[j];
 					RealType tmp = cos(t1)*cos(t2)+sin(t1)*sin(t2)*(cos(p1)*cos(p2)+sin(p1)*sin(p2));
+					assert(dir<coupling.size());
 					sum += coupling[dir]*tmp;
 				}
 			}
