@@ -20,8 +20,11 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 
 		template<typename SomeParamsType>
-		Spin(size_t vol,const SomeParamsType& params,bool freeze=false,bool makeVoid=false) : 
-				size(vol),theta(vol,0),phi(vol,0),isFrozen(freeze),isVoid(makeVoid)
+		Spin(size_t vol,const SomeParamsType& params)
+		    : size(vol),
+		      theta(vol,0),
+		      phi(vol,0),
+		      isFrozen(params.options.find("frozenspins") != PsimagLite::String::npos)
 		{
 			if (params.dynvarsfile=="none") return;
 			if (params.dynvarsfile=="random") {
@@ -69,9 +72,7 @@ namespace Spf {
 		size_t size;
 		typename PsimagLite::Vector<FieldType>::Type theta;
 		typename PsimagLite::Vector<FieldType>::Type phi;
-		bool isFrozen;
-		bool isVoid;
-		
+		bool isFrozen;		
 	}; // Spin
 	
 	template<typename FieldType>

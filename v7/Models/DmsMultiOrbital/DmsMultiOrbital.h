@@ -205,8 +205,8 @@ namespace Spf {
 			size_t volume = geometry_.volume();
 			size_t norb = ORBITALS;
 			size_t dof = norb * 2; // the 2 comes because of the spin
-			typename PsimagLite::Vector<ComplexType>::Type jmatrix(dof*dof);
-			typename PsimagLite::Vector<RealType>::Type ymatrix(dof*dof);
+			typename PsimagLite::Vector<ComplexType>::Type jmatrix(dof*dof,0);
+			typename PsimagLite::Vector<RealType>::Type ymatrix(dof*dof,0);
 
 			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
 				for (size_t p = 0; p < matrix.n_col(); p++) 
@@ -228,20 +228,18 @@ namespace Spf {
 						//if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j);
 						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second; // int(j/2);
+						size_t dir = geometry_.scalarDirection(p,k);
 						for (size_t gamma2=0;gamma2<dof;gamma2++) {
-							matrix(p+gamma1*volume,k+gamma2*volume)=
-								mp_.hoppings[gamma1+gamma2*dof+dir*dof*dof];
-							matrix(k+gamma2*volume,p+gamma1*volume) =
-								conj(matrix(p+gamma1*volume,k+gamma2*volume));
+							SizeType index = gamma1+gamma2*dof+dir*dof*dof;
+							assert(index < mp_.hoppings.size());
+							matrix(p+gamma1*volume,k+gamma2*volume) = mp_.hoppings[index];
 						}
 					}
 
 					for (size_t gamma2=0;gamma2<dof;gamma2++) {
+						if (gamma1 == gamma2) continue;
 						matrix(p+gamma1*volume,p + gamma2*volume) =
 							jmatrix[gamma1+dof*gamma2] * modulus;
-						matrix(p + gamma2*volume,p+gamma1*volume) =
-							conj(matrix(p+gamma1*volume,p + gamma2*volume));
 					}
 				}
 			}

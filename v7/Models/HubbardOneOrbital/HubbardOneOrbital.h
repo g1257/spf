@@ -140,15 +140,6 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		struct FakeParams {
-			FakeParams(PsimagLite::String dynvarsfile1,int long long randomSeed1)
-			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) 
-			{}
-
-			PsimagLite::String dynvarsfile;
-			int long long randomSeed;
-		};
-
 		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
 		{
 			throw PsimagLite::RuntimeError("setTpemThings unimplemented\n");

@@ -19,6 +19,7 @@
 #include "Conductance.h"
 #include "CrsMatrix.h"
 #include "ParametersPnictidesThreeOrbitals.h"
+#include "FakeParams.h"
 
 namespace Spf {
 	template<typename EngineParamsType,
@@ -200,20 +201,11 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		struct FakeParams {
-			FakeParams(PsimagLite::String dynvarsfile1,int long long randomSeed1)
-			: dynvarsfile(dynvarsfile1),randomSeed(randomSeed1) 
-			{}
-
-			PsimagLite::String dynvarsfile;
-			int long long randomSeed;
-		};
-
 		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
 		{
 			{
 				MatrixType matrix(hilbertSize_,hilbertSize_);
-				FakeParams fakeParams("none",343313);
+				FakeParams fakeParams("none",343313,engineParams_.options);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
 				createHamiltonian(tmpDynVars,matrix);
 				typename PsimagLite::Vector<RealType>::Type e(matrix.n_row());
@@ -227,7 +219,7 @@ namespace Spf {
 				// to make this work for mp.J==0 we need to set
 				RealType J = 0.5;
 				MatrixType matrix(hilbertSize_,hilbertSize_);
-				FakeParams fakeParams("none",343313);
+				FakeParams fakeParams("none",343313,engineParams_.options);
 				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
 				createHamiltonian(tmpDynVars,matrix,&J);
 				SpinOperationsType spinOps(geometry_,engineParams_);
