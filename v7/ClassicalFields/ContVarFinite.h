@@ -11,6 +11,7 @@
 #define CONT_VAR_FINITE_H
 #include "IoSimple.h"
 #include "Vector.h"
+#include "ConstantVector.h"
 
 namespace Spf {
 template<typename FieldType_>
@@ -37,6 +38,7 @@ struct ContVarFinite { // Do not add functions here, this is a struct!!
 	size_t size;
 	typename PsimagLite::Vector<FieldType>::Type value;
 	PairRealType bounds;
+	ConstantVector modulus;
 	bool isFrozen;
 
 }; // Spin

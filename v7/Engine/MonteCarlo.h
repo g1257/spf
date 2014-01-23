@@ -40,6 +40,7 @@ namespace Spf {
 			algorithm_.init();
 			for (size_t j=0;j<dynVars.size;j++) {
 				size_t i = ops_.proposeSite(j,rng_);
+				if (dynVars.modulus[i] == 0) continue;
 				ops_.proposeChange(i,rng_);
 				bool flag= algorithm_.isAccepted(i,rng_,ops_,n);
 				if (flag && !dynVars.isFrozen) { // Accepted

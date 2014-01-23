@@ -11,8 +11,10 @@
 #define PHONON_H
 #include "IoSimple.h"
 #include "Vector.h"
+#include "ConstantVector.h"
 
 namespace Spf {
+
 	template<typename FieldType_>
 	struct Phonon { // Do not add functions here, this is a struct!!
 
@@ -21,7 +23,8 @@ namespace Spf {
 		typedef typename PsimagLite::Vector<FieldType>::Type OnePhononType;
 
 		Phonon(size_t vol,const PsimagLite::String& mcstarttype)
-			: size(vol),phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
+			: size(vol),
+		      phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
 			if (mcstarttype=="none") return;
 			IoSimpleIn ioin(mcstarttype);
@@ -35,6 +38,7 @@ namespace Spf {
 		size_t size;
                 //PsimagLite::Vector<FieldType> dummy_;
 		typename PsimagLite::Vector<OnePhononType>::Type phonon;
+		ConstantVector modulus;
 		bool isFrozen;
 		
 	}; // Spin

@@ -92,9 +92,13 @@ namespace Spf {
 		typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
 
 		template<typename SomeParamsType>
-		DmsMultiOrbitalFields(size_t vol,const SomeParamsType& params)
+		DmsMultiOrbitalFields(size_t vol,
+		                      const SomeParamsType& params,
+		                      const typename PsimagLite::Vector<SizeType>::Type& modulus)
 		: spin_(vol,params)
-		{}
+		{
+			spin_.modulus = modulus;
+		}
 		
 		const PsimagLite::String& name(size_t i) const { return name_; }
 		

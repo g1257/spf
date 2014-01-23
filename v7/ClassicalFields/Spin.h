@@ -24,6 +24,7 @@ namespace Spf {
 		    : size(vol),
 		      theta(vol,0),
 		      phi(vol,0),
+		      modulus(vol,1),
 		      isFrozen(params.options.find("frozenspins") != PsimagLite::String::npos)
 		{
 			if (params.dynvarsfile=="none") return;
@@ -66,12 +67,11 @@ namespace Spf {
 			(*this)<=ioin;
 			if (theta.size()==0 || phi.size()==0) throw PsimagLite::RuntimeError("PRoblem\n");
 		}
-				
-		//size_t size() const { return theta.size(); }
 		
 		size_t size;
 		typename PsimagLite::Vector<FieldType>::Type theta;
 		typename PsimagLite::Vector<FieldType>::Type phi;
+		typename PsimagLite::Vector<SizeType>::Type modulus;
 		bool isFrozen;		
 	}; // Spin
 	
@@ -82,6 +82,10 @@ namespace Spf {
 		os<<dynVars.theta;
 		os<<"Phi\n";
 		os<<dynVars.phi;
+		os<<"modulus\n";
+		for (SizeType i=0;i<dynVars.modulus.size();i++)
+			if (dynVars.modulus[i]!=0) os<<i<<" ";
+		os<<"\n";
 		os<<"IsFrozen"<<dynVars.isFrozen<<"\n";
 		return os;
 	}

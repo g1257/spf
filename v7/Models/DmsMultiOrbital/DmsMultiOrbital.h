@@ -55,7 +55,7 @@ namespace Spf {
 		: engineParams_(engineParams),
 		  mp_(io,engineParams),
 		  geometry_(geometry),
-		  dynVars_(geometry.volume(),engineParams),
+		  dynVars_(geometry.volume(),engineParams,mp_.modulus),
 		  hilbertSize_(2*ORBITALS*geometry.volume()),
 		  adjustments_(engineParams),
 		  progress_("PnictidesTwoOrbitals"),
