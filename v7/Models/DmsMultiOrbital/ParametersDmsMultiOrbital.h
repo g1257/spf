@@ -1,6 +1,5 @@
-// BEGIN LICENSE BLOCK
 /*
-Copyright (c) 2009 , UT-Battelle, LLC
+Copyright (c) 2009-2014, UT-Battelle, LLC
 All rights reserved
 
 [Spf, Version 7.0.0]
@@ -39,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -68,9 +67,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 
 *********************************************************
 
-
 */
-// END LICENSE BLOCK
 /** \ingroup SPF */
 /*@{*/
 
@@ -87,97 +84,97 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <iostream>
 
 namespace Spf {
-	// please don't add member functions, this is a struct!
-	template<typename ParametersEngineType,typename IoInType>
-	struct ParametersDmsMultiOrbital {
-		typedef typename ParametersEngineType::RealType RealType;
-		typedef std::complex<RealType> ComplexType;
 
-		//! ctor to read Model Parameters from inp file.
-		ParametersDmsMultiOrbital(
-				IoInType& io,
-				const ParametersEngineType& engineParams)
-		{
-			// legacy reading of pair of doubles to make a complex:
-			typename PsimagLite::Vector<RealType>::Type tmpReal;
-			io.read(tmpReal,"Hoppings");
-			hoppings.resize(tmpReal.size()/2);
-			for (SizeType i=0;i<hoppings.size();i++)
-				hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
+// please don't add member functions, this is a struct!
+template<typename ParametersEngineType,typename IoInType>
+struct ParametersDmsMultiOrbital {
 
-			io.readline(J,"CouplingJ=");
+	typedef typename ParametersEngineType::RealType RealType;
+	typedef std::complex<RealType> ComplexType;
 
-			io.read(potentialV,"PotentialV");
-			SizeType n = potentialV.size();
-			//parameters.potentialV.resize(parameters.linSize);
-			//for (SizeType i=0;i<parameters.potentialV.size();i++)
-			//	parameters.potentialV[i] = 0;
-
-			io.readline(jafNn,"PARAMETERSJ_AF=");
-
-			io.readline(jafNnn,"PARAMETERSJ_AF_NN=");
-
-			io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
-
-			PsimagLite::Vector<SizeType>::Type tmp;
-			io.read(tmp,"MODULUS");
-
-			modulus.resize(n);
-			for (SizeType i=0;i<modulus.size();i++) modulus[i] = 0;
-			for (SizeType i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
-
-			io.read(histogramParams,"HISTOGRAM");
-		}
-
-		// packed as gamma1+gamma2*dof + dir*4
-		// where dir goes from 0 to 11
-		// and dof = 2*orbitals
-		// and gamma1 = orb + spin*ORBITALS I think
-		// or is it spin + orb*2 ?
-
-		typename PsimagLite::Vector<ComplexType>::Type hoppings;
-		// J value
-		RealType J;
-		// Onsite potential values, one for each site
-		typename PsimagLite::Vector<RealType>::Type potentialV;
-		
-		// JAF n-n
-		RealType jafNn;
-		
-		// JAF n-n-n
-		RealType jafNnn;
-
-		RealType spinOrbitCoupling; // =0.34
-
-		// Modulus (FIXME: use less storage here it should be either 0 or 1)
-		PsimagLite::Vector<SizeType>::Type modulus;
-
-		typename PsimagLite::Vector<RealType>::Type histogramParams;
-	}; // struct ParametersDmsMultiOrbital
-	
-	//! Function that prints model parameters to stream os
-	template<typename ParametersEngineType,typename IoInType>
-	std::ostream& operator<<(
-		std::ostream &os,
-		const ParametersDmsMultiOrbital<ParametersEngineType,IoInType>& parameters)
+	//! ctor to read Model Parameters from inp file.
+	ParametersDmsMultiOrbital(
+	        IoInType& io,
+	        const ParametersEngineType& engineParams)
 	{
-		//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
-		os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
-		os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
-		os<<"parameters.J="<<parameters.J<<"\n";
-		os<<"parameters.potentialV\n";
-		os<<parameters.potentialV;
-		os<<"parameters.hoppings\n";
-		os<<parameters.hoppings;
-		os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
-		os<<"modulus\n";
-		for (SizeType i=0;i<parameters.modulus.size();i++)
-			if (parameters.modulus[i]!=0) os<<i<<" ";
-		os<<"\n";
-		os<<"histogramParams\n";
-		os<<parameters.histogramParams;
-		return os;
+		// legacy reading of pair of doubles to make a complex:
+		typename PsimagLite::Vector<RealType>::Type tmpReal;
+		io.read(tmpReal,"Hoppings");
+		hoppings.resize(tmpReal.size()/2);
+		for (SizeType i=0;i<hoppings.size();i++)
+			hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
+
+		io.readline(J,"CouplingJ=");
+
+		io.read(potentialV,"PotentialV");
+		SizeType n = potentialV.size();
+
+		io.readline(jafNn,"PARAMETERSJ_AF=");
+
+		io.readline(jafNnn,"PARAMETERSJ_AF_NN=");
+
+		io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
+
+		PsimagLite::Vector<SizeType>::Type tmp;
+		io.read(tmp,"MODULUS");
+
+		modulus.resize(n);
+		for (SizeType i=0;i<modulus.size();i++) modulus[i] = 0;
+		for (SizeType i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+
+		io.read(histogramParams,"HISTOGRAM");
 	}
+
+	// packed as gamma1+gamma2*dof + dir*4
+	// where dir goes from 0 to 11
+	// and dof = 2*orbitals
+	// and gamma1 = orb + spin*ORBITALS I think
+	// or is it spin + orb*2 ?
+	typename PsimagLite::Vector<ComplexType>::Type hoppings;
+
+	// J value
+	RealType J;
+
+	// Onsite potential values, one for each site
+	typename PsimagLite::Vector<RealType>::Type potentialV;
+
+	// JAF n-n
+	RealType jafNn;
+
+	// JAF n-n-n
+	RealType jafNnn;
+
+	RealType spinOrbitCoupling; // =0.34
+
+	// Modulus (FIXME: use less storage here it should be either 0 or 1)
+	PsimagLite::Vector<SizeType>::Type modulus;
+
+	typename PsimagLite::Vector<RealType>::Type histogramParams;
+}; // struct ParametersDmsMultiOrbital
+
+//! Function that prints model parameters to stream os
+template<typename ParametersEngineType,typename IoInType>
+std::ostream& operator<<(
+        std::ostream &os,
+        const ParametersDmsMultiOrbital<ParametersEngineType,IoInType>& parameters)
+{
+	//os<<"parameters.nOfElectrons="<<parameters.nOfElectrons<<"\n";
+	os<<"parameters.jafNn="<<parameters.jafNn<<"\n";
+	os<<"parameters.jafNnn="<<parameters.jafNnn<<"\n";
+	os<<"parameters.J="<<parameters.J<<"\n";
+	os<<"parameters.potentialV\n";
+	os<<parameters.potentialV;
+	os<<"parameters.hoppings\n";
+	os<<parameters.hoppings;
+	os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
+	os<<"modulus\n";
+	for (SizeType i=0;i<parameters.modulus.size();i++)
+		if (parameters.modulus[i]!=0) os<<i<<" ";
+	os<<"\n";
+	os<<"histogramParams\n";
+	os<<parameters.histogramParams;
+	return os;
+}
 } // namespace Spf
 
 /*@}*/

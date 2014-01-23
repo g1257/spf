@@ -37,7 +37,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -81,59 +81,59 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "loki/Typelist.h"
 
 namespace Spf {
-	template<typename FieldType,typename GeometryType>
-	class DmsMultiOrbitalFields {
+template<typename FieldType,typename GeometryType>
+class DmsMultiOrbitalFields {
 
-	public:	
+public:
 
-		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
-		typedef typename SpinOperationsType::SpinType SpinType;
-		
-		typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
+	typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
+	typedef typename SpinOperationsType::SpinType SpinType;
 
-		template<typename SomeParamsType>
-		DmsMultiOrbitalFields(size_t vol,
-		                      const SomeParamsType& params,
-		                      const typename PsimagLite::Vector<SizeType>::Type& modulus)
-		: spin_(vol,params)
-		{
-			spin_.modulus = modulus;
-		}
-		
-		const PsimagLite::String& name(size_t i) const { return name_; }
-		
-		void getField(SpinType** field,size_t i)
-		{
-			assert(i == 0);
-			*field = &spin_;
-		}
+	typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
 
-		void getField(SpinType const** field,size_t i) const
-		{
-			assert(i == 0);
-			*field = &spin_;
-		}
-		
-		template<typename FieldType2,typename GeometryType2>
-		friend std::ostream& operator<<(std::ostream& os,
-		        const DmsMultiOrbitalFields<FieldType2,GeometryType2>& f);
-		
-	private:
-		static const PsimagLite::String name_;
-		SpinType spin_;
-		
-	}; // DmsMultiOrbitalFields
-	
-	template<typename FieldType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,
-	              const DmsMultiOrbitalFields<FieldType,GeometryType>& f)
+	template<typename SomeParamsType>
+	DmsMultiOrbitalFields(size_t vol,
+	                      const SomeParamsType& params,
+	                      const typename PsimagLite::Vector<SizeType>::Type& modulus)
+	    : spin_(vol,params)
 	{
-		os<<f.spin_;
-		return os;
+		spin_.modulus = modulus;
 	}
-	template<typename FieldType,typename GeometryType>
-	const PsimagLite::String DmsMultiOrbitalFields<FieldType,GeometryType>::name_="spin";
-	
+
+	const PsimagLite::String& name(size_t i) const { return name_; }
+
+	void getField(SpinType** field,size_t i)
+	{
+		assert(i == 0);
+		*field = &spin_;
+	}
+
+	void getField(SpinType const** field,size_t i) const
+	{
+		assert(i == 0);
+		*field = &spin_;
+	}
+
+	template<typename FieldType2,typename GeometryType2>
+	friend std::ostream& operator<<(std::ostream& os,
+	                                const DmsMultiOrbitalFields<FieldType2,GeometryType2>& f);
+
+private:
+	static const PsimagLite::String name_;
+	SpinType spin_;
+
+}; // DmsMultiOrbitalFields
+
+template<typename FieldType,typename GeometryType>
+std::ostream& operator<<(std::ostream& os,
+                         const DmsMultiOrbitalFields<FieldType,GeometryType>& f)
+{
+	os<<f.spin_;
+	return os;
+}
+template<typename FieldType,typename GeometryType>
+const PsimagLite::String DmsMultiOrbitalFields<FieldType,GeometryType>::name_="spin";
+
 } // namespace Spf
 
 /*@}*/
