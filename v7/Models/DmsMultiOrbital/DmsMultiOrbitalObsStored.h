@@ -41,13 +41,29 @@ namespace Spf {
 		 geometry_(geometry),
 		 mp_(mp),
 		 pe_(pe),
-		 arw_(geometry.volume()*ORBITALS*2,HistogramComplexType(
-		       mp.histogramParams[0],mp.histogramParams[1],
-		       size_t(mp.histogramParams[2]))),
-		       optical_(mp.histogramParams[0],mp.histogramParams[1],
-		       size_t(mp.histogramParams[2])),
+		 arw_(0),
+		 optical_(0),
 		 counter_(0)
-		{}
+		{
+			if (pe_.options.find("akw")!=PsimagLite::String::npos)
+				arw_.resize(geometry.volume()*ORBITALS*2,
+				new HistogramComplexType(mp.histogramParams[0],
+				mp.histogramParams[1],
+				size_t(mp.histogramParams[2])));
+
+			if (pe_.options.find("optical")!=PsimagLite::String::npos)
+				optical_ = new HistogramRealType(mp.histogramParams[0],
+				mp.histogramParams[1],
+				size_t(mp.histogramParams[2]));
+		}
+
+		~DmsMultiOrbitalObsStored()
+		{
+			for (SizeType i = 0; i < arw_.size(); ++i)
+				if (arw_[i]) delete arw_[i];
+
+			if (optical_) delete optical_;
+		}
 
 		template<typename GreenFunctionType>
 		void operator()(const DynVarsType& spins,
@@ -63,18 +79,24 @@ namespace Spf {
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout)
 		{
-			reduce(arw_);
-			optical_.reduce();
+			if (pe_.options.find("akw")!=PsimagLite::String::npos)
+				reduce(arw_);
+			if (pe_.options.find("optical")!=PsimagLite::String::npos)
+				optical_->reduce();
+
 			if (!PsimagLite::Concurrency::root()) return;
-			divideAndPrint(fout,arw_,"#Arw:");
-			divideAndPrint(fout,optical_,"#Optical:");
+
+			if (pe_.options.find("akw")!=PsimagLite::String::npos)
+				divideAndPrint(fout,arw_,"#Arw:");
+			if (pe_.options.find("optical")!=PsimagLite::String::npos)
+				divideAndPrint(fout,optical_,"#Optical:");
 		}
 
 	private:
 
-		void reduce(typename PsimagLite::Vector<HistogramComplexType>::Type& h)
+		void reduce(typename PsimagLite::Vector<HistogramComplexType*>::Type& h)
 		{
-			for (size_t i=0;i<h.size();i++) h[i].reduce();
+			for (size_t i=0;i<h.size();i++) h[i]->reduce();
 		}
 
 		//! A(r+gamma*N,omega) will contain A(r,omega)_\gamma
@@ -92,7 +114,7 @@ namespace Spf {
 							size_t j=geometry_.add(i,r);
 							temp += conj(gf.matrix(i+gamma*n,l))*
 									gf.matrix(j+gamma*n,l);
-							arw_[r+gamma*n].add(gf.e(l),temp);
+							arw_[r+gamma*n]->add(gf.e(l),temp);
 						}
 					}
 				}
@@ -146,55 +168,55 @@ namespace Spf {
 							PsimagLite::fermi(beta*e1))/(e1-e2);
 					//temp = temp * fermi(beta*e2) * fermi(-beta*e1);
 					//temp = temp * (1.0 - exp(-beta*(e1-e2)))/(e1-e2);
-					optical_.add(e1-e2,temp2);
+					optical_->add(e1-e2,temp2);
 				}
 			}
 		}
 
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    typename PsimagLite::Vector<HistogramComplexType>::Type& h,
+		                    typename PsimagLite::Vector<HistogramComplexType*>::Type& h,
 		                    const PsimagLite::String& label)
 		{
 			if (h.size()==0) return;
 
 			for (size_t i=0;i<h.size();i++) {
-				h[i].divide(counter_*h[i].xWidth());
+				h[i]->divide(counter_*h[i]->xWidth());
 			}
 			fout<<label<<"\n";
-			for (size_t i=0;i<h[0].size();i++)  {
-				fout<<h[0].x(i)<<" ";
+			for (size_t i=0;i<h[0]->size();i++)  {
+				fout<<h[0]->x(i)<<" ";
 				for (size_t j=0;j<h.size();j++)
-					fout<<std::real(h[j].y(i))<<" ";
+					fout<<std::real(h[j]->y(i))<<" ";
 				fout<<"\n";
 			}
 			fout<<"% Imaginary part below\n";
-			for (size_t i=0;i<h[0].size();i++)  {
-				fout<<h[0].x(i)<<" ";
+			for (size_t i=0;i<h[0]->size();i++)  {
+				fout<<h[0]->x(i)<<" ";
 				for (size_t j=0;j<h.size();j++)
-					fout<<std::imag(h[j].y(i))<<" ";
+					fout<<std::imag(h[j]->y(i))<<" ";
 				fout<<"\n";
 			}
 		}
 		
 		template<typename SomeOutputType>
 		void divideAndPrint(SomeOutputType& fout,
-		                    HistogramRealType& h,
+		                    HistogramRealType* h,
 		                    const PsimagLite::String& label)
 		{
 
-			h.divide(counter_*h.xWidth());
+			h->divide(counter_*h->xWidth());
 			fout<<label<<"\n";
-			for (size_t i=0;i<h.size();i++)
-				fout<<h.x(i)<<" "<<h.y(i)<<"\n";
+			for (size_t i=0;i<h->size();i++)
+				fout<<h->x(i)<<" "<<h->y(i)<<"\n";
 		}
 
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
 		const EngineParamsType& pe_;
-		typename PsimagLite::Vector<HistogramComplexType>::Type arw_;
-		HistogramRealType optical_;
+		typename PsimagLite::Vector<HistogramComplexType*>::Type arw_;
+		HistogramRealType* optical_;
 		size_t counter_;
 
 	}; // DmsMultiOrbitalObsStored
