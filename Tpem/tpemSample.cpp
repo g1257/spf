@@ -4,8 +4,8 @@
 #include "RandomForTests.h"
 #include "IoSimple.h"
 #ifndef USE_MPI
-#include "ConcurrencySerial.h"
-typedef PsimagLite::ConcurrencySerial<> ConcurrencyType;
+#include "Concurrency.h"
+typedef PsimagLite::Concurrency ConcurrencyType;
 #else
 #include "ConcurrencyMpi.h"
 typedef PsimagLite::ConcurrencySerial<> ConcurrencyType;
@@ -120,16 +120,16 @@ int main (int argc,char *argv[])
 	typedef PsimagLite::IoSimple::In IoInType;
 	typedef MuBetaStruct<IoInType,RealType> MuBetaStructType;
 	typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
-	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType,ConcurrencyType> TpemType;
+	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType> TpemType;
 	typedef PsimagLite::CrsMatrix<RealOrComplexType> SparseMatrixType;
 	
 	if (argc<2) throw std::runtime_error("Needs the filename\n");
 
-	ConcurrencyType concurrency(argc,argv);
+	ConcurrencyType concurrency(&argc,&argv,1);
 	
 	IoInType io(argv[1]);
 	
-	PsimagLite::RandomForTests<RealType> rng; //348991);
+	PsimagLite::RandomForTests<RealType> rng(1);
 	SparseMatrixType matrix0(400,400);
 	fillRandomMatrix(matrix0,10.0,rng);
 	
@@ -143,7 +143,7 @@ int main (int argc,char *argv[])
 	support[1] = matrix0.rank() / 2 - 1;
 	tpemParameters.support = support;
 
-	TpemType tpem(tpemParameters,concurrency);
+	TpemType tpem(tpemParameters);
 
 // 	tpemOptions.epsProd=1e-5;
 // 	tpemOptions.epsTrace=1e-7;

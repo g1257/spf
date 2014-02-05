@@ -2,7 +2,7 @@
 # Platform: linux
 LDFLAGS =  -llapack -lblas -lm  -lgsl -lgslcblas 
 EXENAME = tpemSample 
-CPPFLAGS =  -I../../PsimagLite/src    
+CPPFLAGS =  -I../../PsimagLite/src    -I../../PsimagLite
 CXX = g++ -DNDEBUG -Werror -Wall -O3 -DUSE_GSL
 #comment out this one for debugging
 #CXX = g++ -Werror -Wall -g3 -DUSE_GSL
