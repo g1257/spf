@@ -116,7 +116,7 @@ namespace Tpem {
 				}
 			}
 
-			const void gather()
+			void gather()
 			{
 				PsimagLite::MPI::pointByPointGather(vobs);
 			}
@@ -172,7 +172,7 @@ namespace Tpem {
 				}
 			}
 
-			const void gather()
+			void gather()
 			{
 				PsimagLite::MPI::pointByPointGather(moment);
 
@@ -235,7 +235,7 @@ namespace Tpem {
 				}
 			}
 
-			const void gather()
+			void gather()
 			{
 				PsimagLite::MPI::pointByPointGather(moment0_);
 				PsimagLite::MPI::pointByPointGather(moment1_);
