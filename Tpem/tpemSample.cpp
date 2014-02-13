@@ -3,13 +3,8 @@
 #include "Tpem.h"
 #include "RandomForTests.h"
 #include "IoSimple.h"
-#ifndef USE_MPI
 #include "Concurrency.h"
 typedef PsimagLite::Concurrency ConcurrencyType;
-#else
-#include "ConcurrencyMpi.h"
-typedef PsimagLite::ConcurrencySerial<> ConcurrencyType;
-#endif
 
 template<typename SparseMatrixType,typename RealType,typename RngType>
 void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
