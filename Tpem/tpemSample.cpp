@@ -4,13 +4,29 @@
 #include "RandomForTests.h"
 #include "IoSimple.h"
 #include "Concurrency.h"
-typedef PsimagLite::Concurrency ConcurrencyType;
+#include "Vector.h"
+
+template<typename RealType>
+typename PsimagLite::EnableIf<!PsimagLite::IsComplexNumber<RealType>::True,RealType>::Type
+realOrComplexHopping()
+{
+	return -1;
+}
+
+template<typename ComplexType>
+typename PsimagLite::EnableIf<PsimagLite::IsComplexNumber<ComplexType>::True,ComplexType>::Type
+realOrComplexHopping()
+{
+	return ComplexType(-1,0.1);
+}
+
 
 template<typename SparseMatrixType,typename RealType,typename RngType>
 void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 {
+	typedef typename SparseMatrixType::value_type RealOrComplexType;
 	RealType scale = 2.0 + fabs (range2);
-	RealType hopping = -1.0 / scale;
+	RealOrComplexType hopping = realOrComplexHopping<RealOrComplexType>() / scale;
 	size_t rank = t.rank();
 
 	RealType range = 2.0*range2 / scale;
@@ -22,22 +38,28 @@ void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 		RealType epsilon = range * (rng() - 0.5);
 		t.pushValue(epsilon);
 		j++;
-		t.pushCol( (i + 1) % rank);
-		t.pushValue( hopping);
+
+		SizeType col =  (i + 1) % rank;
+		RealOrComplexType hopping2 = (i > col) ? hopping : std::conj(hopping);
+		t.pushCol(col);
+		t.pushValue(hopping2);
 		j++;
-		t.pushCol( (i + rank - 1) % rank );
-		t.pushValue(hopping);
+
+		col = (i + rank - 1) % rank;
+		hopping2 = (i > col) ? hopping : std::conj(hopping);
+		t.pushCol(col);
+		t.pushValue(hopping2);
 		j++;
 	}
+
 	t.setRow(rank,j);
 	isHermitian(t,true);
 }
 
 template<typename TpemType>
-typename TpemType::RealType tpemApply(
-                   typename TpemType::TpemSparseType& matrix,
-                   const typename TpemType::BaseFunctorType& funcptr,
-                   const TpemType& tpem)
+typename TpemType::RealType tpemApply(typename TpemType::TpemSparseType& matrix,
+                                      const typename TpemType::BaseFunctorType& funcptr,
+                                      const TpemType& tpem)
 {
 	typedef typename TpemType::RealType RealType;
 	size_t cutoff=tpem.tpemParameters().cutoff;
@@ -111,16 +133,20 @@ struct MuBetaStruct {
 int main (int argc,char *argv[])
 {
 	typedef double RealType;
+#ifdef USE_COMPLEX
+	typedef std::complex<RealType> RealOrComplexType;
+#else
 	typedef RealType RealOrComplexType;
+#endif
 	typedef PsimagLite::IoSimple::In IoInType;
 	typedef MuBetaStruct<IoInType,RealType> MuBetaStructType;
 	typedef Tpem::TpemParameters<IoInType,RealType> TpemParametersType;
 	typedef Tpem::Tpem<TpemParametersType,RealOrComplexType> TpemType;
 	typedef PsimagLite::CrsMatrix<RealOrComplexType> SparseMatrixType;
-	
+
 	if (argc<2) throw std::runtime_error("Needs the filename\n");
 
-	ConcurrencyType concurrency(&argc,&argv,1);
+	PsimagLite::Concurrency concurrency(&argc,&argv,1);
 	
 	IoInType io(argv[1]);
 	
