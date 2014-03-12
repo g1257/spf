@@ -100,8 +100,8 @@ namespace Tpem {
 					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
-					std::cout<<"This is thread number "<<threadNum;
-					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+					//std::cout<<"This is thread number "<<threadNum;
+					//std::cout<<" and taskNumber="<<taskNumber<<"\n";
 
 					params.m = taskNumber;
 					gslWrapper_.gsl_integration_qagp(&f,&(pts[0]),pts.size(),epsabs,epsrel,limit,workspace,&result,&abserr);
@@ -165,8 +165,8 @@ namespace Tpem {
 					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
-					std::cout<<"This is thread number "<<threadNum;
-					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+					//std::cout<<"This is thread number "<<threadNum;
+					//std::cout<<" and taskNumber="<<taskNumber<<"\n";
 
 					diagonalElement(matrix, moment, taskNumber, tpemParameters_);
 				}
@@ -227,11 +227,12 @@ namespace Tpem {
 					SizeType taskNumber = (threadNum+npthreads*mpiRank)*blockSize + p;
 					if (taskNumber>=total) break;
 
-					std::cout<<"This is thread number "<<threadNum;
-					std::cout<<" and taskNumber="<<taskNumber<<"\n";
+					//std::cout<<"This is thread number "<<threadNum;
+					//std::cout<<" and taskNumber="<<taskNumber<<"\n";
 
-					diagonalElement(matrix0_, moment0_, taskNumber,tpemParameters_);
-					diagonalElement(matrix1_, moment1_, taskNumber,tpemParameters_);
+					SizeType ket = info_(taskNumber);
+					diagonalElement(matrix0_, moment0_, ket,tpemParameters_);
+					diagonalElement(matrix1_, moment1_, ket,tpemParameters_);
 				}
 			}
 
