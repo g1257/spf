@@ -165,6 +165,7 @@ int main (int argc,char *argv[])
 	tpemParameters.support = support;
 
 	TpemType tpem(tpemParameters);
+	SizeType maxCutoff = tpemParameters.cutoff;
 
 // 	tpemOptions.epsProd=1e-5;
 // 	tpemOptions.epsTrace=1e-7;
@@ -202,7 +203,7 @@ int main (int argc,char *argv[])
 			"lim<E_cutoff> where <E_cutoff> is\n";
 	std::cout<<"cutoff\t<E_cutoff>\tError(compared to diag.)\n";
 
-	for (size_t cutoff = 20; cutoff <= 40; cutoff++) {
+	for (size_t cutoff = 20; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, energyFunctor, tpem);
 		std::cout<<cutoff<<"\t"<<tpem0<<"\t"<<naive0<<"\t";
@@ -222,7 +223,7 @@ int main (int argc,char *argv[])
 			"lim<N_cutoff> where <N_cutoff> is \n";
 	std::cout<<"cutoff\t<N_cutoff>\tError(compared to diag.)\n";
 
-	for (size_t cutoff = 20; cutoff <= 40; cutoff++) {
+	for (size_t cutoff = 20; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, numberFunctor, tpem);
 		std::cout<<cutoff<<"\t"<<tpem0<<"\t";
@@ -244,7 +245,7 @@ int main (int argc,char *argv[])
 	std::cout<<"** Using TPEM <S>=(cutoff--> infinity) lim<S_cutoff>\n";
 	std::cout<<"cutoff\tDelta_S_cutoff\tS_cutoff[diff]\tError (to diag.)\n";
 
-	for (size_t cutoff = 10; cutoff <= 40; cutoff++) {
+	for (size_t cutoff = 10; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, actionFunctor, tpem);
 		RealType tpem1 = tpemApply(matrix1, actionFunctor, tpem);
