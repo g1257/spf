@@ -32,8 +32,6 @@ class DmsMultiOrbitalObsStored {
 
 public:
 
-	static size_t const ORBITALS = 3;
-
 	DmsMultiOrbitalObsStored(
 	        SpinOperationsType& spinOperations,
 	        const GeometryType& geometry,
@@ -48,7 +46,7 @@ public:
 	      counter_(0)
 	{
 		if (pe_.options.find("akw")!=PsimagLite::String::npos)
-			arw_.resize(geometry.volume()*ORBITALS*2,
+			arw_.resize(geometry.volume()*mp_.orbitals*2,
 			            new HistogramComplexType(mp.histogramParams[0],
 			            mp.histogramParams[1],
 			        size_t(mp.histogramParams[2])));
@@ -106,7 +104,7 @@ private:
 	void accAkw(const GreenFunctionType& gf)
 	{
 		size_t n = geometry_.volume();
-		size_t dof = 2*ORBITALS;
+		size_t dof = 2*mp_.orbitals;
 
 		for (size_t r=0;r<n;r++) {
 			for (size_t l=0;l<gf.hilbertSize();l++) {
@@ -127,7 +125,7 @@ private:
 	void accOptical(const GreenFunctionType& gf)
 	{
 		size_t n = geometry_.volume();
-		size_t dof  = 2*ORBITALS;
+		size_t dof  = 2*mp_.orbitals;
 		//int aindex = 0*(ether.linSize/4); //(0,0,0)
 		//int aindex = 1*(ether.linSize/4); //(0,a/2,a/2)
 		//int aindex = 2*(ether.linSize/4); //(a/2,0,a/2)

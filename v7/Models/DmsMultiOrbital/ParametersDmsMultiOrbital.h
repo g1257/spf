@@ -97,6 +97,8 @@ struct ParametersDmsMultiOrbital {
 	        IoInType& io,
 	        const ParametersEngineType& engineParams)
 	{
+		io.readline(orbitals,"Orbitals=");
+
 		// legacy reading of pair of doubles to make a complex:
 		typename PsimagLite::Vector<RealType>::Type tmpReal;
 		io.read(tmpReal,"Hoppings");
@@ -124,6 +126,8 @@ struct ParametersDmsMultiOrbital {
 
 		io.read(histogramParams,"HISTOGRAM");
 	}
+
+	SizeType orbitals;
 
 	// packed as gamma1+gamma2*dof + dir*4
 	// where dir goes from 0 to 11

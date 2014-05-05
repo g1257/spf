@@ -44,7 +44,6 @@ public:
 	typedef DmsMultiOrbitalObsStored<SpinOperationsType,ComplexType,
 	ParametersModelType,
 	EngineParamsType> DmsMultiOrbitalObsStoredType;
-	static const size_t ORBITALS = DmsMultiOrbitalObsStoredType::ORBITALS;
 
 	enum {OLDFIELDS,NEWFIELDS};
 
@@ -55,7 +54,7 @@ public:
 	      mp_(io,engineParams),
 	      geometry_(geometry),
 	      dynVars_(geometry.volume(),engineParams,mp_.modulus),
-	      hilbertSize_(2*ORBITALS*geometry.volume()),
+	      hilbertSize_(2*mp_.orbitals*geometry.volume()),
 	      adjustments_(engineParams),
 	      progress_("PnictidesTwoOrbitals"),
 	      spinOperations_(geometry,engineParams),
@@ -197,7 +196,7 @@ private:
 	                       MatrixType& matrix) const
 	{
 		size_t volume = geometry_.volume();
-		size_t norb = ORBITALS;
+		size_t norb = mp_.orbitals;
 		size_t dof = norb * 2; // the 2 comes because of the spin
 		typename PsimagLite::Vector<ComplexType>::Type jmatrix(dof*dof,0);
 		typename PsimagLite::Vector<RealType>::Type ymatrix(dof*dof,0);
@@ -209,8 +208,13 @@ private:
 		for (size_t p = 0; p < volume; p++) {
 			RealType modulus = mp_.modulus[p];
 
-			auxCreateJmatrix(jmatrix,dynVars,p);
-			auxCreateYmatrix(ymatrix,dynVars,p);
+			if (norb == 2) {
+				auxCreateJmatrix(jmatrix,dynVars,p);
+				auxCreateYmatrix(ymatrix,dynVars,p);
+			} else {
+				auxCreateJmatrix1(jmatrix,dynVars,p);
+			}
+
 			for (size_t gamma1=0;gamma1<dof;gamma1++) {
 
 				matrix(p+gamma1*volume,p+gamma1*volume) =
@@ -222,7 +226,7 @@ private:
 					//if (j%2!=0) continue;
 					PairType tmpPair = geometry_.neighbor(p,j);
 					size_t k = tmpPair.first;
-					size_t dir = geometry_.scalarDirection(p,k);
+					size_t dir = tmpPair.second; //geometry_.scalarDirection(p,k);
 					for (size_t gamma2=0;gamma2<dof;gamma2++) {
 						SizeType index = gamma1+gamma2*dof+dir*dof*dof;
 						assert(index < mp_.hoppings.size());
@@ -237,6 +241,17 @@ private:
 				}
 			}
 		}
+	}
+
+	void auxCreateJmatrix1(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,
+	                       const typename DynVarsType::SpinType& dynVars,
+	                       size_t site) const
+	{
+		jmatrix[0]=cos(dynVars.theta[site]);
+		jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
+		                      -sin(dynVars.theta[site])*sin(dynVars.phi[site]));
+		jmatrix[3]= -cos(dynVars.theta[site]);
+		jmatrix[2]=conj(jmatrix[1]);
 	}
 
 	void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
@@ -355,7 +370,7 @@ private:
 
 		jmatrix[35]= jmatrix[14];
 
-		size_t dof = ORBITALS*2;
+		size_t dof = mp_.orbitals*2;
 		for (size_t i=0;i<dof;i++) for (size_t j=i+1;j<dof;j++)
 			jmatrix[i+j*dof]=conj(jmatrix[j+i*dof]);
 
@@ -366,7 +381,7 @@ private:
 	void auxCreateYmatrix(typename PsimagLite::Vector<RealType>::Type& ymatrix,const
 	                      typename DynVarsType::SpinType& dynVars,size_t site) const
 	{
-		size_t dof = ORBITALS*2;
+		size_t dof = mp_.orbitals*2;
 		ymatrix[28]=mp_.spinOrbitCoupling;
 		ymatrix[35]=mp_.spinOrbitCoupling;
 
