@@ -208,7 +208,7 @@ private:
 		for (size_t p = 0; p < volume; p++) {
 			RealType modulus = mp_.modulus[p];
 
-			if (norb == 2) {
+			if (norb == 3) {
 				auxCreateJmatrix(jmatrix,dynVars,p);
 				auxCreateYmatrix(ymatrix,dynVars,p);
 			} else {
