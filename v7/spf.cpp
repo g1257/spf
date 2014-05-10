@@ -37,6 +37,7 @@ typedef PsimagLite::Concurrency MyConcurrencyType;
 #include "PhononsTwoOrbitals.h"
 #include "HubbardOneOrbital.h"
 #include "GeometrySquare.h"
+#include "ShastrySutherland.h"
 #include "GeometryCubic.h"
 #include "GeometryFcc.h"
 #include "GeometrySquare45Degrees.h"
@@ -45,6 +46,7 @@ typedef PsimagLite::Concurrency MyConcurrencyType;
 #include "InputNg.h"
 
 typedef Spf::GeometrySquare<FieldType> GeometrySquareType;
+typedef Spf::ShastrySutherland<FieldType> ShastrySutherlandType;
 typedef Spf::GeometryCubic<FieldType> GeometryCubicType;
 typedef Spf::GeometryFcc<FieldType> GeometryFccType;
 typedef Spf::GeometrySquare45Degrees<FieldType> GeometrySquare45DegreesType;
@@ -132,6 +134,8 @@ int main(int argc,char *argv[])
 		mainLoop<GeometryFccType>(engineParams,io);
 	} else if (engineParams.geometry=="square45Degrees") {
 		mainLoop<GeometrySquare45DegreesType>(engineParams,io);
+	} else if (engineParams.geometry=="ShastrySutherland") {
+		mainLoop<ShastrySutherlandType>(engineParams,io);
 	} else {
 		std::cerr<<"geometry="<<engineParams.geometry<<"\n";
 		throw PsimagLite::RuntimeError("Unknown geometry\n");
