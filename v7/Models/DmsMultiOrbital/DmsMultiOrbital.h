@@ -234,6 +234,17 @@ private:
 					}
 				}
 
+				for (size_t j = 0; j <  geometry_.z(2); j++) {
+					PairType tmpPair = geometry_.neighbor(p,j);
+					size_t k = tmpPair.first;
+					size_t dir = tmpPair.second;
+					for (size_t gamma2=0;gamma2<dof;gamma2++) {
+						SizeType index = gamma1+gamma2*dof+dir*dof*dof;
+						assert(index < mp_.hoppings.size());
+						matrix(p+gamma1*volume,k+gamma2*volume) = mp_.hoppings[index];
+					}
+				}
+
 				for (size_t gamma2=0;gamma2<dof;gamma2++) {
 					if (gamma1 == gamma2) continue;
 					matrix(p+gamma1*volume,p + gamma2*volume) =
