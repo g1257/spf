@@ -194,24 +194,31 @@ private:
 		int lx = l_;
 		int ly = l_;
 		int zz = 0;
-		//PairType zeroVal(0,0);
-		PsimagLite::Matrix<PairType> matrix(lx*ly,4);
+		PsimagLite::Matrix<PairType> matrix(lx*ly,1);
 		for (int y=0;y<ly;y++) {
 			for (int x=0;x<lx;x++) {
 				SizeType i = x + y*lx;
-				int xx=x+1;
-				int yy=y+1;
-				SizeType counter=0;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXPY);
-				xx=x-1; yy=y-1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXPY);
-				xx=x-1; yy=y+1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXMY);
-				xx=x+1; yy=y-1;
-				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRXMY);
+				SizeType type = ((x+y) & 1) ? ProgramGlobals::DIRXMY : ProgramGlobals::DIRXPY;
+				int sign = (y & 1) ? 1 : -1;
+				int xx=x;
+				int yy=y;
+				calcShastry(xx,yy,type,sign);
+				matrix(i,0) = PairType(g_index(xx,yy,zz),type);
 			}
 		}
+
 		neighbors_.push_back(matrix);
+	}
+
+	void calcShastry(int& xx, int& yy, SizeType type, int sign) const
+	{
+		if (type == ProgramGlobals::DIRXPY) {
+			xx += sign;
+			yy += sign;
+		} else {
+			xx += sign;
+			yy -= sign;
+		}
 	}
 
 	bool g_pbc(int& x, SizeType l) const
