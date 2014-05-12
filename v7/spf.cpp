@@ -21,6 +21,7 @@ void printLicense()
 	        "\n";
 	std::cout<<license_;
 }
+
 #ifndef USE_FLOAT
 typedef double FieldType;
 #else
@@ -59,7 +60,10 @@ void mainLoop2(ParametersEngineType& engineParams,
                InputNgType::Readable& io,
                const GeometryType& geometry)
 {
-	typedef Spf::Engine<ParametersEngineType,ModelType,InputNgType::Readable,RandomNumberGeneratorType> EngineType;
+	typedef Spf::Engine<ParametersEngineType,
+	                    ModelType,
+	                    InputNgType::Readable,
+	                    RandomNumberGeneratorType> EngineType;
 
 	ModelType model(engineParams,io,geometry);
 
@@ -72,10 +76,13 @@ template<typename GeometryType>
 void mainLoop(ParametersEngineType& engineParams,
               InputNgType::Readable& io)
 {
-	typedef Spf::PnictidesMultiOrbitals<ParametersEngineType,GeometryType> PnictidesMultiOrbitalsType;
+	typedef Spf::PnictidesMultiOrbitals<ParametersEngineType,
+	                                    GeometryType> PnictidesMultiOrbitalsType;
 	typedef Spf::DmsMultiOrbital<ParametersEngineType,GeometryType> DmsMultiOrbitalType;
-	typedef Spf::PhononsTwoOrbitals<ParametersEngineType,GeometryType> PhononsTwoOrbitalsType;
-	typedef Spf::HubbardOneOrbital<ParametersEngineType,GeometryType> HubbardOneOrbitalType;
+	typedef Spf::PhononsTwoOrbitals<ParametersEngineType,
+	                                GeometryType> PhononsTwoOrbitalsType;
+	typedef Spf::HubbardOneOrbital<ParametersEngineType,
+	                               GeometryType> HubbardOneOrbitalType;
 
 	GeometryType geometry(engineParams.latticeLength);
 
@@ -95,6 +102,8 @@ void mainLoop(ParametersEngineType& engineParams,
 
 int main(int argc,char *argv[])
 {
+	MyConcurrencyType concurrency(&argc,&argv,1);
+
 	Spf::InputCheck inputCheck;
 	PsimagLite::String filename="";
 	int opt = 0;
@@ -124,7 +133,7 @@ int main(int argc,char *argv[])
 
 	ParametersEngineType engineParams(io);
 
-	MyConcurrencyType concurrency(&argc,&argv,engineParams.npthreads);
+	MyConcurrencyType::npthreads = engineParams.npthreads;
 
 	if (engineParams.geometry=="ladder") {
 		mainLoop<GeometrySquareType>(engineParams,io);
@@ -141,7 +150,6 @@ int main(int argc,char *argv[])
 		throw PsimagLite::RuntimeError("Unknown geometry\n");
 	}
 }
-
 
 /* ####### End of spf.cpp ######## */
 

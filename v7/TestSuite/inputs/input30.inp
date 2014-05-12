@@ -1,4 +1,4 @@
-EngineOptions=none
+EngineOptions=realhoppings
 GeometryKind=fcc
 Model=DmsMultiOrbital
 Orbitals=6
@@ -32,4 +32,5 @@ PARAMETERSJ_AF_NN=0.0
 SPIN_ORBIT_COUPLING=0.34
 MODULUS 5     3 5 7 8 11 
 HISTOGRAM 3 -15 15 1000
+CoresForKernel=1
 #EOF

@@ -102,9 +102,15 @@ struct ParametersDmsMultiOrbital {
 		// legacy reading of pair of doubles to make a complex:
 		typename PsimagLite::Vector<RealType>::Type tmpReal;
 		io.read(tmpReal,"Hoppings");
-		hoppings.resize(tmpReal.size()/2);
-		for (SizeType i=0;i<hoppings.size();i++)
-			hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
+		if (engineParams.options.find("realhoppings") != PsimagLite::String::npos) {
+			hoppings.resize(tmpReal.size());
+			for (SizeType i=0;i<hoppings.size();i++)
+				hoppings[i] = tmpReal[i];
+		} else {
+			hoppings.resize(tmpReal.size()/2);
+			for (SizeType i=0;i<hoppings.size();i++)
+				hoppings[i] = ComplexType(tmpReal[2*i],tmpReal[2*i+1]);
+		}
 
 		io.readline(J,"CouplingJ=");
 
@@ -183,3 +189,4 @@ std::ostream& operator<<(
 
 /*@}*/
 #endif // PARAMS_DMS_MULTIORBITA_H
+
