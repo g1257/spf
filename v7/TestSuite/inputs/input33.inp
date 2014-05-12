@@ -1,0 +1,32 @@
+EngineOptions=none
+GeometryKind=ShastrySutherland
+Model=DmsMultiOrbital
+Orbitals=1
+TargetElectronsUp=4
+TargetElectronsDown=4
+LadderLeg=4
+Version=SPFv7
+OutputFilename=output33
+ChemicalPotential=0.0
+Beta=100
+MonteCarloThermalizations=0
+MonteCarloEffectiveIteractions=10
+MonteCarloUnmeasuredPlusOne=1
+AdjustEach=1
+DetailedBalance=glauber
+MonteCarloWindows   2 0.5 0.5
+MonteCarloStartTypeOrFile=none 
+MonteCarloStartLevel=0
+HistogramSteps=1000
+BoundaryConditions=periodic
+RandomSeed=348989861
+SaveEach=2
+Hoppings 16 1 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0
+PotentialV 16    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+PARAMETERSJ_AF=0
+PARAMETERSJ_AF_NN=0
+SPIN_ORBIT_COUPLING=0
+CouplingJ=0.0
+MODULUS 16 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+HISTOGRAM 3 -15 15 1000 
+#EOF
