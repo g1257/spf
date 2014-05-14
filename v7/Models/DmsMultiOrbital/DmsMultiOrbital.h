@@ -234,7 +234,7 @@ private:
 				}
 
 				for (SizeType j = 0; j <  geometry_.z(2); j++) {
-					PairType tmpPair = geometry_.neighbor(p,j);
+					PairType tmpPair = geometry_.neighbor(p,j,2);
 					SizeType k = tmpPair.first;
 					SizeType dir = tmpPair.second;
 					for (SizeType gamma2=0;gamma2<dof;gamma2++) {
@@ -262,6 +262,8 @@ private:
 		                      -sin(dynVars.theta[site])*sin(dynVars.phi[site]));
 		jmatrix[3]= -cos(dynVars.theta[site]);
 		jmatrix[2]=conj(jmatrix[1]);
+
+		for (SizeType i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
 	}
 
 	void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
