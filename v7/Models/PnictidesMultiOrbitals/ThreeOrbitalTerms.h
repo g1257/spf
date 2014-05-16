@@ -23,7 +23,7 @@ namespace Spf {
 	typename GeometryType>
 	class ThreeOrbitalTerms {
 
-		static const size_t SPINS = 2; // 2 spins
+		static const SizeType SPINS = 2; // 2 spins
 
 		typedef typename MatrixType::value_type FieldType;
 		typedef typename ParametersModelType::RealType RealType;
@@ -40,16 +40,16 @@ namespace Spf {
 			if (mp_.numberOfOrbitals!=3) return;
 
 			/*--------- hoppings t7 ~ t8 ------------*/
-			size_t volume = geometry_.volume();
-			for (size_t ispin=0;ispin<SPINS;ispin++)
-				for (size_t isite = 0; isite <volume; isite++) {
+			SizeType volume = geometry_.volume();
+			for (SizeType ispin=0;ispin<SPINS;ispin++)
+				for (SizeType isite = 0; isite <volume; isite++) {
 
 					// xz -> xy, +x
-					size_t iorb=0;
-					size_t iorb2=2;
-					size_t ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
-					size_t isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRX).first;
-					size_t iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
+					SizeType iorb=0;
+					SizeType iorb2=2;
+					SizeType ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
+					SizeType isite2=geometry_.getNeighbour(isite,ProgramGlobals::DIRX).first;
+					SizeType iy=isite2+(iorb2+ispin*mp_.numberOfOrbitals)*volume;
 					FieldType hopping = signHop(isite)*mp_.t7;
 					updateHamiltonian(ham,ix,iy,hopping);
 
@@ -143,15 +143,15 @@ namespace Spf {
 				}
 
 			/*--------- delta_xy: energy splitting ------------*/
-			for (size_t ispin=0;ispin<SPINS;ispin++)
-				for (size_t isite = 0; isite < volume; isite++) {
-					size_t iorb=2;
-					size_t ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
+			for (SizeType ispin=0;ispin<SPINS;ispin++)
+				for (SizeType isite = 0; isite < volume; isite++) {
+					SizeType iorb=2;
+					SizeType ix=isite+(iorb+ispin*mp_.numberOfOrbitals)*volume;
 					ham(ix,ix) += mp_.deltaXY;
 				}
 		}
 	
-		RealType hopping(size_t isite,size_t dir2,size_t iorb,size_t iorb2) const
+		RealType hopping(SizeType isite,SizeType dir2,SizeType iorb,SizeType iorb2) const
 		{
 			if (mp_.numberOfOrbitals!=3) return 0.0;
 
@@ -184,15 +184,15 @@ namespace Spf {
 
 		void updateHamiltonian(
 				MatrixType& ham,
-				size_t ix,
-				size_t iy,
+				SizeType ix,
+				SizeType iy,
 				const FieldType& hopping) const
 		{
 			ham(ix,iy) += hopping;
 			ham(iy,ix) += conj(hopping);
 		}
 
-		int signHop(size_t i_site) const
+		int signHop(SizeType i_site) const
 		{
 			/*------------- sign of t_7 and t_8 ------------*/
 			PsimagLite::Vector<int>::Type coor_site(2);
@@ -204,7 +204,7 @@ namespace Spf {
 //			return sign;
 		}
 /*
-		int signHop(size_t isite) const
+		int signHop(SizeType isite) const
 		{
 			return (isite & 1) ? -1 : 1;
 		}

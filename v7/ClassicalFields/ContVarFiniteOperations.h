@@ -41,21 +41,21 @@ public:
 
 	//! How to sweep the lattice
 	template<typename RngType>
-	size_t proposeSite(size_t i,RngType& rng) const
+	SizeType proposeSite(SizeType i,RngType& rng) const
 	{
 		return i; //<-- zig-zag horizontal
 		// zig-zag vertical:
-		/*size_t l = geometry_.length();
-			size_t x = i % l;
-			size_t y = i / l;
+		/*SizeType l = geometry_.length();
+			SizeType x = i % l;
+			SizeType y = i / l;
 			return y + x*l;*/
 		// random:
-		//return size_t(rng()*geometry_.volume());
+		//return SizeType(rng()*geometry_.volume());
 
 	}
 
 	template<typename RngType>
-	void proposeChange(size_t i,RngType& rng)
+	void proposeChange(SizeType i,RngType& rng)
 	{
 		FieldType phononsOld = dynVars_->value[i];
 
@@ -66,17 +66,17 @@ public:
 
 	const DynVarsType& dynVars2() const { return dynVars2_; }
 
-	FieldType deltaDirect(size_t i,const FieldType& coupling) const
+	FieldType deltaDirect(SizeType i,const FieldType& coupling) const
 	{
 		return dSDirect(*dynVars_,dynVars2_,i,coupling);
 	}
 
-	FieldType sineUpdate(size_t i) const
+	FieldType sineUpdate(SizeType i) const
 	{
 		return 1.0; // measure
 	}
 
-	void accept(size_t i)
+	void accept(SizeType i)
 	{
 		dynVars_->value[i]=dynVars2_.value[i];
 	}
@@ -84,7 +84,7 @@ public:
 	FieldType sum2() const
 	{
 		FieldType sum = 0;
-		for (size_t i=0;i<dynVars_->value.size();i++)
+		for (SizeType i=0;i<dynVars_->value.size();i++)
 			sum += ProgramGlobals::square(dynVars_->value[i]);
 		return sum;
 	}
@@ -93,7 +93,7 @@ public:
 	FieldType sum() const
 	{
 		FieldType sum = 0;
-		for (size_t i=0;i<dynVars_->value.size();i++)
+		for (SizeType i=0;i<dynVars_->value.size();i++)
 			sum += dynVars_->value[i];
 		return sum;
 	}
@@ -124,13 +124,13 @@ private:
 		if (phononsNew<lowBound) phononsNew = lowBound;
 	}
 
-	FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, size_t i,
+	FieldType dSDirect(const DynVarsType& dynVars,const DynVarsType& dynVars2, SizeType i,
 	                   const FieldType& coupling) const
 	{
 		FieldType tmp = ProgramGlobals::square(dynVars2.value[i]);
 		tmp -= ProgramGlobals::square(dynVars.value[i]);
-		for (size_t k=0;k<geometry_.z(1);k++) {
-			size_t j = geometry_.neighbor(i,k).first;
+		for (SizeType k=0;k<geometry_.z(1);k++) {
+			SizeType j = geometry_.neighbor(i,k).first;
 			tmp += ProgramGlobals::square(dynVars2.value[j]);
 			tmp -= ProgramGlobals::square(dynVars.value[j]);
 		}

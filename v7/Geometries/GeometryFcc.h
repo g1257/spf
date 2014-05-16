@@ -19,46 +19,46 @@ namespace Spf {
 	class GeometryFcc {
 	public:
 
-		static size_t const DIMENSION = 3;
-		static size_t const COORDINATION = 12;
-		static size_t const BASIS_FOR_CUBIC  = 4;
+		static SizeType const DIMENSION = 3;
+		static SizeType const COORDINATION = 12;
+		static SizeType const BASIS_FOR_CUBIC  = 4;
 		const RealType MIN_DISTANCE;
 
- 		typedef std::pair<size_t,size_t> PairType;
+ 		typedef std::pair<SizeType,SizeType> PairType;
  		typedef GeometryCubic<RealType> GeometryCubicType;
  		typedef typename PsimagLite::Vector<typename PsimagLite::Vector<RealType>::Type>::Type VectorOfVectorsType;
 
- 		GeometryFcc(size_t l) : MIN_DISTANCE(0.5) , l_(l),
+ 		GeometryFcc(SizeType l) : MIN_DISTANCE(0.5) , l_(l),
  				cube_(l), volume_(cube_.volume()*BASIS_FOR_CUBIC)
 		{
 			buildNeighbors();
 		}
 		
-		size_t z(size_t distance=1) const
+		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();
 		}
 		
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
-		PairType neighbor(size_t i,size_t j,size_t distance=1) const
+		PairType neighbor(SizeType i,SizeType j,SizeType distance=1) const
 		{
 			return neighbors_[distance-1](i,j);
 		}
 		
-		size_t volume() const { return volume_; }
+		SizeType volume() const { return volume_; }
 		
 		//! coordinates are (x,y,z,b) where b is the basis
-		size_t add(size_t ind,size_t ind2) const
+		SizeType add(SizeType ind,SizeType ind2) const
 		{
 			// transform ind --> rvector, bvector and ind2 --> r2vector, b2vector
-			size_t b1 = ind/volume_;
-			size_t indr = ind % volume_;
-			PsimagLite::Vector<size_t>::Type rvector(3);
+			SizeType b1 = ind/volume_;
+			SizeType indr = ind % volume_;
+			PsimagLite::Vector<SizeType>::Type rvector(3);
 			cube_.indexToCoor(rvector,indr);
 
-			size_t b2 = ind2/volume_;
-			size_t ind2r = ind2 % volume_;
-			PsimagLite::Vector<size_t>::Type r2vector(3);
+			SizeType b2 = ind2/volume_;
+			SizeType ind2r = ind2 % volume_;
+			PsimagLite::Vector<SizeType>::Type r2vector(3);
 			cube_.indexToCoor(r2vector,ind2r);
 
 			// sum these two and obtain rsumvector bsumvector
@@ -76,55 +76,55 @@ namespace Spf {
 				throw PsimagLite::RuntimeError(s.c_str());
 			}
 
-			size_t b = it-basisVector_.begin();
-			PsimagLite::Vector<size_t>::Type r(3);
-			for (size_t i=0;i<rsumvector.size();i++)
-				r[i] = size_t(rsumvector[i]);
+			SizeType b = it-basisVector_.begin();
+			PsimagLite::Vector<SizeType>::Type r(3);
+			for (SizeType i=0;i<rsumvector.size();i++)
+				r[i] = SizeType(rsumvector[i]);
 			indr = cube_.coor2Index(r);
-			return indr + size_t(b)*cube_.volume();
+			return indr + SizeType(b)*cube_.volume();
 		}
 		
-		size_t scalarDirection(size_t site1,size_t site2) const
+		SizeType scalarDirection(SizeType site1,SizeType site2) const
 		{
 			typename PsimagLite::Vector<RealType>::Type r(3);
 			direction(r,site1,site2);
 			typename PsimagLite::Vector<RealType>::Type r2(3);
 			scDirAux(r2,r);
-			return size_t(r2[0]+2*r2[1]+4*r2[2]);
+			return SizeType(r2[0]+2*r2[1]+4*r2[2]);
 		}
 
-		int getDirection(size_t ind,size_t jnd) const
+		int getDirection(SizeType ind,SizeType jnd) const
 		{
 			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
 			return  -1;
 		}
 
-		size_t dim() const { return DIMENSION; }
+		SizeType dim() const { return DIMENSION; }
 		
-		size_t length() const { return l_; }
+		SizeType length() const { return l_; }
 		
 		PsimagLite::String name() const { return "fcc"; }
 
 		template<typename SomeVectorType>
-		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,SizeType>::Type
 		coor2Index(const SomeVectorType& v) const
 		{
 			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
 		}
 
-		size_t coorToIndex(size_t a,size_t b) const
+		SizeType coorToIndex(SizeType a,SizeType b) const
 		{
 			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
 		}
 
-		PairType getNeighbour(size_t i,size_t dir) const
+		PairType getNeighbour(SizeType i,SizeType dir) const
 		{
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
 
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
-		indexToCoor(SomeVectorType& v,size_t i) const
+		indexToCoor(SomeVectorType& v,SizeType i) const
 		{
 			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
 		}
@@ -143,25 +143,25 @@ namespace Spf {
 			typename PsimagLite::Vector<RealType>::Type tmpv(DIMENSION);
 			typename PsimagLite::Vector<RealType>::Type rvector(DIMENSION);
 
-			for (size_t i=0;i<volume_;i++) {
+			for (SizeType i=0;i<volume_;i++) {
 				//! find sites that are a distance min from i
 				//! and store them on tmpVec
-				PsimagLite::Vector<size_t>::Type tmpVec;
+				PsimagLite::Vector<SizeType>::Type tmpVec;
 				findNn(tmpVec,i);
-				size_t counter = 0;
-				for (size_t j=0;j<tmpVec.size();j++) {
+				SizeType counter = 0;
+				for (SizeType j=0;j<tmpVec.size();j++) {
 					direction(rvector,i,tmpVec[j]);
 					scDirAux(tmpv,rvector);
-					size_t dir = size_t(tmpv[0]+2*tmpv[1]+4*tmpv[2]);
+					SizeType dir = SizeType(tmpv[0]+2*tmpv[1]+4*tmpv[2]);
 					matrix(i,counter++) = PairType(tmpVec[j],dir);
 				}
 			}
 			neighbors_.push_back(matrix);
 		}
 		
-		void findNn(PsimagLite::Vector<size_t>::Type& v,size_t site) const
+		void findNn(PsimagLite::Vector<SizeType>::Type& v,SizeType site) const
 		{
-			for (size_t i=0;i<volume_;i++) {
+			for (SizeType i=0;i<volume_;i++) {
 				RealType dd=dist(i,site);
 				if (fabs(dd-MIN_DISTANCE)<1e-6) {
 					v.push_back(i);
@@ -177,7 +177,7 @@ namespace Spf {
 			}
 		}
 
-		RealType dist(size_t site1, size_t site2) const
+		RealType dist(SizeType site1, SizeType site2) const
 		{
 			typename PsimagLite::Vector<RealType>::Type r1,r2;
 
@@ -186,7 +186,7 @@ namespace Spf {
 			return distance(r1,r2);
 		}
 
-		bool g_pbc(int& x, size_t l) const
+		bool g_pbc(int& x, SizeType l) const
 		{
 			int L = l;
 			bool r=false;
@@ -197,16 +197,16 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(PsimagLite::Vector<int>::Type& x) const
+		SizeType g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			return g_index(x[0],x[1],x[2]);
 		}
 		
-		size_t g_index(int& x,int& y,int& z) const
+		SizeType g_index(int& x,int& y,int& z) const
 		{
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t lz = l_;
+			SizeType lx = l_;
+			SizeType ly = l_;
+			SizeType lz = l_;
 			g_pbc(x,lx);
 			g_pbc(y,ly);
 			g_pbc(z,lz);
@@ -216,11 +216,11 @@ namespace Spf {
 		//! order of the 4 basis vectors is
 		//! (0,0,0) (0,a/2,a/2), (a/2,0,a/2), (a/2,a/2,0)
 		//! coordinates are (x,y,z,b) where b is the basis
-		void index2Coor(typename PsimagLite::Vector<RealType>::Type& r,size_t site) const
+		void index2Coor(typename PsimagLite::Vector<RealType>::Type& r,SizeType site) const
 		{
-			size_t b = site/cube_.volume();
-			size_t i = site % cube_.volume();
-			PsimagLite::Vector<size_t>::Type rcube(DIMENSION);
+			SizeType b = site/cube_.volume();
+			SizeType i = site % cube_.volume();
+			PsimagLite::Vector<SizeType>::Type rcube(DIMENSION);
 			cube_.indexToCoor(rcube,i);
 			r = basisVector_[b] + rcube;
 		}
@@ -252,8 +252,8 @@ namespace Spf {
 
 		void direction(
 				typename PsimagLite::Vector<RealType>::Type& r,
-				size_t site1,
-				size_t site2) const
+				SizeType site1,
+				SizeType site2) const
 		{
 			typename PsimagLite::Vector<RealType>::Type r1,r2;
 
@@ -269,7 +269,7 @@ namespace Spf {
 				const typename PsimagLite::Vector<RealType>::Type& r2) const
 		{
 
-			for (size_t i=0;i<r1.size();i++) {
+			for (SizeType i=0;i<r1.size();i++) {
 				r[i]=r1[i]-r2[i];
 				while(r[i]<MIN_DISTANCE) r[i]+=l_;
 				while(r[i]>=l_-MIN_DISTANCE) r[i]-=l_;
@@ -305,40 +305,40 @@ namespace Spf {
 		void add(
 				typename PsimagLite::Vector<RealType>::Type& rsum,
 				typename PsimagLite::Vector<RealType>::Type& bsum,
-				const PsimagLite::Vector<size_t>::Type& r1,
-				size_t b1,
-				const PsimagLite::Vector<size_t>::Type& r2,
-				size_t b2) const
+				const PsimagLite::Vector<SizeType>::Type& r1,
+				SizeType b1,
+				const PsimagLite::Vector<SizeType>::Type& r2,
+				SizeType b2) const
 		{
 			typename PsimagLite::Vector<RealType>::Type unityvector(3,1);
 
 			typename PsimagLite::Vector<RealType>::Type b1Plusb2 =
 					basisVector_[b1] + basisVector_[b2];
-			size_t casetype=computeCase(b1Plusb2);
+			SizeType casetype=computeCase(b1Plusb2);
 
 			switch (casetype) {
 			case 0:  // b1+b2 == (a,a,0) or permutations
 				rsum =  b1Plusb2 + r1 + r2;
-				for (size_t i=0;i<bsum.size();i++) bsum[i] = 0;
+				for (SizeType i=0;i<bsum.size();i++) bsum[i] = 0;
 				break;
 			case 1: // b1 + b2 == (a/2,a/2,a) or permutations
 				bsum = unityvector - b1Plusb2;
 				rsum =  2.0*b1Plusb2-unityvector + r1 + r2;
 				break;
 			case 2: // b1 + b2 == (a/2,a/2,0) or permutations
-				for (size_t i=0;i<rsum.size();i++) rsum[i] =r1[i]+r2[i];
+				for (SizeType i=0;i<rsum.size();i++) rsum[i] =r1[i]+r2[i];
 				bsum = b1Plusb2;
 				break;
 			}
 
 		}
 
-		size_t computeCase(const typename PsimagLite::Vector<RealType>::Type& b) const
+		SizeType computeCase(const typename PsimagLite::Vector<RealType>::Type& b) const
 		{
-			size_t flaghalf=0;
-			size_t flagzero=0;
+			SizeType flaghalf=0;
+			SizeType flagzero=0;
 
-			for (size_t i=0;i<b.size();i++) {
+			for (SizeType i=0;i<b.size();i++) {
 				if (b[i]==0.5) flaghalf=1;
 				if (b[i]==0) flagzero=1;
 			}
@@ -351,9 +351,9 @@ namespace Spf {
 			throw PsimagLite::RuntimeError(s.c_str());
 		}
 
-		size_t l_;
+		SizeType l_;
 		GeometryCubicType cube_;
-		size_t volume_;
+		SizeType volume_;
 		VectorOfVectorsType basisVector_;
 		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; // class GeometryFcc

@@ -34,10 +34,10 @@ namespace Spf {
 			RealType beta = engineParams_.beta;
 			RealType mu = engineParams_.mu;
 			RealType eps = 0.001;
-			for (size_t a=0;a<gf_.hilbertSize();a++) {
+			for (SizeType a=0;a<gf_.hilbertSize();a++) {
 				RealType ea = PsimagLite::fermi(beta*(gf_.e(a)-mu));
 				RealType eMa = PsimagLite::fermi(-beta*(gf_.e(a)-mu));
-				for (size_t b=0;b<gf_.hilbertSize();b++) {
+				for (SizeType b=0;b<gf_.hilbertSize();b++) {
 					if (fabs(gf_.e(a)-gf_.e(b))>eps) continue;
 					//RealType eb = PsimagLite::fermi(beta*(gf_.e(b)-mu));
 // 					if (fabs(ea-eb)>eps) continue;

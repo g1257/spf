@@ -21,7 +21,7 @@ namespace Spf {
 		
 	public:
 			
-		SaveConfigs(const ParametersType& params,const DynVarsType& dynvars,size_t parallelRank)
+		SaveConfigs(const ParametersType& params,const DynVarsType& dynvars,SizeType parallelRank)
 		: params_(params),
 		  dynVars_(dynvars),
 		  enabled_(parallelRank==0 && params_.saveEach>0),
@@ -40,7 +40,7 @@ namespace Spf {
 			ioOut_<<"#EOF\n";
 		}
 		
-		void operator()(size_t iter)
+		void operator()(SizeType iter)
 		{
 			if (!enabled_) return;
 			if (iter>0 && iter % params_.saveEach !=0) return;

@@ -35,7 +35,7 @@ namespace Spf {
 		typedef PhononsTwoOrbitals<EngineParamsType,
 		                           GeometryType> ThisType;
 
-		static const size_t nbands_ = 2;
+		static const SizeType nbands_ = 2;
 
 	public:
 
@@ -68,48 +68,48 @@ namespace Spf {
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		
-		void setOperation(SpinOperationsType** op,size_t i)
+		void setOperation(SpinOperationsType** op,SizeType i)
 		{
 			assert(i == 0);
 			*op = &spinOperations_;
 		}
 
-		void setOperation(PhononOperationsType** op,size_t i)
+		void setOperation(PhononOperationsType** op,SizeType i)
 		{
 			assert(i == 1);
 			*op = &phononOperations_;
 		}
 
-		size_t totalFlips() const { return geometry_.volume(); }
+		SizeType totalFlips() const { return geometry_.volume(); }
 
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
-		RealType deltaDirect(size_t i,SpinOperationsType& ops,int n) const
+		RealType deltaDirect(SizeType i,SpinOperationsType& ops,int n) const
 		{
 			assert(n == 0);
 			return ops.deltaDirect(i,mp_.jaf,0);
 		}
 
-		RealType deltaDirect(size_t i,PhononOperationsType& ops,int n) const
+		RealType deltaDirect(SizeType i,PhononOperationsType& ops,int n) const
 		{
 			assert(n == 1);
 			return 0.0;
 		}
 
-		RealType integrationMeasure(size_t i,SpinOperationsType& ops,int n)
+		RealType integrationMeasure(SizeType i,SpinOperationsType& ops,int n)
 		{
 			assert(n == 0);
 			return ops.sineUpdate(i);
 		}
 
-		RealType integrationMeasure(size_t i,PhononOperationsType& ops,int n)
+		RealType integrationMeasure(SizeType i,PhononOperationsType& ops,int n)
 		{
 			assert(n == 1);
 			return 1.0;
 		}
 				
 		template<typename GreenFunctionType,typename SomePackerType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
+		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{
 			SpinType* dynVarsPtr = 0;
 			dynVars_.getField(&dynVarsPtr,0);
@@ -148,7 +148,7 @@ namespace Spf {
 			//storedObservables_.doThem();
 		} // doMeasurements
 
-		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(PsimagLite::Matrix<ComplexType>& matrix,SizeType oldOrNewDynVars)
 		{
 
 			PhononType* phononPartPtr = 0;
@@ -161,7 +161,7 @@ namespace Spf {
 			 else createHamiltonian(dynVars_,matrix);
 		}
 
-		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		void createHsparse(SparseMatrixType& sparseMatrix,SizeType oldOrNewDynVars)
 		{
 			// ALL THIS IS VERY INEFFICIENT
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
@@ -170,7 +170,7 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
+		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
 		{
 			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
@@ -202,7 +202,7 @@ namespace Spf {
 		
 		void createHamiltonian(DynVarsType& dynVars,MatrixType& matrix) const
 		{
-			size_t volume = geometry_.volume();
+			SizeType volume = geometry_.volume();
 
 			const SpinType* spinPartPtr = 0;
 			dynVars_.getField(&spinPartPtr,0);
@@ -212,11 +212,11 @@ namespace Spf {
 			dynVars_.getField(&phononPartPtr,1);
 			const PhononType& phononPart = *phononPartPtr;
 			
-			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
-				for (size_t p = 0; p < matrix.n_col(); p++) 
+			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++) 
+				for (SizeType p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 
-			for (size_t p = 0; p < volume; p++) {
+			for (SizeType p = 0; p < volume; p++) {
 				RealType phonon_q1=phononOperations_.calcPhonon(p,phononPart,0);
 				RealType phonon_q2=phononOperations_.calcPhonon(p,phononPart,1);
 				RealType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);	
@@ -228,10 +228,10 @@ namespace Spf {
 				matrix(p,p+volume) = (mp_.phononSpinCoupling[1]*phonon_q2);
 				matrix(p+volume,p) = conj(matrix(p,p+volume));
 				
-				for (size_t j = 0; j < geometry_.z(1); j++) {	/* hopping elements, n-n only */
+				for (SizeType j = 0; j < geometry_.z(1); j++) {	/* hopping elements, n-n only */
 					PairType tmpPair = geometry_.neighbor(p,j);
-					size_t col = tmpPair.first;
-					size_t dir = tmpPair.second; // int(j/2);
+					SizeType col = tmpPair.first;
+					SizeType dir = tmpPair.second; // int(j/2);
 					
 					RealType tmp=cos(0.5*spinPart.theta[p])*cos(0.5*spinPart.theta[col]);
 					RealType tmp2=sin(0.5*spinPart.theta[p])*sin(0.5*spinPart.theta[col]);
@@ -257,7 +257,7 @@ namespace Spf {
 		RealType calcNumber(GreenFunctionType& greenFunction) const
 		{
 			RealType sum=0;
-			for (size_t i=0;i<hilbertSize_;i++) {
+			for (SizeType i=0;i<hilbertSize_;i++) {
 				sum += real(greenFunction(i,i));
 			}
 			return sum;
@@ -267,7 +267,7 @@ namespace Spf {
 		RealType calcElectronicEnergy(GreenFunctionType& greenFunction) const
 		{
 			RealType sum = 0;
-			for (size_t i=0;i<hilbertSize_;i++) {
+			for (SizeType i=0;i<hilbertSize_;i++) {
 				RealType g = real(greenFunction(i,i));
 				sum += g*(engineParams_.mu+log(1./g-1.)/engineParams_.beta);
 			}
@@ -280,12 +280,12 @@ namespace Spf {
 		{
 			RealType sum = 0;
 			//constPsimagLite::Matrix<ComplexType>& matrix = matrix_;
-// 			for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
+// 			for (SizeType lambda=0;lambda<hilbertSize_;lambda++) {
 // 				RealType tmp2=0.0;
-// 				for (size_t i=0;i<geometry_.volume();i++) {
-// 					for (size_t k=0;k<geometry.z(1);k++) {
-// 						size_t j=geometry.neighbor(i,k).first;
-// 						for (size_t spin=0;spin<2;spin++) {
+// 				for (SizeType i=0;i<geometry_.volume();i++) {
+// 					for (SizeType k=0;k<geometry.z(1);k++) {
+// 						SizeType j=geometry.neighbor(i,k).first;
+// 						for (SizeType spin=0;spin<2;spin++) {
 // 							ComplexType tmp = conj(matrix(i+spin*ether.linSize,lambda))*matrix(j+spin*ether.linSize,lambda);
 // 							tmp2 += mp_.hoppings[orb1+spin*nbands_+dir*nbands_*nbands_]*real(tmp);
 // 						}
@@ -300,7 +300,7 @@ namespace Spf {
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
 		DynVarsType dynVars_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		AdjustmentsType adjustments_;
 		ProgressIndicatorType progress_;
 		//RandomNumberGeneratorType& rng_;

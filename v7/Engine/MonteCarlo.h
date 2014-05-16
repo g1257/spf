@@ -22,7 +22,7 @@ namespace Spf {
 
 		typedef typename Loki::TL::TypeAt<OperationsList,n>::Result OperationsType;
 		typedef typename OperationsType::DynVarsType DynVarsType;
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		
 	public:
 		typedef typename EngineParamsType::RealType RealType;
@@ -33,13 +33,13 @@ namespace Spf {
 		           RandomNumberGeneratorType& rng) 
 		 : engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
 
-		PairType operator()(DynVarsType& dynVars,size_t iter)
+		PairType operator()(DynVarsType& dynVars,SizeType iter)
 		{
 			PairType acc = PairType(0,0);
 			ops_.set(dynVars);
 			algorithm_.init();
-			for (size_t j=0;j<dynVars.size;j++) {
-				size_t i = ops_.proposeSite(j,rng_);
+			for (SizeType j=0;j<dynVars.size;j++) {
+				SizeType i = ops_.proposeSite(j,rng_);
 				if (dynVars.modulus[i] == 0) continue;
 				ops_.proposeChange(i,rng_);
 				bool flag= algorithm_.isAccepted(i,rng_,ops_,n);
@@ -70,7 +70,7 @@ namespace Spf {
 	         int n>
 	class MonteCarloLoop
 	{
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		typedef typename Loki::TL::TypeAt<ListType,n>::Result OperationsType;
 		typedef typename OperationsType::DynVarsType Type0;
 		typedef MonteCarlo<ParametersType,ListType,AlgorithmFactoryType,
@@ -85,7 +85,7 @@ namespace Spf {
 		                 ModelType& model,
 		                 DynVarsType& dynVars,
 		                 PsimagLite::Vector<PairType>::Type& accepted,
-		                 size_t iter)
+		                 SizeType iter)
 		{
 
 			OperationsType* op = 0;
@@ -108,7 +108,7 @@ namespace Spf {
 	         typename ListType>
 	class MonteCarloLoop<RngType,ParametersType,ModelType,AlgorithmFactoryType,ListType,-1>
 	{
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 
 	public:
@@ -119,7 +119,7 @@ namespace Spf {
 		                 ModelType& model,
 		                 DynVarsType& dynVars,
 		                 PsimagLite::Vector<PairType>::Type& accepted,
-		                 size_t iter)
+		                 SizeType iter)
 		{}
 	};
 

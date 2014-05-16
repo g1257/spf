@@ -59,10 +59,10 @@ namespace Spf {
 
 		ModelType& model() { return model_; } // should be const
 
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
 		template<typename OperationsType>
-		bool isAccepted(size_t i,RngType& rng,OperationsType& ops,int n)
+		bool isAccepted(SizeType i,RngType& rng,OperationsType& ops,int n)
 		{
 			model_.createHamiltonian(matrixNew_,ModelType::NEWFIELDS);
 			diagonalize(matrixNew_,eigNew_,'N');
@@ -84,7 +84,7 @@ namespace Spf {
 		}
 
 		template<typename OperationsType>
-		void accept(size_t i,OperationsType& ops)
+		void accept(SizeType i,OperationsType& ops)
 		{
 			ops.accept(i);
 			eigOld_ = eigNew_;
@@ -95,12 +95,12 @@ namespace Spf {
 			diagonalize(matrixNew_,eigNew_,'V',ModelType::OLDFIELDS);
 		}
 
-		const ComplexOrRealType& matrix(size_t lambda1,size_t lambda2) const
+		const ComplexOrRealType& matrix(SizeType lambda1,SizeType lambda2) const
 		{
 			return matrixNew_(lambda1,lambda2);
 		}
 
-		const RealType& e(size_t i) const
+		const RealType& e(SizeType i) const
 		{
 			return eigNew_[i];
 		}
@@ -108,7 +108,7 @@ namespace Spf {
 		void diagonalize(MatrixType& matrix,
 		                 typename PsimagLite::Vector<RealType>::Type& eigs,
 		                 char jobz='N',
-		                 size_t fields=ModelType::NEWFIELDS) const
+		                 SizeType fields=ModelType::NEWFIELDS) const
 		{
 			model_.createHamiltonian(matrix,fields);
 			if (engineParams_.options.find("matrixBlocked")!=PsimagLite::String::npos) {
@@ -120,7 +120,7 @@ namespace Spf {
 				std::sort(eigs.begin(), eigs.end(), std::less<RealType>());
 		}
 
-		void printMatrix(size_t mode) const
+		void printMatrix(SizeType mode) const
 		{
 			if (mode==ModelType::NEWFIELDS) {
 				std::cerr<<matrixNew_;
@@ -140,10 +140,10 @@ namespace Spf {
 
 	private:
 
-		bool needsAdjustment(size_t i) const
+		bool needsAdjustment(SizeType i) const
 		{
 			if (engineParams_.adjustEach==0) return true;
-			size_t x = (i % engineParams_.adjustEach);
+			SizeType x = (i % engineParams_.adjustEach);
 			return (x==0);
 		}
 
@@ -153,7 +153,7 @@ namespace Spf {
 			RealType beta = engineParams_.beta;
 			RealType X =1.0;
 
-			for (size_t i=0;i<eigNew_.size();i++) {
+			for (SizeType i=0;i<eigNew_.size();i++) {
 				RealType temp = 0;
 				if (eigNew_[i]>mu)
 					temp = (1.0+exp(-beta*(eigNew_[i]-mu)))/
@@ -173,7 +173,7 @@ namespace Spf {
 		void testEigs() const
 		{
 			RealType eps = 1e-6;
-			for (size_t i=0;i<eigOld_.size();i++) {
+			for (SizeType i=0;i<eigOld_.size();i++) {
 				if (fabs(eigOld_[i]-eigNew_[i])>eps) return;
 			}
 			throw std::runtime_error("Eigs are equal!!\n");
@@ -182,8 +182,8 @@ namespace Spf {
 		void testMatrix() const
 		{
 			RealType eps = 1e-6;
-			for (size_t i=0;i<matrixOld_.n_row();i++) {
-				for (size_t j=0;j<matrixOld_.n_col();j++) {
+			for (SizeType i=0;i<matrixOld_.n_row();i++) {
+				for (SizeType j=0;j<matrixOld_.n_col();j++) {
 					if (fabs(real(matrixOld_(i,j)-matrixNew_(i,j)))>eps &&
 					fabs(imag(matrixOld_(i,j)-matrixNew_(i,j)))>eps) return;
 				}
@@ -195,21 +195,21 @@ namespace Spf {
 		                 typename PsimagLite::Vector<RealType>::Type& eigs,
 		                 char jobz) const
 		{
-			size_t n = matrix.n_row();
+			SizeType n = matrix.n_row();
 			assert(!(n&1));
-			n = size_t(n/2);
+			n = SizeType(n/2);
 
 			MatrixType m(n,n);
-			for (size_t i=0;i<n;i++)
-				for (size_t j=0;j<n;j++)
+			for (SizeType i=0;i<n;i++)
+				for (SizeType j=0;j<n;j++)
 					m(i,j) = matrix(i,j);
 
 			typename PsimagLite::Vector<RealType>::Type eigs1(n);
 			diag(m,eigs1,jobz);
 
 			MatrixType m2(n,n);
-			for (size_t i=0;i<n;i++)
-				for (size_t j=0;j<n;j++)
+			for (SizeType i=0;i<n;i++)
+				for (SizeType j=0;j<n;j++)
 					m2(i,j) = matrix(i+n,j+n);
 
 			typename PsimagLite::Vector<RealType>::Type eigs2(n);
@@ -225,34 +225,34 @@ namespace Spf {
 		             typename PsimagLite::Vector<RealType>::Type& eigs2,
 		             char jobz) const
 		{
-			size_t n = eigs1.size();
+			SizeType n = eigs1.size();
 			assert(n==eigs2.size());
 			assert(eigs.size()==2*n);
 			assert(matrix.n_row()==2*n);
 			assert(m1.n_row()==n);
 			assert(m2.n_row()==n);
 
-			for (size_t i=0;i<n;i++) {
+			for (SizeType i=0;i<n;i++) {
 				eigs[i] = eigs1[i];
 				eigs[i+n] = eigs2[i];
 			}
 
 			PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
-			PsimagLite::Vector<size_t>::Type iperm(eigs.size());
+			PsimagLite::Vector<SizeType>::Type iperm(eigs.size());
 
 			sort.sort(eigs,iperm);
 
 			if (jobz!='v' && jobz!='V') return;
 
 			MatrixType m3(2*n,2*n);
-			for (size_t i=0;i<n;i++) {
-				for (size_t j=0;j<n;j++) {
+			for (SizeType i=0;i<n;i++) {
+				for (SizeType j=0;j<n;j++) {
 					m3(i,j) = m1(i,j);
 					m3(i+n,j+n) = m2(i,j);
 				}
 			}
-			for (size_t i=0;i<2*n;i++) {
-				for (size_t j=0;j<2*n;j++) {
+			for (SizeType i=0;i<2*n;i++) {
+				for (SizeType j=0;j<2*n;j++) {
 					matrix(i,j) = m3(iperm[i],iperm[j]);
 				}
 			}
@@ -263,7 +263,7 @@ namespace Spf {
 		MetropolisOrGlauberType metropolisOrGlauber_;
 		AdjustmentsType adjustments_;
 		typename PsimagLite::Vector<RealType>::Type eigNew_,eigOld_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
 	}; // AlgorithmDiag
 	

@@ -45,7 +45,7 @@ Spin.h
 The reason is that our model needs to tell the engine: "look, I have just one classical field to integrate". 
 So, if you look in line 110 of PnictidesTwoOrbitalsFields.h you find precisely that:
 
-size_t size() const { return 1; } // only spin for this model needs MC simulation
+SizeType size() const { return 1; } // only spin for this model needs MC simulation
 
 Now, the engine will say: "well, ok, so, what classical field you want me to integrate?"
 And our model has to reply: "The spin."
@@ -58,7 +58,7 @@ SpinType& getField(SpinType*)
 
 and it also tells it the name (also in PnictidesTwoOrbitalsFields.h):
 
-const PsimagLite::String& name(size_t i) const { return name_; }
+const PsimagLite::String& name(SizeType i) const { return name_; }
 
 which is simply:
 

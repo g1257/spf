@@ -17,7 +17,7 @@ namespace Tpem {
 	template<typename RealType>
 	class EmptyCallBack {
 	public:
-		void setTpemThings(RealType& a, RealType& b, std::vector<size_t>& support) const
+		void setTpemThings(RealType& a, RealType& b, std::vector<SizeType>& support) const
 		{}
 	};
 
@@ -56,13 +56,13 @@ namespace Tpem {
 
 		const RealType& mu;
 		const RealType& beta;
-		size_t cutoff;
-		size_t algorithm;
+		SizeType cutoff;
+		SizeType algorithm;
 		RealType epsForProduct;
 		RealType epsForTrace;
 		RealType a;
 		RealType b;
-		std::vector<size_t> support;
+		std::vector<SizeType> support;
 	}; // struct TpemParameters
 	
 	template<typename IoInType,typename RealType,typename CallbackType>

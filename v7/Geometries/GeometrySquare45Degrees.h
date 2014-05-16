@@ -28,25 +28,25 @@ namespace Spf {
 
 			enum {TYPE_0,TYPE_1};
 
-			SiteInfo(size_t indd,size_t l) : ind(indd) 
+			SiteInfo(SizeType indd,SizeType l) : ind(indd) 
 			{
 				init(l);
 			}
 			
-			size_t ind;
-			size_t x;
-			size_t y;
-			size_t type;
+			SizeType ind;
+			SizeType x;
+			SizeType y;
+			SizeType type;
 		
 		private:
 
-			void init(size_t l)
+			void init(SizeType l)
 			{
-				size_t lx = l;
-				size_t twolx = 2*lx;
+				SizeType lx = l;
+				SizeType twolx = 2*lx;
 				div_t divresult = div(ind,twolx);
 
-				if (size_t(divresult.rem)<lx) {
+				if (SizeType(divresult.rem)<lx) {
 					type = TYPE_0;
 					x = divresult.rem;
 					y = divresult.quot;
@@ -62,30 +62,30 @@ namespace Spf {
 
 	public:
 		
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		
-		GeometrySquare45Degrees(size_t l) : l_(l),volume_(2*l*l)
+		GeometrySquare45Degrees(SizeType l) : l_(l),volume_(2*l*l)
 		{
 			buildNeighbors();
 			std::cout<<(*this);
 // 			assert(false);
 		}
 		
-		size_t z(size_t distance=1) const
+		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();
 		}
 		
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
-		PairType neighbor(size_t i,size_t j,size_t distance=1) const
+		PairType neighbor(SizeType i,SizeType j,SizeType distance=1) const
 		{
 			return neighbors_[distance-1](i,j);
 		}
 
-// 		PairType getNeighbour(size_t i,size_t dir) const
+// 		PairType getNeighbour(SizeType i,SizeType dir) const
 // 		{
-// 			size_t j = dir*2;
-// 			size_t distance = 1;
+// 			SizeType j = dir*2;
+// 			SizeType distance = 1;
 // 			if (j>=4) {
 // 				distance++;
 // 				j -= 4;
@@ -93,33 +93,33 @@ namespace Spf {
 // 			return neighbors_[distance-1](i,j);
 // 		}	
 // 		
-		size_t volume() const { return volume_; }
+		SizeType volume() const { return volume_; }
 		
-		size_t add(size_t ind,size_t ind2) const
+		SizeType add(SizeType ind,SizeType ind2) const
 		{
 			SiteInfoType s1(ind,l_);
 			SiteInfoType s2(ind2,l_);
 			
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t xsum = s1.x + s2.x;
-			size_t ysum = s1.y + s2.y;
+			SizeType lx = l_;
+			SizeType ly = l_;
+			SizeType xsum = s1.x + s2.x;
+			SizeType ysum = s1.y + s2.y;
 			if (xsum >= lx) xsum -= lx;
 			if (ysum >= ly) ysum -= ly;
 
 			if (s1.type==s2.type) {
-				size_t shift = (s1.type==SiteInfoType::TYPE_0) ? 0 : 1;
+				SizeType shift = (s1.type==SiteInfoType::TYPE_0) ? 0 : 1;
 				return siteAt(xsum+shift,ysum+shift);
 			}
-			size_t j = siteAt(xsum,ysum) + lx;
-			size_t n = volume();
-			if (size_t(j)>=n) j-=n;
+			SizeType j = siteAt(xsum,ysum) + lx;
+			SizeType n = volume();
+			if (SizeType(j)>=n) j-=n;
 			return j;
 		}
 		
-		size_t dim() const { return 2; }
+		SizeType dim() const { return 2; }
 		
-		size_t length() const 
+		SizeType length() const 
 		{
 			unimplemented("length");
 			return 0;
@@ -127,14 +127,14 @@ namespace Spf {
 
  		PsimagLite::String name() const { return "square45degrees"; }
 
-// 		void indexToCoor(PsimagLite::Vector<int>::Type& v,size_t i) const
+// 		void indexToCoor(PsimagLite::Vector<int>::Type& v,SizeType i) const
 // 		{
-// 			size_t lx = l_;
+// 			SizeType lx = l_;
 // 			v[0] = i%lx;
-// 			v[1] = size_t(i/lx);
+// 			v[1] = SizeType(i/lx);
 // 		}
 		
-		size_t coorToIndex(size_t x,size_t y) const
+		SizeType coorToIndex(SizeType x,SizeType y) const
 		{
 			unimplemented("coorToIndex");
 			return 0;
@@ -142,32 +142,32 @@ namespace Spf {
 
 		// direction connecting i and j
 		// assume that i and j are n-neighbors or next n-neighbors
-		int getDirection(size_t ind,size_t jnd) const
+		int getDirection(SizeType ind,SizeType jnd) const
 		{
 			unimplemented("getDirection");
 			return  -1;
 		}
 
-		size_t scalarDirection(size_t site1,size_t site2) const
+		SizeType scalarDirection(SizeType site1,SizeType site2) const
 		{
 			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
 		}
 
 		template<typename SomeVectorType>
-		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,SizeType>::Type
 		coor2Index(const SomeVectorType& v) const
 		{
 			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
 		}
 
-		PairType getNeighbour(size_t i,size_t dir) const
+		PairType getNeighbour(SizeType i,SizeType dir) const
 		{
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
 
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
-		indexToCoor(SomeVectorType& v,size_t i) const
+		indexToCoor(SomeVectorType& v,SizeType i) const
 		{
 			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
 		}
@@ -180,11 +180,11 @@ namespace Spf {
 		
 		
 		
-		size_t siteAt(size_t x,size_t y) const
+		SizeType siteAt(SizeType x,SizeType y) const
 		{
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t twolx = 2*lx;
+			SizeType lx = l_;
+			SizeType ly = l_;
+			SizeType twolx = 2*lx;
 			if (x>=lx) x-=lx;
 			if (y>=ly) y-=ly;
 			return y*twolx + x;
@@ -218,12 +218,12 @@ namespace Spf {
 // 			int ly = l_;
 // 			int zz = 0;
 			//PairType zeroVal(0,0);
-			size_t n = volume();
-			size_t twolx = 2*lx;
+			SizeType n = volume();
+			SizeType twolx = 2*lx;
 			PsimagLite::Matrix<PairType> matrix(n,4);
-			for (size_t p=0;p<n;p+=twolx) {
-				for (size_t i=p+lx;i<p+twolx;i++) {
-					size_t counter = 0;
+			for (SizeType p=0;p<n;p+=twolx) {
+				for (SizeType i=p+lx;i<p+twolx;i++) {
+					SizeType counter = 0;
 					int j = i-lx;
 					if (j<0) j += n;
 					if (i>0 && i%twolx==0) j = i - 1;
@@ -231,25 +231,25 @@ namespace Spf {
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 					
 					j = i-lx+1;
-					if (i+1>=size_t(lx)) {
-						size_t k = (i+1);
+					if (i+1>=SizeType(lx)) {
+						SizeType k = (i+1);
 						if (k%twolx==0) j -= lx;
 					}
 					if (j<0) j+=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 					
 					j = i+lx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 
 					j = i+lx+1;
 					if ((i+1)%twolx==0) j -= lx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 					
 				}
-				for (size_t i=p;i<p+lx;i++) {
-					size_t counter = 0;
+				for (SizeType i=p;i<p+lx;i++) {
+					SizeType counter = 0;
 					int j = i-lx-1;
 					if (j<0) j += n;
 					if (i>0 && i%twolx==0) j = i - 1;
@@ -262,11 +262,11 @@ namespace Spf {
 
 					j = i+lx-1;
 					if (i%twolx==0) j+= lx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXPY);
 					
 					j = i+lx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRXMY);
 				}
 			}
@@ -279,12 +279,12 @@ namespace Spf {
 // 			int ly = l_;
 // 			int zz = 0;
 			//PairType zeroVal(0,0);
-			size_t n = volume();
+			SizeType n = volume();
 			PsimagLite::Matrix<PairType> matrix(n,4);
-			size_t twolx = 2*lx;
-			for (size_t p=0;p<n;p+=twolx) {
-				for (size_t i=p;i<p+size_t(lx);i++) {
-					size_t counter = 0;
+			SizeType twolx = 2*lx;
+			for (SizeType p=0;p<n;p+=twolx) {
+				for (SizeType i=p;i<p+SizeType(lx);i++) {
+					SizeType counter = 0;
 					
 					int j = i-1;
 					if (i%twolx==0) j += lx;
@@ -300,13 +300,13 @@ namespace Spf {
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 					
 					j = i + twolx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 				}
-				for (size_t i=p+lx;i<p+twolx;i++) {
-					size_t counter = 0;
+				for (SizeType i=p+lx;i<p+twolx;i++) {
+					SizeType counter = 0;
 					int j = i-1;
-					size_t k = i-lx;
+					SizeType k = i-lx;
 					if (k%twolx==0) j += lx;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRX);
 
@@ -319,14 +319,14 @@ namespace Spf {
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 
 					j = i + twolx;
-					if (size_t(j)>=n) j-=n;
+					if (SizeType(j)>=n) j-=n;
 					matrix(i,counter++) = PairType(j,ProgramGlobals::DIRY);
 				}
 			}
 			neighbors_.push_back(matrix);
 		}
 
-		bool g_pbc(int& x, size_t l) const
+		bool g_pbc(int& x, SizeType l) const
 		{
 			int L = l;
 			bool r=false;
@@ -337,44 +337,44 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(PsimagLite::Vector<int>::Type& x) const
+		SizeType g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			int zz=0;
 			return g_index(x[0],x[1],zz);
 		}
 		
-		size_t g_index(int& x,int& y,int& z) const
+		SizeType g_index(int& x,int& y,int& z) const
 		{
-			size_t lx = l_;
-			size_t ly = l_;
+			SizeType lx = l_;
+			SizeType ly = l_;
 			g_pbc(x,lx);
 			g_pbc(y,ly);
 			//g_pbc(z,lz);
 			return x+y*lx; //+z*L*L;
 		}
 
-		size_t l_;
-		size_t volume_;
+		SizeType l_;
+		SizeType volume_;
 		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; //class Square45Degrees
 	
 	template<typename T>
 	std::ostream& operator<<(std::ostream& os,const GeometrySquare45Degrees<T>& g)
 	{
-		for (size_t i=0;i<g.neighbors_.size();i++) {
+		for (SizeType i=0;i<g.neighbors_.size();i++) {
 			os<<"#distanceIndex="<<i<<"\n";
-			for (size_t k=0;k<g.neighbors_[i].n_row();k++) {
+			for (SizeType k=0;k<g.neighbors_[i].n_row();k++) {
 				os<<"Neighbors of "<<k<<" are ";
-				for (size_t l=0;l<g.neighbors_[i].n_col();l++) {
+				for (SizeType l=0;l<g.neighbors_[i].n_col();l++) {
 					os<<g.neighbors_[i](k,l).first<<"\t";
 				}
 				os<<"\n";
 			}
 		}
 		os<<"-------------------------\n";
-		for (size_t i=0;i<g.volume();i++) {
-			for (size_t j=0;j<g.volume();j++) {
-				size_t k = g.add(i,j);
+		for (SizeType i=0;i<g.volume();i++) {
+			for (SizeType j=0;j<g.volume();j++) {
+				SizeType k = g.add(i,j);
 				os<<i<<"\t+\t"<<j<<"\t=\t"<<k<<"\n";
 			}
 		}

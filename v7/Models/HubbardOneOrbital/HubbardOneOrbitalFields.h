@@ -96,7 +96,7 @@ namespace Spf {
 		typedef LOKI_TYPELIST_2(ContVarFiniteOperationsType,ContVarFiniteOperationsType) OperationsList;
 
 		template<typename SomeParamsType>
-		HubbardOneOrbitalFields(size_t vol,const SomeParamsType& params)
+		HubbardOneOrbitalFields(SizeType vol,const SomeParamsType& params)
 		    : name_(2),
 		      charge_(vol,params.dynvarsfile,0,PairRealType(0,2)),
 		      mag_(vol,params.dynvarsfile,1,PairRealType(-1,1))
@@ -110,12 +110,12 @@ namespace Spf {
 			setNames();
 		}
 		
-		const PsimagLite::String& name(size_t i) const
+		const PsimagLite::String& name(SizeType i) const
 		{
 			return name_[i];
 		}
 		
-		void getField(ContVarFiniteType const** field,size_t i) const
+		void getField(ContVarFiniteType const** field,SizeType i) const
 		{
 			assert(i == 0 || i == 1);
 			if (i == 0)
@@ -126,7 +126,7 @@ namespace Spf {
 				throw PsimagLite::RuntimeError("HubbardOneOrbitalFields::getField()\n");
 		}
 
-		void getField(ContVarFiniteType** field,size_t i)
+		void getField(ContVarFiniteType** field,SizeType i)
 		{
 			assert(i == 0 || i == 1);
 			if (i==0)
@@ -137,7 +137,7 @@ namespace Spf {
 				throw PsimagLite::RuntimeError("HubbardOneOrbitalFields::getField()\n");
 		}
 
-		const ContVarFiniteType& getField(size_t what) const
+		const ContVarFiniteType& getField(SizeType what) const
 		{
 			return (what==CHARGE) ? charge_ : mag_;
 		}

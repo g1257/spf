@@ -46,8 +46,8 @@ namespace Spf {
 		{
 			algorithm_.prepare();
 			data_(0,0) = -1; // unimplemented
-// 			size_t n = hilbertSize_;
-// 			for (size_t i=0;i<n;i++) for (size_t j=0;j<n;j++)
+// 			SizeType n = hilbertSize_;
+// 			for (SizeType i=0;i<n;i++) for (SizeType j=0;j<n;j++)
 // 				data_(i,j) = greenFunction(i,j);
 		}
 
@@ -55,11 +55,11 @@ namespace Spf {
 
 		ModelType& model() { return algorithm_.model(); } // should be const
 
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
 		bool usesDiagonalization() const { return false; }
 
-		const ComplexType& operator()(size_t lambda1,size_t lambda2) const
+		const ComplexType& operator()(SizeType lambda1,SizeType lambda2) const
 		{
 			//! gf is unimplemented for TPEM
 			return data_(0,0);
@@ -82,20 +82,20 @@ namespace Spf {
 // 			tmpValues(aux.varTpem_a,aux.varTpem_b,aux.varMu,beta,0);
 // 			if (ether.isSet("adjusttpembounds"))
 // 				tpem_calculate_coeffs (energyCoeffs_,energyFunctor,tpemOptions_);
-// 			size_t min=5;
-// 			for (size_t i=min;i<energyCoeffs_.size();i++)
+// 			SizeType min=5;
+// 			for (SizeType i=min;i<energyCoeffs_.size();i++)
 // 				std::cerr<<"cutoff="<<i<<" value="<<tpem_.expand(algorithm_.moment(),energyCoeffs_,i)<<"\n";
 			VectorType energyCoeffs(algorithm_.tpemParameters().cutoff);
 			tpem_.calcCoeffs(energyCoeffs,energyFunctor_);
 			return tpem_.expand(algorithm_.moment(), energyCoeffs);
 		}
 
-		ComplexType matrix(size_t lambda1,size_t lambda2) const
+		ComplexType matrix(SizeType lambda1,SizeType lambda2) const
 		{
 			return ComplexType(0,0);
 		}
 
-		FieldType e(size_t i) const
+		FieldType e(SizeType i) const
 		{
 			return 0;
 		}
@@ -105,8 +105,8 @@ namespace Spf {
 // 			throw PsimagLite::RuntimeError("local charge is unimplemented for TPEM\n");
 // 			//checkUs();
 // 			//checkLevels();
-			for (size_t i=0;i<hilbertSize_;i++) lc[i] = -1;
-// 				for (size_t lambda=0;lambda<hilbertSize_;lambda++) {
+			for (SizeType i=0;i<hilbertSize_;i++) lc[i] = -1;
+// 				for (SizeType lambda=0;lambda<hilbertSize_;lambda++) {
 // 					ComplexType tmp =conj(algorithm_.matrix(i,lambda))*algorithm_.matrix(i,lambda);
 // 					//if (algorithm_.e(lambda)>=engineParams_.mu) continue; // temperature zero
 // 					RealType s = real(tmp)*PsimagLite::fermi(engineParams_.beta*
@@ -122,16 +122,16 @@ namespace Spf {
 		}
 
 		void electronSpin(typename PsimagLite::Vector<ComplexType>::Type& es,
-				size_t orbitals,size_t n) const
+				SizeType orbitals,SizeType n) const
 		{
-			for (size_t i=0;i<es.size();i++)  es[i]=0;
+			for (SizeType i=0;i<es.size();i++)  es[i]=0;
 			//throw PsimagLite::RuntimeError("electron spin is unimplemented for TPEM\n");
 // 			enum {SPIN_UP,SPIN_DOWN};
 // 
-// 			for (size_t i=0;i<n;i++) {
-// 				for (size_t orb=0;orb<orbitals;orb++) {
-// 					size_t x = i+(orb+SPIN_UP*orbitals)*n;
-// 					size_t y = i+(orb+SPIN_DOWN*orbitals)*n;
+// 			for (SizeType i=0;i<n;i++) {
+// 				for (SizeType orb=0;orb<orbitals;orb++) {
+// 					SizeType x = i+(orb+SPIN_UP*orbitals)*n;
+// 					SizeType y = i+(orb+SPIN_DOWN*orbitals)*n;
 // 					// x-component
 // 					es[0] -= data_(x,y) + data_(y,x);
 // 					// y-component
@@ -160,7 +160,7 @@ namespace Spf {
 
 		const EngineParametersType& engineParams_;		
 		AlgorithmType algorithm_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		TpemType& tpem_; // we don't own it, FIXME: must be const
 		PsimagLite::Matrix<ComplexType> data_;
 		EnergyFunctorType energyFunctor_;

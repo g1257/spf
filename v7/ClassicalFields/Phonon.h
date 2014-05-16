@@ -22,7 +22,7 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 		typedef typename PsimagLite::Vector<FieldType>::Type OnePhononType;
 
-		Phonon(size_t vol,const PsimagLite::String& mcstarttype)
+		Phonon(SizeType vol,const PsimagLite::String& mcstarttype)
 			: size(vol),
 		      phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
@@ -35,7 +35,7 @@ namespace Spf {
 			if (phonon.size()==0) throw PsimagLite::RuntimeError("Problem in phonon\n");
 		}
 		
-		size_t size;
+		SizeType size;
                 //PsimagLite::Vector<FieldType> dummy_;
 		typename PsimagLite::Vector<OnePhononType>::Type phonon;
 		ConstantVector modulus;

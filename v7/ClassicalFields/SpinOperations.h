@@ -40,21 +40,21 @@ namespace Spf {
 
 		//! How to sweep the lattice
 		template<typename RandomNumberGeneratorType>
-		size_t proposeSite(size_t i,RandomNumberGeneratorType& rng) const
+		SizeType proposeSite(SizeType i,RandomNumberGeneratorType& rng) const
 		{
 			return i; //<-- zig-zag horizontal
 			// zig-zag vertical:
-			/*size_t l = geometry_.length();
-			size_t x = i % l;
-			size_t y = i / l;
+			/*SizeType l = geometry_.length();
+			SizeType x = i % l;
+			SizeType y = i / l;
 			return y + x*l;*/
 			// random:
-			//return size_t(rng()*geometry_.volume());
+			//return SizeType(rng()*geometry_.volume());
 			
 		}
 		
 		template<typename RandomNumberGeneratorType>
-		void proposeChange(size_t i,RandomNumberGeneratorType& rng)
+		void proposeChange(SizeType i,RandomNumberGeneratorType& rng)
 		{
 			RealType thetaOld = dynVars_->theta[i];
 			RealType phiOld = dynVars_->phi[i];
@@ -64,7 +64,7 @@ namespace Spf {
 			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
 		}
 		
-		void makeChange(size_t i,const RealType& eps1,const RealType& eps2)
+		void makeChange(SizeType i,const RealType& eps1,const RealType& eps2)
 		{
 			dynVars2_ = *dynVars_;
 			dynVars2_.theta[i] += eps1;
@@ -73,14 +73,14 @@ namespace Spf {
 		
 		const DynVarsType& dynVars2() const { return dynVars2_; } 
 		
-		RealType deltaDirect(size_t i,RealType coupling1,RealType coupling2) const
+		RealType deltaDirect(SizeType i,RealType coupling1,RealType coupling2) const
 		{
-			size_t z = geometry_.z(1)/2;
+			SizeType z = geometry_.z(1)/2;
 			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling1);
 			return deltaDirect(i,coupling1v,coupling2);
 		}
 		
-		RealType deltaDirect(size_t i,
+		RealType deltaDirect(SizeType i,
 		                       const typename PsimagLite::Vector<RealType>::Type& coupling1v,
 		                       RealType coupling2) const
 		{
@@ -90,13 +90,13 @@ namespace Spf {
 			return sum;
 		}
 
-		RealType deltaMagneticField(size_t i, const RealType& B) const
+		RealType deltaMagneticField(SizeType i, const RealType& B) const
 		{
 			RealType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
 			return dx * B;
 		}
 				
-		RealType sineUpdate(size_t i) const
+		RealType sineUpdate(SizeType i) const
 		{
 			RealType sineupdate= sin(dynVars_->theta[i]);
 			if (sineupdate!=0) {
@@ -107,7 +107,7 @@ namespace Spf {
 			return sineupdate;
 		}
 		
-		void accept(size_t i)
+		void accept(SizeType i)
 		{
 			dynVars_->theta[i]=dynVars2_.theta[i];
 			dynVars_->phi[i]=dynVars2_.phi[i];
@@ -115,18 +115,18 @@ namespace Spf {
 		
 		RealType directExchange2(const DynVarsType& dynVars,RealType coupling) const
 		{
-			size_t n = dynVars.theta.size();
+			SizeType n = dynVars.theta.size();
 			RealType dS = 0;
 			
-			for (size_t i=0;i<n;i++) {
+			for (SizeType i=0;i<n;i++) {
 				RealType t1=dynVars.theta[i];
 				RealType p1=dynVars.phi[i];
 				RealType cost1 = cos(t1);
 				RealType sint1 = sin(t1);
 				RealType cosp1 = cos(p1);
 				RealType sinp1 = sin(p1);
-				for (size_t k = 0; k<geometry_.z(2); k++){
-					size_t j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
+				for (SizeType k = 0; k<geometry_.z(2); k++){
+					SizeType j=geometry_.neighbor(i,k,2).first; /**next nearest neighbor */
 					RealType t2=dynVars.theta[j];
 					RealType p2=dynVars.phi[j];
 					RealType tmp = cost1*cos(t2)+sint1*sin(t2)*(cosp1*cos(p2)+sinp1*sin(p2));
@@ -140,7 +140,7 @@ namespace Spf {
 				                              const RealType& coupling)
 					const
 		{
-			size_t z = geometry_.z(1);
+			SizeType z = geometry_.z(1);
 			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling);
 			return calcSuperExchange(dynVars,coupling1v);
 
@@ -151,10 +151,10 @@ namespace Spf {
 			const
 		{
 			RealType sum = 0;
-			for (size_t i=0;i<geometry_.volume();i++) {
-				for (size_t k = 0; k<geometry_.z(1); k++){
-					size_t j=geometry_.neighbor(i,k).first;
-					size_t dir=geometry_.neighbor(i,k).second;
+			for (SizeType i=0;i<geometry_.volume();i++) {
+				for (SizeType k = 0; k<geometry_.z(1); k++){
+					SizeType j=geometry_.neighbor(i,k).first;
+					SizeType dir=geometry_.neighbor(i,k).second;
 
 					RealType t1=dynVars.theta[i];
 					RealType t2=dynVars.theta[j];
@@ -172,7 +172,7 @@ namespace Spf {
 		{
 			typename PsimagLite::Vector<RealType>::Type mag(3);
 			
-			for (size_t i=0;i<geometry_.volume();i++) {
+			for (SizeType i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
 				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
 				mag[2] += cos(dynVars.theta[i]);
@@ -183,11 +183,11 @@ namespace Spf {
 		//! For diluted systems
 		RealType calcMag(
 				const DynVarsType& dynVars,
-				const PsimagLite::Vector<size_t>::Type& modulus) const
+				const PsimagLite::Vector<SizeType>::Type& modulus) const
 		{
 			typename PsimagLite::Vector<RealType>::Type mag(3);
 
-			for (size_t i=0;i<geometry_.volume();i++) {
+			for (SizeType i=0;i<geometry_.volume();i++) {
 				if (modulus[i]==0) continue;
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
 				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
@@ -200,7 +200,7 @@ namespace Spf {
 				typename PsimagLite::Vector<RealType>::Type& mag,
 				const DynVarsType& dynVars) const
 		{
-			for (size_t i=0;i<geometry_.volume();i++) {
+			for (SizeType i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
 				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
 				mag[2] += cos(dynVars.theta[i]);
@@ -212,13 +212,13 @@ namespace Spf {
 				 //PsimagLite::Vector<RealType>::Type& weight,
 				 const DynVarsType& dynVars)
 		{
-			size_t n = geometry_.volume();
+			SizeType n = geometry_.volume();
 			
-			for (size_t i=0;i<n;i++) {
+			for (SizeType i=0;i<n;i++) {
 				RealType temp=0;
-				size_t counter=0;
-				for (size_t j=0;j<n;j++) {
-					size_t k = geometry_.add(i,j);
+				SizeType counter=0;
+				for (SizeType j=0;j<n;j++) {
+					SizeType k = geometry_.add(i,j);
 					//cerr<<"calcClasCor: "<<i<<"+"<<j<<"="<<k<<endl;
 					//if (ether.modulus[k]==0 || ether.modulus[j]==0) continue;
 					temp+= cos(dynVars.theta[k])*cos(dynVars.theta[j])+
@@ -283,14 +283,14 @@ namespace Spf {
 		
 		RealType dSDirect(const DynVarsType& dynVars,
 		                    const DynVarsType& dynVars2,
-		                    size_t i,
+		                    SizeType i,
 		                    typename PsimagLite::Vector<RealType>::Type coupling) const
 		{
 			RealType dS = 0;
 				
-			for (size_t k = 0; k<geometry_.z(1); k++){
-				size_t j=geometry_.neighbor(i,k).first;
-				size_t dir = geometry_.neighbor(i,k).second;
+			for (SizeType k = 0; k<geometry_.z(1); k++){
+				SizeType j=geometry_.neighbor(i,k).first;
+				SizeType dir = geometry_.neighbor(i,k).second;
 				assert(dir<coupling.size());
 				RealType tmp = (sin(dynVars2.theta[i])*cos(dynVars2.phi[i])-sin(dynVars.theta[i])*
 					cos(dynVars.phi[i]))*sin(dynVars.theta[j])*cos(dynVars.phi[j]) +

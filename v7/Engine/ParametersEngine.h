@@ -132,7 +132,7 @@ namespace Spf {
 					throw e;
 				}
 			}
-			if (size_t(PsimagLite::Concurrency::nprocs())<coresForKernel) {
+			if (SizeType(PsimagLite::Concurrency::nprocs())<coresForKernel) {
 				s= PsimagLite::String(__FILE__) + " " + ttos(__LINE__) + " " + __FUNCTION__;
 				s += PsimagLite::String(": nprocs<coresForKernel is an error\n");
 				throw PsimagLite::RuntimeError(s.c_str());
@@ -178,19 +178,19 @@ namespace Spf {
 		RealType carriers;
 		mutable RealType mu; // chemical potential 
 		RealType beta; // inverse temperature
-		size_t iterTherm,iterEffective,iterUnmeasured;
+		SizeType iterTherm,iterEffective,iterUnmeasured;
 		typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
 		PsimagLite::String dynvarsfile; // file with fields to start from or none
-		size_t dynvarslevel; // from where to start to read in dynvarsfile
-		size_t histSteps; // histogram steps
+		SizeType dynvarslevel; // from where to start to read in dynvarsfile
+		SizeType histSteps; // histogram steps
 		PsimagLite::String boundaryConditions; // boundary conditions
 		long int randomSeed;
-		size_t latticeLength;
-		size_t coresForKernel;
-		size_t saveEach;
+		SizeType latticeLength;
+		SizeType coresForKernel;
+		SizeType saveEach;
 		PsimagLite::String detailedBalance;
-		size_t adjustEach;
-		size_t npthreads;
+		SizeType adjustEach;
+		SizeType npthreads;
 	};
 
 	//! print dmrg parameters

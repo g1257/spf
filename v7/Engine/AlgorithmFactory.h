@@ -29,14 +29,14 @@ namespace Spf {
 		}
 
 		template<typename SomeRngType,typename SomeOperationsType>
-		bool isAccepted(size_t i,SomeRngType& rng,SomeOperationsType& ops,int n)
+		bool isAccepted(SizeType i,SomeRngType& rng,SomeOperationsType& ops,int n)
 		{
 			return (t1_) ? t1_->algorithm().isAccepted(i,rng,ops,n)
 			             : t2_->algorithm().isAccepted(i,rng,ops,n);
 		}
 
 		template<typename SomeOperationsType>
-		void accept(size_t i,SomeOperationsType& ops)
+		void accept(SizeType i,SomeOperationsType& ops)
 		{
 			return (t1_) ? t1_->algorithm().accept(i,ops)
 			             : t2_->algorithm().accept(i,ops);

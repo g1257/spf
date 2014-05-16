@@ -23,7 +23,7 @@ namespace Spf {
 		typedef typename EngineParamsType::RealType RealType;
 	public:
 		Adjustments(const EngineParamsType& engineParams,
-		            size_t maxIter=100,
+		            SizeType maxIter=100,
 		            RealType tolerance=1.0e-3)
 		: engineParams_(engineParams),maxIter_(maxIter),tolerance_(tolerance)
 		{}
@@ -63,7 +63,7 @@ namespace Spf {
 	private:
 
 		const EngineParamsType& engineParams_;
-		size_t maxIter_;
+		SizeType maxIter_;
 		RealType tolerance_;
 	}; // Adjustments
 } // namespace Spf

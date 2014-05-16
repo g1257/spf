@@ -108,7 +108,7 @@ namespace Spf {
 			try {
 				RealType x = 0;
 				io.readline(x,"JAFNN=");
-				size_t jafSize = (numberOfOrbitals==3) ? 2 : 4;
+				SizeType jafSize = (numberOfOrbitals==3) ? 2 : 4;
 				jafNn.resize(jafSize,x);
 			} catch (std::exception& e) {
 				// must rewind because exception consumed file:
@@ -122,20 +122,20 @@ namespace Spf {
 			if (engineParams.options.find("hasModulus")==PsimagLite::String::npos
 					&&
 					engineParams.options.find("hasmodulus")==PsimagLite::String::npos) {
-				for (size_t i=0;i<modulus.size();i++)
+				for (SizeType i=0;i<modulus.size();i++)
 					modulus[i] = 1;
 				return;
 			}
 
-			for (size_t i=0;i<modulus.size();i++) modulus[i] = 0;
+			for (SizeType i=0;i<modulus.size();i++) modulus[i] = 0;
 
-			PsimagLite::Vector<size_t>::Type tmp;
+			PsimagLite::Vector<SizeType>::Type tmp;
 			io.read(tmp,"Modulus");
-			for (size_t i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
+			for (SizeType i=0;i<tmp.size();i++) modulus[tmp[i]] = 1;
 
 		}
 
-		size_t numberOfOrbitals;
+		SizeType numberOfOrbitals;
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		typename PsimagLite::Vector<RealType>::Type hoppings;
@@ -161,7 +161,7 @@ namespace Spf {
 		RealType magneticField;
 
 		// moduli of the classical spins (either 0 or 1)
-		PsimagLite::Vector<size_t>::Type modulus;
+		PsimagLite::Vector<SizeType>::Type modulus;
 	}; //struct ParametersPnictidesThreeOrbitals
 	
 	//! Function that prints model parameters to stream os
@@ -180,7 +180,7 @@ namespace Spf {
 		os<<"parameters.hoppings\n";
 		os<<parameters.hoppings;
 		os<<"parameters.modulus=";
-		for (size_t i=0;i<parameters.modulus.size();i++) {
+		for (SizeType i=0;i<parameters.modulus.size();i++) {
 			if (parameters.modulus[i]) os<<i<<" ";
 		}
 		os<<"\n";

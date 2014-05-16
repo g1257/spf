@@ -44,14 +44,14 @@ namespace Tpem {
 		typedef PsimagLite::ChebyshevFunction<RealType> ChebyshevFunctionType;
 		
 		enum {NO_VERBOSE,YES_VERBOSE};
-		static const size_t verbose_ = NO_VERBOSE;
+		static const SizeType verbose_ = NO_VERBOSE;
 
 		struct MyFunctionParams {
 			MyFunctionParams(const BaseFunctorType& functor1)
 			: functor(functor1) { }
 
 			const BaseFunctorType& functor;
-			size_t m;
+			SizeType m;
 		};
 
 		typedef MyFunctionParams MyFunctionParamsType;
@@ -128,7 +128,7 @@ namespace Tpem {
 			typename PsimagLite::Vector<RealType>::Type pts;
 			RealType epsabs;
 			RealType epsrel;
-			size_t limit;
+			SizeType limit;
 			GslWrapperType::gsl_integration_workspace *workspace;
 			RealType result;
 			RealType abserr;
@@ -147,9 +147,9 @@ namespace Tpem {
 			        const TpemParametersType& tpemParameters)
 			    : matrix(matrix1),moment(moment1),tpemParameters_(tpemParameters)
 			{
-				size_t n=moment.size();
+				SizeType n=moment.size();
 
-				for (size_t i = 0; i < n; i++) moment[i] = 0.0;
+				for (SizeType i = 0; i < n; i++) moment[i] = 0.0;
 				assert(matrix.row()==matrix.col());
 				moment[0] = matrix.row();
 			}
@@ -178,12 +178,12 @@ namespace Tpem {
 
 				moment[0] = matrix.row();
 
-				size_t n=moment.size();
+				SizeType n=moment.size();
 
-				for (size_t i = 2; i < n; i += 2)
+				for (SizeType i = 2; i < n; i += 2)
 					moment[i] = 2.0 * moment[i] - moment[0];
 
-				for (size_t i = 3; i < n - 1; i += 2)
+				for (SizeType i = 3; i < n - 1; i += 2)
 					moment[i] = 2.0 * moment[i] - moment[1];
 			}
 
@@ -294,13 +294,13 @@ namespace Tpem {
 		{
 			assert(matrix0.row()==matrix0.col());
 			TpemSubspaceType info(matrix0.row());
-			size_t n=moments.size();
+			SizeType n=moments.size();
 			std::vector<RealType>  moment0(n,0.0), moment1(n,0.0);
 
 			if (tpemParameters_.algorithm==TpemParametersType::TPEM) {
 				subspaceForTrace(info,matrix0, matrix1, moment0, moment1,tpemParameters_);
 				// reset all moments to zero because the subspace for trace changes them
-				for (size_t i = 0; i < n; i++) moment0[i] = moment1[i] = 0.0;
+				for (SizeType i = 0; i < n; i++) moment0[i] = moment1[i] = 0.0;
 			} else {
 				info.fill();
 			}
@@ -321,24 +321,24 @@ namespace Tpem {
 
 			moment0[0] = moment1[0] = matrix0.row();
 
-			for (size_t i = 2; i < n; i += 2) {
+			for (SizeType i = 2; i < n; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[0];
 				moment1[i] = 2.0 * moment1[i] - moment1[0];
 			}
 
-			for (size_t i = 3; i < n - 1; i += 2) {
+			for (SizeType i = 3; i < n - 1; i += 2) {
 				moment0[i] = 2.0 * moment0[i] - moment0[1];
 				moment1[i] = 2.0 * moment1[i] - moment1[1];
 			}
 
-			for (size_t i = 0; i < n; i++)
+			for (SizeType i = 0; i < n; i++)
 				moments[i] = moment0[i] - moment1[i];
 		}
 
 		RealType expand(const std::vector<RealType>& moments,
 		                const std::vector<RealType>& coeffs,
-		                size_t start=0,
-		                size_t progressiveCutoff=0) const
+		                SizeType start=0,
+		                SizeType progressiveCutoff=0) const
 		{
 			assert(moments.size()==coeffs.size());
 
@@ -349,7 +349,7 @@ namespace Tpem {
 			double* dx = (double *) &(moments[start]);
 			double* dy = (double *) &(coeffs[start]);
 			RealType ret = psimag::BLAS::DOT(progressiveCutoff-start,dx,1,dy,1);
-			/* for (size_t i = 0; i < progressiveCutoff; ++i)
+			/* for (SizeType i = 0; i < progressiveCutoff; ++i)
 				ret += moments[i] * coeffs[i];
 			*/
 			assert(!std::isinf(ret) && !std::isnan(ret));
@@ -384,7 +384,7 @@ namespace Tpem {
 
 		static void diagonalElement(const TpemSparseType& matrix,
 		                            std::vector<RealType> &moment,
-		                            size_t ket,
+		                            SizeType ket,
 		                            const TpemParametersType& tpemParameters)
 		{
 			TpemSubspaceType work(matrix.row());
@@ -401,7 +401,7 @@ namespace Tpem {
 
 		static void diagonalElement(const TpemSparseType& matrix,
 		                            std::vector<RealType> &moment,
-		                            size_t ket,
+		                            SizeType ket,
 		                            TpemSubspaceType& info,
 		                            const TpemParametersType& tpemParameters)
 		{
@@ -416,7 +416,7 @@ namespace Tpem {
 
 		static void diagonalElementTpem(const TpemSparseType& matrix,
 		                                std::vector<RealType> &moment,
-		                                size_t ket,
+		                                SizeType ket,
 		                                TpemSubspaceType& info,
 		                                const RealType& eps)
 		{
@@ -437,7 +437,7 @@ namespace Tpem {
 			moment[1] += std::real(sum1);
 
 			RealOrComplexType sum2 = 0.0;
-			for (size_t p = 0; p < info.top(); p++)
+			for (SizeType p = 0; p < info.top(); p++)
 				sum2 += std::conj(jm1[info(p)]) * jm1[info(p)];
 			moment[2] += std::real (sum2);
 
@@ -449,14 +449,14 @@ namespace Tpem {
 			* begin (m=k) pass	jm0 = |j,k-2>	jm1 = |j,k-1>
 			* end   (m=k) pass	jm0 = |j,k-1>	jm1 = |j,k>
 			*/
-			size_t n=moment.size();
-			for (size_t m = 2; m < n / 2; m++) {
+			SizeType n=moment.size();
+			for (SizeType m = 2; m < n / 2; m++) {
 				/* calculate |tmp> = X|jm1> */
 				info.sparseProduct(matrix,tmp, jm1,eps);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
-				for (size_t p = 0; p < info.top(); p++) {
-					size_t i = info(p);
+				for (SizeType p = 0; p < info.top(); p++) {
+					SizeType i = info(p);
 					RealOrComplexType keep = tmp[i] + tmp[i]  - jm0[i];
 					/* for moment[2 * m    ] */
 					sum1 += std::conj(keep) * keep;
@@ -474,7 +474,7 @@ namespace Tpem {
 
 		static void  diagonalElementPem(const TpemSparseType& matrix,
 		                                std::vector<RealType> &moment,
-		                                size_t ket)
+		                                SizeType ket)
 		{
 			assert(matrix.row()==matrix.col());
 			std::vector<RealOrComplexType> tmp(matrix.row(),0.0);
@@ -490,7 +490,7 @@ namespace Tpem {
 			moment[1] += std::real (sum1);
 
 			RealOrComplexType sum2 =  0.0;
-			for (size_t j=0;j<matrix.row();j++)
+			for (SizeType j=0;j<matrix.row();j++)
 				sum2 += std::conj(jm1[j]) * jm1[j];
 			moment[2] += std::real (sum2);
 
@@ -502,13 +502,13 @@ namespace Tpem {
 			* begin (m=k) pass	jm0 = |j,k-2>	jm1 = |j,k-1>
 			* end   (m=k) pass	jm0 = |j,k-1>	jm1 = |j,k>
 			*/
-			size_t n=moment.size();
-			for (size_t m = 2; m < n / 2; m++) {
+			SizeType n=moment.size();
+			for (SizeType m = 2; m < n / 2; m++) {
 				/* calculate |tmp> = X|jm1> */
 				TpemSubspaceType::sparseProductPem(matrix, tmp, jm1);
 				RealOrComplexType sum1 = 0.0;
 				RealOrComplexType sum2 = 0.0;
-				for (size_t i=0;i<matrix.row();i++) {
+				for (SizeType i=0;i<matrix.row();i++) {
 					RealOrComplexType keep = tmp[i] + tmp[i] - jm0[i];
 					/* for moment[2 * m    ] */
 					sum1 +=  std::conj(keep) * keep;
@@ -530,17 +530,17 @@ namespace Tpem {
 		                      std::vector<RealType>& moment1,
 		                      const TpemParametersType& tpemParameters)
 		{
-			const std::vector<size_t>& support = tpemParameters.support;
+			const std::vector<SizeType>& support = tpemParameters.support;
 			info.clear();
 
 			assert(matrix0.row()==matrix0.col());
 			TpemSubspaceType work(matrix0.row());
-			for (size_t i = 0; i < support.size(); i++) {
-				size_t j = support[i];
+			for (SizeType i = 0; i < support.size(); i++) {
+				SizeType j = support[i];
 				diagonalElement(matrix0, moment0, j,work,tpemParameters);
-				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
+				for (SizeType p = 0; p < work.top(); p++) info.push(work(p));
 				diagonalElement (matrix1, moment1, j,work,tpemParameters);
-				for (size_t p = 0; p < work.top(); p++) info.push(work(p));
+				for (SizeType p = 0; p < work.top(); p++) info.push(work(p));
 			}
 		}
 

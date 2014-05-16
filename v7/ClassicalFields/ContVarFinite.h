@@ -20,9 +20,9 @@ struct ContVarFinite { // Do not add functions here, this is a struct!!
 	typedef FieldType_ FieldType;
 	typedef std::pair<FieldType,FieldType> PairRealType;
 
-	ContVarFinite(size_t vol,
+	ContVarFinite(SizeType vol,
 	              const PsimagLite::String& mcstarttype,
-	              size_t level,
+	              SizeType level,
 	              const PairRealType& bounds1)
 	    : size(vol),value(vol, 0.0),bounds(bounds1),isFrozen(false)
 	{
@@ -35,7 +35,7 @@ struct ContVarFinite { // Do not add functions here, this is a struct!!
 		if (value.size()==0) throw PsimagLite::RuntimeError("Problem in ContVarFinite\n");
 	}
 
-	size_t size;
+	SizeType size;
 	typename PsimagLite::Vector<FieldType>::Type value;
 	PairRealType bounds;
 	ConstantVector modulus;

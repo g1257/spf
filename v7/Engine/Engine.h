@@ -33,7 +33,7 @@ namespace Spf {
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::OperationsList OperationsListType;
 		typedef PsimagLite::ProgressIndicator ProgressIndicatorType;
-		typedef std::pair<size_t,size_t> PairType;
+		typedef std::pair<SizeType,SizeType> PairType;
 		typedef Packer<RealType,PsimagLite::IoSimple::Out> PackerType;
 		typedef SaveConfigs<ParametersType,DynVarsType> SaveConfigsType;
 		typedef Spf::GreenFunctionTpem<ParametersType,ModelType,RngType> GreenFunctionTpemType;
@@ -43,7 +43,7 @@ namespace Spf {
 		class MyLoop {
 
 			typedef PsimagLite::Concurrency ConcurrencyType;
-			typedef std::pair<size_t,size_t> PairType;
+			typedef std::pair<SizeType,SizeType> PairType;
 
 		public:
 
@@ -87,9 +87,9 @@ namespace Spf {
 					SizeType taskNumber = threadNum*blockSize + p;
 					if (taskNumber>=total) break;
 
-					size_t iter = taskNumber;
+					SizeType iter = taskNumber;
 					printProgress(iter,params_.iterEffective,10,'*');
-					for (size_t iter2=0;iter2<params_.iterUnmeasured;iter2++) {
+					for (SizeType iter2=0;iter2<params_.iterUnmeasured;iter2++) {
 						doMonteCarlo(accepted,iter);
 					}
 					PackerType packer(ioOut_);
@@ -113,7 +113,7 @@ namespace Spf {
 			}
 
 			void doMonteCarlo(PsimagLite::Vector<PairType>::Type& accepted,
-			                  size_t iter)
+			                  SizeType iter)
 			{
 				typedef typename DynVarsType::OperationsList OperationsListType;
 				AlgorithmFactoryType algorithm(gfDiag_,gfTpem_);
@@ -164,11 +164,11 @@ namespace Spf {
 			                   const PsimagLite::String& algorithmicError = "DISABLED",
 			                   PackerType* packer = 0)
 			{
-				size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
-				for (size_t i=0;i<fieldsToIntegrate;i++) {
+				SizeType fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
+				for (SizeType i=0;i<fieldsToIntegrate;i++) {
 					if (accepted[i].second==0) continue;
 					PsimagLite::String s1=  "Acceptance " + dynVars_.name(i) + "=";
-					size_t pp = 100*accepted[i].first/accepted[i].second;
+					SizeType pp = 100*accepted[i].first/accepted[i].second;
 					PsimagLite::String s2=  "AcceptancePercentage " + dynVars_.name(i) + "=%";
 					PsimagLite::String s3 = "AlgorithmicError=";
 
@@ -214,7 +214,7 @@ namespace Spf {
 			ProgressIndicatorType progress_;
 			RngType rng_;
 			SaveConfigsType saveConfigs_;
-			size_t fieldsToIntegrate;
+			SizeType fieldsToIntegrate;
 			typename PsimagLite::Vector<PairType>::Type accepted;
 		};
 
@@ -241,9 +241,9 @@ namespace Spf {
 		
 		void thermalize()
 		{
-			size_t fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
+			SizeType fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;
 			PsimagLite::Vector<PairType>::Type accepted(fieldsToIntegrate);
-			for (size_t iter=0;iter<params_.iterTherm;iter++) {
+			for (SizeType iter=0;iter<params_.iterTherm;iter++) {
 				helper_.printProgress(iter,params_.iterTherm,10,'*');
 				helper_.doMonteCarlo(accepted,iter);
 			}

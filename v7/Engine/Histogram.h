@@ -20,7 +20,7 @@ namespace Spf {
 
 		Histogram(const RealType& minE,
 		          const RealType& maxE,
-		          size_t steps)
+		          SizeType steps)
 		: minE_(minE),maxE_(maxE),steps_(steps),
 		  histX_(steps+1),histY_(steps+1)
 		{
@@ -28,7 +28,7 @@ namespace Spf {
 
 			RealType deltaE = (maxE-minE)/steps;
 
-			for (size_t i=0;i<histX_.size();i++) {
+			for (SizeType i=0;i<histX_.size();i++) {
 				histX_[i]=minE_+i*deltaE;
 				histY_[i]=0.0;
 			}
@@ -36,8 +36,8 @@ namespace Spf {
 
 		void add(const RealType& x,const FieldType& y)
 		{
-			size_t n = size_t(steps_*(x-minE_));
-			n = size_t(n/(maxE_-minE_));
+			SizeType n = SizeType(steps_*(x-minE_));
+			n = SizeType(n/(maxE_-minE_));
 			// Don't remove this checking it's very important!
 			if (n>=steps_ || x<minE_) {
 				PsimagLite::String s = "Histogram::add(" + ttos(x) + "," +
@@ -57,7 +57,7 @@ namespace Spf {
 
 		void divide(const RealType& div1)
 		{
-			for (size_t i=0;i<histY_.size();i++)
+			for (SizeType i=0;i<histY_.size();i++)
 				histY_[i] /= div1;
 		}
 		
@@ -66,11 +66,11 @@ namespace Spf {
 			PsimagLite::MPI::reduce(histY_);
 		}
 
-		const RealType& x(size_t i) const  { return histX_[i]; }
+		const RealType& x(SizeType i) const  { return histX_[i]; }
 
-		const FieldType& y(size_t i) const { return histY_[i]; }
+		const FieldType& y(SizeType i) const { return histY_[i]; }
 
-		size_t size() const { return steps_; }
+		SizeType size() const { return steps_; }
 
 	private:
 
@@ -86,7 +86,7 @@ namespace Spf {
 		}
 
 		RealType minE_,maxE_;
-		size_t steps_;
+		SizeType steps_;
 		typename PsimagLite::Vector<RealType>::Type histX_;
 		typename PsimagLite::Vector<FieldType>::Type histY_;
 	

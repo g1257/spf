@@ -42,13 +42,13 @@ namespace Spf {
 		}
 
 		template<typename MatrixType>
-		void setTpemSupport(PsimagLite::Vector<size_t>::Type& support,
+		void setTpemSupport(PsimagLite::Vector<SizeType>::Type& support,
 		                    const MatrixType& matrix,
 		                    const MatrixType& matrix2,
-		                    size_t site) const
+		                    SizeType site) const
 		{
 			support.clear();
-			for (size_t i=0;i<matrix.n_col();i++) {
+			for (SizeType i=0;i<matrix.n_col();i++) {
 				typename MatrixType::value_type tmp = matrix(site,i) - matrix2(site,i);
 				if (std::norm(tmp)<1e-6) continue;
 				//if (std::find(support.begin(),support.end(),i)==

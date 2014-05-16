@@ -31,7 +31,7 @@ namespace Spf {
 		RealType operator()(const RealType& mu) const
 		{
 			RealType sum = 0;
-			for (size_t i=0;i<eig_.size();i++)
+			for (SizeType i=0;i<eig_.size();i++)
 				sum += PsimagLite::fermi((eig_[i]-mu)*engineParams_.beta);
 			return sum - engineParams_.carriers;
 		}
@@ -41,7 +41,7 @@ namespace Spf {
 		{
 			RealType sum=0;
 			const RealType& beta = engineParams_.beta;
-			for (size_t i=0;i<eig_.size();i++)
+			for (SizeType i=0;i<eig_.size();i++)
 				sum -= PsimagLite::fermiPrime((eig_[i]-mu)*beta)*beta;
 			return sum;
 		}

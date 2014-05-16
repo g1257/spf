@@ -27,7 +27,7 @@ namespace Spf {
 		enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
 		enum {ORBITAL_XZ,ORBITAL_YZ};
 		enum {SPIN_UP,SPIN_DOWN};
-		static size_t const DIRECTIONS  = 3;
+		static SizeType const DIRECTIONS  = 3;
 
 	public:
 		
@@ -35,7 +35,7 @@ namespace Spf {
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
 				const ParametersModelType& mp,
-				size_t dof) :
+				SizeType dof) :
 			spinOperations_(spinOperations),
 			geometry_(geometry),
 			mp_(mp),
@@ -91,8 +91,8 @@ namespace Spf {
 		{
 			PsimagLite::Matrix<ComplexType> v;
 			v.resize(mi.n_row(),mi.n_col());
-			for (size_t i=0;i<v.n_row();i++)
-				for (size_t dir=0;dir<v.n_col();dir++)
+			for (SizeType i=0;i<v.n_row();i++)
+				for (SizeType dir=0;dir<v.n_col();dir++)
 					v(i,dir) = mi(i,dir) + qi(i,dir);
 			correlation(mc_,v,greenFunction);
 		}
@@ -113,10 +113,10 @@ namespace Spf {
 				const PsimagLite::Matrix<ComplexType>& m,
 				GreenFunctionType& greenFunction)
 		{
-			for (size_t x=0;x<cc.n_row();x++) {
-				for (size_t i=0;i<cc.n_row();i++) {
-					size_t j = geometry_.add(i,x);
-					for (size_t dir=0;dir<cc.n_col();dir++)
+			for (SizeType x=0;x<cc.n_row();x++) {
+				for (SizeType i=0;i<cc.n_row();i++) {
+					SizeType j = geometry_.add(i,x);
+					for (SizeType dir=0;dir<cc.n_col();dir++)
 						cc(x,dir) += real(m(i,dir) * m(j,dir));
 				}
 			}
@@ -130,11 +130,11 @@ namespace Spf {
 		{
 
 			ComplexType sqrtOfMinus1 = ComplexType(0,1);
-			size_t volume = me.n_row();
-			for (size_t i=0;i<volume;i++) {
-				for (size_t orb=0;orb<mp_.numberOfOrbitals;orb++) {
-					size_t x = i+(orb+SPIN_UP*mp_.numberOfOrbitals)*volume;
-					size_t y = i+(orb+SPIN_DOWN*mp_.numberOfOrbitals)*volume;
+			SizeType volume = me.n_row();
+			for (SizeType i=0;i<volume;i++) {
+				for (SizeType orb=0;orb<mp_.numberOfOrbitals;orb++) {
+					SizeType x = i+(orb+SPIN_UP*mp_.numberOfOrbitals)*volume;
+					SizeType y = i+(orb+SPIN_DOWN*mp_.numberOfOrbitals)*volume;
 
 					me(i,DIRECTION_X) -= 0.5*(
 							greenFunction(x,y) + greenFunction(y,x));
@@ -151,8 +151,8 @@ namespace Spf {
 				PsimagLite::Matrix<FieldType>& ms,
 				const DynVarsType& spins)
 		{
-			size_t volume = ms.n_row();
-			for (size_t i=0;i<volume;i++) {
+			SizeType volume = ms.n_row();
+			for (SizeType i=0;i<volume;i++) {
 				FieldType theta = spins.theta[i];
 				FieldType phi = spins.phi[i];
 				FieldType m = (mp_.modulus[i]) ? 1.0 : 0.0;
@@ -167,11 +167,11 @@ namespace Spf {
 				GreenFunctionType& greenFunction)
 		{
 			ComplexType sqrtOfMinus1 = ComplexType(0,1);
-			size_t volume = ti.n_row();
-			for (size_t i=0;i<volume;i++) {
-				for (size_t spin=0;spin<2;spin++) {
-					size_t x = i+(ORBITAL_XZ+spin*mp_.numberOfOrbitals)*volume;
-					size_t y = i+(ORBITAL_YZ+spin*mp_.numberOfOrbitals)*volume;
+			SizeType volume = ti.n_row();
+			for (SizeType i=0;i<volume;i++) {
+				for (SizeType spin=0;spin<2;spin++) {
+					SizeType x = i+(ORBITAL_XZ+spin*mp_.numberOfOrbitals)*volume;
+					SizeType y = i+(ORBITAL_YZ+spin*mp_.numberOfOrbitals)*volume;
 					ti(i,DIRECTION_X) += (-0.5)*(
 							greenFunction(x,y) + greenFunction(y,x));
 					ti(i,DIRECTION_Y) -= sqrtOfMinus1*0.5*(
@@ -187,13 +187,13 @@ namespace Spf {
 		void chargeCorrelation(typename PsimagLite::Vector<FieldType>::Type& cc,
 				       GreenFunctionType& greenFunction)
 		{
-			size_t volume = geometry_.volume();
+			SizeType volume = geometry_.volume();
 			//allChargeCorrelation(greenFunction); // for debugging only, comment out for production
-			for (size_t gamma=0;gamma<dof_;gamma++) {
-				for (size_t gamma2=0;gamma2<dof_;gamma2++) {
+			for (SizeType gamma=0;gamma<dof_;gamma++) {
+				for (SizeType gamma2=0;gamma2<dof_;gamma2++) {
 					typename PsimagLite::Vector<FieldType>::Type tmpV(dof_*dof_*volume,0);
 					chargeCorrelation(tmpV,gamma,gamma2,greenFunction);
-					for (size_t x=0;x<volume;x++) {
+					for (SizeType x=0;x<volume;x++) {
 						cc[x] += tmpV[x + gamma*volume+gamma2*volume*dof_];
 					}
 				}
@@ -202,17 +202,17 @@ namespace Spf {
 
 		template<typename GreenFunctionType>
 		void chargeCorrelation(typename PsimagLite::Vector<FieldType>::Type& cc,
-				       size_t gamma,size_t gamma2,GreenFunctionType& greenFunction)
+				       SizeType gamma,SizeType gamma2,GreenFunctionType& greenFunction)
 		{
-			size_t volume = geometry_.volume();
-			size_t dof = dof_; 
+			SizeType volume = geometry_.volume();
+			SizeType dof = dof_; 
         		// Do for all x's
 			FieldType slip = 0;
-        		for (size_t x=0;x<volume;x++) {     // Sum over all i's (or w's)
+        		for (SizeType x=0;x<volume;x++) {     // Sum over all i's (or w's)
                 		ComplexType tmp=0;
 				//ComplexType test= ComplexType(0.,0.);
-                		for (size_t w=0;w<volume;w++) {
-					size_t v=geometry_.add(x,w);
+                		for (SizeType w=0;w<volume;w++) {
+					SizeType v=geometry_.add(x,w);
                                         tmp += chargeCorrelation(w,gamma,v,gamma2,greenFunction);
 					
 					//test += (1.0-greenFunction(w+gamma*volume,
@@ -228,14 +228,14 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void allChargeCorrelation(GreenFunctionType& greenFunction)
 		{
-			size_t volume = geometry_.volume();
+			SizeType volume = geometry_.volume();
 			PsimagLite::Matrix<FieldType> m(volume*2,volume*2);
-			for (size_t i=0;i<volume;i++) {
-				for (size_t gamma=0;gamma<4;gamma++) {
-					size_t orb1 = (gamma & 1);
-					for (size_t j=0;j<volume;j++) {
-						for (size_t gamma2=0;gamma2<4;gamma2++) {
-							size_t orb2 = (gamma2 & 1);
+			for (SizeType i=0;i<volume;i++) {
+				for (SizeType gamma=0;gamma<4;gamma++) {
+					SizeType orb1 = (gamma & 1);
+					for (SizeType j=0;j<volume;j++) {
+						for (SizeType gamma2=0;gamma2<4;gamma2++) {
+							SizeType orb2 = (gamma2 & 1);
 							m(i+orb1*volume,j+orb2*volume) += 
 								real(chargeCorrelation(i,gamma,j,gamma2,greenFunction));
 						}
@@ -247,10 +247,10 @@ namespace Spf {
 		}
 
 		template<typename GreenFunctionType>
-		ComplexType chargeCorrelation(size_t w, size_t gamma,size_t v, size_t gamma2,
+		ComplexType chargeCorrelation(SizeType w, SizeType gamma,SizeType v, SizeType gamma2,
 			GreenFunctionType& greenFunction)
 		{
-			size_t volume = geometry_.volume();
+			SizeType volume = geometry_.volume();
 			ComplexType tmp = 0;
 			if (v==w && gamma==gamma2) {
 				tmp += (1.0-greenFunction(w+gamma*volume,w+gamma*volume));
@@ -284,8 +284,8 @@ namespace Spf {
 			//concurrency_.reduce(m);
 			//if (!PsimagLite::Concurrency::root()) return;
 			VectorType v(m.n_row(),0);
-			for (size_t dir=0;dir<m.n_col();dir++) {
-				for (size_t i=0;i<m.n_row();i++) v[i] =  m(i,dir);
+			for (SizeType dir=0;dir<m.n_col();dir++) {
+				for (SizeType i=0;i<m.n_row();i++) v[i] =  m(i,dir);
 				PsimagLite::String newlabel = label+ttos(dir);
 				divideAndPrint(fout,v,newlabel);
 			}
@@ -294,14 +294,14 @@ namespace Spf {
 		SpinOperationsType& spinOperations_;
 		const GeometryType& geometry_;
 		const ParametersModelType& mp_;
-		size_t dof_;
+		SizeType dof_;
 		VectorType lc_;
 		VectorType chargeCor_;
 		MatrixType mc_;
 		MatrixType tc_;
 		MatrixType cs_;
 		MatrixType qs_;
-		size_t counter_;
+		SizeType counter_;
 
 	}; // PnictidesMultiOrbitalsObsStored
 

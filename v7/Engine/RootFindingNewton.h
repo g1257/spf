@@ -23,7 +23,7 @@ namespace Spf {
 		
 	public:
 		RootFindingNewton(const FunctionType& function,
-		                  size_t maxIter=100,
+		                  SizeType maxIter=100,
 		                  FieldType tolerance=1.0e-3)
 		: function_(function),maxIter_(maxIter),tolerance_(tolerance)
 		{
@@ -34,7 +34,7 @@ namespace Spf {
 			bool converged=false;
 			//std::cerr<<"Starting with "<<mu<<" n0="<<n0<<"\n";
 
-			for (size_t iter=0;iter<maxIter_;iter++) {
+			for (SizeType iter=0;iter<maxIter_;iter++) {
 				FieldType denom=function_.derivative(mu);
 				FieldType tmp = function_(mu);
 				//std::cerr<<"with mu="<<mu<<" denom(prime) = "<<denom<<" electrons=" <<tmp<<"\n";
@@ -64,7 +64,7 @@ namespace Spf {
 	private:
 		
 		const FunctionType& function_;
-		size_t maxIter_;
+		SizeType maxIter_;
 		FieldType tolerance_;
 	}; // RootFindingNewton
 } // namespace Spf

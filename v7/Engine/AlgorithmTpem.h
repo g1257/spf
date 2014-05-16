@@ -41,7 +41,7 @@ namespace Spf {
 
 		enum {TMPVALUES_SET,TMPVALUES_RETRIEVE};
 
-		static const size_t computeError_ = 0;
+		static const SizeType computeError_ = 0;
 
 		AlgorithmTpem(const EngineParametersType& engineParams,
 		              ModelType& model,
@@ -67,10 +67,10 @@ namespace Spf {
 			tpem_.calcMoments(matrixOld_,curMoments_);
 		}
 
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
 		template<typename OperationsType>
-		bool isAccepted(size_t i,RngType& rng,OperationsType& ops,int n)
+		bool isAccepted(SizeType i,RngType& rng,OperationsType& ops,int n)
 		{
 			assert(n==0 || n==1);
 			RealType dsDirect = model_.deltaDirect(i,ops,n);
@@ -90,7 +90,7 @@ namespace Spf {
 		}
 
 		template<typename OperationsType>
-		void accept(size_t i,OperationsType& ops)
+		void accept(SizeType i,OperationsType& ops)
 		{
 			ops.accept(i);
 			// update current moments
@@ -129,7 +129,7 @@ namespace Spf {
 
 	private:
 
-		void adjustChemPot(const VectorType& moments,size_t i,size_t adjustEach)
+		void adjustChemPot(const VectorType& moments,SizeType i,SizeType adjustEach)
 		{
 			if (engineParams_.carriers<=0) return;
 			if (!needsAdjustment(i,adjustEach)) return;
@@ -141,10 +141,10 @@ namespace Spf {
 			}
 		}
 
-		bool needsAdjustment(size_t i,size_t adjustEach) const
+		bool needsAdjustment(SizeType i,SizeType adjustEach) const
 		{
 			if (adjustEach==0) return true;
-			size_t x = (i % adjustEach);
+			SizeType x = (i % adjustEach);
 			return (x==0);
 		}
 
@@ -158,8 +158,8 @@ namespace Spf {
 			tpem_.calcMomentsDiff(moments,matrix0, matrix1);
 
 
-			size_t total = moments.size();
-			size_t start = size_t(total*0.8);
+			SizeType total = moments.size();
+			SizeType start = SizeType(total*0.8);
 			
 			if (!computeError_ || start<2)  {
 				return -tpem_.expand(actionCoeffs, moments);
@@ -167,7 +167,7 @@ namespace Spf {
 		
 			RealType error1 = 0;
 			RealType x = -tpem_.expand(actionCoeffs, moments,0,start-1);
-			for (size_t i=start;i<total;i++) {
+			for (SizeType i=start;i<total;i++) {
 				RealType deltaX = -tpem_.expand(actionCoeffs, moments,i-1,i);
 				error1 += deltaX * deltaX;
 				x += deltaX;
@@ -178,7 +178,7 @@ namespace Spf {
 			return x;
 		}
 
-		void setMatrix(TpemSparseType& matrix,size_t oldOrNewFields) const
+		void setMatrix(TpemSparseType& matrix,SizeType oldOrNewFields) const
 		{
 			model_.createHsparse(matrix,oldOrNewFields);
 			TpemSparseType diagB(matrix.row(),matrix.col());
@@ -189,7 +189,7 @@ namespace Spf {
 
 		const EngineParametersType& engineParams_;
 		ModelType& model_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		MetropolisOrGlauberType metropolisOrGlauber_;
 		AdjustmentsType adjustments_;
 		bool adjustTpemBounds_;

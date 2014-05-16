@@ -20,7 +20,7 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 
 		template<typename SomeParamsType>
-		Spin(size_t vol,const SomeParamsType& params)
+		Spin(SizeType vol,const SomeParamsType& params)
 		    : size(vol),
 		      theta(vol,0),
 		      phi(vol,0),
@@ -30,7 +30,7 @@ namespace Spf {
 			if (params.dynvarsfile=="none") return;
 			if (params.dynvarsfile=="random") {
 				PsimagLite::Random48<FieldType> random48(params.randomSeed);
-				for (size_t i=0;i<theta.size();i++) {
+				for (SizeType i=0;i<theta.size();i++) {
 					theta[i] = random48.random()*M_PI;
 					phi[i] = random48.random()*2.*M_PI;
 				}
@@ -38,7 +38,7 @@ namespace Spf {
 			}
 			
 			if (params.dynvarsfile=="ferro") {
-				for (size_t i=0;i<theta.size();i++) {
+				for (SizeType i=0;i<theta.size();i++) {
 					theta[i] = 0.0;
 					phi[i] = 0.0;
 				}
@@ -46,7 +46,7 @@ namespace Spf {
 			}
 
 			if (params.dynvarsfile=="pizero") {
-				size_t l = size_t(sqrt(size));
+				SizeType l = SizeType(sqrt(size));
 				if (l*l!=size) {
 					PsimagLite::String s(__FILE__);
 					s += " : " + ttos(__LINE__);
@@ -56,7 +56,7 @@ namespace Spf {
 					s += " \"pizero\" start type valid only for square lattice\n";
 					throw PsimagLite::RuntimeError(s.c_str());
 				}
-				for (size_t i=0;i<theta.size();i++) {
+				for (SizeType i=0;i<theta.size();i++) {
 					theta[i] = M_PI;
 					phi[i] = (i % l) % 2 ? 0 : M_PI;
 				}
@@ -68,7 +68,7 @@ namespace Spf {
 			if (theta.size()==0 || phi.size()==0) throw PsimagLite::RuntimeError("PRoblem\n");
 		}
 		
-		size_t size;
+		SizeType size;
 		typename PsimagLite::Vector<FieldType>::Type theta;
 		typename PsimagLite::Vector<FieldType>::Type phi;
 		typename PsimagLite::Vector<SizeType>::Type modulus;

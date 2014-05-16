@@ -27,11 +27,11 @@ void fillRandomMatrix(SparseMatrixType& t,const RealType& range2, RngType& rng)
 	typedef typename SparseMatrixType::value_type RealOrComplexType;
 	RealType scale = 2.0 + fabs (range2);
 	RealOrComplexType hopping = realOrComplexHopping<RealOrComplexType>() / scale;
-	size_t rank = t.rank();
+	SizeType rank = t.rank();
 
 	RealType range = 2.0*range2 / scale;
-	size_t j = 0;
-	for (size_t i = 0; i < rank; i++) {
+	SizeType j = 0;
+	for (SizeType i = 0; i < rank; i++) {
 		t.setRow(i,j);
 		t.pushCol(i);
 		
@@ -62,7 +62,7 @@ typename TpemType::RealType tpemApply(typename TpemType::TpemSparseType& matrix,
                                       const TpemType& tpem)
 {
 	typedef typename TpemType::RealType RealType;
-	size_t cutoff=tpem.tpemParameters().cutoff;
+	SizeType cutoff=tpem.tpemParameters().cutoff;
 	std::vector<RealType> coeffs(cutoff);
 	std::vector<RealType> moment(cutoff);
 	
@@ -87,7 +87,7 @@ typename FunctorType::RealType diagApply(const SparseMatrixType& matrix,
 	diag(a,eigs,'N');
 
 	RealType ret = 0.0;
-	for (size_t i = 0; i < eigs.size(); i++) {
+	for (SizeType i = 0; i < eigs.size(); i++) {
 		ret += functor(eigs[i]);
 	}	
 	return ret;
@@ -101,7 +101,7 @@ typename FunctorType::RealType tpemApplyDiff(
                      TpemType& tpem)
 {
 	typedef typename TpemType::RealType RealType;
-	size_t cutoff=tpem.tpemParameters().cutoff;
+	SizeType cutoff=tpem.tpemParameters().cutoff;
 	std::vector<RealType> coeffs(cutoff);
 	std::vector<RealType> moment(cutoff);
 
@@ -159,7 +159,7 @@ int main (int argc,char *argv[])
 
 	MuBetaStructType muBeta(io);
 	TpemParametersType tpemParameters(io,muBeta.mu,muBeta.beta);
-	std::vector<size_t> support(2,0);
+	std::vector<SizeType> support(2,0);
 	support[0] = 0;
 	support[1] = matrix0.rank() / 2 - 1;
 	tpemParameters.support = support;
@@ -203,7 +203,7 @@ int main (int argc,char *argv[])
 			"lim<E_cutoff> where <E_cutoff> is\n";
 	std::cout<<"cutoff\t<E_cutoff>\tError(compared to diag.)\n";
 
-	for (size_t cutoff = 20; cutoff <= maxCutoff; cutoff++) {
+	for (SizeType cutoff = 20; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, energyFunctor, tpem);
 		std::cout<<cutoff<<"\t"<<tpem0<<"\t"<<naive0<<"\t";
@@ -223,7 +223,7 @@ int main (int argc,char *argv[])
 			"lim<N_cutoff> where <N_cutoff> is \n";
 	std::cout<<"cutoff\t<N_cutoff>\tError(compared to diag.)\n";
 
-	for (size_t cutoff = 20; cutoff <= maxCutoff; cutoff++) {
+	for (SizeType cutoff = 20; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, numberFunctor, tpem);
 		std::cout<<cutoff<<"\t"<<tpem0<<"\t";
@@ -245,7 +245,7 @@ int main (int argc,char *argv[])
 	std::cout<<"** Using TPEM <S>=(cutoff--> infinity) lim<S_cutoff>\n";
 	std::cout<<"cutoff\tDelta_S_cutoff\tS_cutoff[diff]\tError (to diag.)\n";
 
-	for (size_t cutoff = 10; cutoff <= maxCutoff; cutoff++) {
+	for (SizeType cutoff = 10; cutoff <= maxCutoff; cutoff++) {
 		tpemParameters.cutoff=cutoff;
 		RealType tpem0 = tpemApply(matrix0, actionFunctor, tpem);
 		RealType tpem1 = tpemApply(matrix1, actionFunctor, tpem);

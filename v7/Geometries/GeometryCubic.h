@@ -22,64 +22,64 @@ namespace Spf {
 
 		static int const DIMENSION = 3;
 		
- 		typedef std::pair<size_t,size_t> PairType;
+ 		typedef std::pair<SizeType,SizeType> PairType;
 		
- 		GeometryCubic(size_t l) : l_(l),volume_(l*l*l)
+ 		GeometryCubic(SizeType l) : l_(l),volume_(l*l*l)
 		{
 			buildNeighbors();
 		}
 		
-		size_t z(size_t distance=1) const
+		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();
 		}
 		
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
-		PairType neighbor(size_t i,size_t j,size_t distance=1) const
+		PairType neighbor(SizeType i,SizeType j,SizeType distance=1) const
 		{
 			return neighbors_[distance-1](i,j);
 		}
 		
-		size_t volume() const { return volume_; }
+		SizeType volume() const { return volume_; }
 		
-		size_t add(size_t ind,size_t ind2) const
+		SizeType add(SizeType ind,SizeType ind2) const
 		{
 			PsimagLite::Vector<int>::Type x(2),y(2);
 			indexToCoor(x,ind);
 			indexToCoor(y,ind2);
-			for (size_t i=0;i<x.size();i++) {
+			for (SizeType i=0;i<x.size();i++) {
 				x[i] += y[i];
 				g_pbc(x[i],l_);
 			}
 			return g_index(x);
 		}
 		
-		size_t dim() const { return DIMENSION; }
+		SizeType dim() const { return DIMENSION; }
 		
-		size_t length() const { return l_; }
+		SizeType length() const { return l_; }
 		
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
-		indexToCoor(SomeVectorType& v,size_t i) const
+		indexToCoor(SomeVectorType& v,SizeType i) const
 		{
-			size_t lx = l_, ly = l_;
+			SizeType lx = l_, ly = l_;
 			v[2] = i/(lx*ly);
-			size_t tmp = i - v[2]*lx*ly;
+			SizeType tmp = i - v[2]*lx*ly;
 			v[1] = tmp/lx;
 			v[0] = tmp % lx;
 		}
 
 		template<typename SomeVectorType>
-		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,size_t>::Type
+		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,SizeType>::Type
 		coor2Index(const SomeVectorType& v) const
 		{
 			SomeVectorType length(3,l_);
 			int v0 = v[0];
 			g_pbc(v0,length[0]);
-			size_t pos=v0;
-			size_t temp=1;
+			SizeType pos=v0;
+			SizeType temp=1;
 
-			for (size_t i=1;i<v.size();i++) {
+			for (SizeType i=1;i<v.size();i++) {
 				int vi = v[i];
 				g_pbc(vi,length[i]);
 				temp *= length[i-1];
@@ -88,25 +88,25 @@ namespace Spf {
 			return pos;
 		}
 
-		size_t coorToIndex(size_t a,size_t b) const
+		SizeType coorToIndex(SizeType a,SizeType b) const
 		{
 			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
 		}
 
 		PsimagLite::String name() const { return "cubic"; }
 
-		size_t scalarDirection(size_t site1,size_t site2) const
+		SizeType scalarDirection(SizeType site1,SizeType site2) const
 		{
 			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
 		}
 
-		int getDirection(size_t ind,size_t jnd) const
+		int getDirection(SizeType ind,SizeType jnd) const
 		{
 			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
 			return  -1;
 		}
 
-		PairType getNeighbour(size_t i,size_t dir) const
+		PairType getNeighbour(SizeType i,SizeType dir) const
 		{
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
@@ -124,14 +124,14 @@ namespace Spf {
 		void neighborsAt1()
 		{
 			PsimagLite::Matrix<PairType> matrix(volume_,2*DIMENSION);
-			for (size_t i=0;i<volume_;i++) {
-				PsimagLite::Vector<size_t>::Type v(DIMENSION);
+			for (SizeType i=0;i<volume_;i++) {
+				PsimagLite::Vector<SizeType>::Type v(DIMENSION);
 				indexToCoor(v,i);
-				size_t x = v[0], y=v[1], z=v[2];
+				SizeType x = v[0], y=v[1], z=v[2];
 
 				int zz = z;
 				int yy=y;
-				size_t counter = 0;
+				SizeType counter = 0;
 
 				int xx=x+1;
 				matrix(i,counter++) = PairType(g_index(xx,yy,zz),ProgramGlobals::DIRX);
@@ -155,7 +155,7 @@ namespace Spf {
 			neighbors_.push_back(matrix);
 		}
 		
-		bool g_pbc(int& x, size_t l) const
+		bool g_pbc(int& x, SizeType l) const
 		{
 			int L = l;
 			bool r=false;
@@ -166,24 +166,24 @@ namespace Spf {
 			return r;
 		}
 		
-		size_t g_index(PsimagLite::Vector<int>::Type& x) const
+		SizeType g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			return g_index(x[0],x[1],x[2]);
 		}
 		
-		size_t g_index(int& x,int& y,int& z) const
+		SizeType g_index(int& x,int& y,int& z) const
 		{
-			size_t lx = l_;
-			size_t ly = l_;
-			size_t lz = l_;
+			SizeType lx = l_;
+			SizeType ly = l_;
+			SizeType lz = l_;
 			g_pbc(x,lx);
 			g_pbc(y,ly);
 			g_pbc(z,lz);
 			return x+y*lx+z*lx*ly;
 		}
 
-		size_t l_;
-		size_t volume_;
+		SizeType l_;
+		SizeType volume_;
 		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; // class GeometryCubic
 	

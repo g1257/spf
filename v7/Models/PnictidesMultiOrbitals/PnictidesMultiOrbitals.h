@@ -69,17 +69,17 @@ namespace Spf {
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		
-		size_t totalFlips() const { return geometry_.volume(); }
+		SizeType totalFlips() const { return geometry_.volume(); }
 
-		void setOperation(SpinOperationsType** op,size_t i)
+		void setOperation(SpinOperationsType** op,SizeType i)
 		{
 			assert(i == 0);
 			*op = &spinOperations_;
 		}
 
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
-		RealType deltaDirect(size_t i,const SpinOperationsType& ops,int n) const
+		RealType deltaDirect(SizeType i,const SpinOperationsType& ops,int n) const
 		{
 			assert(n == 0);
 			RealType x = ops.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
@@ -88,7 +88,7 @@ namespace Spf {
 		}
 
 		template<typename SomeOperationsType>
-		RealType integrationMeasure(size_t i,SomeOperationsType& ops,int n)
+		RealType integrationMeasure(SizeType i,SomeOperationsType& ops,int n)
 		{
 			assert(n == 0);
 			return ops.sineUpdate(i);
@@ -97,7 +97,7 @@ namespace Spf {
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
 		template<typename GreenFunctionType,typename SomePackerType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
+		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{
 			SpinType* dynVarsPtr = 0;
 			dynVars_.getField(&dynVarsPtr,0);
@@ -151,7 +151,7 @@ namespace Spf {
 			packer.pack("CombinedMagnetizationSquared=",
 						std::real(combinedVector*combinedVector));
 
-			for (size_t i = 0;i<combinedVector.size();i++) {
+			for (SizeType i = 0;i<combinedVector.size();i++) {
 // 				s="CombinedMagnetization"+ttos(i)+"="+ttos(combinedVector[i]);
 				packer.pack("CombinedMagnetization"+ttos(i)+"=",combinedVector[i]);
 // 				progress_.printline(s,fout);
@@ -177,7 +177,7 @@ namespace Spf {
 			PnictidesMultiOrbitalsObsStored_(dynVars,greenFunction);
 		} // doMeasurements
 
-		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(MatrixType& matrix,SizeType oldOrNewDynVars)
 		{
 			SpinType* dynVarsPtr = 0;
 			dynVars_.getField(&dynVarsPtr,0);
@@ -192,7 +192,7 @@ namespace Spf {
 			}
 		}
 
-		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		void createHsparse(SparseMatrixType& sparseMatrix,SizeType oldOrNewDynVars)
 		{
 			// ALL THIS IS VERY INEFFICIENT
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
@@ -201,7 +201,7 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
+		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
 		{
 			{
 				MatrixType matrix(hilbertSize_,hilbertSize_);
@@ -224,7 +224,7 @@ namespace Spf {
 				createHamiltonian(tmpDynVars,matrix,&J);
 				SpinOperationsType spinOps(geometry_,engineParams_);
 				spinOps.set(tmpDynVars);
-				size_t site = 0;
+				SizeType site = 0;
 // 				PsimagLite::Random48<RealType> rng(3493891);
 				spinOps. makeChange(site,0.2,0.1);
 
@@ -253,54 +253,54 @@ namespace Spf {
 		                       MatrixType& matrix,
 		                       const RealType* J = 0) const
 		{
-			size_t volume = geometry_.volume();
-			size_t norb = mp_.numberOfOrbitals;
-			size_t dof = norb * 2; // the 2 comes because of the spin
+			SizeType volume = geometry_.volume();
+			SizeType norb = mp_.numberOfOrbitals;
+			SizeType dof = norb * 2; // the 2 comes because of the spin
 			typename PsimagLite::Vector<ComplexType>::Type jmatrix(2*2,0);
 
-			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++) 
-				for (size_t p = 0; p < matrix.n_col(); p++) 
+			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++) 
+				for (SizeType p = 0; p < matrix.n_col(); p++) 
 					matrix(gamma1,p)=0;
 			RealType jvalue = (J==0) ? mp_.J : *J;
-			for (size_t p = 0; p < volume; p++) {
+			for (SizeType p = 0; p < volume; p++) {
 				auxCreateJmatrix(jmatrix,dynVars,p,jvalue);
-				for (size_t gamma1=0;gamma1<dof;gamma1++) {
-					size_t spin1 = size_t(gamma1/norb);
-					size_t orb1 = gamma1 % norb;
+				for (SizeType gamma1=0;gamma1<dof;gamma1++) {
+					SizeType spin1 = SizeType(gamma1/norb);
+					SizeType orb1 = gamma1 % norb;
 					//! Term B (n_iup - n_idown)
 					RealType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
 					matrix(p+gamma1*volume,p+gamma1*volume) =
 						real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p] + magField;
-					for (size_t j = 0; j <  geometry_.z(1); j++) {	
+					for (SizeType j = 0; j <  geometry_.z(1); j++) {	
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j);
-						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second; // int(j/2);
-						for (size_t orb2=0;orb2<norb;orb2++) {
-							size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
+						SizeType k = tmpPair.first;
+						SizeType dir = tmpPair.second; // int(j/2);
+						for (SizeType orb2=0;orb2<norb;orb2++) {
+							SizeType gamma2 = orb2+spin1*norb; // spin2 == spin1 here
 							matrix(p+gamma1*volume,k+gamma2*volume)=
 								mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
 							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
 						}
 					}
 					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw PsimagLite::RuntimeError("neighbours wrong\n");
-					for (size_t j = 0; j <  geometry_.z(2); j++) {
+					for (SizeType j = 0; j <  geometry_.z(2); j++) {
 						if (j%2!=0) continue;	
 						PairType tmpPair = geometry_.neighbor(p,j,2);
-						size_t k = tmpPair.first;
-						size_t dir = tmpPair.second;
+						SizeType k = tmpPair.first;
+						SizeType dir = tmpPair.second;
 						//std::cerr<<"Neigbors "<<p<<" "<<k<<"\n";
-						for (size_t orb2=0;orb2<norb;orb2++) {
-							size_t gamma2 = orb2+spin1*norb; // spin2 == spin1 here
+						for (SizeType orb2=0;orb2<norb;orb2++) {
+							SizeType gamma2 = orb2+spin1*norb; // spin2 == spin1 here
 							matrix(p+gamma1*volume,k+gamma2*volume)=
 								mp_.hoppings[orb1+orb2*norb+norb*norb*dir];
 							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
 						}
 					}
 					
-					for (size_t spin2=0;spin2<2;spin2++) {
+					for (SizeType spin2=0;spin2<2;spin2++) {
 						if (spin1==spin2) continue; // diagonal term already taken into account
-						size_t gamma2 = orb1+spin2*norb; // orb2 == orb1 here
+						SizeType gamma2 = orb1+spin2*norb; // orb2 == orb1 here
 						matrix(p+gamma1*volume,p + gamma2*volume)=jmatrix[spin1+2*spin2];
 						matrix(p + gamma2*volume,p+gamma1*volume) =
 								conj(matrix(p+gamma1*volume,p + gamma2*volume));
@@ -311,11 +311,11 @@ namespace Spf {
 		}
 
 		void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
-		                      typename DynVarsType::SpinType& dynVars,size_t site,
+		                      typename DynVarsType::SpinType& dynVars,SizeType site,
 		                      const RealType& J) const
 		{
 			if (!mp_.modulus[site]) {
-				for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] = 0;
+				for (SizeType i=0;i<jmatrix.size();i++) jmatrix[i] = 0;
 				return;
 			}
 
@@ -328,10 +328,10 @@ namespace Spf {
 
 			jmatrix[3]= -cos(dynVars.theta[site]);
 
-			for (size_t i=0;i<jmatrix.size();i++) jmatrix[i] *= J;
+			for (SizeType i=0;i<jmatrix.size();i++) jmatrix[i] *= J;
 		}
 
-		size_t getSiteAtLayer(size_t xOrY,size_t layer,size_t dir) const
+		SizeType getSiteAtLayer(SizeType xOrY,SizeType layer,SizeType dir) const
 		{
 			return (dir==0) ? geometry_.coorToIndex(xOrY,layer) : geometry_.coorToIndex(layer,xOrY);
 		}
@@ -339,16 +339,16 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
 		                     PsimagLite::Matrix<RealType>& v,
-		                     size_t dir) const
+		                     SizeType dir) const
 		{
 			PsimagLite::Matrix<ComplexType> w(v.n_row(),v.n_col());
-			size_t l = geometry_.length();
-			for (size_t layer=0;layer<l;layer++) {
+			SizeType l = geometry_.length();
+			for (SizeType layer=0;layer<l;layer++) {
 				calcVelocitySquared(gf,w,dir,layer);
 			}
 
-			for (size_t a=0;a<v.n_row();a++) {
-				for (size_t b=0;b<v.n_col();b++) {
+			for (SizeType a=0;a<v.n_row();a++) {
+				for (SizeType b=0;b<v.n_col();b++) {
 					v(a,b) = std::real(std::conj(w(a,b))*w(a,b));
 					//if (fabs(v(a,b))>1e-12 && dir==1) std::cout<<"   "<<(a+1)<<"  "<<(b+1)<<"  "<<v(a,b)<<"\n";
 				}
@@ -359,38 +359,38 @@ namespace Spf {
 		template<typename GreenFunctionType>
 		void calcVelocitySquared(const GreenFunctionType& gf,
 								 PsimagLite::Matrix<ComplexType>& w,
-		                         size_t dir,
-								 size_t startingLayer) const
+		                         SizeType dir,
+								 SizeType startingLayer) const
 		{
-			size_t ly = geometry_.length();
-			size_t norb = mp_.numberOfOrbitals;
-			size_t volume = geometry_.volume();
+			SizeType ly = geometry_.length();
+			SizeType norb = mp_.numberOfOrbitals;
+			SizeType volume = geometry_.volume();
 
-			for (size_t y=0;y<ly;y++) {
-				for (size_t spin=0;spin<2;spin++) {
-					for (size_t orb1=0;orb1<norb;orb1++) {
-						size_t gamma1 = orb1 + spin*norb;
-						size_t isite = getSiteAtLayer(y,startingLayer,dir);
-						size_t i = isite + gamma1*volume; // starting layer
+			for (SizeType y=0;y<ly;y++) {
+				for (SizeType spin=0;spin<2;spin++) {
+					for (SizeType orb1=0;orb1<norb;orb1++) {
+						SizeType gamma1 = orb1 + spin*norb;
+						SizeType isite = getSiteAtLayer(y,startingLayer,dir);
+						SizeType i = isite + gamma1*volume; // starting layer
 
-						for (size_t y2=0;y2<ly;y2++) {
-							for (size_t orb2=0;orb2<norb;orb2++) {
-								size_t gamma2 = orb2 + spin*norb;
-								size_t endingLayer = startingLayer+1;
+						for (SizeType y2=0;y2<ly;y2++) {
+							for (SizeType orb2=0;orb2<norb;orb2++) {
+								SizeType gamma2 = orb2 + spin*norb;
+								SizeType endingLayer = startingLayer+1;
 								if (endingLayer==ly) endingLayer = 0;
-								size_t jsite = getSiteAtLayer(y2,endingLayer,dir);
-								size_t j = jsite + gamma2*volume; // ending layer
+								SizeType jsite = getSiteAtLayer(y2,endingLayer,dir);
+								SizeType j = jsite + gamma2*volume; // ending layer
 
 								int dir2 = geometry_.getDirection(isite,jsite);
 								if (dir2<0) continue;
 
-								size_t h = orb1+orb2*norb+norb*norb*dir2;
+								SizeType h = orb1+orb2*norb+norb*norb*dir2;
 								RealType hopping = mp_.hoppings[h] 
 								    + threeOrbitalTerms_.hopping(isite,dir2,orb1,orb2);
 								if (fabs(hopping)<1e-8) continue;
 								//std::cerr<<"dir="<<dir<<" isite="<<isite<<" jsite="<<jsite<<" dir2="<<dir2<<" h="<<hopping<<"\n";
-								for (size_t a=0;a<w.n_row();a++) {
-									for (size_t b=0;b<w.n_col();b++) {
+								for (SizeType a=0;a<w.n_row();a++) {
+									for (SizeType b=0;b<w.n_col();b++) {
 										ComplexType sum = velocity(gf,i,j,a,b)*
 										       hopping;
 										w(a,b) += sum;
@@ -405,10 +405,10 @@ namespace Spf {
 
 		template<typename GreenFunctionType>
 		ComplexType velocity(const GreenFunctionType& gf,
-				size_t i,
-				size_t j,
-				size_t a,
-				size_t b) const
+				SizeType i,
+				SizeType j,
+				SizeType a,
+				SizeType b) const
 		{
 			return std::conj(gf.matrix(i,a)) * gf.matrix(j,b) -
 					std::conj(gf.matrix(j,a)) * gf.matrix(i,b);
@@ -418,7 +418,7 @@ namespace Spf {
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
 		DynVarsType dynVars_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		ProgressIndicatorType progress_;
 		SpinOperationsType spinOperations_;
 		ThreeOrbitalTermsType threeOrbitalTerms_;

@@ -31,7 +31,7 @@ namespace Spf {
 	template<typename RealType,typename IoOutputType>
 	class  Packer {
 
-		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SIZE_T,TYPE_STRING};
+		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SizeType,TYPE_STRING};
 
 	public:
 		
@@ -41,10 +41,10 @@ namespace Spf {
 		
 		~Packer()
 		{
-			size_t nprocs = PsimagLite::Concurrency::nprocs(comm_);
-			size_t r = PsimagLite::Concurrency::rank(comm_);
+			SizeType nprocs = PsimagLite::Concurrency::nprocs(comm_);
+			SizeType r = PsimagLite::Concurrency::rank(comm_);
 			typename PsimagLite::Vector<RealType>::Type values(values_.size()*nprocs,0);
-			for (size_t i=0;i<values_.size();i++) {
+			for (SizeType i=0;i<values_.size();i++) {
 				values[r+i*nprocs] = values_[i];
 			}
 			values_.clear();
@@ -55,8 +55,8 @@ namespace Spf {
 			
 			bool flag = false;
 			RealType prev = 0;
-			for (size_t r=0;r<nprocs;r++) {
-				for (size_t i=0;i<labels_.size();i++) {
+			for (SizeType r=0;r<nprocs;r++) {
+				for (SizeType i=0;i<labels_.size();i++) {
 					RealType val = values[r+i*nprocs];
 					PsimagLite::String s = labels_[i] + ttos(val);
 					if (types_[i] == TYPE_COMPLEX) {
@@ -70,8 +70,8 @@ namespace Spf {
 							s = labels_[i] + ttos(temp);
 							prev = 0;
 						}
-					} else if (types_[i] == TYPE_SIZE_T) {
-						size_t temp = size_t(val);
+					} else if (types_[i] == TYPE_SizeType) {
+						SizeType temp = SizeType(val);
 						s = labels_[i] + ttos(temp);
 					}
 					progress_.printline(s,fout_);
@@ -93,12 +93,12 @@ namespace Spf {
 			types_.push_back(TYPE_REAL);
 		}
 
-		void pack(const PsimagLite::String& label,const size_t& value)
+		void pack(const PsimagLite::String& label,const SizeType& value)
 		{
 			labels_.push_back(label);
 			RealType v = value;
 			values_.push_back(v);
-			types_.push_back(TYPE_SIZE_T);
+			types_.push_back(TYPE_SizeType);
 		}
 
 		void pack(const PsimagLite::String& label,const std::complex<RealType>& value)
@@ -118,7 +118,7 @@ namespace Spf {
 		PsimagLite::ProgressIndicator progress_;
 		PsimagLite::Vector<PsimagLite::String>::Type labels_;
 		typename PsimagLite::Vector<RealType>::Type values_;
-		PsimagLite::Vector<size_t>::Type types_;
+		PsimagLite::Vector<SizeType>::Type types_;
 	}; // Packer
 } // namespace PsimagLite
 

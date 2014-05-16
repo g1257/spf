@@ -69,9 +69,9 @@ namespace Spf {
 		
 		DynVarsType& dynVars() { return dynVars_; }
 		
-		size_t totalFlips() const { return geometry_.volume(); }
+		SizeType totalFlips() const { return geometry_.volume(); }
 
-		void setOperation(ContVarFiniteOperationsType** op,size_t i)
+		void setOperation(ContVarFiniteOperationsType** op,SizeType i)
 		{
 			assert(i == 0 || i == 1);
 			if (i == 0)
@@ -82,16 +82,16 @@ namespace Spf {
 				throw PsimagLite::RuntimeError("HubbardOneOrbital::setOperation()\n");
 		}
 		
-		size_t hilbertSize() const { return hilbertSize_; }
+		SizeType hilbertSize() const { return hilbertSize_; }
 
-		RealType deltaDirect(size_t i,ContVarFiniteOperationsType& ops,size_t n) const
+		RealType deltaDirect(SizeType i,ContVarFiniteOperationsType& ops,SizeType n) const
 		{
 			const RealType& coupling = (n==DynVarsType::CHARGE) ? mp_.dampingCharge : mp_.dampingMag;
 			return ops.deltaDirect(i,coupling);
 		}
 		
 		template<typename GreenFunctionType,typename SomePackerType>
-		void doMeasurements(GreenFunctionType& greenFunction,size_t iter,SomePackerType& packer)
+		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{
 			packer.pack("iter=",iter);
 
@@ -123,7 +123,7 @@ namespace Spf {
 //			HubbardOneOrbitalObsStored_(dynVars,greenFunction);
 		} // doMeasurements
 
-		void createHamiltonian(MatrixType& matrix,size_t oldOrNewDynVars)
+		void createHamiltonian(MatrixType& matrix,SizeType oldOrNewDynVars)
 		{
 			DynVarsType newDynVars(chargeOperations_.dynVars2(),magOperations_.dynVars2());
 
@@ -131,7 +131,7 @@ namespace Spf {
 			 else createHamiltonian(dynVars_,matrix);
 		}
 
-		void createHsparse(SparseMatrixType& sparseMatrix,size_t oldOrNewDynVars)
+		void createHsparse(SparseMatrixType& sparseMatrix,SizeType oldOrNewDynVars)
 		{
 			// ALL THIS IS VERY INEFFICIENT
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
@@ -140,13 +140,13 @@ namespace Spf {
 			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
 		}
 
-		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<size_t>::Type& support) const
+		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
 		{
 			throw PsimagLite::RuntimeError("setTpemThings unimplemented\n");
 		}
 
 		template<typename SomeOperationsType>
-		RealType integrationMeasure(size_t i,SomeOperationsType& ops,int n)
+		RealType integrationMeasure(SizeType i,SomeOperationsType& ops,int n)
 		{
 			return 1.0;
 		}
@@ -169,21 +169,21 @@ namespace Spf {
 		                       MatrixType& matrix,
 		                       const RealType* J = 0) const
 		{
-			size_t volume = geometry_.volume();
-			size_t dof = 2; // the 2 comes because of the spin
+			SizeType volume = geometry_.volume();
+			SizeType dof = 2; // the 2 comes because of the spin
 
-			for (size_t gamma1=0;gamma1<matrix.n_row();gamma1++)
-				for (size_t p = 0; p < matrix.n_col(); p++)
+			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++)
+				for (SizeType p = 0; p < matrix.n_col(); p++)
 					matrix(gamma1,p)=0;
 
-			for (size_t p = 0; p < volume; p++) {
-				for (size_t spin1=0;spin1<dof;spin1++) {
+			for (SizeType p = 0; p < volume; p++) {
+				for (SizeType spin1=0;spin1<dof;spin1++) {
 					matrix(p+spin1*volume,p+spin1*volume) =
 					        interaction(p,spin1) + mp_.potentialV[p];
-					for (size_t j = 0; j <  geometry_.z(1); j++) {
+					for (SizeType j = 0; j <  geometry_.z(1); j++) {
 						if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j);
-						size_t k = tmpPair.first;
+						SizeType k = tmpPair.first;
 
 						matrix(p+spin1*volume,k+spin1*volume) = mp_.hopping;
 						matrix(k+spin1*volume,p+spin1*volume) = std::conj(matrix(p+spin1*volume,k+spin1*volume));
@@ -193,7 +193,7 @@ namespace Spf {
 			}
 		}
 
-		RealType interaction(size_t i,size_t spin) const
+		RealType interaction(SizeType i,SizeType spin) const
 		{
 			RealType ni = dynVars_.getField(CHARGE).value[i] * mp_.interactionCharge;
 			RealType mi = dynVars_.getField(MAG).value[i] * mp_.interactionMag;
@@ -204,7 +204,7 @@ namespace Spf {
 		ParametersModelType mp_;
 		const GeometryType& geometry_;
 		DynVarsType dynVars_;
-		size_t hilbertSize_;
+		SizeType hilbertSize_;
 		ProgressIndicatorType progress_;
 		ContVarFiniteOperationsType chargeOperations_;
 		ContVarFiniteOperationsType magOperations_;

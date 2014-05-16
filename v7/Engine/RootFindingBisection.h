@@ -20,7 +20,7 @@ namespace Spf {
 		
 	public:
 		RootFindingBisection(const FunctionType& function,
-		                  size_t maxIter=100,
+		                  SizeType maxIter=100,
 		                  RealType tolerance=1.0e-3)
 		: function_(function),maxIter_(maxIter),tolerance_(tolerance),
 		  a_(-100),b_(100)
@@ -35,7 +35,7 @@ namespace Spf {
 			//                           f(a) > 0 and f(b) < 0
 			// OUTPUT: value which differs from a root of f(x)=0 by less than TOL
 		
-			size_t n = 0;
+			SizeType n = 0;
 			while(n<maxIter_) {
 				RealType c = (a_ + b_)/2; // new midpoint
 				
@@ -60,7 +60,7 @@ namespace Spf {
 		}
 		
 		const FunctionType& function_;
-		size_t maxIter_;
+		SizeType maxIter_;
 		RealType tolerance_;
 		RealType a_,b_;
 	}; // RootFindingBisection

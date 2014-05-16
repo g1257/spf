@@ -92,7 +92,7 @@ public:
 	typedef LOKI_TYPELIST_1(SpinOperationsType) OperationsList;
 
 	template<typename SomeParamsType>
-	DmsMultiOrbitalFields(size_t vol,
+	DmsMultiOrbitalFields(SizeType vol,
 	                      const SomeParamsType& params,
 	                      const typename PsimagLite::Vector<SizeType>::Type& modulus)
 	    : spin_(vol,params)
@@ -100,15 +100,15 @@ public:
 		spin_.modulus = modulus;
 	}
 
-	const PsimagLite::String& name(size_t i) const { return name_; }
+	const PsimagLite::String& name(SizeType i) const { return name_; }
 
-	void getField(SpinType** field,size_t i)
+	void getField(SpinType** field,SizeType i)
 	{
 		assert(i == 0);
 		*field = &spin_;
 	}
 
-	void getField(SpinType const** field,size_t i) const
+	void getField(SpinType const** field,SizeType i) const
 	{
 		assert(i == 0);
 		*field = &spin_;
