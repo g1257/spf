@@ -1,4 +1,4 @@
-EngineOptions=realhoppings
+EngineOptions=realhoppings,printgf
 GeometryKind=ShastrySutherland
 Model=DmsMultiOrbital
 Orbitals=1
@@ -21,10 +21,10 @@ HistogramSteps=1000
 BoundaryConditions=periodic
 RandomSeed=348989861
 SaveEach=2
-Hoppings 16 1 0 0 1
-            1 0 0 1
-            1 0 0 1
-            1 0 0 1
+Hoppings 16 -1 0 0 -1
+            -1 0 0 -1
+            -1 0 0 -1
+            -1 0 0 -1
 PotentialV 16    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 PARAMETERSJ_AF=0
 PARAMETERSJ_AF_NN=0
