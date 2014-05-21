@@ -17,7 +17,7 @@
 #include "ModelBase.h"
 #include "ParametersDmsMultiOrbital.h"
 #include "DmsMultiOrbitalObsStored.h"
-
+#include "FakeParams.h"
 namespace Spf {
 
 template<typename EngineParamsType,typename GeometryType>
@@ -146,9 +146,9 @@ public:
 		const SpinType& dynVars = *dynVarsPtr;
 
 		if (oldOrNewDynVars==NEWFIELDS)
-			createHamiltonian(spinOperations_.dynVars2(),matrix);
+			createHamiltonian(spinOperations_.dynVars2(),matrix,mp_.J);
 		else
-			createHamiltonian(dynVars,matrix);
+			createHamiltonian(dynVars,matrix,mp_.J);
 	}
 
 	void createHsparse(SparseMatrixType& sparseMatrix,SizeType oldOrNewDynVars)
@@ -164,7 +164,35 @@ public:
 	                   RealType& b,
 	                   PsimagLite::Vector<SizeType>::Type& support) const
 	{
-		throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
+		{
+			MatrixType matrix(hilbertSize_,hilbertSize_);
+			FakeParams fakeParams("none",343313,engineParams_.options);
+			SpinType tmpDynVars(geometry_.volume(),fakeParams);
+			createHamiltonian(tmpDynVars,matrix,mp_.J);
+			typename PsimagLite::Vector<RealType>::Type e(matrix.n_row());
+			diag(matrix,e,'N');
+
+			this->setTpemAandB(a,b,e[0],e[e.size()-1]);
+		}
+
+		{
+			// setup support: 
+			// to make this work for mp.J==0 we need to set
+			RealType J = 0.5;
+			MatrixType matrix(hilbertSize_,hilbertSize_);
+			FakeParams fakeParams("none",343313,engineParams_.options);
+			SpinType tmpDynVars(geometry_.volume(),fakeParams);
+			createHamiltonian(tmpDynVars,matrix,J);
+			SpinOperationsType spinOps(geometry_,engineParams_);
+			spinOps.set(tmpDynVars);
+			SizeType site = 0;
+			spinOps. makeChange(site,0.2,0.1);
+
+			MatrixType matrix2(hilbertSize_,hilbertSize_);
+			createHamiltonian(spinOps.dynVars2(),matrix2,J);
+
+			this->setTpemSupport(support,matrix,matrix2,site);
+		}
 	}
 
 	void adjustChemPot(const typename PsimagLite::Vector<RealType>::Type& eigs)
@@ -192,7 +220,8 @@ public:
 private:
 
 	void createHamiltonian(const typename DynVarsType::SpinType& dynVars,
-	                       MatrixType& matrix) const
+	                       MatrixType& matrix,
+	RealType J) const
 	{
 		SizeType volume = geometry_.volume();
 		SizeType norb = mp_.orbitals;
@@ -208,10 +237,10 @@ private:
 			RealType modulus = mp_.modulus[p];
 
 			if (norb == 3) {
-				auxCreateJmatrix(jmatrix,dynVars,p);
+				auxCreateJmatrix(jmatrix,dynVars,p,J);
 				auxCreateYmatrix(ymatrix,dynVars,p);
 			} else {
-				auxCreateJmatrix1(jmatrix,dynVars,p);
+				auxCreateJmatrix1(jmatrix,dynVars,p,J);
 			}
 
 			for (SizeType gamma1=0;gamma1<dof;gamma1++) {
@@ -255,7 +284,8 @@ private:
 
 	void auxCreateJmatrix1(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,
 	                       const typename DynVarsType::SpinType& dynVars,
-	                       SizeType site) const
+	                       SizeType site,
+	RealType J) const
 	{
 		jmatrix[0]=cos(dynVars.theta[site]);
 		jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
@@ -263,12 +293,13 @@ private:
 		jmatrix[3]= -cos(dynVars.theta[site]);
 		jmatrix[2]=conj(jmatrix[1]);
 
-		for (SizeType i=0;i<jmatrix.size();i++) jmatrix[i] *= mp_.J;
+		for (SizeType i=0;i<jmatrix.size();i++) jmatrix[i] *= J;
 	}
 
 	void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
 	                      typename DynVarsType::SpinType& dynVars,
-	                      SizeType site) const
+	                      SizeType site,
+	RealType J) const
 	{
 		jmatrix[0]=0.5*cos(dynVars.theta[site]);
 
