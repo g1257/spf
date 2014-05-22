@@ -24,11 +24,14 @@ class DmsMultiOrbitalObsStored {
 
 	typedef typename SpinOperationsType::DynVarsType DynVarsType;
 	typedef typename DynVarsType::FieldType RealType;
-	typedef PsimagLite::Vector<ComplexType> ComplexVectorType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename SpinOperationsType::GeometryType GeometryType;
 	typedef PsimagLite::Matrix<RealType> MatrixType;
 	typedef Histogram<RealType,ComplexType> HistogramComplexType;
 	typedef Histogram<RealType,RealType> HistogramRealType;
+
+	enum {DIRECTION_X,DIRECTION_Y,DIRECTION_Z};
+	static SizeType const DIRECTIONS  = 3;
 
 public:
 
@@ -41,6 +44,7 @@ public:
 	      geometry_(geometry),
 	      mp_(mp),
 	      pe_(pe),
+	      cs_(geometry.volume()),
 	      arw_(0),
 	      optical_(0),
 	      counter_(0)
@@ -69,6 +73,10 @@ public:
 	void operator()(const DynVarsType& spins,
 	                GreenFunctionType& greenFunction)
 	{
+		PsimagLite::Matrix<FieldType> mi(spins.size,DIRECTIONS);
+		calcMagSpins(mi,spins);
+		correlation(cs_,mi);
+
 		if (pe_.options.find("akw")!=PsimagLite::String::npos)
 			accAkw(greenFunction);
 		if (pe_.options.find("optical")!=PsimagLite::String::npos)
@@ -79,6 +87,8 @@ public:
 	template<typename SomeOutputType>
 	void finalize(SomeOutputType& fout)
 	{
+		divideAndPrint(fout,cs_,"#ClassicalSpinCorrelations");
+
 		if (pe_.options.find("akw")!=PsimagLite::String::npos)
 			reduce(arw_);
 		if (pe_.options.find("optical")!=PsimagLite::String::npos)
@@ -93,6 +103,32 @@ public:
 	}
 
 private:
+
+	void calcMagSpins(PsimagLite::Matrix<FieldType>& ms,
+	                  const DynVarsType& spins)
+	{
+		SizeType volume = ms.n_row();
+		for (SizeType i=0;i<volume;i++) {
+			FieldType theta = spins.theta[i];
+			FieldType phi = spins.phi[i];
+			FieldType m = (mp_.modulus[i]) ? 1.0 : 0.0;
+			ms(i,DIRECTION_X) = m*sin(theta) * cos(phi);
+			ms(i,DIRECTION_Y) = m*sin(theta) * sin(phi);
+			ms(i,DIRECTION_Z) = m*cos(theta);
+		}
+	}
+
+	void correlation(VectorRealType& cc,
+	                 const PsimagLite::Matrix<FieldType>& m)
+	{
+		for (SizeType x=0;x<cc.size();x++) {
+			for (SizeType i=0;i<cc.size();i++) {
+				SizeType j = geometry_.add(i,x);
+				for (SizeType dir=0;dir<DIRECTIONS;dir++)
+					cc[x] += std::real(m(i,dir) * m(j,dir));
+			}
+		}
+	}
 
 	void reduce(typename PsimagLite::Vector<HistogramComplexType*>::Type& h)
 	{
@@ -131,7 +167,6 @@ private:
 		//int aindex = 2*(ether.linSize/4); //(a/2,0,a/2)
 		SizeType aindex = 3*(n/4); //(a/2,a/2,0)
 
-
 		// some checking
 		if (geometry_.name()!="fcc" || n % 4!=0) {
 			PsimagLite::String s = "accOptical: "+ PsimagLite::String(__FILE__) +
@@ -168,6 +203,30 @@ private:
 				                PsimagLite::fermi(beta*e1))/(e1-e2);
 				optical_->add(e1-e2,temp2);
 			}
+		}
+	}
+
+	template<typename SomeOutputType>
+	void divideAndPrint(SomeOutputType& fout,
+	                    VectorRealType& v,
+	                    const PsimagLite::String& label)
+	{
+		v /= counter_;
+		if (!PsimagLite::Concurrency::root()) return;
+		fout<<label<<"\n";
+		fout<<v;
+	}
+
+	template<typename SomeOutputType>
+	void divideAndPrint(SomeOutputType& fout,
+	                    MatrixType& m,
+	                    const PsimagLite::String& label)
+	{
+		VectorRealType v(m.n_row(),0.0);
+		for (SizeType dir=0;dir<m.n_col();dir++) {
+			for (SizeType i=0;i<m.n_row();i++) v[i] =  m(i,dir);
+			PsimagLite::String newlabel = label+ttos(dir);
+			divideAndPrint(fout,v,newlabel);
 		}
 	}
 
@@ -213,6 +272,7 @@ private:
 	const GeometryType& geometry_;
 	const ParametersModelType& mp_;
 	const EngineParamsType& pe_;
+	VectorRealType cs_;
 	typename PsimagLite::Vector<HistogramComplexType*>::Type arw_;
 	HistogramRealType* optical_;
 	SizeType counter_;
@@ -222,3 +282,4 @@ private:
 
 /*@}*/
 #endif // OBS_STORED_DMS_MULTI_ORB_H
+
