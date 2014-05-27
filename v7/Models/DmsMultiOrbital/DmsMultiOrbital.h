@@ -76,7 +76,10 @@ public:
 	RealType deltaDirect(SizeType i,const SpinOperationsType& ops,int n) const
 	{
 		assert(n == 0);
-		return 0.0;
+		assert(n == 0);
+		RealType x = ops.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
+		//x += ops.deltaMagneticField(i,mp_.magneticField);
+		return x;
 	}
 
 	RealType integrationMeasure(SizeType i,const SpinOperationsType& ops,int n)
