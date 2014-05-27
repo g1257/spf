@@ -21,10 +21,14 @@ HistogramSteps=1000
 BoundaryConditions=periodic
 RandomSeed=348989861
 SaveEach=2
-Hoppings 8 1 0 0 1    1 0 0 1
+Hoppings 16 1 0 0 1
+            1 0 0 1
+            1 0 0 1
+            1 0 0 1
 PotentialV 16    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 PARAMETERSJ_AF=0
 PARAMETERSJ_AF_NN=0
+MagneticField=0.0
 SPIN_ORBIT_COUPLING=0
 CouplingJ=0.0
 MODULUS 16 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15

@@ -121,6 +121,8 @@ struct ParametersDmsMultiOrbital {
 
 		io.readline(jafNnn,"PARAMETERSJ_AF_NN=");
 
+		io.readline(magneticField,"MagneticField=");
+
 		io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
 
 		PsimagLite::Vector<SizeType>::Type tmp;
@@ -154,6 +156,9 @@ struct ParametersDmsMultiOrbital {
 	// JAF n-n-n
 	RealType jafNnn;
 
+	// Magnetic Field B for Zeeman term
+	RealType magneticField;
+
 	RealType spinOrbitCoupling; // =0.34
 
 	// Modulus (FIXME: use less storage here it should be either 0 or 1)
@@ -176,6 +181,7 @@ std::ostream& operator<<(
 	os<<parameters.potentialV;
 	os<<"parameters.hoppings\n";
 	os<<parameters.hoppings;
+	os<<"parameters.magneticField="<<parameters.magneticField<<"\n";
 	os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
 	os<<"modulus\n";
 	for (SizeType i=0;i<parameters.modulus.size();i++)

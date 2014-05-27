@@ -47,6 +47,8 @@ public:
 
 	enum {OLDFIELDS,NEWFIELDS};
 
+	enum {SPIN_UP, SPIN_DOWN};
+
 	DmsMultiOrbital(const EngineParamsType& engineParams,
 	                IoInType& io,
 	                const GeometryType& geometry)
@@ -78,7 +80,7 @@ public:
 		assert(n == 0);
 		assert(n == 0);
 		RealType x = ops.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
-		//x += ops.deltaMagneticField(i,mp_.magneticField);
+		x += ops.deltaMagneticField(i,mp_.magneticField);
 		return x;
 	}
 
@@ -247,10 +249,13 @@ private:
 			}
 
 			for (SizeType gamma1=0;gamma1<dof;gamma1++) {
-
+				//! Term B (n_iup - n_idown)
+				SizeType spin1 = SizeType(gamma1/norb);
+				RealType magField = (spin1==SPIN_UP) ? mp_.magneticField :
+				                                       -mp_.magneticField;
 				matrix(p+gamma1*volume,p+gamma1*volume) =
 				        real(jmatrix[gamma1+dof*gamma1])*modulus +
-				        mp_.potentialV[p] +
+				        mp_.potentialV[p] + magField +
 				        ymatrix[gamma1+dof*gamma1];
 
 				for (SizeType j = 0; j <  geometry_.z(1); j++) {
