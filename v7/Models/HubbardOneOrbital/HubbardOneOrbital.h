@@ -145,12 +145,6 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("setTpemThings unimplemented\n");
 		}
 
-		template<typename SomeOperationsType>
-		RealType integrationMeasure(SizeType i,SomeOperationsType& ops,int n)
-		{
-			return 1.0;
-		}
-
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout)
 		{

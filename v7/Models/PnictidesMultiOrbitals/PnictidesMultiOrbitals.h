@@ -87,13 +87,6 @@ namespace Spf {
 			return x;
 		}
 
-		template<typename SomeOperationsType>
-		RealType integrationMeasure(SizeType i,SomeOperationsType& ops,int n)
-		{
-			assert(n == 0);
-			return ops.sineUpdate(i);
-		}
-		
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
 		
 		template<typename GreenFunctionType,typename SomePackerType>

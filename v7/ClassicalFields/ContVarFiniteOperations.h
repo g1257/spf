@@ -80,7 +80,7 @@ public:
 	{
 		dynVars_->value[i]=dynVars2_.value[i];
 	}
-	
+
 	FieldType sum2() const
 	{
 		FieldType sum = 0;
@@ -88,7 +88,6 @@ public:
 			sum += ProgramGlobals::square(dynVars_->value[i]);
 		return sum;
 	}
-
 
 	FieldType sum() const
 	{
@@ -142,3 +141,4 @@ private:
 
 /*@}*/
 #endif
+

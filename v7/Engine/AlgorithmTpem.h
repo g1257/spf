@@ -84,7 +84,9 @@ namespace Spf {
 			newMoments_ = curMoments_ + moments;
 			
 			adjustChemPot(newMoments_,i,engineParams_.adjustEach);
-			//RealType integrationMeasure = model_.integrationMeasure(i);
+
+			// INTEGRATION MEASURE NOT SUPPORTED ANYMORE
+
 			RealType X = exp(dS);
 			return metropolisOrGlauber_(X,rng);
 		}

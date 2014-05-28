@@ -84,12 +84,6 @@ public:
 		return x;
 	}
 
-	RealType integrationMeasure(SizeType i,const SpinOperationsType& ops,int n)
-	{
-		assert(n == 0);
-		return ops.sineUpdate(i);
-	}
-
 	void set(typename DynVarsType::SpinType& dynVars)
 	{
 		spinOperations_.set(dynVars);

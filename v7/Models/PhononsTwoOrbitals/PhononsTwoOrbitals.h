@@ -96,18 +96,6 @@ namespace Spf {
 			return 0.0;
 		}
 
-		RealType integrationMeasure(SizeType i,SpinOperationsType& ops,int n)
-		{
-			assert(n == 0);
-			return ops.sineUpdate(i);
-		}
-
-		RealType integrationMeasure(SizeType i,PhononOperationsType& ops,int n)
-		{
-			assert(n == 1);
-			return 1.0;
-		}
-				
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{

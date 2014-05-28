@@ -34,16 +34,17 @@ namespace Spf {
 		bool operator()(const RealType& X2,RngType& rng) const
 		{
 			RealType X = X2;
+			RealType r = rng();
 			if (algo_==GLAUBER) {
 				if (X<1) {
 					X=X/(1.0+X);
 				} else {
 					X=1.0/(1.0+1.0/X);
 				}
-				return (X>rng());
+				return (X>r);
 			}
 			// METROPOLIS PROPER
-			return (X > 1 || rng() < X);
+			return (X > 1 || r < X);
 		}
 
 	private:

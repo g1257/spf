@@ -76,9 +76,9 @@ namespace Spf {
 				}
 			}
 
-			RealType integrationMeasure = model_.integrationMeasure(i,ops,n);
-				
-			RealType X = computeDeltaAction(integrationMeasure);
+			// INTEGRATION MEASURE NOT SUPPORTED ANYMORE
+
+			RealType X = computeDeltaAction();
 			X *= exp(-engineParams_.beta*model_.deltaDirect(i,ops,n));
 			return metropolisOrGlauber_(X,rng);
 		}
@@ -147,7 +147,7 @@ namespace Spf {
 			return (x==0);
 		}
 
-		RealType computeDeltaAction(RealType integrationMeasure) const
+		RealType computeDeltaAction() const
 		{
 			RealType mu=engineParams_.mu;
 			RealType beta = engineParams_.beta;
@@ -165,8 +165,7 @@ namespace Spf {
 			
 				X *= temp;
 			}
-			//std::cerr<<"Xbefore="<<X<<" ";
-			//if (ether.isSet("sineupdate")) X *= integrationMeasure;
+
 			return X;
 		}
 

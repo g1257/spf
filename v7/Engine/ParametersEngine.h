@@ -37,7 +37,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -87,7 +87,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "Concurrency.h"
 
 namespace Spf {
-	
+
 	//! Structure that contains the Engine parameters
 	template<typename RealType_,typename IoInType_>
 	struct ParametersEngine {
@@ -110,6 +110,21 @@ namespace Spf {
 			io.readline(iterTherm,"MonteCarloThermalizations=");
 			io.readline(iterEffective,"MonteCarloEffectiveIteractions=");
 			io.readline(iterUnmeasured,"MonteCarloUnmeasuredPlusOne=");
+
+			bool flag = false;
+			try {
+				typename PsimagLite::Vector<RealType>::Type tmpVector;
+				io.read(tmpVector,"MonteCarloWindows");
+				flag = true;
+			} catch (std::exception& e) {}
+
+			if (flag) {
+				PsimagLite::String str("MonteCarloWindows is not supported anymore");
+				str += " Please add MonteCarloWindow[\"SpinPhi\"]= and ";
+				str += " MonteCarloWindow[\"SpinTheta\"]= to the input file\n";
+				throw PsimagLite::RuntimeError(str);
+			}
+
 			io.read(mcWindow,"MonteCarloWindow");
 			io.readline(dynvarsfile,"MonteCarloStartTypeOrFile=");
 			io.readline(dynvarslevel,"MonteCarloStartLevel=");
@@ -121,7 +136,7 @@ namespace Spf {
 				randomSeed = -1;
 			else    randomSeed = atoi(s.c_str());
 			io.readline(latticeLength,"LadderLeg=");
-			
+
 			coresForKernel = 1;
 			try {
 				io.readline(coresForKernel,"CoresForKernel=");
@@ -138,7 +153,7 @@ namespace Spf {
 				throw PsimagLite::RuntimeError(s.c_str());
 			}
 			saveEach=0;
-				
+
 //			io.rewind();
 			try {
 				io.readline(saveEach,"SaveEach=");
@@ -167,7 +182,7 @@ namespace Spf {
 			}
 			npthreads = 1;
 //			io.rewind();
-			
+
 		}
 
 		PsimagLite::String filename; // filename to save observables and continued fractions
@@ -176,10 +191,10 @@ namespace Spf {
 		PsimagLite::String version;
 		PsimagLite::String options; // options
 		RealType carriers;
-		mutable RealType mu; // chemical potential 
+		mutable RealType mu; // chemical potential
 		RealType beta; // inverse temperature
 		SizeType iterTherm,iterEffective,iterUnmeasured;
-		typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
+		mutable typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
 		PsimagLite::String dynvarsfile; // file with fields to start from or none
 		SizeType dynvarslevel; // from where to start to read in dynvarsfile
 		SizeType histSteps; // histogram steps
@@ -225,7 +240,7 @@ namespace Spf {
 		os<<"parameters.adjustEach="<<parameters.adjustEach<<"\n";
 		return os;
 	}
-} // namespace Spf 
+} // namespace Spf
 /*@}*/
 
 #endif

@@ -14,7 +14,8 @@ MonteCarloEffectiveIteractions=5
 MonteCarloUnmeasuredPlusOne=1
 AdjustEach=1
 DetailedBalance=glauber
-MonteCarloWindows   2 0.5 0.5
+MonteCarloWindow["SpinPhi"]=0.5
+MonteCarloWindow["SpinTheta"]=0.5
 MonteCarloStartTypeOrFile=none 
 MonteCarloStartLevel=0
 HistogramSteps=1000

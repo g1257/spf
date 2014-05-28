@@ -29,7 +29,10 @@ namespace Spf {
 		
 		template<typename SomeParamsType>
 		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params) 
-		: geometry_(geometry),mcwindowPhi_(params.mcWindow.find("SpinPhi")->second),dynVars2_(0,params)
+		: geometry_(geometry),
+		  mcwindowPhi_(params.mcWindow["SpinPhi"]),
+		  mcwindowTheta_(params.mcWindow["SpinTheta"]),
+		  dynVars2_(0,params)
 		{
 		}
 		
@@ -251,10 +254,16 @@ namespace Spf {
 				phiNew=0;
 				return;
 			} 
-		
-			thetaNew=2*rng()- 1;
-			if (thetaNew < -1) thetaNew= 0;
-			if (thetaNew > 1) thetaNew = 0;
+	
+			if (mcwindowTheta_ < 0) {	
+				thetaNew=2*rng()- 1;
+			} else {
+				thetaNew = thetaOld + mcwindowTheta_*(rng() - 0.5);
+			}
+
+			while (thetaNew < -1) thetaNew += 1;
+			while (thetaNew > 1) thetaNew -= 1;
+			assert(fabs(thetaNew)<1);
 			thetaNew = acos(thetaNew);
 	
 			if (mcwindowPhi_<0) {
@@ -307,7 +316,8 @@ namespace Spf {
 		}
 		
 		const GeometryType& geometry_;
-		const RealType& mcwindowPhi_;
+		RealType mcwindowPhi_;
+		RealType mcwindowTheta_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
 		

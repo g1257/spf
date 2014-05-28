@@ -132,6 +132,7 @@ int main(int argc,char *argv[])
 	InputNgType::Readable io(ioWriteable);
 
 	ParametersEngineType engineParams(io);
+	std::cout<<engineParams;
 
 	MyConcurrencyType::npthreads = engineParams.npthreads;
 
