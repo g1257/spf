@@ -252,15 +252,15 @@ namespace Spf {
 				return;
 			} 
 		
-			thetaNew=2*rng.random()- 1;
+			thetaNew=2*rng()- 1;
 			if (thetaNew < -1) thetaNew= 0;
 			if (thetaNew > 1) thetaNew = 0;
 			thetaNew = acos(thetaNew);
 	
 			if (mcwindowPhi_<0) {
-				phiNew = 2*M_PI*rng.random();
+				phiNew = 2*M_PI*rng();
 			} else {
-				phiNew=phiOld+2*M_PI*(rng.random()- 0.5)*mcwindowPhi_;
+				phiNew=phiOld+2*M_PI*(rng()- 0.5)*mcwindowPhi_;
 			}
 			/*if (ether.isSet("sineupdate")) {
 				thetaNew = M_PI*rng();

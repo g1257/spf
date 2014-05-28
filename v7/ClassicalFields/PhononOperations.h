@@ -127,7 +127,7 @@ namespace Spf {
 				RngType& rng)
 		{
 			for (SizeType i=0;i<phononsNew.size();i++) {
-				phononsNew[i]=phononsOld[i] + (rng.random()- 0.5)*mcwindow_;
+				phononsNew[i]=phononsOld[i] + (rng()- 0.5)*mcwindow_;
 				//if (fabs(phononsNew[i]) > ether.maxPhonons) phononsNew[i]= 0.9*ether.maxPhonons;
 			}
 		}

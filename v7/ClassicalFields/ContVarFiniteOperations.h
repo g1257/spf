@@ -117,7 +117,7 @@ private:
 	        RngType& rng)
 	{
 
-		phononsNew=phononsOld + (rng.random()- 0.5)*mcwindow_;
+		phononsNew=phononsOld + (rng()- 0.5)*mcwindow_;
 		FieldType lowBound = bounds().first;
 		FieldType highBound = bounds().second;
 		if (phononsNew>highBound) phononsNew = highBound;
