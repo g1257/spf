@@ -238,6 +238,13 @@ namespace Spf {
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
 		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
 		os<<"parameters.adjustEach="<<parameters.adjustEach<<"\n";
+
+		typedef typename PsimagLite::Map<PsimagLite::String,RealType>::Type MapType;
+		typedef typename MapType::const_iterator MapIterator;
+		const MapType& mymap = parameters.mcWindow;
+		for (MapIterator iter = mymap.begin(); iter != mymap.end(); iter++)
+			os<<"parameters.mcWindow["<<iter->first<<"]="<<iter->second<<"\n";
+
 		return os;
 	}
 } // namespace Spf
