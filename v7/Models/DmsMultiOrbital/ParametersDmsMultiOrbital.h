@@ -93,9 +93,8 @@ struct ParametersDmsMultiOrbital {
 	typedef std::complex<RealType> ComplexType;
 
 	//! ctor to read Model Parameters from inp file.
-	ParametersDmsMultiOrbital(
-	        IoInType& io,
-	        const ParametersEngineType& engineParams)
+	ParametersDmsMultiOrbital(IoInType& io,
+	                          const ParametersEngineType& engineParams)
 	{
 		io.readline(orbitals,"Orbitals=");
 
@@ -126,7 +125,12 @@ struct ParametersDmsMultiOrbital {
 		io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
 
 		PsimagLite::Vector<SizeType>::Type tmp;
-		io.read(tmp,"MODULUS");
+		try {
+			io.read(tmp,"MODULUS");
+		} catch (std::exception& e) {
+			tmp.resize(n);
+			for (SizeType i=0;i<tmp.size();i++) tmp[i] = i;
+		}
 
 		modulus.resize(n);
 		for (SizeType i=0;i<modulus.size();i++) modulus[i] = 0;

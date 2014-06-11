@@ -61,7 +61,14 @@ public:
 	      progress_("PnictidesTwoOrbitals"),
 	      spinOperations_(geometry,engineParams),
 	      DmsMultiOrbitalObsStored_(spinOperations_,geometry,mp_,engineParams_)
-	{}
+	{
+		if (mp_.potentialV.size() != geometry.volume()) {
+			PsimagLite::String str("DmsMultiOrbital: potentialV.size= ");
+			str += ttos(mp_.potentialV.size());
+			str += " expecting " + ttos(geometry.volume()) + "\n";
+			throw PsimagLite::RuntimeError(str);
+		}
+	}
 
 	DynVarsType& dynVars() { return dynVars_; }
 
