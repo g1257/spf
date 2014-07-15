@@ -32,10 +32,10 @@ namespace Spf {
 		{
 			typedef DensityFunctionDiag<EngineParamsType> DensityFunctionType;
 			DensityFunctionType densityFunction(engineParams_,eigs);
-			typedef RootFindingBisection<DensityFunctionType> RootFindingType;
+			typedef PsimagLite::RootFindingBisection<DensityFunctionType> RootFindingType;
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
 			RootFindingType  rootFinding(densityFunction);
-			
+
 			RealType mu=engineParams_.mu;
 			//std::cerr<<"Old mu="<<mu<<" ";
 			rootFinding(mu);
@@ -49,10 +49,10 @@ namespace Spf {
 		{
 			typedef DensityFunctionTpem<EngineParamsType,SomeTpemType> DensityFunctionType;
 			DensityFunctionType densityFunction(engineParams_,moments,tpem);
-			typedef RootFindingBisection<DensityFunctionType> RootFindingType;
+			typedef PsimagLite::RootFindingBisection<DensityFunctionType> RootFindingType;
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
 			RootFindingType  rootFinding(densityFunction);
-			
+
 			RealType mu=engineParams_.mu;
 			//std::cerr<<"Old mu="<<mu<<" ";
 			rootFinding(mu);
