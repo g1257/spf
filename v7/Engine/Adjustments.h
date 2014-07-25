@@ -36,9 +36,7 @@ namespace Spf {
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
 			RootFindingType  rootFinding(densityFunction);
 
-			RealType mu=engineParams_.mu;
-			//std::cerr<<"Old mu="<<mu<<" ";
-			rootFinding(mu);
+			RealType mu = rootFinding();
 			//std::cerr<<" new mu = "<<mu<<"\n";
 			return mu;
 		}
@@ -53,9 +51,7 @@ namespace Spf {
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
 			RootFindingType  rootFinding(densityFunction);
 
-			RealType mu=engineParams_.mu;
-			//std::cerr<<"Old mu="<<mu<<" ";
-			rootFinding(mu);
+			RealType mu = rootFinding();
 			//std::cerr<<" new mu = "<<mu<<"\n";
 			return mu;
 		}
