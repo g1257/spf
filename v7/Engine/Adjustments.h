@@ -22,10 +22,8 @@ namespace Spf {
 	class Adjustments {
 		typedef typename EngineParamsType::RealType RealType;
 	public:
-		Adjustments(const EngineParamsType& engineParams,
-		            SizeType maxIter=100,
-		            RealType tolerance=1.0e-3)
-		: engineParams_(engineParams),maxIter_(maxIter),tolerance_(tolerance)
+		Adjustments(const EngineParamsType& engineParams)
+		: engineParams_(engineParams)
 		{}
 
 		RealType adjChemPot(const typename PsimagLite::Vector<RealType>::Type& eigs) const
@@ -34,7 +32,9 @@ namespace Spf {
 			DensityFunctionType densityFunction(engineParams_,eigs);
 			typedef PsimagLite::RootFindingBisection<DensityFunctionType> RootFindingType;
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
-			RootFindingType  rootFinding(densityFunction);
+			RealType tolerance = engineParams_.adjustTolerance;
+			SizeType maxIter = engineParams_.adjustMaxIter;
+			RootFindingType  rootFinding(densityFunction,-10,10,maxIter,tolerance);
 
 			RealType mu = rootFinding();
 			//std::cerr<<" new mu = "<<mu<<"\n";
@@ -49,7 +49,9 @@ namespace Spf {
 			DensityFunctionType densityFunction(engineParams_,moments,tpem);
 			typedef PsimagLite::RootFindingBisection<DensityFunctionType> RootFindingType;
 			// typedef RootFindingNewton<DensityFunctionType> RootFindingType;
-			RootFindingType  rootFinding(densityFunction);
+			RealType tolerance = engineParams_.adjustTolerance;
+			SizeType maxIter = engineParams_.adjustMaxIter;
+			RootFindingType  rootFinding(densityFunction,-10,10,maxIter,tolerance);
 
 			RealType mu = rootFinding();
 			//std::cerr<<" new mu = "<<mu<<"\n";
@@ -59,8 +61,6 @@ namespace Spf {
 	private:
 
 		const EngineParamsType& engineParams_;
-		SizeType maxIter_;
-		RealType tolerance_;
 	}; // Adjustments
 } // namespace Spf
 

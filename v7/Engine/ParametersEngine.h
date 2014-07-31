@@ -180,6 +180,17 @@ namespace Spf {
 				s += "Please make sure it is correct.\n";
 				std::cerr<<s;
 			}
+
+			adjustMaxIter = 0;
+			try {
+				io.readline(adjustMaxIter,"AdjustMaxIter=");
+			} catch (std::exception& e) {}
+
+			adjustTolerance = 0;
+			try {
+				io.readline(adjustTolerance,"AdjustTolerance=");
+			} catch (std::exception& e) {}
+
 			npthreads = 1;
 //			io.rewind();
 
@@ -192,6 +203,7 @@ namespace Spf {
 		PsimagLite::String options; // options
 		RealType carriers;
 		mutable RealType mu; // chemical potential
+		RealType adjustTolerance;
 		RealType beta; // inverse temperature
 		SizeType iterTherm,iterEffective,iterUnmeasured;
 		mutable typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
@@ -205,6 +217,7 @@ namespace Spf {
 		SizeType saveEach;
 		PsimagLite::String detailedBalance;
 		SizeType adjustEach;
+		SizeType adjustMaxIter;
 		SizeType npthreads;
 	};
 
@@ -238,6 +251,8 @@ namespace Spf {
 		os<<"parameters.latticeLength="<<parameters.latticeLength<<"\n";
 		os<<"parameters.coresForKernel="<<parameters.coresForKernel<<"\n";
 		os<<"parameters.adjustEach="<<parameters.adjustEach<<"\n";
+		os<<"parameters.adjustMaxIter="<<parameters.adjustMaxIter<<"\n";
+		os<<"parameters.adjustTolerance="<<parameters.adjustTolerance<<"\n";
 
 		typedef typename PsimagLite::Map<PsimagLite::String,RealType>::Type MapType;
 		typedef typename MapType::const_iterator MapIterator;
