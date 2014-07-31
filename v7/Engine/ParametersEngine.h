@@ -181,12 +181,12 @@ namespace Spf {
 				std::cerr<<s;
 			}
 
-			adjustMaxIter = 0;
+			adjustMaxIter = 100;
 			try {
 				io.readline(adjustMaxIter,"AdjustMaxIter=");
 			} catch (std::exception& e) {}
 
-			adjustTolerance = 0;
+			adjustTolerance = 1e-3;
 			try {
 				io.readline(adjustTolerance,"AdjustTolerance=");
 			} catch (std::exception& e) {}
