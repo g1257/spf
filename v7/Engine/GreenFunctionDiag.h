@@ -72,7 +72,7 @@ namespace Spf {
 					(algorithm_.e(i)-engineParams_.mu)*engineParams_.beta);
 			}
 			return sum;
-				
+
 		}
 
 		void localCharge(typename PsimagLite::Vector<RealType>::Type& lc)
@@ -128,7 +128,7 @@ namespace Spf {
 		}
 
 		SizeType hilbertSize() const { return algorithm_.hilbertSize(); }
-		
+
 		void printMatrix(SizeType mode) const
 		{
 			algorithm_.printMatrix(mode);
@@ -139,7 +139,7 @@ namespace Spf {
 		  const GreenFunctionDiag<EngineParametersType2,ModelType2,RngType2>& gf);
 
 	private:
-		
+
 		ComplexOrRealType greenFunction(SizeType lambda1,SizeType lambda2) const
 		{
 			ComplexOrRealType sum = 0;
@@ -172,17 +172,17 @@ namespace Spf {
 				if (algorithm_.e(lambda)>=engineParams_.mu) continue;
 				sum++;
 			}
-			std::cerr<<"mu = "<<engineParams_.mu<<" Levels below="<<sum<<"\n"; 
+			std::cerr<<"mu = "<<engineParams_.mu<<" Levels below="<<sum<<"\n";
 		}
 
 		const EngineParametersType& engineParams_;
-		
+
 		AlgorithmType algorithm_;
 		SizeType hilbertSize_;
 		PsimagLite::Matrix<ComplexOrRealType> data_;
-		
+
 	}; // GreenFunctionDiag
-	
+
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	std::ostream& operator<<(std::ostream& os,const GreenFunctionDiag<EngineParametersType,ModelType,RngType>& gf)
 	{

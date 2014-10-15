@@ -18,6 +18,8 @@
 #include "ParametersDmsMultiOrbital.h"
 #include "DmsMultiOrbitalObsStored.h"
 #include "FakeParams.h"
+#include "DmsConductance.h"
+
 namespace Spf {
 
 template<typename EngineParamsType,typename GeometryType>
@@ -41,9 +43,10 @@ public:
 	typedef DmsMultiOrbitalFields<RealType,GeometryType> DynVarsType;
 	typedef typename DynVarsType::SpinType SpinType;
 	typedef typename DynVarsType::SpinOperationsType SpinOperationsType;
-	typedef DmsMultiOrbitalObsStored<SpinOperationsType,ComplexType,
-	ParametersModelType,
-	EngineParamsType> DmsMultiOrbitalObsStoredType;
+	typedef DmsMultiOrbitalObsStored<SpinOperationsType,
+	                                 ComplexType,
+	                                 ParametersModelType,
+	                                 EngineParamsType> DmsMultiOrbitalObsStoredType;
 
 	enum {OLDFIELDS,NEWFIELDS};
 
@@ -136,9 +139,17 @@ public:
 		temp = spinOperations_.calcMag(dynVars,mp_.modulus);
 		packer.pack("Mag2=",temp);
 
-		// 			temp=calcKinetic(dynVars_,eigs);
-		// 			s ="KineticEnergy="+ttos(temp);
-		// 			progress_.printline(s,fout);
+		if (engineParams_.options.find("conductance") != PsimagLite::String::npos) {
+
+			DmsConductance<MatrixType, GreenFunctionType> conductance;
+			temp = conductance(greenFunction,
+			                   engineParams_.mu,
+			                   geometry_.dim(),
+			                   geometry_.length(),
+			                   1000,
+			                   1e-6);
+			packer.pack("Conductance=",temp);
+		}
 
 		DmsMultiOrbitalObsStored_(dynVars,greenFunction);
 	} // doMeasurements
@@ -182,7 +193,7 @@ public:
 		}
 
 		{
-			// setup support: 
+			// setup support:
 			// to make this work for mp.J==0 we need to set
 			RealType J = 0.5;
 			MatrixType matrix(hilbertSize_,hilbertSize_);
