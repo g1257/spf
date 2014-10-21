@@ -61,8 +61,8 @@ public:
 		psimag::BLAS::zgemm_(&nChar, &nChar, &n, &n, &n,&one, &x(0,0), &n,
 		                     &h0(0,0), &n,&zero, &t1(0,0), &n);
 
-		for (SizeType i = 0; i < n; ++i) {
-			for (SizeType j = 0; j < n; j++) {
+		for (int i = 0; i < n; ++i) {
+			for (int j = 0; j < n; j++) {
 				x(i,j) = (t0(i,j) - t1(i,j)) /(l1 - 1.0);
 			}
 		}
@@ -71,16 +71,16 @@ public:
 		ComplexType e(mu, eta);
 
 		/* right self-energy */
-		for (SizeType i = 0; i < n; ++i)
+		for (int i = 0; i < n; ++i)
 			sigmaRight(i,i) = ComplexType(0.0, -1.0);
 
 		RealType error = 1.0;
 		int m = n * n;
 		char cChar = 'c';
-		for (SizeType iter = 0; iter < maxiter && error > maxerror; ++iter) {
+		for (int iter = 0; iter < maxiter && error > maxerror; ++iter) {
 
-			for (SizeType i = 0; i < n; ++i) {
-				for (SizeType j = 0; j < n; ++j) {
+			for (int i = 0; i < n; ++i) {
+				for (int j = 0; j < n; ++j) {
 					if (i!=j)
 						t1(i,j) =  0.0- h0(i,j)- sigmaRight(i,j);
 					else
@@ -99,8 +99,8 @@ public:
 			                     &t0(0,0), &n,&zero, &t1(0,0), &n);
 
 			error = 0.0;
-			for (SizeType i = 0; i < n; ++i) {
-				for (SizeType j = 0; j < n; ++j) {
+			for (int i = 0; i < n; ++i) {
+				for (int j = 0; j < n; ++j) {
 					t1(i,j) = 0.5*(t1(i,j) + sigmaRight(i,j));
 
 					error += std::norm(t1(i,j) - sigmaRight(i,j));
@@ -112,14 +112,14 @@ public:
 		}
 
 		/* left self-energy */
-		for (SizeType i = 0; i < n; ++i)
+		for (int i = 0; i < n; ++i)
 			sigmaLeft(i,i) = ComplexType(0.0, -1.0);
 
 		error = 1.0;
-		for (SizeType iter = 0; iter < maxiter && error > maxerror; ++iter) {
+		for (int iter = 0; iter < maxiter && error > maxerror; ++iter) {
 
-			for (SizeType i = 0; i < n; ++i) {
-				for (SizeType j = 0; j < n; ++j) {
+			for (int i = 0; i < n; ++i) {
+				for (int j = 0; j < n; ++j) {
 					if (i!=j)
 						t1(i,j) = 0.0 - h0(i,j);
 					else
@@ -138,8 +138,8 @@ public:
 			                     &t0(0,0), &n, &zero, &t1(0,0), &n);
 
 			error = 0.0;
-			for (SizeType i = 0; i < n; ++i) {
-				for (SizeType j = 0; j < n; ++j) {
+			for (int i = 0; i < n; ++i) {
+				for (int j = 0; j < n; ++j) {
 					t1(i,j) = 0.5*(t1(i,j) + sigmaLeft(i,j));
 
 					error += std::norm(t1(i,j) - sigmaLeft(i,j));
@@ -151,18 +151,18 @@ public:
 		}
 
 		/* construct G+ */
-		for (SizeType i = 0; i < n; ++i)
+		for (int i = 0; i < n; ++i)
 			greenPlus(i,i) = ComplexType(mu, 0.0);
 
-		for (SizeType i = 0; i < n; i++) {
-			for (SizeType j = 0; j < n; j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
 				greenPlus(i,j)=greenPlus(i,j)-h0(i,j);
 			}
 		}
 
 		/* self energies */
-		for (SizeType i = 0; i < n; i++) {
-			for (SizeType j = 0; j < n; j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
 				greenPlus(i,j)=greenPlus(i,j)-sigmaRight(i,j);
 				greenPlus(i,j)=greenPlus(i,j)-sigmaLeft(i,j);
 
@@ -184,8 +184,8 @@ public:
 		}
 
 		/* construct G+ - G- */
-		for (SizeType i = 0; i < n; i++) {
-			for (SizeType j = 0; j <= i; j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j <= i; j++) {
 				error= 0.5 * (imag(greenPlus(j,i))
 				              + imag(greenPlus(i,j)));
 				greenPlus(j,i) = ComplexType(error,0.5 * (-real(greenPlus(j,i))
@@ -194,8 +194,8 @@ public:
 			}
 		}
 
-		for (SizeType i = 0; i < n; i++) {
-			for (SizeType j = 0; j <= i; j++) {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j <= i; j++) {
 				greenPlus(i,j) =  ComplexType(real(greenPlus(j,i)),
 				                              -imag(greenPlus(j,i)));
 			}
@@ -208,7 +208,7 @@ public:
 		                     &t0(0,0), &n, &zero, &greenPlus(0,0), &n);
 
 		RealType cond = 0.0;
-		for (SizeType i = 0; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			cond +=  real(greenPlus(i,i));
 		}
 
