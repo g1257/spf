@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -86,7 +86,7 @@ namespace Spf {
 		typedef typename ParametersEngineType::RealType RealType;
 
 		ParametersHubbardOneOrbital(IoInType& io,
-		                            const ParametersEngineType& engineParams)
+		                            const ParametersEngineType&)
 		{
 			io.readline(hopping,"Hopping=");
 			io.readline(dampingCharge,"DampingCharge=");
@@ -102,9 +102,9 @@ namespace Spf {
 		RealType interactionCharge;
 		RealType interactionMag;
 		typename PsimagLite::Vector<RealType>::Type potentialV;
-		
+
 	}; //struct ParametersHubbardOneOrbital
-	
+
 	//! Function that prints model parameters to stream os
 	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(std::ostream &os,

@@ -33,20 +33,20 @@ namespace Spf {
 		{
 			buildNeighbors();
 		}
-		
+
 		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();
 		}
-		
+
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
 		PairType neighbor(SizeType i,SizeType j,SizeType distance=1) const
 		{
 			return neighbors_[distance-1](i,j);
 		}
-		
+
 		SizeType volume() const { return volume_; }
-		
+
 		//! coordinates are (x,y,z,b) where b is the basis
 		SizeType add(SizeType ind,SizeType ind2) const
 		{
@@ -83,7 +83,7 @@ namespace Spf {
 			indr = cube_.coor2Index(r);
 			return indr + SizeType(b)*cube_.volume();
 		}
-		
+
 		SizeType scalarDirection(SizeType site1,SizeType site2) const
 		{
 			typename PsimagLite::Vector<RealType>::Type r(3);
@@ -93,16 +93,16 @@ namespace Spf {
 			return SizeType(r2[0]+2*r2[1]+4*r2[2]);
 		}
 
-		int getDirection(SizeType ind,SizeType jnd) const
+		int getDirection(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
 			return  -1;
 		}
 
 		SizeType dim() const { return DIMENSION; }
-		
+
 		SizeType length() const { return l_; }
-		
+
 		PsimagLite::String name() const { return "fcc"; }
 
 		template<typename SomeVectorType>
@@ -112,31 +112,31 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
 		}
 
-		SizeType coorToIndex(SizeType a,SizeType b) const
+		SizeType coorToIndex(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
 		}
 
-		PairType getNeighbour(SizeType i,SizeType dir) const
+		PairType getNeighbour(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
 
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
-		indexToCoor(SomeVectorType& v,SizeType i) const
+		indexToCoor(SomeVectorType&,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
 		}
 
 	private:
-		
+
 		void buildNeighbors()
 		{
 			initBasis();
 			neighborsAt1();
 		}
-		
+
 		void neighborsAt1()
 		{
 			PsimagLite::Matrix<PairType> matrix(volume_,COORDINATION);
@@ -158,7 +158,7 @@ namespace Spf {
 			}
 			neighbors_.push_back(matrix);
 		}
-		
+
 		void findNn(PsimagLite::Vector<SizeType>::Type& v,SizeType site) const
 		{
 			for (SizeType i=0;i<volume_;i++) {
@@ -190,18 +190,18 @@ namespace Spf {
 		{
 			int L = l;
 			bool r=false;
-			if (x<0) r=true; 
-			if (x>=L) r=true; 
+			if (x<0) r=true;
+			if (x>=L) r=true;
 			while(x<0) x+=L;
 			while(x>=L) x-=L;
 			return r;
 		}
-		
+
 		SizeType g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			return g_index(x[0],x[1],x[2]);
 		}
-		
+
 		SizeType g_index(int& x,int& y,int& z) const
 		{
 			SizeType lx = l_;
@@ -357,7 +357,7 @@ namespace Spf {
 		VectorOfVectorsType basisVector_;
 		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; // class GeometryFcc
-	
+
 } // namespace Spf
 
 

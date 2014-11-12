@@ -31,7 +31,7 @@ namespace Spf {
 
 		AlgorithmDiag(const EngineParametersType& engineParams,
 		              ModelType& model,
-		              IoInType& io)
+		              IoInType&)
 		: engineParams_(engineParams),
 		  model_(model),
 		  metropolisOrGlauber_(engineParams.detailedBalance),
@@ -162,7 +162,7 @@ namespace Spf {
 				temp =(1.0+exp(beta*(eigNew_[i]-mu)))/
 							(exp(beta*(eigNew_[i]-mu))+
 									exp(-beta*(eigOld_[i]-eigNew_[i])));
-			
+
 				X *= temp;
 			}
 
@@ -177,7 +177,7 @@ namespace Spf {
 			}
 			throw std::runtime_error("Eigs are equal!!\n");
 		}
-		
+
 		void testMatrix() const
 		{
 			RealType eps = 1e-6;
@@ -265,13 +265,13 @@ namespace Spf {
 		SizeType hilbertSize_;
 		MatrixType matrixNew_,matrixOld_;
 	}; // AlgorithmDiag
-	
+
 	template<typename EngineParametersType,typename ModelType,
 		typename RandomNumberGeneratorType>
 	std::ostream& operator<<(std::ostream& os,const AlgorithmDiag<
 			EngineParametersType,ModelType,RandomNumberGeneratorType>& a)
 	{
-		
+
 		typedef typename EngineParametersType::RealType RealType;
 		typename PsimagLite::Vector<RealType>::Type eigNew(a.hilbertSize_);
 		typename ModelType::MatrixType matrix(a.hilbertSize_,a.hilbertSize_);

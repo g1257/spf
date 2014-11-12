@@ -21,27 +21,27 @@ namespace Spf {
 		//typedef FieldType_ FieldType;
 
 		static int const DIMENSION = 3;
-		
+
  		typedef std::pair<SizeType,SizeType> PairType;
-		
+
  		GeometryCubic(SizeType l) : l_(l),volume_(l*l*l)
 		{
 			buildNeighbors();
 		}
-		
+
 		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();
 		}
-		
+
 		// j-th neighbor of i at distance (starts from 1 for compatibility)
 		PairType neighbor(SizeType i,SizeType j,SizeType distance=1) const
 		{
 			return neighbors_[distance-1](i,j);
 		}
-		
+
 		SizeType volume() const { return volume_; }
-		
+
 		SizeType add(SizeType ind,SizeType ind2) const
 		{
 			PsimagLite::Vector<int>::Type x(2),y(2);
@@ -53,11 +53,11 @@ namespace Spf {
 			}
 			return g_index(x);
 		}
-		
+
 		SizeType dim() const { return DIMENSION; }
-		
+
 		SizeType length() const { return l_; }
-		
+
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
 		indexToCoor(SomeVectorType& v,SizeType i) const
@@ -88,31 +88,31 @@ namespace Spf {
 			return pos;
 		}
 
-		SizeType coorToIndex(SizeType a,SizeType b) const
+		SizeType coorToIndex(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
 		}
 
 		PsimagLite::String name() const { return "cubic"; }
 
-		SizeType scalarDirection(SizeType site1,SizeType site2) const
+		SizeType scalarDirection(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
 		}
 
-		int getDirection(SizeType ind,SizeType jnd) const
+		int getDirection(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("getDirection unimplemented\n");
 			return  -1;
 		}
 
-		PairType getNeighbour(SizeType i,SizeType dir) const
+		PairType getNeighbour(SizeType,SizeType) const
 		{
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
 
 	private:
-		
+
 		void buildNeighbors()
 		{
 			neighborsAt1();
@@ -120,7 +120,7 @@ namespace Spf {
 			std::cerr<<
 				"WARNING: GeometryCubic: next-nearest neighbors unimplemented\n";
 		}
-		
+
 		void neighborsAt1()
 		{
 			PsimagLite::Matrix<PairType> matrix(volume_,2*DIMENSION);
@@ -154,23 +154,23 @@ namespace Spf {
 			}
 			neighbors_.push_back(matrix);
 		}
-		
+
 		bool g_pbc(int& x, SizeType l) const
 		{
 			int L = l;
 			bool r=false;
-			if (x<0) r=true; 
-			if (x>=L) r=true; 
+			if (x<0) r=true;
+			if (x>=L) r=true;
 			while(x<0) x+=L;
 			while(x>=L) x-=L;
 			return r;
 		}
-		
+
 		SizeType g_index(PsimagLite::Vector<int>::Type& x) const
 		{
 			return g_index(x[0],x[1],x[2]);
 		}
-		
+
 		SizeType g_index(int& x,int& y,int& z) const
 		{
 			SizeType lx = l_;
@@ -186,7 +186,7 @@ namespace Spf {
 		SizeType volume_;
 		PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 	}; // class GeometryCubic
-	
+
 } // namespace Spf
 
 

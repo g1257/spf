@@ -45,11 +45,11 @@ namespace Spf {
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
 //		typedef HubbardOneOrbitalObsStored<ContVarFiniteOperationsType,RealType,
 //				ParametersModelType> HubbardOneOrbitalObsStoredType;
-		
+
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
 		enum {CHARGE = DynVarsType::CHARGE, MAG = DynVarsType::MAG};
-		
+
 		HubbardOneOrbital(const EngineParamsType& engineParams,
 		                  IoInType& io,
 		                  const GeometryType& geometry)
@@ -66,9 +66,9 @@ namespace Spf {
 			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Mag");
 			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Charge");
 		}
-		
+
 		DynVarsType& dynVars() { return dynVars_; }
-		
+
 		SizeType totalFlips() const { return geometry_.volume(); }
 
 		void setOperation(ContVarFiniteOperationsType** op,SizeType i)
@@ -81,7 +81,7 @@ namespace Spf {
 			else
 				throw PsimagLite::RuntimeError("HubbardOneOrbital::setOperation()\n");
 		}
-		
+
 		SizeType hilbertSize() const { return hilbertSize_; }
 
 		RealType deltaDirect(SizeType i,ContVarFiniteOperationsType& ops,SizeType n) const
@@ -89,7 +89,7 @@ namespace Spf {
 			const RealType& coupling = (n==DynVarsType::CHARGE) ? mp_.dampingCharge : mp_.dampingMag;
 			return ops.deltaDirect(i,coupling);
 		}
-		
+
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{
@@ -97,10 +97,10 @@ namespace Spf {
 
 			RealType temp=greenFunction.calcNumber();
 			packer.pack("Number_Of_Electrons=",temp);
-			
+
 			temp=greenFunction.calcElectronicEnergy();
 			packer.pack("EnergyElectronic=",temp);
-			
+
 			RealType temp2 = chargeOperations_.sum2() * mp_.dampingCharge;
 			packer.pack("EnergyDampingCharge=",temp2);
 			temp += temp2;
@@ -137,16 +137,16 @@ namespace Spf {
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
 			MatrixType matrix(hilbertSize_,hilbertSize_);
 			createHamiltonian(matrix,oldOrNewDynVars);
-			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+			fullMatrixToCrsMatrix(sparseMatrix,matrix);
 		}
 
-		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
+		void setTpemThings(RealType&, RealType&, PsimagLite::Vector<SizeType>::Type&) const
 		{
 			throw PsimagLite::RuntimeError("setTpemThings unimplemented\n");
 		}
 
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType&)
 		{
 //			HubbardOneOrbitalObsStored_.finalize(fout);
 		}
@@ -159,9 +159,9 @@ namespace Spf {
 
 	private:
 
-		void createHamiltonian(const DynVarsType& dynVars,
+		void createHamiltonian(const DynVarsType&,
 		                       MatrixType& matrix,
-		                       const RealType* J = 0) const
+		                       const RealType* = 0) const
 		{
 			SizeType volume = geometry_.volume();
 			SizeType dof = 2; // the 2 comes because of the spin

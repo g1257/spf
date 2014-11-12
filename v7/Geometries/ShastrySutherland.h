@@ -112,14 +112,14 @@ public:
 		return -1;
 	}
 
-	SizeType scalarDirection(SizeType site1,SizeType site2) const
+	SizeType scalarDirection(SizeType,SizeType) const
 	{
 		throw PsimagLite::RuntimeError("scalarDirection unimplemented\n");
 	}
 
 	template<typename SomeVectorType>
 	typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,SizeType>::Type
-	coor2Index(const SomeVectorType& v) const
+	coor2Index(const SomeVectorType&) const
 	{
 		throw PsimagLite::RuntimeError("coor2Index unimplemented\n");
 	}
@@ -238,7 +238,7 @@ private:
 		return g_index(x[0],x[1],zz);
 	}
 
-	SizeType g_index(int& x,int& y,int& z) const
+	SizeType g_index(int& x,int& y,int&) const
 	{
 		SizeType lx = l_;
 		SizeType ly = l_;

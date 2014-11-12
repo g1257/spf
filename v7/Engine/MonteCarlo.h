@@ -23,17 +23,17 @@ namespace Spf {
 		typedef typename Loki::TL::TypeAt<OperationsList,n>::Result OperationsType;
 		typedef typename OperationsType::DynVarsType DynVarsType;
 		typedef std::pair<SizeType,SizeType> PairType;
-		
+
 	public:
 		typedef typename EngineParamsType::RealType RealType;
-		
+
 		MonteCarlo(const EngineParamsType& engineParams,
 		           OperationsType& ops,
 		           AlgorithmType& algorithm,
-		           RandomNumberGeneratorType& rng) 
+		           RandomNumberGeneratorType& rng)
 		 : engineParams_(engineParams),ops_(ops),rng_(rng),algorithm_(algorithm) { }
 
-		PairType operator()(DynVarsType& dynVars,SizeType iter)
+		PairType operator()(DynVarsType& dynVars,SizeType)
 		{
 			PairType acc = PairType(0,0);
 			ops_.set(dynVars);
@@ -52,14 +52,14 @@ namespace Spf {
 			} // lattice sweep
 			return acc;
 		}
-		
+
 	private:
-		
+
 		const EngineParamsType& engineParams_;
 		OperationsType& ops_;
 		RandomNumberGeneratorType& rng_;
 		AlgorithmType& algorithm_;
-		
+
 	}; // MonteCarlo
 
 	template<typename RngType,
@@ -113,13 +113,13 @@ namespace Spf {
 
 	public:
 
-		static void loop(RngType& rng,
-		                 const ParametersType& params,
-		                 AlgorithmFactoryType& algorithm,
-		                 ModelType& model,
-		                 DynVarsType& dynVars,
-		                 PsimagLite::Vector<PairType>::Type& accepted,
-		                 SizeType iter)
+		static void loop(RngType&,
+		                 const ParametersType&,
+		                 AlgorithmFactoryType&,
+		                 ModelType&,
+		                 DynVarsType&,
+		                 PsimagLite::Vector<PairType>::Type&,
+		                 SizeType)
 		{}
 	};
 

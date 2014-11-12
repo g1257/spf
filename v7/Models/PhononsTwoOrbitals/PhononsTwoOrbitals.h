@@ -49,7 +49,7 @@ namespace Spf {
 		typedef typename DynVarsType::PhononOperationsType PhononOperationsType;
 
 		enum {OLDFIELDS,NEWFIELDS};
-		
+
 		PhononsTwoOrbitals(EngineParamsType& engineParams,
 		                   IoInType& io,
 		                   const GeometryType& geometry)
@@ -65,9 +65,9 @@ namespace Spf {
 		{
 			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Phonon");
 		}
-		
+
 		DynVarsType& dynVars() { return dynVars_; }
-		
+
 		void setOperation(SpinOperationsType** op,SizeType i)
 		{
 			assert(i == 0);
@@ -90,7 +90,7 @@ namespace Spf {
 			return ops.deltaDirect(i,mp_.jaf,0);
 		}
 
-		RealType deltaDirect(SizeType i,PhononOperationsType& ops,int n) const
+		RealType deltaDirect(SizeType,PhononOperationsType&,int n) const
 		{
 			assert(n == 1);
 			return 0.0;
@@ -107,32 +107,32 @@ namespace Spf {
 
 			RealType temp=calcNumber(greenFunction);
 			packer.pack("Number_Of_Electrons=",temp);
-			
+
 			//s = "rankGlobal=";
-			
+
 			temp=calcElectronicEnergy(greenFunction);
 			packer.pack("Electronic Energy=",temp);
-			
+
 			RealType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
 			packer.pack("Superexchange=",temp2);
-			
+
 			temp += temp2;
-			
+
 			// total energy = electronic energy + superexchange + phonon energy
-			packer.pack("TotalEnergy-FIXME-ADD-PHONON-PART=",temp);	
+			packer.pack("TotalEnergy-FIXME-ADD-PHONON-PART=",temp);
 			//s="Action=";
-			
+
 			//s="Number_Of_Holes=";
-			
+
 			packer.pack("Adjustments: mu=",engineParams_.mu);
-			
+
 			temp = spinOperations_.calcMag(spinPart);
 			packer.pack("Mag2=",temp);
-			
+
 // 			temp=calcKinetic(dynVars_,eigs);
 // 			s ="KineticEnergy="+ttos(temp);
 // 			progress_.printline(s,fout);
-			
+
 			//storedObservables_.doThem();
 		} // doMeasurements
 
@@ -144,7 +144,7 @@ namespace Spf {
 			const PhononType& phononPart = *phononPartPtr;
 
 			DynVarsType newDynVars(spinOperations_.dynVars2(),phononPart);
-			
+
 			 if (oldOrNewDynVars==NEWFIELDS) createHamiltonian(newDynVars,matrix);
 			 else createHamiltonian(dynVars_,matrix);
 		}
@@ -155,10 +155,10 @@ namespace Spf {
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
 			MatrixType matrix;
 			createHamiltonian(matrix,oldOrNewDynVars);
-			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+			fullMatrixToCrsMatrix(sparseMatrix,matrix);
 		}
 
-		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
+		void setTpemThings(RealType&, RealType&, PsimagLite::Vector<SizeType>::Type&) const
 		{
 			throw std::runtime_error("You can't run this model with TPEM yet (sorry)\n");
 		}
@@ -171,24 +171,24 @@ namespace Spf {
 			} catch (std::exception& e) {
 				std::cerr<<e.what()<<"\n";
 			}
-				
+
 		}
-		
+
 		template<typename SomeOutputType>
-		void finalize(SomeOutputType& fout)
+		void finalize(SomeOutputType&)
 		{
 		}
-		
+
 		template<typename EngineParamsType2,
 		         typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		  const PhononsTwoOrbitals<
 		           EngineParamsType2,
 		           GeometryType2>& model);
-		
+
 		private:
-		
-		void createHamiltonian(DynVarsType& dynVars,MatrixType& matrix) const
+
+		void createHamiltonian(DynVarsType&,MatrixType& matrix) const
 		{
 			SizeType volume = geometry_.volume();
 
@@ -199,15 +199,15 @@ namespace Spf {
 			const PhononType* phononPartPtr = 0;
 			dynVars_.getField(&phononPartPtr,1);
 			const PhononType& phononPart = *phononPartPtr;
-			
-			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++) 
-				for (SizeType p = 0; p < matrix.n_col(); p++) 
+
+			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++)
+				for (SizeType p = 0; p < matrix.n_col(); p++)
 					matrix(gamma1,p)=0;
 
 			for (SizeType p = 0; p < volume; p++) {
 				RealType phonon_q1=phononOperations_.calcPhonon(p,phononPart,0);
 				RealType phonon_q2=phononOperations_.calcPhonon(p,phononPart,1);
-				RealType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);	
+				RealType phonon_q3=phononOperations_.calcPhonon(p,phononPart,2);
 				matrix(p,p) = mp_.phononSpinCoupling[0]*phonon_q1+
 						mp_.phononSpinCoupling[2]*phonon_q3+
 						mp_.potential[p];
@@ -215,26 +215,26 @@ namespace Spf {
 						mp_.phononSpinCoupling[0]*phonon_q1+mp_.potential[p];
 				matrix(p,p+volume) = (mp_.phononSpinCoupling[1]*phonon_q2);
 				matrix(p+volume,p) = conj(matrix(p,p+volume));
-				
+
 				for (SizeType j = 0; j < geometry_.z(1); j++) {	/* hopping elements, n-n only */
 					PairType tmpPair = geometry_.neighbor(p,j);
 					SizeType col = tmpPair.first;
 					SizeType dir = tmpPair.second; // int(j/2);
-					
+
 					RealType tmp=cos(0.5*spinPart.theta[p])*cos(0.5*spinPart.theta[col]);
 					RealType tmp2=sin(0.5*spinPart.theta[p])*sin(0.5*spinPart.theta[col]);
 					ComplexType S_ij=ComplexType(tmp+tmp2*cos(spinPart.phi[p]-spinPart.phi[col]),
 						-tmp2*sin(spinPart.phi[p]-spinPart.phi[col]));
-					
+
 					matrix(p,col) = -mp_.hoppings[0+0*2+dir*4] * S_ij;
 					matrix(col,p) = conj(matrix(p,col));
-					
+
 					matrix(p, col+volume)= -mp_.hoppings[0+1*2+dir*4] * S_ij;
 					matrix(col+volume,p)=conj(matrix(p,col+volume));
-					
+
 					matrix(p+volume,col) =  -mp_.hoppings[1+0*2+dir*4] * S_ij;
 					matrix(col,p+volume) =  conj(matrix(p+volume,col));
-					
+
 					matrix(p+volume,col+volume) =  -mp_.hoppings[1+1*2+dir*4] * S_ij;
 					matrix(col+volume,p+volume) = conj(matrix(p+volume,col+volume));
 				}
@@ -260,9 +260,9 @@ namespace Spf {
 				sum += g*(engineParams_.mu+log(1./g-1.)/engineParams_.beta);
 			}
 			return sum;
-				
+
 		}
-		
+
 		RealType calcKinetic(const DynVarsType& dynVars,
 		                     const typename PsimagLite::Vector<RealType>::Type& eigs) const
 		{

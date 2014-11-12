@@ -28,7 +28,7 @@ namespace Spf {
 
 	template<typename ParametersType,typename ModelType,typename IoInType,typename RngType>
 	class Engine {
-		
+
 		typedef typename ParametersType::RealType RealType;
 		typedef typename ModelType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::OperationsList OperationsListType;
@@ -81,7 +81,7 @@ namespace Spf {
 			void thread_function_(SizeType threadNum,
 			                      SizeType blockSize,
 			                      SizeType total,
-			                      typename ConcurrencyType::MutexType* myMutex)
+			                      typename ConcurrencyType::MutexType*)
 			{
 				for (SizeType p=0;p<blockSize;p++) {
 					SizeType taskNumber = threadNum*blockSize + p;
@@ -238,7 +238,7 @@ namespace Spf {
 		}
 
 	private:
-		
+
 		void thermalize()
 		{
 			SizeType fieldsToIntegrate = Loki::TL::Length<OperationsListType>::value;

@@ -319,7 +319,7 @@ private:
 	void auxCreateJmatrix(typename PsimagLite::Vector<ComplexType>::Type& jmatrix,const
 	                      typename DynVarsType::SpinType& dynVars,
 	                      SizeType site,
-	RealType J) const
+	RealType) const
 	{
 		jmatrix[0]=0.5*cos(dynVars.theta[site]);
 
@@ -442,7 +442,7 @@ private:
 	}
 
 	void auxCreateYmatrix(typename PsimagLite::Vector<RealType>::Type& ymatrix,const
-	                      typename DynVarsType::SpinType& dynVars,SizeType site) const
+	                      typename DynVarsType::SpinType&,SizeType) const
 	{
 		SizeType dof = mp_.orbitals*2;
 		ymatrix[28]=mp_.spinOrbitCoupling;

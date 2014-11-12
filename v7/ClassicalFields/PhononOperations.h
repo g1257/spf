@@ -16,18 +16,18 @@
 namespace Spf {
 	template<typename GeometryType,typename FieldType>
 	class PhononOperations {
-		
+
 	public:
 
 		typedef Phonon<FieldType> PhononType;
 		typedef typename PhononType::OnePhononType OnePhononType;
 		typedef PhononType DynVarsType;
 
-		PhononOperations(const GeometryType& geometry,FieldType mcwindow) 
+		PhononOperations(const GeometryType& geometry,FieldType mcwindow)
 			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
 		{
 		}
-		
+
 		void set(PhononType& dynVars)
 		{
 			dynVars_=&dynVars;
@@ -35,7 +35,7 @@ namespace Spf {
 
 		//! How to sweep the lattice
 		template<typename RngType>
-		SizeType proposeSite(SizeType i,RngType& rng) const
+		SizeType proposeSite(SizeType i,RngType&) const
 		{
 			return i; //<-- zig-zag horizontal
 			// zig-zag vertical:
@@ -45,22 +45,22 @@ namespace Spf {
 			return y + x*l;*/
 			// random:
 			//return SizeType(rng()*geometry_.volume());
-			
+
 		}
-		
-		
+
+
 		template<typename RngType>
 		void proposeChange(SizeType i,RngType& rng)
 		{
 			OnePhononType phononsOld = dynVars_->phonon[i];
-			
+
 			dynVars2_ = *dynVars_;
-			
+
 			propose_(phononsOld,dynVars2_.phonon[i],rng);
 		}
-		
+
 		const PhononType& dynVars2() const { return dynVars2_; }
-		
+
 		FieldType deltaDirect(SizeType i,const OnePhononType& coupling) const
 		{
 			return dSDirect(*dynVars_,dynVars2_,i,coupling);
@@ -70,26 +70,26 @@ namespace Spf {
 		{
 			return 1.0; // no measure for phonons
 		}
-		
+
 		void accept(SizeType i)
 		{
 			dynVars_->phonon[i]=dynVars2_.phonon[i];
 		}
-	
+
 		FieldType calcPhononDiff(SizeType direction,SizeType ind,const PhononType& dynVars) const
 		{
-			if (direction >= geometry_.dim()) return 0; 
+			if (direction >= geometry_.dim()) return 0;
 			SizeType j = geometry_.neighbor(ind,2*direction+1).first;
 			return  (dynVars.phonon[ind][direction]-dynVars.phonon[j][direction]);
 		}
-		
+
 		FieldType calcPhonon(SizeType ind,const PhononType& dynVars,SizeType what) const
 		{
 			FieldType ret=0;
 			FieldType sqrt3=1.732050807569;
 			FieldType sqrt2=1.414213562373;
 			FieldType sqrt6=2.449489742783;
-			
+
 			if (what==0)  { /* calc q1 */
 				ret = (calcPhononDiff(0,ind,dynVars) + calcPhononDiff(1,ind,dynVars) +
 				calcPhononDiff(2,ind,dynVars));
@@ -113,13 +113,13 @@ namespace Spf {
 			for (SizeType i=0;i<numberOfNormalModes;i++)
 				v[i]=calcPhonon(p,dynVars,i);
 		}
-		
+
 	private:
 		const GeometryType& geometry_;
 		const FieldType& mcwindow_;
 		PhononType* dynVars_;
 		PhononType dynVars2_;
-		
+
 		template<typename RngType>
 		void propose_(
 				const OnePhononType& phononsOld,

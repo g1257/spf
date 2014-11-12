@@ -41,7 +41,7 @@ public:
 
 	//! How to sweep the lattice
 	template<typename RngType>
-	SizeType proposeSite(SizeType i,RngType& rng) const
+	SizeType proposeSite(SizeType i,RngType&) const
 	{
 		return i; //<-- zig-zag horizontal
 		// zig-zag vertical:

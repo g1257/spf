@@ -41,7 +41,7 @@ namespace Spf {
 		  energyFunctor_(algorithm_.tpemParameters()),
 		  numberFunctor_(algorithm_.tpemParameters())
 		{}
-		
+
 		void measure()
 		{
 			algorithm_.prepare();
@@ -59,7 +59,7 @@ namespace Spf {
 
 		bool usesDiagonalization() const { return false; }
 
-		const ComplexType& operator()(SizeType lambda1,SizeType lambda2) const
+		const ComplexType& operator()(SizeType,SizeType) const
 		{
 			//! gf is unimplemented for TPEM
 			return data_(0,0);
@@ -90,12 +90,12 @@ namespace Spf {
 			return tpem_.expand(algorithm_.moment(), energyCoeffs);
 		}
 
-		ComplexType matrix(SizeType lambda1,SizeType lambda2) const
+		ComplexType matrix(SizeType,SizeType) const
 		{
 			return ComplexType(0,0);
 		}
 
-		FieldType e(SizeType i) const
+		FieldType e(SizeType) const
 		{
 			return 0;
 		}
@@ -122,12 +122,12 @@ namespace Spf {
 		}
 
 		void electronSpin(typename PsimagLite::Vector<ComplexType>::Type& es,
-				SizeType orbitals,SizeType n) const
+				SizeType,SizeType) const
 		{
 			for (SizeType i=0;i<es.size();i++)  es[i]=0;
 			//throw PsimagLite::RuntimeError("electron spin is unimplemented for TPEM\n");
 // 			enum {SPIN_UP,SPIN_DOWN};
-// 
+//
 // 			for (SizeType i=0;i<n;i++) {
 // 				for (SizeType orb=0;orb<orbitals;orb++) {
 // 					SizeType x = i+(orb+SPIN_UP*orbitals)*n;
@@ -158,16 +158,16 @@ namespace Spf {
 
 	private:
 
-		const EngineParametersType& engineParams_;		
+		const EngineParametersType& engineParams_;
 		AlgorithmType algorithm_;
 		SizeType hilbertSize_;
 		TpemType& tpem_; // we don't own it, FIXME: must be const
 		PsimagLite::Matrix<ComplexType> data_;
 		EnergyFunctorType energyFunctor_;
 		NumberFunctorType numberFunctor_;
-		
+
 	}; // class GreenFunctionTpem
-	
+
 	template<typename EngineParametersType,typename ModelType,typename RngType>
 	std::ostream& operator<<(std::ostream& os,const GreenFunctionTpem<
 	              EngineParametersType,ModelType,RngType>& gf)

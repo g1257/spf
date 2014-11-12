@@ -16,7 +16,7 @@ namespace Spf {
 	template<typename SpinOperationsType,typename ComplexType,
 	typename ParametersModelType>
 	class PnictidesMultiOrbitalsObsStored {
-		
+
 		typedef typename SpinOperationsType::DynVarsType DynVarsType;
 		typedef typename DynVarsType::FieldType FieldType;
 		typedef typename PsimagLite::Vector<FieldType>::Type VectorType;
@@ -30,7 +30,7 @@ namespace Spf {
 		static SizeType const DIRECTIONS  = 3;
 
 	public:
-		
+
 		PnictidesMultiOrbitalsObsStored(
 				SpinOperationsType& spinOperations,
 				const GeometryType& geometry,
@@ -48,7 +48,7 @@ namespace Spf {
 			qs_(geometry.volume(),DIRECTIONS),
 			counter_(0)
 		{}
-				
+
 		template<typename GreenFunctionType>
 		void operator()(const DynVarsType& spins,
 				GreenFunctionType& greenFunction)
@@ -67,7 +67,7 @@ namespace Spf {
 			correlation(qs_,qi,greenFunction);
 			counter_++;
 		}
-		
+
 		template<typename SomeOutputType>
 		void finalize(SomeOutputType& fout)
 		{
@@ -111,7 +111,7 @@ namespace Spf {
 		void correlation(
 				MatrixType& cc,
 				const PsimagLite::Matrix<ComplexType>& m,
-				GreenFunctionType& greenFunction)
+				GreenFunctionType&)
 		{
 			for (SizeType x=0;x<cc.n_row();x++) {
 				for (SizeType i=0;i<cc.n_row();i++) {
@@ -182,7 +182,7 @@ namespace Spf {
 			}
 		}
 
-		// C_x = \sum_i <n_i n_{i+x}>, where n_i = \sum_{dof} n_{i dof}  
+		// C_x = \sum_i <n_i n_{i+x}>, where n_i = \sum_{dof} n_{i dof}
 		template<typename GreenFunctionType>
 		void chargeCorrelation(typename PsimagLite::Vector<FieldType>::Type& cc,
 				       GreenFunctionType& greenFunction)
@@ -205,7 +205,7 @@ namespace Spf {
 				       SizeType gamma,SizeType gamma2,GreenFunctionType& greenFunction)
 		{
 			SizeType volume = geometry_.volume();
-			SizeType dof = dof_; 
+			SizeType dof = dof_;
         		// Do for all x's
 			FieldType slip = 0;
         		for (SizeType x=0;x<volume;x++) {     // Sum over all i's (or w's)
@@ -214,14 +214,14 @@ namespace Spf {
                 		for (SizeType w=0;w<volume;w++) {
 					SizeType v=geometry_.add(x,w);
                                         tmp += chargeCorrelation(w,gamma,v,gamma2,greenFunction);
-					
+
 					//test += (1.0-greenFunction(w+gamma*volume,
 					//			w+gamma*volume));
 				}
 				slip += imag(tmp);
                 		cc[x+gamma*volume+gamma2*volume*dof] += real(tmp)/volume;
 			}
-			
+
 			if (fabs(slip)>1e-6) std::cerr<<"slipping="<<slip<<"\n";
 		}
 
@@ -236,7 +236,7 @@ namespace Spf {
 					for (SizeType j=0;j<volume;j++) {
 						for (SizeType gamma2=0;gamma2<4;gamma2++) {
 							SizeType orb2 = (gamma2 & 1);
-							m(i+orb1*volume,j+orb2*volume) += 
+							m(i+orb1*volume,j+orb2*volume) +=
 								real(chargeCorrelation(i,gamma,j,gamma2,greenFunction));
 						}
 					}

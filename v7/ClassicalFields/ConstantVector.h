@@ -18,7 +18,7 @@ class ConstantVector {
 
 public:
 
-	SizeType operator[](SizeType i) { return 1; }
+	SizeType operator[](SizeType) { return 1; }
 };
 
 } // namespace Spf

@@ -4,7 +4,7 @@
 
 /*! \file Tpem.h
  *
- *  
+ *
  *
  */
 #ifndef TPEM_H
@@ -42,7 +42,7 @@ namespace Tpem {
 		typedef PsimagLite::ChebyshevFunctionExplicit<RealType> ChebyshevFunctionType;
 		//typedef PsimagLite::ChebyshevFunctionCached<RealType> ChebyshevFunctionType;
 		//typedef PsimagLite::ChebyshevFunction<RealType> ChebyshevFunctionType;
-		
+
 		enum {NO_VERBOSE,YES_VERBOSE};
 		static const SizeType verbose_ = NO_VERBOSE;
 
@@ -92,7 +92,7 @@ namespace Tpem {
 			void thread_function_(SizeType threadNum,
 			                      SizeType blockSize,
 			                      SizeType total,
-			                      typename ConcurrencyType::MutexType* myMutex)
+			                      typename ConcurrencyType::MutexType*)
 			{
 				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
 				SizeType npthreads = ConcurrencyType::npthreads;
@@ -157,7 +157,7 @@ namespace Tpem {
 			void thread_function_(SizeType threadNum,
 			                      SizeType blockSize,
 			                      SizeType total,
-			                      typename ConcurrencyType::MutexType* myMutex)
+			                      typename ConcurrencyType::MutexType*)
 			{
 				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
 				SizeType npthreads = ConcurrencyType::npthreads;
@@ -219,7 +219,7 @@ namespace Tpem {
 			void thread_function_(SizeType threadNum,
 			                      SizeType blockSize,
 			                      SizeType total,
-			                      typename ConcurrencyType::MutexType* myMutex)
+			                      typename ConcurrencyType::MutexType*)
 			{
 				SizeType mpiRank = PsimagLite::MPI::commRank(PsimagLite::MPI::COMM_WORLD);
 				SizeType npthreads = ConcurrencyType::npthreads;
@@ -359,7 +359,7 @@ namespace Tpem {
 
 		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
 
-		static RealType myFunction (RealType x, void * p) 
+		static RealType myFunction (RealType x, void * p)
 		{
 			MyFunctionParamsType* params = (MyFunctionParamsType*)p;
 
@@ -372,7 +372,7 @@ namespace Tpem {
 			return tmp;
 		}
 
-		static void my_handler (const char * reason, const char * file, int line, int gsl_errno)
+		static void my_handler (const char * reason, const char *, int, int gsl_errno)
 		{
 			if (verbose_==NO_VERBOSE) return;
 			std::string s("GSL error handler called with reason=");
@@ -442,7 +442,7 @@ namespace Tpem {
 			moment[2] += std::real (sum2);
 
 			/* calculate |j,m> = 2X|j,m-1> - |j,m-2>
-			* 
+			*
 			* begin (m=2) pass	jm0 = |j,0>	jm1 = |j,1>
 			* end   (m=2) pass	jm0 = |j,1>	jm1 = |j,2>
 			* ...
@@ -495,7 +495,7 @@ namespace Tpem {
 			moment[2] += std::real (sum2);
 
 			/* calculate |j,m> = 2X|j,m-1> - |j,m-2>
-			* 
+			*
 			* begin (m=2) pass	jm0 = |j,0>	jm1 = |j,1>
 			* end   (m=2) pass	jm0 = |j,1>	jm1 = |j,2>
 			* ...

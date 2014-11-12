@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -121,7 +121,7 @@ namespace Spf {
 			return false;
 		}
 
-		void check(const PsimagLite::String& label,const PsimagLite::String& val,SizeType line)
+		void check(const PsimagLite::String& label,const PsimagLite::String& val,SizeType)
 		{
 			if (label!="SolverOptions") return;
 			PsimagLite::Vector<PsimagLite::String>::Type registerOpts;

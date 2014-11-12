@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -90,7 +90,7 @@ namespace Spf {
 		//! ctor to read Model Parameters from inp file.
 		ParametersPhononsTwoOrbitals(
 				IoInType& io,
-				const ParametersEngineType& engineParams)
+				const ParametersEngineType&)
 		{
 			io.read(hoppings,"Hoppings");
 			io.read(potential,"Potential");
@@ -104,20 +104,20 @@ namespace Spf {
 		// packed as orbital1+orbital2*2 + dir*4
 		// where dir=0 is x, dir=1 is y, dir=2 is x+y and dir=3 is x-y
 		typename PsimagLite::Vector<RealType>::Type hoppings;
-		
+
 		// Onsite potential values, one for each site
 		typename PsimagLite::Vector<RealType>::Type potential;
-		
+
 		// JAF n-n
 		RealType jaf;
-		
+
 		// Phonon couplings
 		typename PsimagLite::Vector<RealType>::Type phononSpinCoupling;
-		
+
 		// Phonon dampings
 		typename PsimagLite::Vector<RealType>::Type phononDamping;
 	};
-	
+
 	//! Function that prints model parameters to stream os
 	template<typename ParametersEngineType,typename IoInType>
 	std::ostream& operator<<(
@@ -133,7 +133,7 @@ namespace Spf {
 		os<<parameters.phononSpinCoupling;
 		os<<"parameters.phononDampings\n";
 		os<<parameters.phononDamping;
-		
+
 		return os;
 	}
 } // namespace Spf

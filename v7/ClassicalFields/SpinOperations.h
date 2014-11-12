@@ -13,29 +13,29 @@
 #include "Spin.h"
 
 namespace Spf {
-	
+
 	template<typename GeometryType_,typename RealType>
 	class ClassicalSpinOperations {
 
 		typedef PsimagLite::Vector<RealType> VectorType;
-			
+
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
-		
+
 	public:
 
 		typedef Spin<RealType> SpinType;
 		typedef GeometryType_ GeometryType;
 		typedef SpinType DynVarsType;
-		
+
 		template<typename SomeParamsType>
-		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params) 
+		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params)
 		: geometry_(geometry),
 		  mcwindowPhi_(params.mcWindow["SpinPhi"]),
 		  mcwindowTheta_(params.mcWindow["SpinTheta"]),
 		  dynVars2_(0,params)
 		{
 		}
-		
+
 		void set(DynVarsType& dynVars)
 		{
 			dynVars_=&dynVars;
@@ -43,7 +43,7 @@ namespace Spf {
 
 		//! How to sweep the lattice
 		template<typename RandomNumberGeneratorType>
-		SizeType proposeSite(SizeType i,RandomNumberGeneratorType& rng) const
+		SizeType proposeSite(SizeType i,RandomNumberGeneratorType&) const
 		{
 			return i; //<-- zig-zag horizontal
 			// zig-zag vertical:
@@ -53,36 +53,36 @@ namespace Spf {
 			return y + x*l;*/
 			// random:
 			//return SizeType(rng()*geometry_.volume());
-			
+
 		}
-		
+
 		template<typename RandomNumberGeneratorType>
 		void proposeChange(SizeType i,RandomNumberGeneratorType& rng)
 		{
 			RealType thetaOld = dynVars_->theta[i];
 			RealType phiOld = dynVars_->phi[i];
-			
+
 			dynVars2_ = *dynVars_;
-			
+
 			propose_(thetaOld,phiOld,dynVars2_.theta[i],dynVars2_.phi[i],rng);
 		}
-		
+
 		void makeChange(SizeType i,const RealType& eps1,const RealType& eps2)
 		{
 			dynVars2_ = *dynVars_;
 			dynVars2_.theta[i] += eps1;
 			dynVars2_.phi[i] += eps2;
 		}
-		
-		const DynVarsType& dynVars2() const { return dynVars2_; } 
-		
+
+		const DynVarsType& dynVars2() const { return dynVars2_; }
+
 		RealType deltaDirect(SizeType i,RealType coupling1,RealType coupling2) const
 		{
 			SizeType z = geometry_.z(1)/2;
 			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling1);
 			return deltaDirect(i,coupling1v,coupling2);
 		}
-		
+
 		RealType deltaDirect(SizeType i,
 		                       const typename PsimagLite::Vector<RealType>::Type& coupling1v,
 		                       RealType coupling2) const
@@ -98,7 +98,7 @@ namespace Spf {
 			RealType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
 			return dx * B;
 		}
-				
+
 		RealType sineUpdate(SizeType i) const
 		{
 			RealType sineupdate= sin(dynVars_->theta[i]);
@@ -109,18 +109,18 @@ namespace Spf {
 			}
 			return sineupdate;
 		}
-		
+
 		void accept(SizeType i)
 		{
 			dynVars_->theta[i]=dynVars2_.theta[i];
 			dynVars_->phi[i]=dynVars2_.phi[i];
 		}
-		
+
 		RealType directExchange2(const DynVarsType& dynVars,RealType coupling) const
 		{
 			SizeType n = dynVars.theta.size();
 			RealType dS = 0;
-			
+
 			for (SizeType i=0;i<n;i++) {
 				RealType t1=dynVars.theta[i];
 				RealType p1=dynVars.phi[i];
@@ -133,10 +133,10 @@ namespace Spf {
 					RealType t2=dynVars.theta[j];
 					RealType p2=dynVars.phi[j];
 					RealType tmp = cost1*cos(t2)+sint1*sin(t2)*(cosp1*cos(p2)+sinp1*sin(p2));
-					dS += tmp; 
+					dS += tmp;
 				}
 			}
-			
+
 			return coupling*dS*0.5;
 		}
 		RealType calcSuperExchange(const DynVarsType& dynVars,
@@ -148,7 +148,7 @@ namespace Spf {
 			return calcSuperExchange(dynVars,coupling1v);
 
 		}
-		
+
 		RealType calcSuperExchange(const DynVarsType& dynVars,
 		                           const typename PsimagLite::Vector<RealType>::Type& coupling)
 			const
@@ -174,7 +174,7 @@ namespace Spf {
 		RealType calcMag(const DynVarsType& dynVars) const
 		{
 			typename PsimagLite::Vector<RealType>::Type mag(3);
-			
+
 			for (SizeType i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
 				mag[1] += sin(dynVars.theta[i])*sin(dynVars.phi[i]);
@@ -210,13 +210,13 @@ namespace Spf {
 			}
 		}
 
-		
+
 		void classicalCorrelations(VectorType &cc,
 				 //PsimagLite::Vector<RealType>::Type& weight,
 				 const DynVarsType& dynVars)
 		{
 			SizeType n = geometry_.volume();
-			
+
 			for (SizeType i=0;i<n;i++) {
 				RealType temp=0;
 				SizeType counter=0;
@@ -235,9 +235,9 @@ namespace Spf {
 			}
 		}
 
-		
+
 	private:
-		
+
 		template<typename RngType>
 		void propose_(
 				RealType thetaOld,
@@ -249,13 +249,13 @@ namespace Spf {
 			//if (fabs(mcwindowPhi_)<1e-8 && fabs(mcwindow_[1]<1e-8)) return;
 
 			if (isingSpins_) {
-				if (thetaOld==0) thetaNew=M_PI; 
+				if (thetaOld==0) thetaNew=M_PI;
 				else thetaNew=0;
 				phiNew=0;
 				return;
-			} 
-	
-			if (mcwindowTheta_ < 0) {	
+			}
+
+			if (mcwindowTheta_ < 0) {
 				thetaNew=2*rng()- 1;
 			} else {
 				thetaNew = thetaOld + mcwindowTheta_*(rng() - 0.5);
@@ -265,7 +265,7 @@ namespace Spf {
 			while (thetaNew > 1) thetaNew -= 1;
 			assert(fabs(thetaNew)<1);
 			thetaNew = acos(thetaNew);
-	
+
 			if (mcwindowPhi_<0) {
 				phiNew = 2*M_PI*rng();
 			} else {
@@ -274,29 +274,29 @@ namespace Spf {
 			/*if (ether.isSet("sineupdate")) {
 				thetaNew = M_PI*rng();
 			}*/
-		
+
 			while (thetaNew<0) {
 				thetaNew = -thetaNew;
 				phiNew+=M_PI;
-			}	
+			}
 			while (thetaNew>M_PI) {
 				thetaNew -= M_PI;
 				phiNew+=M_PI;
 			}
-				
+
 			while (phiNew<0) phiNew += 2*M_PI;
 			while (phiNew>2*M_PI) phiNew -= 2*M_PI;
 			//std::cerr<<"ThetaOld="<<thetaOld<<" thetaNew="<<thetaNew<<"\n";
 			//std::cerr<<"PhiOld="<<phiOld<<" phiNew="<<phiNew<<"\n";
 		}
-		
+
 		RealType dSDirect(const DynVarsType& dynVars,
 		                    const DynVarsType& dynVars2,
 		                    SizeType i,
 		                    typename PsimagLite::Vector<RealType>::Type coupling) const
 		{
 			RealType dS = 0;
-				
+
 			for (SizeType k = 0; k<geometry_.z(1); k++){
 				SizeType j=geometry_.neighbor(i,k).first;
 				SizeType dir = geometry_.neighbor(i,k).second;
@@ -311,17 +311,17 @@ namespace Spf {
 			//if (ether.isSet("magneticfield")) tmp = Zeeman(dynVars2,geometry,ether)-Zeeman(dynVars,geometry,ether);
 			//else tmp =0;
 			// dS += tmp;
-		
+
 			return dS;
 		}
-		
+
 		const GeometryType& geometry_;
 		RealType mcwindowPhi_;
 		RealType mcwindowTheta_;
 		DynVarsType* dynVars_;
 		DynVarsType dynVars2_;
-		
-		
+
+
 	}; // Engine
 } // namespace Spf
 

@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -95,9 +95,9 @@ namespace Spf {
 		PnictidesTwoOrbitalsFields(SizeType vol,const SomeParamsType& params)
 		: spin_(vol,params)
 		{}
-		
-		const PsimagLite::String& name(SizeType i) const { return name_; }
-		
+
+		const PsimagLite::String& name(SizeType) const { return name_; }
+
 		void getField(SpinType** field,SizeType i)
 		{
 			assert(i == 0);
@@ -109,16 +109,16 @@ namespace Spf {
 			assert(i == 0);
 			*field = &spin_;
 		}
-		
+
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitalsFields<FieldType2,GeometryType2>& f);
-		
+
 	private:
 		static const PsimagLite::String name_;
 		SpinType spin_;
-		
+
 	}; // PnictidesTwoOrbitalsFields
-	
+
 	template<typename FieldType,typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,const PnictidesTwoOrbitalsFields<FieldType,GeometryType>& f)
 	{
@@ -127,7 +127,7 @@ namespace Spf {
 	}
 	template<typename FieldType,typename GeometryType>
 	const PsimagLite::String PnictidesTwoOrbitalsFields<FieldType,GeometryType>::name_="spin";
-	
+
 } // namespace Spf
 
 /*@}*/

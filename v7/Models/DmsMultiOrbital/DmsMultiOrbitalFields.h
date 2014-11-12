@@ -100,7 +100,7 @@ public:
 		spin_.modulus = modulus;
 	}
 
-	const PsimagLite::String& name(SizeType i) const { return name_; }
+	const PsimagLite::String& name(SizeType) const { return name_; }
 
 	void getField(SpinType** field,SizeType i)
 	{
