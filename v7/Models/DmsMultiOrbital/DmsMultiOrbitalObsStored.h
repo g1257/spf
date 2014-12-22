@@ -44,7 +44,7 @@ public:
 	      geometry_(geometry),
 	      mp_(mp),
 	      pe_(pe),
-	      cs_(geometry.volume()),
+	      cs_(geometry.volume(),DIRECTIONS),
 	      arw_(0),
 	      optical_(0),
 	      counter_(0)
@@ -118,14 +118,14 @@ private:
 		}
 	}
 
-	void correlation(VectorRealType& cc,
+	void correlation(MatrixType& cc,
 	                 const PsimagLite::Matrix<FieldType>& m)
 	{
-		for (SizeType x=0;x<cc.size();x++) {
-			for (SizeType i=0;i<cc.size();i++) {
+		for (SizeType x=0;x<cc.n_row();x++) {
+			for (SizeType i=0;i<cc.n_row();i++) {
 				SizeType j = geometry_.add(i,x);
 				for (SizeType dir=0;dir<DIRECTIONS;dir++)
-					cc[x] += std::real(m(i,dir) * m(j,dir));
+					cc(x,dir) += std::real(m(i,dir) * m(j,dir));
 			}
 		}
 	}
@@ -272,7 +272,7 @@ private:
 	const GeometryType& geometry_;
 	const ParametersModelType& mp_;
 	const EngineParamsType& pe_;
-	VectorRealType cs_;
+	MatrixType cs_;
 	typename PsimagLite::Vector<HistogramComplexType*>::Type arw_;
 	HistogramRealType* optical_;
 	SizeType counter_;
