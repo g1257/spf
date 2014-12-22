@@ -177,8 +177,8 @@ namespace Spf {
 					RealType p2=dynVars.phi[j];
 					sum += D[0]*(sint1*sinp1*cos(t2)-sin(t2)*sin(p2)*cos(t1));
 					sum += D[1]*(sin(t2)*cos(p2)*cost1-sint1*cosp1*cos(t2));
-					sum += D[3]*sin(t2)*sin(p2)*sint1*cosp1;
-					sum -= D[3]*sin(t2)*cos(p2)*sint1*sinp1;
+					sum += D[2]*sin(t2)*sin(p2)*sint1*cosp1;
+					sum -= D[2]*sin(t2)*cos(p2)*sint1*sinp1;
 				}
 			}
 
