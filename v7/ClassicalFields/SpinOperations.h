@@ -18,6 +18,7 @@ namespace Spf {
 	class ClassicalSpinOperations {
 
 		typedef PsimagLite::Vector<RealType> VectorType;
+		typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 		static const bool isingSpins_ = false; // FIXME: make it runtime option
 
@@ -79,12 +80,12 @@ namespace Spf {
 		RealType deltaDirect(SizeType i,RealType coupling1,RealType coupling2) const
 		{
 			SizeType z = geometry_.z(1)/2;
-			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling1);
+			VectorRealType coupling1v(z,coupling1);
 			return deltaDirect(i,coupling1v,coupling2);
 		}
 
 		RealType deltaDirect(SizeType i,
-		                       const typename PsimagLite::Vector<RealType>::Type& coupling1v,
+		                       const VectorRealType& coupling1v,
 		                       RealType coupling2) const
 		{
 			RealType sum = dSDirect(*dynVars_,dynVars2_,i,coupling1v);
@@ -97,6 +98,13 @@ namespace Spf {
 		{
 			RealType dx = cos(dynVars2_.theta[i]) - cos(dynVars_->theta[i]);
 			return dx * B;
+		}
+
+		RealType deltaDmInteraction(SizeType,
+		                            const VectorRealType& dmNn,
+		                            const VectorRealType& dmNnn) const
+		{
+			return calcDmTerm(dynVars2_,dmNn,dmNnn) - calcDmTerm(*dynVars_,dmNn,dmNnn);
 		}
 
 		RealType sineUpdate(SizeType i) const
@@ -139,18 +147,56 @@ namespace Spf {
 
 			return coupling*dS*0.5;
 		}
+
+		RealType calcDmTerm(const DynVarsType& dynVars,
+		                    const VectorRealType& dmNn,
+		                    const VectorRealType& dmNnn) const
+		{
+			return calcDmTerm(dynVars,dmNn,1) + calcDmTerm(dynVars,dmNnn,2);
+
+		}
+
+		RealType calcDmTerm(const DynVarsType& dynVars,
+		                    const VectorRealType& D,
+		                    SizeType neighbor) const
+		{
+			if (D.size() < 3) return 0;
+			SizeType n = dynVars.theta.size();
+			RealType sum = 0;
+
+			for (SizeType i=0;i<n;i++) {
+				RealType t1=dynVars.theta[i];
+				RealType p1=dynVars.phi[i];
+				RealType cost1 = cos(t1);
+				RealType sint1 = sin(t1);
+				RealType cosp1 = cos(p1);
+				RealType sinp1 = sin(p1);
+				for (SizeType k = 0; k<geometry_.z(neighbor); k++){
+					SizeType j=geometry_.neighbor(i,k,neighbor).first;
+					RealType t2=dynVars.theta[j];
+					RealType p2=dynVars.phi[j];
+					sum += D[0]*(sint1*sinp1*cos(t2)-sin(t2)*sin(p2)*cos(t1));
+					sum += D[1]*(sin(t2)*cos(p2)*cost1-sint1*cosp1*cos(t2));
+					sum += D[3]*sin(t2)*sin(p2)*sint1*cosp1;
+					sum -= D[3]*sin(t2)*cos(p2)*sint1*sinp1;
+				}
+			}
+
+			return sum;
+		}
+
 		RealType calcSuperExchange(const DynVarsType& dynVars,
 				                              const RealType& coupling)
 					const
 		{
 			SizeType z = geometry_.z(1);
-			typename PsimagLite::Vector<RealType>::Type coupling1v(z,coupling);
+			VectorRealType coupling1v(z,coupling);
 			return calcSuperExchange(dynVars,coupling1v);
 
 		}
 
 		RealType calcSuperExchange(const DynVarsType& dynVars,
-		                           const typename PsimagLite::Vector<RealType>::Type& coupling)
+		                           const VectorRealType& coupling)
 			const
 		{
 			RealType sum = 0;
@@ -173,7 +219,7 @@ namespace Spf {
 
 		RealType calcMag(const DynVarsType& dynVars) const
 		{
-			typename PsimagLite::Vector<RealType>::Type mag(3);
+			VectorRealType mag(3);
 
 			for (SizeType i=0;i<geometry_.volume();i++) {
 				mag[0] += sin(dynVars.theta[i])*cos(dynVars.phi[i]);
@@ -188,7 +234,7 @@ namespace Spf {
 				const DynVarsType& dynVars,
 				const PsimagLite::Vector<SizeType>::Type& modulus) const
 		{
-			typename PsimagLite::Vector<RealType>::Type mag(3);
+			VectorRealType mag(3);
 
 			for (SizeType i=0;i<geometry_.volume();i++) {
 				if (modulus[i]==0) continue;
@@ -200,7 +246,7 @@ namespace Spf {
 		}
 
 		void calcMagVector(
-				typename PsimagLite::Vector<RealType>::Type& mag,
+				VectorRealType& mag,
 				const DynVarsType& dynVars) const
 		{
 			for (SizeType i=0;i<geometry_.volume();i++) {
@@ -293,7 +339,7 @@ namespace Spf {
 		RealType dSDirect(const DynVarsType& dynVars,
 		                    const DynVarsType& dynVars2,
 		                    SizeType i,
-		                    typename PsimagLite::Vector<RealType>::Type coupling) const
+		                    VectorRealType coupling) const
 		{
 			RealType dS = 0;
 

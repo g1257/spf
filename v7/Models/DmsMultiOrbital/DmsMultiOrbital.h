@@ -91,6 +91,7 @@ public:
 		assert(n == 0);
 		RealType x = ops.deltaDirect(i,mp_.jafNn,mp_.jafNnn);
 		x += ops.deltaMagneticField(i,mp_.magneticField);
+		x += ops.deltaDmInteraction(i,mp_.dmNn,mp_.dmNnn);
 		return x;
 	}
 
@@ -124,6 +125,12 @@ public:
 		if (mp_.jafNnn!=0) {
 			temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
 			packer.pack("Superexchange2=",temp2);
+			temp += temp2;
+		}
+
+		if (mp_.dmNn.size() > 0 || mp_.dmNnn.size() > 0) {
+			temp2=spinOperations_.calcDmTerm(dynVars,mp_.dmNn,mp_.dmNnn);
+			packer.pack("DmTerm=",temp2);
 			temp += temp2;
 		}
 

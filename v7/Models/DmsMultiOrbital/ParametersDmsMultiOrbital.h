@@ -91,6 +91,7 @@ struct ParametersDmsMultiOrbital {
 
 	typedef typename ParametersEngineType::RealType RealType;
 	typedef std::complex<RealType> ComplexType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 	//! ctor to read Model Parameters from inp file.
 	ParametersDmsMultiOrbital(IoInType& io,
@@ -123,6 +124,14 @@ struct ParametersDmsMultiOrbital {
 		io.readline(magneticField,"MagneticField=");
 
 		io.readline(spinOrbitCoupling,"SPIN_ORBIT_COUPLING=");
+
+		try {
+			io.read(dmNn,"PARAMETERS_DM_NN");
+		} catch (std::exception& e) {}
+
+		try {
+			io.read(dmNnn,"PARAMETERS_DM_NNN");
+		} catch (std::exception& e) {}
 
 		PsimagLite::Vector<SizeType>::Type tmp;
 		try {
@@ -165,6 +174,9 @@ struct ParametersDmsMultiOrbital {
 
 	RealType spinOrbitCoupling; // =0.34
 
+	VectorRealType dmNn;
+	VectorRealType dmNnn;
+
 	// Modulus (FIXME: use less storage here it should be either 0 or 1)
 	PsimagLite::Vector<SizeType>::Type modulus;
 
@@ -187,6 +199,9 @@ std::ostream& operator<<(
 	os<<parameters.hoppings;
 	os<<"parameters.magneticField="<<parameters.magneticField<<"\n";
 	os<<"parameters.spinOrbitCoupling="<<parameters.spinOrbitCoupling<<"\n";
+	if (parameters.dmNn.size() > 0) os<<"parameters.dmNn="<<parameters.dmNn;
+	if (parameters.dmNnn.size() > 0) os<<"parameters.dmNnn="<<parameters.dmNnn;
+
 	os<<"modulus\n";
 	for (SizeType i=0;i<parameters.modulus.size();i++)
 		if (parameters.modulus[i]!=0) os<<i<<" ";
