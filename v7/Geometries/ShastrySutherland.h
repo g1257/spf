@@ -28,6 +28,8 @@ public:
 		buildNeighbors();
 	}
 
+	SizeType distances() const { return neighbors_.size(); }
+
 	SizeType z(SizeType distance=1) const
 	{
 		return neighbors_[distance-1].n_col();
@@ -68,7 +70,7 @@ public:
 
 	SizeType length() const { return l_; }
 
-	PsimagLite::String name() const { return "square"; }
+	PsimagLite::String name() const { return "ShastrySutherland"; }
 
 	template<typename SomeVectorType>
 	typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
@@ -253,20 +255,6 @@ private:
 	PsimagLite::Vector<PsimagLite::Matrix<PairType> >::Type neighbors_;
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os,const ShastrySutherland<T>& g)
-{
-	for (SizeType i=0;i<g.neighbors_.size();i++) {
-		os<<"#i="<<i<<"\n";
-		for (SizeType k=0;k<g.neighbors_[i].n_row();k++) {
-			for (SizeType l=0;l<g.neighbors_[i].n_col();l++) {
-				os<<g.neighbors_[i](k,l).first<<" ";
-			}
-			os<<"\n";
-		}
-	}
-	return os;
-}
 } // namespace Spf
 
 /*@}*/

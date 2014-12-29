@@ -32,6 +32,25 @@ public:
 	}
 
 	template<typename T>
+	static void printGeometry(std::ostream& os,const T& g)
+	{
+		SizeType n = g.volume();
+
+		for (SizeType d=0;d<g.distances();++d) {
+			os<<"#Distance Number="<<d<<"\n";
+			for (SizeType i=0;i<n;++i) {
+				std::cout<<"Neighbors of "<<i<<" are ";
+				for (SizeType k=0;k<g.z(d+1);k++) {
+					SizeType j = g.neighbor(i,k,d+1).first;
+					os<<j<<" ";
+				}
+
+				os<<"\n";
+			}
+		}
+	}
+
+	template<typename T>
 	static T square(const T& t)
 	{
 		return t*t;

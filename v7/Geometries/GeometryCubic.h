@@ -29,6 +29,8 @@ namespace Spf {
 			buildNeighbors();
 		}
 
+		SizeType distances() const { return neighbors_.size(); }
+
 		SizeType z(SizeType distance=1) const
 		{
 			return neighbors_[distance-1].n_col();

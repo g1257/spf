@@ -45,6 +45,7 @@ typedef PsimagLite::Concurrency MyConcurrencyType;
 #include "Random48.h"
 #include "InputCheck.h"
 #include "InputNg.h"
+#include "ProgramGlobals.h"
 
 typedef Spf::GeometrySquare<FieldType> GeometrySquareType;
 typedef Spf::ShastrySutherland<FieldType> ShastrySutherlandType;
@@ -85,6 +86,10 @@ void mainLoop(ParametersEngineType& engineParams,
 	                               GeometryType> HubbardOneOrbitalType;
 
 	GeometryType geometry(engineParams.latticeLength);
+
+	std::cout<<"Geometry\n";
+	Spf::ProgramGlobals::printGeometry(std::cout,geometry);
+	std::cout<<"---------------------------------------------------\n";
 
 	if (engineParams.model=="DmsMultiOrbital") {
 		mainLoop2<GeometryType,DmsMultiOrbitalType>(engineParams,io,geometry);
