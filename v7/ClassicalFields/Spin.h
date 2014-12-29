@@ -28,7 +28,7 @@ namespace Spf {
 		      isFrozen(params.options.find("frozenspins") != PsimagLite::String::npos)
 		{
 			if (params.dynvarsfile=="none") return;
-			if (params.dynvarsfile=="random") {
+			if (params.dynvarsfile==":random") {
 				PsimagLite::Random48<FieldType> random48(params.randomSeed);
 				for (SizeType i=0;i<theta.size();i++) {
 					theta[i] = random48.random()*M_PI;
@@ -36,8 +36,8 @@ namespace Spf {
 				}
 				return;
 			}
-			
-			if (params.dynvarsfile=="ferro") {
+
+			if (params.dynvarsfile==":fm") {
 				for (SizeType i=0;i<theta.size();i++) {
 					theta[i] = 0.0;
 					phi[i] = 0.0;
@@ -45,7 +45,7 @@ namespace Spf {
 				return;
 			}
 
-			if (params.dynvarsfile=="pizero") {
+			if (params.dynvarsfile==":pizero" || params.dynvarsfile==":afm") {
 				SizeType l = SizeType(sqrt(size));
 				if (l*l!=size) {
 					PsimagLite::String s(__FILE__);
@@ -56,10 +56,21 @@ namespace Spf {
 					s += " \"pizero\" start type valid only for square lattice\n";
 					throw PsimagLite::RuntimeError(s.c_str());
 				}
-				for (SizeType i=0;i<theta.size();i++) {
-					theta[i] = M_PI;
-					phi[i] = (i % l) % 2 ? 0 : M_PI;
+
+				if (params.dynvarsfile==":afm") {
+					for (SizeType i=0;i<theta.size();i++) {
+						div_t q = div(i,l);
+						theta[i] = ((q.quot+q.rem)&1) ? 0.0 : M_PI;
+						phi[i] = 0.0;
+					}
+
+				} else {
+					for (SizeType i=0;i<theta.size();i++) {
+						theta[i] = M_PI;
+						phi[i] = (i % l) % 2 ? 0 : M_PI;
+					}
 				}
+
 				return;
 			}
 
@@ -67,14 +78,14 @@ namespace Spf {
 			(*this)<=ioin;
 			if (theta.size()==0 || phi.size()==0) throw PsimagLite::RuntimeError("PRoblem\n");
 		}
-		
+
 		SizeType size;
 		typename PsimagLite::Vector<FieldType>::Type theta;
 		typename PsimagLite::Vector<FieldType>::Type phi;
 		typename PsimagLite::Vector<SizeType>::Type modulus;
-		bool isFrozen;		
+		bool isFrozen;
 	}; // Spin
-	
+
 	template<typename FieldType>
 	std::ostream& operator<<(std::ostream& os,const Spin<FieldType>& dynVars)
 	{
@@ -89,7 +100,7 @@ namespace Spf {
 		os<<"IsFrozen"<<dynVars.isFrozen<<"\n";
 		return os;
 	}
-	
+
 	//! Operator to read Dynvars from file
 	template<typename FieldType>
 	Spin<FieldType>& operator<=(
@@ -99,10 +110,10 @@ namespace Spf {
 		ioin.read(dynVars.theta,"Theta");
 		ioin.read(dynVars.phi,"Phi");
 		ioin.readline(dynVars.isFrozen,"IsFrozen");
-		
+
 		return dynVars;
 	}
-	
+
 } // namespace Spf
 
 /*@}*/
