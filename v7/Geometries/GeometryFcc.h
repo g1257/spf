@@ -124,6 +124,11 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("getNeighbour unimplemented\n");
 		}
 
+		bool isBoundary(SizeType, SizeType, SizeType) const
+		{
+			throw PsimagLite::RuntimeError("isBoundary unimplemented\n");
+		}
+
 		template<typename SomeVectorType>
 		typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,void>::Type
 		indexToCoor(SomeVectorType&,SizeType) const

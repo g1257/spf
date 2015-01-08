@@ -174,6 +174,11 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("indexToCoor unimplemented\n");
 		}
 
+		bool isBoundary(SizeType, SizeType, SizeType) const
+		{
+			throw PsimagLite::RuntimeError("isBoundary unimplemented\n");
+		}
+
 		template<typename T>
 		friend std::ostream& operator<<(std::ostream& os,
 		                                const GeometrySquare45Degrees<T>& g);

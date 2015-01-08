@@ -177,9 +177,10 @@ namespace Spf {
 					RealType t2=dynVars.theta[j];
 					RealType p2=dynVars.phi[j];
 					int sign = 1;
-					if (geometry_.name() == "ShastrySutherland") {
-						if ((j+1) % geometry_.length() == 0) sign = -sign;
+					if (neighbor == 2) {
+						if (geometry_.isBoundary(i,j,1)) sign = -1;
 					}
+
 					sum += D[0]*sign*(sint1*sinp1*cos(t2)-sin(t2)*sin(p2)*cos(t1));
 					sum += D[1]*sign*(sin(t2)*cos(p2)*cost1-sint1*cosp1*cos(t2));
 					sum += D[2]*sign*sin(t2)*sin(p2)*sint1*cosp1;

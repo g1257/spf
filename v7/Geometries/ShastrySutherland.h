@@ -87,6 +87,18 @@ public:
 		return x + y*lx;
 	}
 
+	bool isBoundary(SizeType i, SizeType j, SizeType d) const
+	{
+		PsimagLite::Vector<int>::Type vi(2),vj(2);
+		SizeType lOver2 = static_cast<SizeType>(l_*0.5);
+		indexToCoor(vi,i);
+		indexToCoor(vj,j);
+
+		int dist = vi[d] - vj[d];
+		SizeType udist = (dist > 0) ? dist : -dist;
+		return (udist >= lOver2);
+	}
+
 	// direction connecting i and j
 	// assume that i and j are n-neighbors or next n-neighbors
 	int getDirection(SizeType ind,SizeType jnd) const

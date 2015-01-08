@@ -95,6 +95,18 @@ namespace Spf {
 			throw PsimagLite::RuntimeError("coorToIndex unimplemented\n");
 		}
 
+		bool isBoundary(SizeType i, SizeType j, SizeType d) const
+		{
+			PsimagLite::Vector<int>::Type vi(3),vj(3);
+			SizeType lOver2 = static_cast<SizeType>(l_*0.5);
+			indexToCoor(vi,i);
+			indexToCoor(vj,j);
+
+			int dist = vi[d] - vj[d];
+			SizeType udist = (dist > 0) ? dist : -dist;
+			return (udist >= lOver2);
+		}
+
 		PsimagLite::String name() const { return "cubic"; }
 
 		SizeType scalarDirection(SizeType,SizeType) const
