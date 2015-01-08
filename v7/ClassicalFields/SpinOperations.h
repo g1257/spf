@@ -179,6 +179,8 @@ namespace Spf {
 					int sign = 1;
 					if (neighbor == 2) {
 						if (geometry_.isBoundary(i,j,1)) sign = -1;
+					} else {
+						if (isBoundary(i,j)) sign = -1;
 					}
 
 					sum += D[0]*sign*(sint1*sinp1*cos(t2)-sin(t2)*sin(p2)*cos(t1));
@@ -289,6 +291,16 @@ namespace Spf {
 
 
 	private:
+
+		bool isBoundary(SizeType i, SizeType j) const
+		{
+			SizeType dim = geometry_.dim();
+			for (SizeType d = 0; d < dim; ++d) {
+				if (geometry_.isBoundary(i,j,d)) return true;
+			}
+
+			return false;
+		}
 
 		template<typename RngType>
 		void propose_(
