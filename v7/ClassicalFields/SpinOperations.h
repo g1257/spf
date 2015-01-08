@@ -173,9 +173,13 @@ namespace Spf {
 				RealType sinp1 = sin(p1);
 				for (SizeType k = 0; k<geometry_.z(neighbor); k++){
 					SizeType j=geometry_.neighbor(i,k,neighbor).first;
+					if (i >= j) continue;
 					RealType t2=dynVars.theta[j];
 					RealType p2=dynVars.phi[j];
-					RealType sign = (i < j) ? 1 : -1;
+					int sign = 1;
+					if (geometry_.name() == "ShastrySutherland") {
+						if ((j+1) % geometry_.length() == 0) sign = -sign;
+					}
 					sum += D[0]*sign*(sint1*sinp1*cos(t2)-sin(t2)*sin(p2)*cos(t1));
 					sum += D[1]*sign*(sin(t2)*cos(p2)*cost1-sint1*cosp1*cos(t2));
 					sum += D[2]*sign*sin(t2)*sin(p2)*sint1*cosp1;
