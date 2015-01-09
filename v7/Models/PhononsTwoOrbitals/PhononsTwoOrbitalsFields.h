@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -78,8 +78,8 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PHONONS_2ORB_FIELDS_H
 #define PHONONS_2ORB_FIELDS_H
-#include "SpinOperations.h"
-#include "PhononOperations.h"
+#include "../../ClassicalFields/SpinOperations.h"
+#include "../../ClassicalFields/PhononOperations.h"
 #include "loki/Typelist.h"
 
 namespace Spf {
@@ -99,20 +99,20 @@ namespace Spf {
 		PhononsTwoOrbitalsFields(SizeType vol,const SomeParamsType& params) :
 				spin_(vol,params),phonon_(vol,params.dynvarsfile)
 		{}
-		
-		PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) : 
+
+		PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) :
 				spin_(spin),phonon_(phonon)
 		{
 		}
 
 		const PsimagLite::String& name(SizeType i) const { return name_[i]; }
-		
+
 		void getField(SpinType const** field,SizeType i) const
 		{
 			assert(i == 0);
 			*field = &spin_;
 		}
-		
+
 		void getField(PhononType const** field,SizeType i) const
 		{
 			assert(i == 1);
@@ -134,14 +134,14 @@ namespace Spf {
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,
 		          const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
-		
+
 	private:
 		static PsimagLite::Vector<PsimagLite::String>::Type name_;
 		SpinType spin_;
 		PhononType phonon_;
-		
+
 	}; // PhononsTwoOrbitalsFields
-	
+
 	template<typename FieldType,typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,
 	              const PhononsTwoOrbitalsFields<FieldType,GeometryType>& f)

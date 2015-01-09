@@ -13,7 +13,7 @@
 #include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
-#include "SpinOperations.h"
+#include "../../ClassicalFields/SpinOperations.h"
 #include "ModelBase.h"
 #include "ParametersDmsMultiOrbital.h"
 #include "DmsMultiOrbitalObsStored.h"

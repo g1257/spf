@@ -13,8 +13,8 @@
 #include "Random48.h"
 #include "ProgressIndicator.h"
 #include "Adjustments.h"
-#include "SpinOperations.h"
-#include "PhononOperations.h"
+#include "../../ClassicalFields/SpinOperations.h"
+#include "../../ClassicalFields/PhononOperations.h"
 #include "ModelBase.h"
 #include "ParametersPhononsTwoOrbitals.h"
 

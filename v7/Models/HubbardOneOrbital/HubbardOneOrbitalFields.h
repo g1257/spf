@@ -38,7 +38,7 @@ must include the following acknowledgment:
 "This product includes software produced by UT-Battelle,
 LLC under Contract No. DE-AC05-00OR22725  with the
 Department of Energy."
- 
+
 *********************************************************
 DISCLAIMER
 
@@ -79,7 +79,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #ifndef HUBBARD_ONE_ORB_FIELDS_H
 #define HUBBARD_ONE_ORB_FIELDS_H
 #include "loki/Typelist.h"
-#include "ContVarFiniteOperations.h"
+#include "../../ClassicalFields/ContVarFiniteOperations.h"
 
 namespace Spf {
 	template<typename FieldType,typename GeometryType>
@@ -92,7 +92,7 @@ namespace Spf {
 		typedef ContVarFiniteOperations<GeometryType,FieldType> ContVarFiniteOperationsType;
 		typedef typename ContVarFiniteOperationsType::DynVarsType ContVarFiniteType;
 		typedef typename ContVarFiniteType::PairRealType PairRealType;
-		
+
 		typedef LOKI_TYPELIST_2(ContVarFiniteOperationsType,ContVarFiniteOperationsType) OperationsList;
 
 		template<typename SomeParamsType>
@@ -103,18 +103,18 @@ namespace Spf {
 		{
 			setNames();
 		}
-		
+
 		HubbardOneOrbitalFields(const ContVarFiniteType& charge,const ContVarFiniteType& mag)
 		    : name_(2),charge_(charge),mag_(mag)
 		{
 			setNames();
 		}
-		
+
 		const PsimagLite::String& name(SizeType i) const
 		{
 			return name_[i];
 		}
-		
+
 		void getField(ContVarFiniteType const** field,SizeType i) const
 		{
 			assert(i == 0 || i == 1);
@@ -142,10 +142,10 @@ namespace Spf {
 			return (what==CHARGE) ? charge_ : mag_;
 		}
 
-		
+
 		template<typename FieldType2,typename GeometryType2>
 		friend std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType2,GeometryType2>& f);
-		
+
 	private:
 
 		void setNames()
@@ -158,9 +158,9 @@ namespace Spf {
 		PsimagLite::Vector<PsimagLite::String>::Type name_;
 		ContVarFiniteType charge_;
 		ContVarFiniteType mag_;
-		
+
 	}; // HubbardOneOrbitalFields
-	
+
 	template<typename FieldType,typename GeometryType>
 	std::ostream& operator<<(std::ostream& os,const HubbardOneOrbitalFields<FieldType,GeometryType>& f)
 	{

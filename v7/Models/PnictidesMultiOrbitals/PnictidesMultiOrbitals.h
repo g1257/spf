@@ -12,7 +12,7 @@
 #include "PnictidesMultiOrbitalsFields.h"
 #include "Random48.h"
 #include "ProgressIndicator.h"
-#include "SpinOperations.h"
+#include "../../ClassicalFields/SpinOperations.h"
 #include "ModelBase.h"
 #include "ThreeOrbitalTerms.h"
 #include "PnictidesMultiOrbitalsObsStored.h"
@@ -48,10 +48,10 @@ namespace Spf {
 				GeometryType> ThreeOrbitalTermsType;
 		typedef PnictidesMultiOrbitalsObsStored<SpinOperationsType,ComplexType,
 				ParametersModelType> PnictidesMultiOrbitalsObsStoredType;
-		
+
 		enum {OLDFIELDS,NEWFIELDS};
 		enum {SPIN_UP,SPIN_DOWN};
-		
+
 		PnictidesMultiOrbitals(const EngineParamsType& engineParams,
 		                       IoInType& io,
 		                       const GeometryType& geometry)
@@ -66,9 +66,9 @@ namespace Spf {
 		  PnictidesMultiOrbitalsObsStored_(spinOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
 		{
 		}
-		
+
 		DynVarsType& dynVars() { return dynVars_; }
-		
+
 		SizeType totalFlips() const { return geometry_.volume(); }
 
 		void setOperation(SpinOperationsType** op,SizeType i)
@@ -88,31 +88,31 @@ namespace Spf {
 		}
 
 		void set(typename DynVarsType::SpinType& dynVars) { spinOperations_.set(dynVars); }
-		
+
 		template<typename GreenFunctionType,typename SomePackerType>
 		void doMeasurements(GreenFunctionType& greenFunction,SizeType iter,SomePackerType& packer)
 		{
 			SpinType* dynVarsPtr = 0;
 			dynVars_.getField(&dynVarsPtr,0);
 			const SpinType& dynVars = *dynVarsPtr;
-			
+
 			packer.pack("iter=",iter);
 
 			RealType temp=greenFunction.calcNumber();
 // 			s ="Number_Of_Electrons="+ttos(temp);
 			packer.pack("Number_Of_Electrons=",temp);
-			
+
 			//s = "rankGlobal=";
-			
+
 			temp=greenFunction.calcElectronicEnergy();
 // 			s="Electronic Energy="+ttos(temp);
 			packer.pack("Electronic Energy=",temp);
-			
+
 			RealType temp2=spinOperations_.calcSuperExchange(dynVars,mp_.jafNn);
 // 			s="Superexchange="+ttos(temp2);
 			packer.pack("Superexchange=",temp2);
 // 			progress_.printline(s,fout);
-			
+
 			temp += temp2;
 			if (mp_.jafNnn!=0) {
 				temp2=spinOperations_.directExchange2(dynVars,mp_.jafNnn);
@@ -128,7 +128,7 @@ namespace Spf {
 // 			progress_.printline(s,fout);
 
 			packer.pack("Adjustments: mu=",engineParams_.mu);
-	
+
 			typename PsimagLite::Vector<RealType>::Type magVector(3,0);
 			spinOperations_.calcMagVector(magVector,dynVars);
 // 			s="ClassicalMagnetizationSquared="+ttos(magVector*magVector);
@@ -191,7 +191,7 @@ namespace Spf {
 			// FIXME, NEEDS TO WRITE THIS FROM SCRATCH!!!!
 			MatrixType matrix(hilbertSize_,hilbertSize_);
 			createHamiltonian(matrix,oldOrNewDynVars);
-			fullMatrixToCrsMatrix(sparseMatrix,matrix); 
+			fullMatrixToCrsMatrix(sparseMatrix,matrix);
 		}
 
 		void setTpemThings(RealType& a, RealType& b, PsimagLite::Vector<SizeType>::Type& support) const
@@ -199,7 +199,7 @@ namespace Spf {
 			{
 				MatrixType matrix(hilbertSize_,hilbertSize_);
 				FakeParams fakeParams("none",343313,engineParams_.options);
-				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
+				SpinType tmpDynVars(geometry_.volume(),fakeParams);
 				createHamiltonian(tmpDynVars,matrix);
 				typename PsimagLite::Vector<RealType>::Type e(matrix.n_row());
 				diag(matrix,e,'N');
@@ -208,12 +208,12 @@ namespace Spf {
 			}
 
 			{
-				// setup support: 
+				// setup support:
 				// to make this work for mp.J==0 we need to set
 				RealType J = 0.5;
 				MatrixType matrix(hilbertSize_,hilbertSize_);
 				FakeParams fakeParams("none",343313,engineParams_.options);
-				SpinType tmpDynVars(geometry_.volume(),fakeParams); 
+				SpinType tmpDynVars(geometry_.volume(),fakeParams);
 				createHamiltonian(tmpDynVars,matrix,&J);
 				SpinOperationsType spinOps(geometry_,engineParams_);
 				spinOps.set(tmpDynVars);
@@ -251,8 +251,8 @@ namespace Spf {
 			SizeType dof = norb * 2; // the 2 comes because of the spin
 			typename PsimagLite::Vector<ComplexType>::Type jmatrix(2*2,0);
 
-			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++) 
-				for (SizeType p = 0; p < matrix.n_col(); p++) 
+			for (SizeType gamma1=0;gamma1<matrix.n_row();gamma1++)
+				for (SizeType p = 0; p < matrix.n_col(); p++)
 					matrix(gamma1,p)=0;
 			RealType jvalue = (J==0) ? mp_.J : *J;
 			for (SizeType p = 0; p < volume; p++) {
@@ -264,8 +264,8 @@ namespace Spf {
 					RealType magField = (spin1==SPIN_UP) ? mp_.magneticField : -mp_.magneticField;
 					matrix(p+gamma1*volume,p+gamma1*volume) =
 						real(jmatrix[spin1+2*spin1]) + mp_.potentialV[p] + magField;
-					for (SizeType j = 0; j <  geometry_.z(1); j++) {	
-						if (j%2!=0) continue;	
+					for (SizeType j = 0; j <  geometry_.z(1); j++) {
+						if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j);
 						SizeType k = tmpPair.first;
 						SizeType dir = tmpPair.second; // int(j/2);
@@ -278,7 +278,7 @@ namespace Spf {
 					}
 					//if (geometry.z(p,2)!=4 || geometry.z(p)!=4) throw PsimagLite::RuntimeError("neighbours wrong\n");
 					for (SizeType j = 0; j <  geometry_.z(2); j++) {
-						if (j%2!=0) continue;	
+						if (j%2!=0) continue;
 						PairType tmpPair = geometry_.neighbor(p,j,2);
 						SizeType k = tmpPair.first;
 						SizeType dir = tmpPair.second;
@@ -290,7 +290,7 @@ namespace Spf {
 							matrix(k+gamma2*volume,p+gamma1*volume) = conj(matrix(p+gamma1*volume,k+gamma2*volume));
 						}
 					}
-					
+
 					for (SizeType spin2=0;spin2<2;spin2++) {
 						if (spin1==spin2) continue; // diagonal term already taken into account
 						SizeType gamma2 = orb1+spin2*norb; // orb2 == orb1 here
@@ -316,7 +316,7 @@ namespace Spf {
 
 			jmatrix[1]=ComplexType(sin(dynVars.theta[site])*cos(dynVars.phi[site]),
 				sin(dynVars.theta[site])*sin(dynVars.phi[site]));
-		
+
 			jmatrix[2]=conj(jmatrix[1]);
 
 			jmatrix[3]= -cos(dynVars.theta[site]);
@@ -378,7 +378,7 @@ namespace Spf {
 								if (dir2<0) continue;
 
 								SizeType h = orb1+orb2*norb+norb*norb*dir2;
-								RealType hopping = mp_.hoppings[h] 
+								RealType hopping = mp_.hoppings[h]
 								    + threeOrbitalTerms_.hopping(isite,dir2,orb1,orb2);
 								if (fabs(hopping)<1e-8) continue;
 								//std::cerr<<"dir="<<dir<<" isite="<<isite<<" jsite="<<jsite<<" dir2="<<dir2<<" h="<<hopping<<"\n";

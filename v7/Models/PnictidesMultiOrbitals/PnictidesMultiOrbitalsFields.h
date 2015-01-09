@@ -78,7 +78,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PNICTIDES_2ORB_FIELDS_H
 #define PNICTIDES_2ORB_FIELDS_H
-#include "SpinOperations.h"
+#include "../../ClassicalFields/SpinOperations.h"
 #include "loki/Typelist.h"
 
 namespace Spf {
