@@ -11,7 +11,7 @@
 #define CLASSICAL_SPIN_OPS_H
 #include "Vector.h"
 #include "Spin.h"
-#include "ProgramGlobals.h"
+#include "../Engine/ProgramGlobals.h"
 
 namespace Spf {
 
