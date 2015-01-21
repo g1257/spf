@@ -46,6 +46,7 @@ namespace Spf {
 
 		void init()
 		{
+			if (model_.hilbertSize() == 0) return;
 			model_.createHamiltonian(matrixOld_,ModelType::OLDFIELDS);
 
 			if (engineParams_.options.find("matrixBlocked")!=PsimagLite::String::npos) {
@@ -110,6 +111,7 @@ namespace Spf {
 		                 char jobz='N',
 		                 SizeType fields=ModelType::NEWFIELDS) const
 		{
+			if (model_.hilbertSize() == 0) return;
 			model_.createHamiltonian(matrix,fields);
 			if (engineParams_.options.find("matrixBlocked")!=PsimagLite::String::npos) {
 				diagBlocked(matrix,eigs,jobz);

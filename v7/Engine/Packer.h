@@ -10,7 +10,7 @@ THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND
 CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. 
+PARTICULAR PURPOSE ARE DISCLAIMED.
 
 Please see full open source license included in file LICENSE.
 *********************************************************
@@ -25,6 +25,7 @@ Please see full open source license included in file LICENSE.
 #include <fstream>
 #include "TypeToString.h"
 #include "Concurrency.h"
+#include "Mpi.h"
 
 // FIXME: values_ should be a string here
 namespace Spf {
@@ -34,11 +35,11 @@ namespace Spf {
 		enum {TYPE_REAL,TYPE_COMPLEX,TYPE_SizeType,TYPE_STRING};
 
 	public:
-		
+
 		Packer(IoOutputType& fout)
 		: fout_(fout),comm_(0),progress_("Packer")
 		{}
-		
+
 		~Packer()
 		{
 			SizeType nprocs = PsimagLite::Concurrency::nprocs(comm_);
@@ -48,11 +49,11 @@ namespace Spf {
 				values[r+i*nprocs] = values_[i];
 			}
 			values_.clear();
-			
+
 			PsimagLite::MPI::reduce(values,PsimagLite::MPI::SUM,0,comm_);
-			
+
 			if (!PsimagLite::Concurrency::root(comm_)) return;
-			
+
 			bool flag = false;
 			RealType prev = 0;
 			for (SizeType r=0;r<nprocs;r++) {

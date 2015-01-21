@@ -14,9 +14,9 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h" // in PsimagLite
 #include "Complex.h" // in PsimagLite
-#include "Tpem.h"
+#include "../../Tpem/Tpem.h"
 #include "MetropolisOrGlauber.h"
-#include "TpemParameters.h"
+#include "../../Tpem/TpemParameters.h"
 #include "Adjustments.h"
 
 namespace Spf {
@@ -24,7 +24,7 @@ namespace Spf {
 	class AlgorithmTpem {
 		static const bool DO_GLAUBER = true;
 		typedef Adjustments<EngineParametersType> AdjustmentsType;
-	public:	
+	public:
 		typedef typename EngineParametersType::RealType RealType;
 		typedef std::complex<RealType> ComplexType;
 		typedef PsimagLite::Matrix<ComplexType> MatrixType;
@@ -74,7 +74,7 @@ namespace Spf {
 		{
 			assert(n==0 || n==1);
 			RealType dsDirect = model_.deltaDirect(i,ops,n);
-							
+
 			setMatrix(matrixNew_,ModelType::NEWFIELDS);
 
 			VectorType moments(curMoments_.size());
@@ -82,7 +82,7 @@ namespace Spf {
 
 			dS -= engineParams_.beta*dsDirect;
 			newMoments_ = curMoments_ + moments;
-			
+
 			adjustChemPot(newMoments_,i,engineParams_.adjustEach);
 
 			// INTEGRATION MEASURE NOT SUPPORTED ANYMORE
@@ -109,7 +109,7 @@ namespace Spf {
 			adjustChemPot(curMoments_,0,0);
 // 			std::cerr<<"IsHerm = "<<b<<"\n";
 		}
-		
+
 		PsimagLite::String error() const
 		{
 			return error_;
@@ -118,7 +118,7 @@ namespace Spf {
 		const VectorType& moment() const { return curMoments_; }
 
 		ModelType& model() { return model_; }
-		
+
 		TpemType& tpem() { return tpem_; }
 
 		const TpemParametersType& tpemParameters() const { return tpemParameters_; }
@@ -155,18 +155,18 @@ namespace Spf {
 		                         const TpemSparseType& matrix1)
 		{
 			VectorType actionCoeffs(tpemParameters_.cutoff);
-			tpem_.calcCoeffs(actionCoeffs,actionFunc_); 
+			tpem_.calcCoeffs(actionCoeffs,actionFunc_);
 
 			tpem_.calcMomentsDiff(moments,matrix0, matrix1);
 
 
 			SizeType total = moments.size();
 			SizeType start = SizeType(total*0.8);
-			
+
 			if (!computeError_ || start<2)  {
 				return -tpem_.expand(actionCoeffs, moments);
 			}
-		
+
 			RealType error1 = 0;
 			RealType x = -tpem_.expand(actionCoeffs, moments,0,start-1);
 			for (SizeType i=start;i<total;i++) {
@@ -176,7 +176,7 @@ namespace Spf {
 			}
 			error_ = ttos(error1);
 			//assert(x==-tpem_.expand(actionCoeffs, moments));
-			
+
 			return x;
 		}
 
@@ -204,7 +204,7 @@ namespace Spf {
 		VectorType newMoments_;
 		PsimagLite::String error_;
 	}; // AlgorithmTpem
-	
+
 	template<typename EngineParametersType,typename ModelType,
 	         typename RandomNumberGeneratorType>
 	std::ostream& operator<<(std::ostream& os,const AlgorithmTpem<

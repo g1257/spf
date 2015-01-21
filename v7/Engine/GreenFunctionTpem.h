@@ -95,7 +95,7 @@ namespace Spf {
 			return ComplexType(0,0);
 		}
 
-		FieldType e(SizeType) const
+		RealType e(SizeType) const
 		{
 			return 0;
 		}
