@@ -22,10 +22,15 @@ namespace Spf {
 		typedef Phonon<FieldType> PhononType;
 		typedef typename PhononType::OnePhononType OnePhononType;
 		typedef PhononType DynVarsType;
+		typedef typename PsimagLite::Vector<FieldType>::Type VectorFieldType;
 
-		PhononOperations(const GeometryType& geometry,FieldType mcwindow)
-			: geometry_(geometry),mcwindow_(mcwindow),dynVars2_(0,"none")
+		PhononOperations(const GeometryType& geometry,
+		                 const VectorFieldType& mcwindow,
+		                 SizeType windowIndex)
+			: geometry_(geometry),mcwindow_(0),dynVars2_(0,"none")
 		{
+			ProgramGlobals::checkMcWindow(mcwindow,windowIndex);
+			mcwindow_ = mcwindow[windowIndex];
 		}
 
 		void set(PhononType& dynVars)
@@ -116,7 +121,7 @@ namespace Spf {
 
 	private:
 		const GeometryType& geometry_;
-		const FieldType& mcwindow_;
+		FieldType mcwindow_;
 		PhononType* dynVars_;
 		PhononType dynVars2_;
 

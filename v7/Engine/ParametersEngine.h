@@ -111,20 +111,6 @@ namespace Spf {
 			io.readline(iterEffective,"MonteCarloEffectiveIteractions=");
 			io.readline(iterUnmeasured,"MonteCarloUnmeasuredPlusOne=");
 
-			bool flag = false;
-			try {
-				typename PsimagLite::Vector<RealType>::Type tmpVector;
-				io.read(tmpVector,"MonteCarloWindows");
-				flag = true;
-			} catch (std::exception& e) {}
-
-			if (flag) {
-				PsimagLite::String str("MonteCarloWindows is not supported anymore");
-				str += " Please add MonteCarloWindow[\"SpinPhi\"]= and ";
-				str += " MonteCarloWindow[\"SpinTheta\"]= to the input file\n";
-				throw PsimagLite::RuntimeError(str);
-			}
-
 			io.read(mcWindow,"MonteCarloWindow");
 			io.readline(dynvarsfile,"MonteCarloStartTypeOrFile=");
 			io.readline(dynvarslevel,"MonteCarloStartLevel=");
@@ -206,7 +192,7 @@ namespace Spf {
 		RealType adjustTolerance;
 		RealType beta; // inverse temperature
 		SizeType iterTherm,iterEffective,iterUnmeasured;
-		mutable typename PsimagLite::Map<PsimagLite::String,RealType>::Type  mcWindow; // monte carlo windows
+		typename PsimagLite::Vector<RealType>::Type  mcWindow; // monte carlo windows
 		PsimagLite::String dynvarsfile; // file with fields to start from or none
 		SizeType dynvarslevel; // from where to start to read in dynvarsfile
 		SizeType histSteps; // histogram steps
@@ -238,7 +224,8 @@ namespace Spf {
 		os<<"parameters.iterTherm="<<parameters.iterTherm<<"\n";
 		os<<"parameters.iterEffective="<<parameters.iterEffective<<"\n";
 		os<<"parameters.iterUnmeasured="<<parameters.iterUnmeasured<<"\n";
-		PsimagLite::printMap(os,parameters.mcWindow,"parameters.mcWindow");
+		os<<"parameters.mcWindows\n";
+		os<<parameters.mcWindow;
 		os<<"parameters.dynvarsfile="<<parameters.dynvarsfile<<"\n";
 		os<<"parameters.dynvarslevel="<<parameters.dynvarslevel<<"\n";
 		os<<"parameters.histSteps="<<parameters.histSteps<<"\n";
@@ -253,12 +240,6 @@ namespace Spf {
 		os<<"parameters.adjustEach="<<parameters.adjustEach<<"\n";
 		os<<"parameters.adjustMaxIter="<<parameters.adjustMaxIter<<"\n";
 		os<<"parameters.adjustTolerance="<<parameters.adjustTolerance<<"\n";
-
-		typedef typename PsimagLite::Map<PsimagLite::String,RealType>::Type MapType;
-		typedef typename MapType::const_iterator MapIterator;
-		const MapType& mymap = parameters.mcWindow;
-		for (MapIterator iter = mymap.begin(); iter != mymap.end(); iter++)
-			os<<"parameters.mcWindow["<<iter->first<<"]="<<iter->second<<"\n";
 
 		return os;
 	}

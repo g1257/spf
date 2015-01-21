@@ -12,7 +12,7 @@ Beta=120
 MonteCarloThermalizations=300
 MonteCarloEffectiveIteractions=5
 MonteCarloUnmeasuredPlusOne=2
-MonteCarloWindow[SpinPhi]=0.025
+MonteCarloWindow 2 -1 0.025
 MonteCarloStartTypeOrFile=TestSuite/inputs/startingConfig420.txt
 MonteCarloStartLevel=1000
 HistogramSteps=1000

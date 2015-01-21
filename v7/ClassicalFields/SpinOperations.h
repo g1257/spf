@@ -11,6 +11,7 @@
 #define CLASSICAL_SPIN_OPS_H
 #include "Vector.h"
 #include "Spin.h"
+#include "ProgramGlobals.h"
 
 namespace Spf {
 
@@ -29,12 +30,14 @@ namespace Spf {
 		typedef SpinType DynVarsType;
 
 		template<typename SomeParamsType>
-		ClassicalSpinOperations(const GeometryType& geometry,const SomeParamsType& params)
+		ClassicalSpinOperations(const GeometryType& geometry,
+		                        const SomeParamsType& params)
 		: geometry_(geometry),
-		  mcwindowPhi_(params.mcWindow["SpinPhi"]),
-		  mcwindowTheta_(params.mcWindow["SpinTheta"]),
 		  dynVars2_(0,params)
 		{
+			ProgramGlobals::checkMcWindow(params.mcWindow,1);
+			mcwindowPhi_ = params.mcWindow[1];
+		    mcwindowTheta_ = params.mcWindow[0];
 		}
 
 		void set(DynVarsType& dynVars)

@@ -20,18 +20,22 @@ class ContVarFiniteOperations {
 
 	typedef ContVarFinite<FieldType> ContVarFiniteType;
 	typedef typename ContVarFiniteType::PairRealType PairRealType;
+	typedef typename PsimagLite::Vector<FieldType>::Type VectorFieldType;
 
 public:
 
 	typedef ContVarFiniteType DynVarsType;
 
 	ContVarFiniteOperations(const GeometryType& geometry,
-	                        const FieldType& mcwindow,
+	                        const VectorFieldType& mcwindow,
+	                        SizeType windowIndex,
 	                        const PairRealType& bounds)
 	    : geometry_(geometry),
-	      mcwindow_(mcwindow),
+	      mcwindow_(0),
 	      dynVars2_(0,"none",0,bounds)
 	{
+		ProgramGlobals::checkMcWindow(mcwindow,windowIndex);
+		mcwindow_ = mcwindow[windowIndex];
 	}
 
 	void set(DynVarsType& dynVars)
@@ -105,7 +109,7 @@ public:
 private:
 
 	const GeometryType& geometry_;
-	const FieldType& mcwindow_;
+	FieldType mcwindow_;
 	DynVarsType* dynVars_;
 	DynVarsType dynVars2_;
 

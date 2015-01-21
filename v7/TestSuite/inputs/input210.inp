@@ -12,7 +12,7 @@ Beta=1000
 MonteCarloThermalizations=0
 MonteCarloEffectiveIteractions=20
 MonteCarloUnmeasuredPlusOne=1
-MonteCarloWindow[SpinPhi]=0.2
+MonteCarloWindow 2 -1 0.2
 MonteCarloStartTypeOrFile=none
 MonteCarloStartLevel=0
 HistogramSteps=1000

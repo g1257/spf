@@ -19,14 +19,14 @@ public:
 
 	enum {DIRX=0,DIRY=1,DIRXPY=2,DIRXMY=3,DIRZ=0};
 
-	template<typename MapType>
-	static typename PsimagLite::EnableIf<PsimagLite::IsMapLike<MapType>::True,void>::Type
-	checkMcWindow(const MapType& mcWindow,const PsimagLite::String& arg)
+	template<typename SomeVectorType>
+	static typename PsimagLite::EnableIf<PsimagLite::IsVectorLike<SomeVectorType>::True,
+	void>::Type checkMcWindow(const SomeVectorType& mcWindow, SizeType i)
 	{
-		if (mcWindow.find(arg.c_str()) != mcWindow.end()) return;
+		if (i < mcWindow.size()) return;
 
-			PsimagLite::String str("checkMcWindow(): MonteCarloWindow[");
-			str += arg + "] needed in input file\n";
+			PsimagLite::String str("checkMcWindow(): MonteCarloWindow must have");
+			str += "at least " + ttos(i+1) + " entries.\n";
 
 			throw PsimagLite::RuntimeError(str);
 	}

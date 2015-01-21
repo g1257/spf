@@ -59,13 +59,9 @@ namespace Spf {
 		  dynVars_(geometry.volume(),engineParams),
 		  hilbertSize_(2*geometry.volume()),
 		  progress_("HubbardOneOrbital"),
-		  chargeOperations_(geometry,engineParams.mcWindow.find("Charge")->second,PairRealType(0,2)),
-		  magOperations_(geometry,engineParams.mcWindow.find("Mag")->second,PairRealType(-1,1))
-//		  HubbardOneOrbitalObsStored_(chargeOperations_,geometry,mp_,2*mp_.numberOfOrbitals)
-		{
-			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Mag");
-			ProgramGlobals::checkMcWindow(engineParams.mcWindow,"Charge");
-		}
+		  chargeOperations_(geometry,engineParams.mcWindow,0,PairRealType(0,2)),
+		  magOperations_(geometry,engineParams.mcWindow,1,PairRealType(-1,1))
+		{}
 
 		DynVarsType& dynVars() { return dynVars_; }
 
