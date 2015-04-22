@@ -9,7 +9,7 @@
  */
 #ifndef FAKE_PARAMS_H
 #define FAKE_PARAMS_H
-#include "String.h"
+#include "AllocatorCpu.h"
 
 namespace Spf {
 

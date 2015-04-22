@@ -10,7 +10,6 @@
 #ifndef GEOM_ShastrySutherland_H
 #define GEOM_ShastrySutherland_H
 #include <utility>
-#include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 #include "ProgramGlobals.h"

@@ -10,7 +10,6 @@
 #ifndef GEOM_SQUARE45DEGREES_H
 #define GEOM_SQUARE45DEGREES_H
 #include <utility>
-#include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 #include <iostream>

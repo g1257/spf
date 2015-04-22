@@ -20,7 +20,6 @@ Please see full open source license included in file LICENSE.
 #ifndef PACKER_H
 #define PACKER_H
 #include "ProgressIndicator.h"
-#include "String.h"
 #include <iostream>
 #include <fstream>
 #include "TypeToString.h"

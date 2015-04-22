@@ -10,7 +10,6 @@
 #ifndef GEOM_SQUARE_H
 #define GEOM_SQUARE_H
 #include <utility>
-#include "String.h"
 #include <vector>
 #include "Matrix.h" // in PsimagLite
 #include "ProgramGlobals.h"

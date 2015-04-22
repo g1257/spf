@@ -11,7 +11,6 @@
 #define GEOM_CUBIC_H
 
 #include "ProgramGlobals.h"
-#include "String.h"
 #include "Vector.h"
 
 namespace Spf {

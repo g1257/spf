@@ -76,7 +76,6 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
  */
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
-#include "String.h"
 #include <vector>
 #include <iostream>
 #include <cstdlib>

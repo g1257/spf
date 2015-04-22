@@ -8,7 +8,6 @@
  */
 #ifndef SPF_ProgramGlobals_H
 #define SPF_ProgramGlobals_H
-#include "String.h"
 #include "Map.h"
 
 namespace Spf {
