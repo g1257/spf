@@ -58,8 +58,8 @@ namespace Spf {
 				}
 
 				if (params.dynvarsfile==":afm") {
-					for (SizeType i=0;i<theta.size();i++) {
-						div_t q = div(i,l);
+					for (SizeType i = 0; i < theta.size(); ++i) {
+						div_t q = div(static_cast<int>(i), static_cast<int>(l));
 						theta[i] = ((q.quot+q.rem)&1) ? 0.0 : M_PI;
 						phi[i] = 0.0;
 					}
