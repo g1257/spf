@@ -147,7 +147,7 @@ namespace Spf {
 			RealType mu = engineParams_.mu;
 
 			for (SizeType lambda=0;lambda<hilbertSize_;lambda++)
-				sum += std::conj(algorithm_.matrix(lambda1,lambda)) *
+				sum += PsimagLite::conj(algorithm_.matrix(lambda1,lambda)) *
 					algorithm_.matrix(lambda2,lambda) *
 				PsimagLite::fermi(-beta*(algorithm_.e(lambda)-mu));
 			return sum;

@@ -9,7 +9,7 @@
  */
 #ifndef SPIN_H
 #define SPIN_H
-#include "IoSimple.h"
+#include "Io/IoSimple.h"
 #include "Random48.h"
 #include "TypeToString.h"
 

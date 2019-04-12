@@ -1,0 +1,97 @@
+#
+# Format of psiTag files is described in PsimagLite/scripts/PsiTag.pm
+#
+# PsimagLite support is needed by DMRG++
+dependency PsimagLite = (
+LDFLAGS = -L../../PsimagLite/lib -L../../../PsimagLite/lib -lpsimaglite
+)
+
+# Compiler to use. For clang++ see commented out line.
+# Note that -mtune=native -march=native should not be
+# used if you intend your executable to run in machines
+# other than the one your are compiling on
+compilerCPP GNU = CXX = g++ -frecord-gcc-switches
+
+compilerCPP CLANG = CXX = clang++
+
+compilerCPPOptions ansi = (
+
+# We're using ansi C++
+CPPFLAGS += -pedantic -std=c++98
+
+# Enable warnings and treat warnings as errors
+CPPFLAGS += -Wall -Wendif-labels
+
+)
+
+# Treat warnings as errors
+# (hdf5 on Ubuntu does not pass this, so it's
+# commented out by default now)
+compilerCPPOptions Werror = CPPFLAGS += -Werror
+
+# This enables additional debugging
+compilerCPPOptions AdditonalDebugging = (
+CPPFLAGS += -D_GLIBCXX_DEBUG -D_GLIBCXX_PROFILE
+)
+
+# This enables gsl support
+dependency GSL = (
+CPPFLAGS +=-DUSE_GSL
+LDFLAGS += -lgsl -lgslcblas
+)
+
+#This enables boost support that is needed for Ainur
+dependency Boost = (
+CPPFLAGS += -DUSE_BOOST
+)
+
+# This disables debugging
+compilerCPPOptions NDEBUG = CPPFLAGS += -DNDEBUG
+
+# Optimization level here
+compilerCPPOptions Optimize3 = (
+CPPFLAGS += -O3
+)
+
+# This enables partial debugging (make sure to comment out previous line)
+compilerCPPOptions Symbols3 = (
+CPPFLAGS +=   -g3
+)
+
+# Here add your lapack and blas libraries or say NO_LAPACK
+dependency LAPACK = (
+# If on MacOs please say LDFLAGS += -framework Accelerate
+LDFLAGS += -llapack
+)
+
+dependency BLAS = (
+LDFLAGS += -lblas
+)
+
+dependency pthreads = (
+# Here add -lpthread if threading is needed and also 
+# set -DUSE_PTHREADS below
+LDFLAGS += -lpthread
+
+# Enable pthreads
+CPPFLAGS += -DUSE_PTHREADS
+)
+
+base config = (
+< compilerCPP GNU
+< compilerCPPOptions ansi
+< dependency LAPACK
+< dependency GSL
+< dependency pthreads
+< dependency PsimagLite
+CPPFLAGS += -I../Tpem
+)
+
+flavor production = (
+< base config
+CPPFLAGS += -DNDEBUG
+CPPFAGS += -O3
+)
+
+default flavor = production
+

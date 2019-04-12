@@ -9,7 +9,7 @@
  */
 #ifndef CONT_VAR_FINITE_H
 #define CONT_VAR_FINITE_H
-#include "IoSimple.h"
+#include "Io/IoSimple.h"
 #include "Vector.h"
 #include "ConstantVector.h"
 

@@ -81,7 +81,9 @@ namespace Spf {
 			RealType dS = calcDeltaAction(moments,matrixOld_, matrixNew_);
 
 			dS -= engineParams_.beta*dsDirect;
-			newMoments_ = curMoments_ + moments;
+			const SizeType nn = newMoments_.size();
+			for (SizeType i = 0; i < nn; ++i)
+				newMoments_[i] = curMoments_[i] + moments[i];
 
 			adjustChemPot(newMoments_,i,engineParams_.adjustEach);
 
@@ -183,8 +185,8 @@ namespace Spf {
 		void setMatrix(TpemSparseType& matrix,SizeType oldOrNewFields) const
 		{
 			model_.createHsparse(matrix,oldOrNewFields);
-			TpemSparseType diagB(matrix.row(),matrix.col());
-			diagB.makeDiagonal(matrix.row(),-tpemParameters_.b);
+			TpemSparseType diagB(matrix.rows(),matrix.cols());
+			diagB.makeDiagonal(matrix.rows(),-tpemParameters_.b);
 			matrix += diagB;
 			matrix *= (1.0/tpemParameters_.a);
 		}

@@ -1,26 +1,52 @@
 #!/usr/bin/perl -w
-use strict;
-use lib '../../PsimagLite/scripts';
-use Make;
+use Getopt::Long qw(:config no_ignore_case);
+use lib "../../PsimagLite/scripts";
+use NewMake;
+use lib ".";
+use PsiTag;
+
+my ($flavor, $lto) = (NewMake::noFlavor() , 0, 0, 0);
+my $usage = "USAGE: $0 [-f flavor] [-lto] [-c config]\n";
+my $config;
+
+GetOptions('f=s' => \$flavor,
+           'lto' => \$lto,
+           'c=s' => \$config) or die "$usage\n";
+
+my $gccdash = "";
+if ($lto == 1) {
+	$gccdash = "gcc-";
+	$lto = "-flto";
+} else {
+	$lto = "";
+}
+
+my @configFiles = ("TestSuite/inputs/ConfigBase.psiTag");
+push @configFiles, $config if (defined($config));
 
 my @drivers = ("spf");
 
-my $lapack = Make::findLapack();
-my ($gslC,$glsL) = Make::findGsl();
-Make::backupMakefile();
-writeMakefile();
+my %args;
+$args{"CPPFLAGS"} = $lto;
+$args{"LDFLAGS"} = $lto;
+$args{"flavor"} = $flavor;
+$args{"code"} = "SPFv7";
+$args{"configFiles"} = \@configFiles;
 
-sub writeMakefile
+createMakefile(\@drivers, \%args);
+
+sub createMakefile
 {
-	open(my $fh,">Makefile") or die "Cannot open Makefile for writing: $!\n";
+        my ($drivers, $args) = @_;
+        NewMake::backupMakefile();
 
-	my $libs = "$lapack  $glsL  -lm  -lpthread -lpsimaglite";
-	my $cxx = "g++";
-	my $cppflags = " -O3 -DNDEBUG  -I../Tpem -IEngine -I../../PsimagLite ";
-	$cppflags .= " -I../../PsimagLite/src  $gslC";
-	Make::make($fh,\@drivers,"spf","Linux",0,$libs,$cxx,$cppflags,"true"," "," ");
+        my $fh;
+        open($fh, ">", "Makefile") or die "Cannot open Makefile for writing: $!\n";
 
-	close($fh);
+        NewMake::main($fh, $args, $drivers);
+
 	print "$0: Done writing Makefile\n";
+	close($fh);
 }
+
 

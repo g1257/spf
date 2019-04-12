@@ -82,7 +82,7 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include <stdexcept>
 #include "Map.h"
 #include "TypeToString.h"
-#include "IoSimple.h"
+#include "Io/IoSimple.h"
 #include "Concurrency.h"
 
 namespace Spf {
