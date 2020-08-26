@@ -114,7 +114,7 @@ namespace Spf {
 	private:
 
 		IoOutputType& fout_;
-		PsimagLite::Concurrency::CommType comm_;
+		PsimagLite::MPI::CommType comm_;
 		PsimagLite::ProgressIndicator progress_;
 		PsimagLite::Vector<PsimagLite::String>::Type labels_;
 		typename PsimagLite::Vector<RealType>::Type values_;
