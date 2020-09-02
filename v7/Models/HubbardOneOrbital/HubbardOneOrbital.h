@@ -176,7 +176,8 @@ namespace Spf {
 						SizeType k = tmpPair.first;
 
 						matrix(p+spin1*volume,k+spin1*volume) = mp_.hopping;
-						matrix(k+spin1*volume,p+spin1*volume) = std::conj(matrix(p+spin1*volume,k+spin1*volume));
+						matrix(k+spin1*volume,p+spin1*volume) =
+						        PsimagLite::conj(matrix(p+spin1*volume,k+spin1*volume));
 
 					}
 				}

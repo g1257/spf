@@ -456,7 +456,7 @@ private:
 		ymatrix[35]=mp_.spinOrbitCoupling;
 
 		for (SizeType i=0;i<dof;i++) for (SizeType j=i+1;j<dof;j++)
-			ymatrix[i+j*dof]=std::conj(ymatrix[j+i*dof]);
+			ymatrix[i+j*dof] = PsimagLite::conj(ymatrix[j+i*dof]);
 	}
 
 	RealType calcKinetic(const DynVarsType& dynVars,

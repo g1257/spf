@@ -138,7 +138,7 @@ namespace Spf {
 			typename PsimagLite::Vector<ComplexType>::Type electronSpinVector(3,0);
 			greenFunction.electronSpin(electronSpinVector,mp_.numberOfOrbitals,dynVars.size);
 			typename PsimagLite::Vector<ComplexType>::Type combinedVector(3,0);
-			combinedVector =  electronSpinVector + magVector;
+			ProgramGlobals::vectorPlus(combinedVector, electronSpinVector, magVector);
 // 			s="CombinedMagnetizationSquared="+ttos(std::real(combinedVector*combinedVector));
 // 			progress_.printline(s,fout);
 			packer.pack("CombinedMagnetizationSquared=",

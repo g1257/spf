@@ -41,16 +41,17 @@ namespace Spf {
 
 			void init(SizeType l)
 			{
-				SizeType lx = l;
-				SizeType twolx = 2*lx;
-				div_t divresult = div(ind,twolx);
+				int lx = l;
+				int twolx = 2*lx;
+				div_t divresult = div(ind, twolx);
 
-				if (SizeType(divresult.rem)<lx) {
+				if (divresult.rem < lx) {
 					type = TYPE_0;
 					x = divresult.rem;
 					y = divresult.quot;
 					return;
 				}
+
 				type = TYPE_1;
 				x = divresult.rem-lx;
 				y = divresult.quot;

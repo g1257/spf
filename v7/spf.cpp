@@ -3,10 +3,10 @@
 void printLicense()
 {
 	const PsimagLite::String license_=
-	        "Copyright (c) 2009-2013, UT-Battelle, LLC\n"
+	        "Copyright (c) 2009-2020, UT-Battelle, LLC\n"
 	        "All rights reserved\n"
 	        "\n"
-	        "[SPF, Version 7.0.0]\n"
+	        "[SPF, Version 7.]\n"
 	        "\n"
 	        "*********************************************************\n"
 	        "THE SOFTWARE IS SUPPLIED BY THE COPYRIGHT HOLDERS AND\n"
@@ -139,7 +139,7 @@ int main(int argc,char *argv[])
 	ParametersEngineType engineParams(io);
 	std::cout<<engineParams;
 
-	MyConcurrencyType::npthreads = engineParams.npthreads;
+	PsimagLite::Concurrency::codeSectionParams.npthreads = engineParams.npthreads;
 
 	if (engineParams.geometry=="ladder") {
 		mainLoop<GeometrySquareType>(engineParams,io);
