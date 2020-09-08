@@ -77,7 +77,10 @@ LDFLAGS += -lpthread
 CPPFLAGS += -DUSE_PTHREADS
 )
 
+addto basics = (  )
+
 base config = (
+< addto basics
 < compilerCPP GNU
 < compilerCPPOptions ansi
 < dependency LAPACK
@@ -96,7 +99,7 @@ CPPFAGS += -O3
 )
 
 flavor debug = (
-< group basics
+< base config
 STRIP_COMMAND = gdb-add-index
 < compilerCPPOptions Symbols3
 < compilerCPPOptions Werror
