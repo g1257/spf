@@ -22,11 +22,13 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 		typedef typename PsimagLite::Vector<FieldType>::Type OnePhononType;
 
-		Phonon(SizeType vol,const PsimagLite::String& mcstarttype)
+		Phonon(SizeType vol, PsimagLite::String mcstarttype)
 			: size(vol),
 		      phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
 		{
-			if (mcstarttype=="none") return;
+			if (mcstarttype == "none") return;
+			if (mcstarttype[0] == ':') return;
+
 			IoSimpleIn ioin(mcstarttype);
 
 			ioin.read(phonon,"Phonon");
