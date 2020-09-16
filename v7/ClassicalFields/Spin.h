@@ -25,7 +25,7 @@ namespace Spf {
 		      theta(vol,0),
 		      phi(vol,0),
 		      modulus(vol,1),
-		      isFrozen(params.options.find("frozenspins") != PsimagLite::String::npos)
+		      isFrozen(params.options.find("FreezeSpins") != PsimagLite::String::npos)
 		{
 			if (params.dynvarsfile=="none") return;
 			if (params.dynvarsfile==":random") {
