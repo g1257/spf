@@ -26,8 +26,9 @@ namespace Spf {
 
 		PhononOperations(const GeometryType& geometry,
 		                 const VectorFieldType& mcwindow,
-		                 SizeType windowIndex)
-			: geometry_(geometry),mcwindow_(0),dynVars2_(0,"none")
+		                 SizeType windowIndex,
+		                 PsimagLite::String engineOptions)
+			: geometry_(geometry),mcwindow_(0),dynVars2_(0, "none", engineOptions)
 		{
 			ProgramGlobals::checkMcWindow(mcwindow,windowIndex);
 			mcwindow_ = mcwindow[windowIndex];

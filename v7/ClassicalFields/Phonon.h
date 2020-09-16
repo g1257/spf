@@ -22,9 +22,10 @@ namespace Spf {
 		typedef FieldType_ FieldType;
 		typedef typename PsimagLite::Vector<FieldType>::Type OnePhononType;
 
-		Phonon(SizeType vol, PsimagLite::String mcstarttype)
+		Phonon(SizeType vol, PsimagLite::String mcstarttype, PsimagLite::String options)
 			: size(vol),
-		      phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),isFrozen(false)
+		      phonon(vol, typename PsimagLite::Vector<FieldType>::Type(3)),
+		      isFrozen(options.find("FreezePhonons") != PsimagLite::String::npos)
 		{
 			if (mcstarttype == "none") return;
 			if (mcstarttype[0] == ':') return;
@@ -32,7 +33,6 @@ namespace Spf {
 			IoSimpleIn ioin(mcstarttype);
 
 			ioin.read(phonon,"Phonon");
-			ioin.readline(isFrozen,"IsFrozenPhonon");
 
 			if (phonon.size()==0) throw PsimagLite::RuntimeError("Problem in phonon\n");
 		}

@@ -61,7 +61,10 @@ namespace Spf {
 		  adjustments_(engineParams),
 		  progress_("PhononsTwoOrbitals"),
 		  spinOperations_(geometry_,engineParams_),
-		  phononOperations_(geometry_,engineParams.mcWindow,2)
+		  phononOperations_(geometry_,
+		                    engineParams.mcWindow,
+		                    2,
+		                    engineParams.options)
 		{}
 
 		DynVarsType& dynVars() { return dynVars_; }

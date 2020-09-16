@@ -83,75 +83,75 @@ DISCLOSED WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
 #include "loki/Typelist.h"
 
 namespace Spf {
-	template<typename FieldType,typename GeometryType>
-	class PhononsTwoOrbitalsFields {
+template<typename FieldType,typename GeometryType>
+class PhononsTwoOrbitalsFields {
 
-	public:
+public:
 
-		typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
-		typedef typename SpinOperationsType::SpinType SpinType;
-		typedef PhononOperations<GeometryType,FieldType> PhononOperationsType;
-		typedef typename PhononOperationsType::PhononType PhononType;
+	typedef ClassicalSpinOperations<GeometryType,FieldType> SpinOperationsType;
+	typedef typename SpinOperationsType::SpinType SpinType;
+	typedef PhononOperations<GeometryType,FieldType> PhononOperationsType;
+	typedef typename PhononOperationsType::PhononType PhononType;
 
-		typedef LOKI_TYPELIST_2(SpinOperationsType, PhononOperationsType) OperationsList;
+	typedef LOKI_TYPELIST_2(SpinOperationsType, PhononOperationsType) OperationsList;
 
-		template<typename SomeParamsType>
-		PhononsTwoOrbitalsFields(SizeType vol,const SomeParamsType& params) :
-				spin_(vol,params),phonon_(vol,params.dynvarsfile)
-		{}
+	template<typename SomeParamsType>
+	PhononsTwoOrbitalsFields(SizeType vol,const SomeParamsType& params)
+	    : spin_(vol, params), phonon_(vol, params.dynvarsfile, params.options)
+	{}
 
-		PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) :
-				spin_(spin),phonon_(phonon)
-		{
-		}
-
-		const PsimagLite::String& name(SizeType i) const { return name_[i]; }
-
-		void getField(SpinType const** field,SizeType i) const
-		{
-			assert(i == 0);
-			*field = &spin_;
-		}
-
-		void getField(PhononType const** field,SizeType i) const
-		{
-			assert(i == 1);
-			*field = &phonon_;
-		}
-
-		void getField(SpinType** field,SizeType i)
-		{
-			assert(i == 0);
-			*field = &spin_;
-		}
-
-		void getField(PhononType** field,SizeType i)
-		{
-			assert(i == 1);
-			*field = &phonon_;
-		}
-
-		template<typename FieldType2,typename GeometryType2>
-		friend std::ostream& operator<<(std::ostream& os,
-		          const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
-
-	private:
-		static PsimagLite::Vector<PsimagLite::String>::Type name_;
-		SpinType spin_;
-		PhononType phonon_;
-
-	}; // PhononsTwoOrbitalsFields
-
-	template<typename FieldType,typename GeometryType>
-	std::ostream& operator<<(std::ostream& os,
-	              const PhononsTwoOrbitalsFields<FieldType,GeometryType>& f)
+	PhononsTwoOrbitalsFields(const SpinType& spin,const PhononType& phonon) :
+	    spin_(spin),phonon_(phonon)
 	{
-		os<<f.spin_;
-		os<<f.phonon_;
-		return os;
 	}
-	template<typename FieldType,typename GeometryType>
-	PsimagLite::Vector<PsimagLite::String>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
+
+	const PsimagLite::String& name(SizeType i) const { return name_[i]; }
+
+	void getField(SpinType const** field,SizeType i) const
+	{
+		assert(i == 0);
+		*field = &spin_;
+	}
+
+	void getField(PhononType const** field,SizeType i) const
+	{
+		assert(i == 1);
+		*field = &phonon_;
+	}
+
+	void getField(SpinType** field,SizeType i)
+	{
+		assert(i == 0);
+		*field = &spin_;
+	}
+
+	void getField(PhononType** field,SizeType i)
+	{
+		assert(i == 1);
+		*field = &phonon_;
+	}
+
+	template<typename FieldType2,typename GeometryType2>
+	friend std::ostream& operator<<(std::ostream& os,
+	                                const PhononsTwoOrbitalsFields<FieldType2,GeometryType2>& f);
+
+private:
+	static PsimagLite::Vector<PsimagLite::String>::Type name_;
+	SpinType spin_;
+	PhononType phonon_;
+
+}; // PhononsTwoOrbitalsFields
+
+template<typename FieldType,typename GeometryType>
+std::ostream& operator<<(std::ostream& os,
+                         const PhononsTwoOrbitalsFields<FieldType,GeometryType>& f)
+{
+	os<<f.spin_;
+	os<<f.phonon_;
+	return os;
+}
+template<typename FieldType,typename GeometryType>
+PsimagLite::Vector<PsimagLite::String>::Type PhononsTwoOrbitalsFields<FieldType,GeometryType>::name_(2);
 
 } // namespace Spf
 

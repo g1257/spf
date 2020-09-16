@@ -13,15 +13,15 @@
 #include "Matrix.h" // in PsimagLite
 #include "Fermi.h"// in PsimagLite
 
-/* ****************** ALIAGA'S ALGORITHM ****************************/
-// ADJUST CHEMICAL POTENTIAL FOR DIAGONALIZATION ****************/
+/* ****************** ALIAGA'S ALGORITHM *************************** */
+/* ADJUST CHEMICAL POTENTIAL FOR DIAGONALIZATION *************** */
 
 namespace Spf {
 	template<typename EngineParamsType>
 	class DensityFunctionDiag {
 	public:
 		typedef typename EngineParamsType::RealType RealType;
-		
+
 		DensityFunctionDiag(const EngineParamsType& engineParams,
 						const typename PsimagLite::Vector<RealType>::Type& eig)
 		: engineParams_(engineParams),eig_(eig)
@@ -45,7 +45,7 @@ namespace Spf {
 				sum -= PsimagLite::fermiPrime((eig_[i]-mu)*beta)*beta;
 			return sum;
 		}
-		
+
 		const EngineParamsType& engineParams_;
 		const typename PsimagLite::Vector<RealType>::Type& eig_;
 	}; // DensityFunctionDiag
