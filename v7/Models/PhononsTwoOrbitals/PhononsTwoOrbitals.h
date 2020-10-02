@@ -253,18 +253,6 @@ namespace Spf {
 			return sum;
 		}
 
-		template<typename GreenFunctionType>
-		RealType calcElectronicEnergy(GreenFunctionType& greenFunction) const
-		{
-			RealType sum = 0;
-			for (SizeType i=0;i<hilbertSize_;i++) {
-				RealType g = real(greenFunction(i,i));
-				sum += g*(engineParams_.mu+log(1./g-1.)/engineParams_.beta);
-			}
-			return sum;
-
-		}
-
 		RealType calcKinetic(const DynVarsType& dynVars,
 		                     const typename PsimagLite::Vector<RealType>::Type& eigs) const
 		{
