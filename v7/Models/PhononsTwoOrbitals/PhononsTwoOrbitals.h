@@ -111,7 +111,8 @@ namespace Spf {
 
 			//s = "rankGlobal=";
 
-			temp=calcElectronicEnergy(greenFunction);
+			temp=greenFunction.calcElectronicEnergy();
+			//temp=calcElectronicEnergy(greenFunction);
 			packer.pack("Electronic Energy=",temp);
 
 			RealType temp2=spinOperations_.calcSuperExchange(spinPart, mp_.jaf);
